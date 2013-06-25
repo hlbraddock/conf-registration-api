@@ -120,6 +120,9 @@
 				<groupId>org.jboss.as.plugins</groupId>
 				<artifactId>jboss-as-maven-plugin</artifactId>
 				<version>7.3.Final</version>
+				<configuration>
+					<jbossHome>/opt/jboss-7.2.0.Final</jbossHome>
+				</configuration>
 			</plugin>
 
 			<plugin>
