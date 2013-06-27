@@ -1,15 +1,10 @@
 package org.cru.crs.service;
 
-import java.util.List;
-import java.util.UUID;
+import org.cru.crs.model.ConferenceEntity;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
-import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.ConferenceEntity_;
+import java.util.List;
+import java.util.UUID;
 
 public class ConferenceService
 {
@@ -26,16 +21,9 @@ public class ConferenceService
 				 			.getResultList();
 	}
 
-	public ConferenceEntity fetchConferenceBy(UUID id)
-	{
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		
-		CriteriaQuery<ConferenceEntity> query = builder.createQuery(ConferenceEntity.class);
-		
-		Root<ConferenceEntity> root = query.from(ConferenceEntity.class);
-		
-		query.where(builder.equal(root.get(ConferenceEntity_.id), id));
-		
-		return em.createQuery(query).getSingleResult();
-	}
+	public ConferenceEntity fetchConferenceBy(UUID id) {
+        return em.createQuery("select c from ConferenceEntity c where id = :id", ConferenceEntity.class)
+                .setParameter("id", id)
+                .getSingleResult();
+    }
 }
