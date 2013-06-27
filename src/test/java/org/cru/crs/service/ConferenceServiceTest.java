@@ -7,6 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.cru.crs.model.ConferenceEntity;
+import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -57,5 +58,21 @@ public class ConferenceServiceTest
 		Assert.assertEquals(conference.getId(), java.util.UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 		Assert.assertEquals(conference.getName(), "Northern Michigan Fall Extravaganza");
 		Assert.assertEquals(conference.getTotalSlots(), 80);
+		Assert.assertEquals(conference.getEventStartTime(), createDateTime(2013,8,24,9,32,8));
+		Assert.assertEquals(conference.getEventEndTime(), createDateTime(2013,10,2,1,43,14));
+		Assert.assertEquals(conference.getRegistrationStartTime(), createDateTime(2013,4,10,20,58,35));
+		Assert.assertEquals(conference.getRegistrationEndTime(), createDateTime(2013,5,22,17,53,8));
+	}
+	
+	private DateTime createDateTime(int year, int month, int day, int hour, int minute, int second)
+	{
+		return new DateTime()
+						.withYear(year)
+						.withMonthOfYear(month)
+						.withDayOfMonth(day)
+						.withHourOfDay(hour)
+						.withMinuteOfHour(minute)
+						.withSecondOfMinute(second)
+						.withMillisOfSecond(0);
 	}
 }
