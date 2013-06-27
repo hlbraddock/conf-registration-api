@@ -56,6 +56,6 @@ public class ConferenceServiceTest
 		
 		Assert.assertEquals(conference.getId(), java.util.UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 		Assert.assertEquals(conference.getName(), "Northern Michigan Fall Extravaganza");
-//		Assert.assertTrue(conference.getPages().getArray() > 0);
+		Assert.assertEquals(conference.getTotalSlots(), 80);
 	}
 }
