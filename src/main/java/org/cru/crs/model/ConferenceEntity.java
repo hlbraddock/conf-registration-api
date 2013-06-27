@@ -1,14 +1,12 @@
 package org.cru.crs.model;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
-import org.postgresql.jdbc4.Jdbc4Array;
+import org.joda.time.DateTime;
 
 /**
  * Entity class which represents data about a Cru conference.
@@ -31,16 +29,20 @@ public class ConferenceEntity implements java.io.Serializable
 	private String name;
 
 	@Column(name = "EVENT_START_TIME")
-	private Date eventStartTime;
+	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+	private DateTime eventStartTime;
 	
 	@Column(name = "EVENT_END_TIME")
-	private Date eventEndTime;
+	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+	private DateTime eventEndTime;
 	
 	@Column(name = "REGISTRATION_START_TIME")
-	private Date registrationStartTime;
+	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+	private DateTime registrationStartTime;
 	
 	@Column(name = "REGISTRATION_END_TIME")
-	private Date registrationEndTime;
+	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+	private DateTime registrationEndTime;
 	
 	@Column(name = "TOTAL_SLOTS")
 	private int totalSlots;
@@ -69,42 +71,42 @@ public class ConferenceEntity implements java.io.Serializable
 		this.name = name;
 	}
 
-	public Date getEventStartTime()
+	public DateTime getEventStartTime()
 	{
 		return eventStartTime;
 	}
 
-	public void setEventStartTime(Date eventStartTime)
+	public void setEventStartTime(DateTime eventStartTime)
 	{
 		this.eventStartTime = eventStartTime;
 	}
 
-	public Date getEventEndTime()
+	public DateTime getEventEndTime()
 	{
 		return eventEndTime;
 	}
 
-	public void setEventEndTime(Date eventEndTime)
+	public void setEventEndTime(DateTime eventEndTime)
 	{
 		this.eventEndTime = eventEndTime;
 	}
 
-	public Date getRegistrationStartTime()
+	public DateTime getRegistrationStartTime()
 	{
 		return registrationStartTime;
 	}
 
-	public void setRegistrationStartTime(Date registrationStartTime)
+	public void setRegistrationStartTime(DateTime registrationStartTime)
 	{
 		this.registrationStartTime = registrationStartTime;
 	}
 
-	public Date getRegistrationEndTime()
+	public DateTime getRegistrationEndTime()
 	{
 		return registrationEndTime;
 	}
 
-	public void setRegistrationEndTime(Date registrationEndTime)
+	public void setRegistrationEndTime(DateTime registrationEndTime)
 	{
 		this.registrationEndTime = registrationEndTime;
 	}

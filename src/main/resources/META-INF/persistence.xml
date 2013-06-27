@@ -7,6 +7,7 @@
 		<jta-data-source>java:jboss/datasources/crsLocalDS</jta-data-source>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+			<property name="jadira.usertype.autoRegisterUserTypes" value="true" />
 		</properties>
 	</persistence-unit>
 	
@@ -18,6 +19,7 @@
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost/crsdb" />
             <property name="javax.persistence.jdbc.user" value="crsuser" />
             <property name="javax.persistence.jdbc.password" value="crsuser" />
+            <property name="jadira.usertype.autoRegisterUserTypes" value="true" />
 		</properties>
 	</persistence-unit>
 </persistence>
