@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
+import org.postgresql.jdbc4.Jdbc4Array;
 
 /**
  * Entity class which represents data about a Cru conference.
@@ -29,6 +30,10 @@ public class ConferenceEntity implements java.io.Serializable
 	@Column(name = "NAME")
 	private String name;
 	
+	@Column(name = "PAGES")
+	@Type(type="org.cru.crs.utils.CustomArrayType")
+	private Jdbc4Array pages;
+
 	@Column(name = "EVENT_START_TIME")
 	private Date eventStartTime;
 	
@@ -68,6 +73,16 @@ public class ConferenceEntity implements java.io.Serializable
 		this.name = name;
 	}
 
+	public Jdbc4Array getPages()
+	{
+		return pages;
+	}
+
+	public void setPages(Jdbc4Array pages)
+	{
+		this.pages = pages;
+	}
+	
 	public Date getEventStartTime()
 	{
 		return eventStartTime;
