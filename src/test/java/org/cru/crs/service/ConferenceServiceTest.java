@@ -46,6 +46,12 @@ public class ConferenceServiceTest
 		Assert.assertNotNull(allConferences);
 		Assert.assertFalse(allConferences.isEmpty());
 		Assert.assertEquals(allConferences.size(),10);
+		
+		for(ConferenceEntity conference : allConferences)
+		{
+			Assert.assertNotNull(conference.getName());
+			Assert.assertNotNull(conference.getId());
+		}
 	}
 	
 	@Test
