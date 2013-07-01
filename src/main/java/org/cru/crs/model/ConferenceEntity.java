@@ -1,5 +1,7 @@
 package org.cru.crs.model;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -23,7 +25,7 @@ public class ConferenceEntity implements java.io.Serializable
 	@Id
 	@Column(name = "ID")
 	@Type(type="pg-uuid")
-	private java.util.UUID id;
+	private UUID id;
 	
 	@Column(name = "NAME")
 	private String name;
@@ -49,14 +51,14 @@ public class ConferenceEntity implements java.io.Serializable
 	
 	@Column(name = "CONTACT_USER")
 	@Type(type="pg-uuid")
-	private java.util.UUID contactUser;
+	private UUID contactUser;
 
-	public java.util.UUID getId()
+	public UUID getId()
 	{
 		return id;
 	}
 
-	public void setId(java.util.UUID id)
+	public void setId(UUID id)
 	{
 		this.id = id;
 	}
@@ -121,12 +123,12 @@ public class ConferenceEntity implements java.io.Serializable
 		this.totalSlots = totalSlots;
 	}
 
-	public java.util.UUID getContactUser()
+	public UUID getContactUser()
 	{
 		return contactUser;
 	}
 
-	public void setContactUser(java.util.UUID contactUser)
+	public void setContactUser(UUID contactUser)
 	{
 		this.contactUser = contactUser;
 	}
