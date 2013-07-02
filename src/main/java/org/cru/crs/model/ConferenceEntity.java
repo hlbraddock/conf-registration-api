@@ -1,10 +1,17 @@
 package org.cru.crs.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -30,6 +37,11 @@ public class ConferenceEntity implements java.io.Serializable
 	@Column(name = "NAME")
 	private String name;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "conference_id", nullable = false)
+    @OrderColumn(name = "position", nullable = false)
+	private List<PageEntity> pages;// = new ArrayList<PageEntity>();
+	
 	@Column(name = "EVENT_START_TIME")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime eventStartTime;
@@ -131,6 +143,16 @@ public class ConferenceEntity implements java.io.Serializable
 	public void setContactUser(UUID contactUser)
 	{
 		this.contactUser = contactUser;
+	}
+
+	public List<PageEntity> getPages()
+	{
+		return pages;
+	}
+
+	public void setPages(List<PageEntity> pages)
+	{
+		this.pages = pages;
 	}
 	
 }
