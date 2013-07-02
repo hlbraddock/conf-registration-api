@@ -4,6 +4,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
+
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.utils.DateTimeCreaterHelper;
@@ -23,6 +26,7 @@ import org.testng.annotations.Test;
 public class ConferenceResourceFunctionalTest
 {
 	static final String RESOURCE_PREFIX = "rest";
+	static final String PERSISTENCE_UNIT_NAME = "crsLocalTest";
 	
 	Environment environment = Environment.LOCAL;
 	ConferenceResourceClient conferenceClient;
@@ -69,6 +73,11 @@ public class ConferenceResourceFunctionalTest
 		
 		Assert.assertEquals(response.getStatus(), 201);
 		Assert.assertTrue(header.contains("http://localhost:8080/crs-http-json-api/rest/conferences/"));
+		
+		/**FIXME: this doesn't quite work yet b/c we don't have access to the confernce ID*/ 
+		EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		cleanupEm.remove(fakeConference);
+		
 	}
 
 	private ConferenceEntity createFakeConference()
