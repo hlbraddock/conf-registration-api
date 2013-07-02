@@ -1,10 +1,12 @@
 package org.cru.crs.api;
 
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.UUID;
 
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
@@ -53,5 +55,33 @@ public class ConferenceResourceFunctionalTest
 		
 		Assert.assertNotNull(conference);
 	}
+	
+	/**
+	 * TODO: method needs to clean up after itself
+	 * @throws URISyntaxException
+	 */
+	@Test
+	public void createConference() throws URISyntaxException
+	{
+		ConferenceEntity fakeConference = createFakeConference();
+		ClientResponse<ConferenceEntity> response = conferenceClient.createConference(fakeConference);
+		String header = response.getHeaderAsLink("Location").getHref();
+		
+		Assert.assertEquals(response.getStatus(), 201);
+		Assert.assertTrue(header.contains("http://localhost:8080/crs-http-json-api/rest/conferences/"));
+	}
 
+	private ConferenceEntity createFakeConference()
+	{
+		ConferenceEntity fakeConference = new ConferenceEntity();
+		fakeConference.setContactUser(UUID.randomUUID());
+		fakeConference.setName("Fake Fall Retreat");
+		fakeConference.setTotalSlots(202);
+		fakeConference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 6, 1, 8, 0, 0));
+		fakeConference.setRegistrationEndTime(DateTimeCreaterHelper.createDateTime(2013, 6, 22, 23, 59, 59));
+		fakeConference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 7, 4, 15, 0, 0));
+		fakeConference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 7, 9, 11, 0, 0));
+		
+		return fakeConference;
+	}
 }
