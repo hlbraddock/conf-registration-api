@@ -27,7 +27,20 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ConferenceEntity> getConferences()
 	{
-		return new ConferenceService(em).fetchAllConferences();
+		List<ConferenceEntity> conferences = new ConferenceService(em).fetchAllConferences();
+		for(ConferenceEntity conference : conferences)
+		{
+			conference = ConferenceOptimizer.removePagesFromConference(conference);
+		}
+		return conferences;
+	}
+	
+	@GET
+	@Path("/{conferenceId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ConferenceEntity getConference(@PathParam(value = "conferenceId") UUID conferenceId)
+	{
+		return new ConferenceService(em).fetchConferenceBy(conferenceId);
 	}
 	
 }

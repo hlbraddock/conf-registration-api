@@ -21,8 +21,9 @@ public class ConferenceService
 				 			.getResultList();
 	}
 
-	public ConferenceEntity fetchConferenceBy(UUID id) {
-        return em.createQuery("select c from ConferenceEntity c where id = :id", ConferenceEntity.class)
+	public ConferenceEntity fetchConferenceBy(UUID id)
+	{
+        return em.createQuery("SELECT conf FROM ConferenceEntity conf WHERE conf.id = :id", ConferenceEntity.class)
                 .setParameter("id", id)
                 .getSingleResult();
     }

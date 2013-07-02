@@ -55,6 +55,9 @@ public class ConferenceServiceTest
 	}
 	
 	@Test
+	/**
+	 * This test currently breaks on Mac b/c of the time offset issue
+	 */
 	public void fetchConferenceById()
 	{
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(java.util.UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
@@ -68,6 +71,22 @@ public class ConferenceServiceTest
 		Assert.assertEquals(conference.getEventEndTime(), createDateTime(2013,10,2,1,43,14));
 		Assert.assertEquals(conference.getRegistrationStartTime(), createDateTime(2013,4,10,20,58,35));
 		Assert.assertEquals(conference.getRegistrationEndTime(), createDateTime(2013,5,22,17,53,8));
+	}
+	
+	@Test
+	public void checkPageFetch()
+	{
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(java.util.UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+		
+		Assert.assertNotNull(conference);
+		
+		Assert.assertNotNull(conference.getPages());
+		Assert.assertFalse(conference.getPages().isEmpty());
+		Assert.assertEquals(conference.getPages().size(), 3);
+
+		Assert.assertEquals(conference.getPages().get(0).getName(), "Lorem ipsum dolor sit");
+		Assert.assertEquals(conference.getPages().get(1).getName(), "Lorem ipsum dolor sit amet, consectetuer");
+		Assert.assertEquals(conference.getPages().get(2).getName(), "Lorem ipsum dolor sit amet,");
 	}
 	
 	private DateTime createDateTime(int year, int month, int day, int hour, int minute, int second)
