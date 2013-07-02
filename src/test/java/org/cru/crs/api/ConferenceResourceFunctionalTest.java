@@ -1,6 +1,7 @@
 package org.cru.crs.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.model.ConferenceEntity;
@@ -41,4 +42,16 @@ public class ConferenceResourceFunctionalTest
 		
 		Assert.assertNotNull(conferences);
 	}
+	
+	@Test
+	public void fetchConferenceById()
+	{
+		ClientResponse<ConferenceEntity> response = conferenceClient.getConference(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+		
+		Assert.assertEquals(response.getStatus(), 200);
+		ConferenceEntity conference = response.getEntity();
+		
+		Assert.assertNotNull(conference);
+	}
+
 }
