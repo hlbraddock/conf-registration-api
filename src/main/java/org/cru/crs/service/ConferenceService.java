@@ -27,4 +27,9 @@ public class ConferenceService
                 .setParameter("id", id)
                 .getSingleResult();
     }
+	
+	public void createNewConference(ConferenceEntity newConference)
+	{
+		em.persist(newConference);
+	}
 }
