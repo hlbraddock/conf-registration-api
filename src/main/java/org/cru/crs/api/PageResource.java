@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
@@ -21,6 +22,7 @@ import org.cru.crs.service.PageService;
 
 import com.google.common.base.Preconditions;
 
+@Stateless
 @Path("/conferences/{conferenceId}/pages")
 public class PageResource
 {
