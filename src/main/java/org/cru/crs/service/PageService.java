@@ -29,4 +29,9 @@ public class PageService
 	{
 		em.merge(pageToUpdate);
 	}
+	
+	public void deletePage(PageEntity pageToDelete)
+	{
+		em.remove(fetchPageBy(pageToDelete.getConferenceId()));
+	}
 }
