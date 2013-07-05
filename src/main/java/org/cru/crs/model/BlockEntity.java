@@ -34,7 +34,7 @@ public class BlockEntity implements java.io.Serializable
 	@Column(name = "ADMIN_ONLY")
 	private boolean adminOnly;
 	
-	@Column(name = "BLOCK_DESCIPTION")
+	@Column(name = "BLOCK_DESCRIPTION")
 	private String blockDescription;
 
 	public UUID getId()

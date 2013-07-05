@@ -1,10 +1,16 @@
 package org.cru.crs.model;
 
+import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -29,6 +35,11 @@ public class PageEntity implements java.io.Serializable
 	
 	@Column(name = "POSITION")
 	private int position;
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "page_id", nullable = false)
+    @OrderColumn(name = "position", nullable = false)
+	private List<BlockEntity> blocks;
 
 	public UUID getId()
 	{
@@ -68,6 +79,16 @@ public class PageEntity implements java.io.Serializable
 	public void setPosition(int position)
 	{
 		this.position = position;
+	}
+	
+	public List<BlockEntity> getBlocks()
+	{
+		return blocks;
+	}
+
+	public void setBlocks(List<BlockEntity> blocks)
+	{
+		this.blocks = blocks;
 	}
 	
 }

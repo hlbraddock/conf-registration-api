@@ -1,6 +1,5 @@
 package org.cru.crs.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +39,7 @@ public class ConferenceEntity implements java.io.Serializable
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "conference_id", nullable = false)
     @OrderColumn(name = "position", nullable = false)
-	private List<PageEntity> pages;// = new ArrayList<PageEntity>();
+	private List<PageEntity> pages;
 	
 	@Column(name = "EVENT_START_TIME")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")

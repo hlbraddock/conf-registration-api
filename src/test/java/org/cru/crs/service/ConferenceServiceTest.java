@@ -82,9 +82,21 @@ public class ConferenceServiceTest
 		Assert.assertFalse(conference.getPages().isEmpty());
 		Assert.assertEquals(conference.getPages().size(), 3);
 
-		Assert.assertEquals(conference.getPages().get(0).getName(), "Lorem ipsum dolor sit");
-		Assert.assertEquals(conference.getPages().get(1).getName(), "Lorem ipsum dolor sit amet, consectetuer");
-		Assert.assertEquals(conference.getPages().get(2).getName(), "Lorem ipsum dolor sit amet,");
+		Assert.assertEquals(conference.getPages().get(0).getName(), "About you");
+		Assert.assertEquals(conference.getPages().get(1).getName(), "Ministry preferences");
+		Assert.assertEquals(conference.getPages().get(2).getName(), "Hobbies and activities");
+	}
+	
+	@Test
+	public void checkBlockFetch()
+	{
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+		
+		Assert.assertNotNull(conference);
+
+		Assert.assertEquals(conference.getPages().get(0).getName(), "About you");
+	
+		Assert.assertNotNull(conference.getPages().get(0).getBlocks().get(0).getBlockType(), "Foo");
 	}
 	
 	@Test
