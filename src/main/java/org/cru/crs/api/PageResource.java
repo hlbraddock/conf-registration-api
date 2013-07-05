@@ -28,14 +28,14 @@ public class PageResource
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getPage(@PathParam(value="pageId") String pageId)
+	public Response getPage(@PathParam(value="pageId") UUID pageId)
 	{
-		return Response.ok(new PageService(em).fetchPageBy(UUID.fromString(pageId))).build();
+		return Response.ok(new PageService(em).fetchPageBy(pageId)).build();
 	}
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updatePage(PageEntity page, @PathParam(value="pageId") String pageId)
+	public Response updatePage(PageEntity page, @PathParam(value="pageId") UUID pageId)
 	{
 		Preconditions.checkNotNull(page.getId());
 		
@@ -46,7 +46,7 @@ public class PageResource
 	
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deletePage(PageEntity page, @PathParam(value="pageId") String pageId)
+	public Response deletePage(PageEntity page, @PathParam(value="pageId") UUID pageId)
 	{
 		Preconditions.checkNotNull(page.getId());
 		
