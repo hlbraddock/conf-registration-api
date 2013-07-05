@@ -37,4 +37,5 @@ public class ConferenceService
 	{
 		em.merge(conferenceToUpdate);
 	}
+
 }
