@@ -47,8 +47,9 @@ public class PageResource
 	}
 	
 	@PUT
+	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updatePage(PageEntity page)
+	public Response updatePage(PageEntity page, @PathParam(value="pageId") String pageId)
 	{
 		Preconditions.checkNotNull(page.getId());
 		
@@ -58,8 +59,9 @@ public class PageResource
 	}
 	
 	@DELETE
+	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deletePage(PageEntity page)
+	public Response deletePage(PageEntity page, @PathParam(value="pageId") String pageId)
 	{
 		Preconditions.checkNotNull(page.getId());
 		

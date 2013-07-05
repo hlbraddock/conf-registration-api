@@ -23,11 +23,14 @@ public interface PageResourceClient
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") String conferenceId) throws URISyntaxException;	
+	
 	@PUT
+	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updatePage(PageEntity page);
+	public Response updatePage(PageEntity page, @PathParam(value="pageId") String pageId);
 	
 	@DELETE
+	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deletePage(PageEntity page);
+	public Response deletePage(PageEntity page, @PathParam(value="pageId") String pageId);
 }
