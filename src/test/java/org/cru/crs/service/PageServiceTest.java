@@ -47,7 +47,6 @@ public class PageServiceTest
 		Assert.assertEquals(page.getName(), "About you");
 		Assert.assertEquals(page.getPosition(), 0);
 		Assert.assertEquals(page.getConferenceId(), UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
-		//		Assert.assertEquals(page.getBlocks())
 	}
 
 	@Test
