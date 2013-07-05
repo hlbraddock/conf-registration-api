@@ -32,6 +32,6 @@ public class PageService
 	
 	public void deletePage(PageEntity pageToDelete)
 	{
-		em.remove(fetchPageBy(pageToDelete.getConferenceId()));
+		em.remove(pageToDelete);
 	}
 }
