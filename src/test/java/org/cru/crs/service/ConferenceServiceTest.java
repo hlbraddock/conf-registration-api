@@ -1,6 +1,7 @@
 package org.cru.crs.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -55,16 +56,13 @@ public class ConferenceServiceTest
 	}
 	
 	@Test
-	/**
-	 * This test currently breaks on Mac b/c of the time offset issue
-	 */
 	public void fetchConferenceById()
 	{
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(java.util.UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 		
 		Assert.assertNotNull(conference);
 		
-		Assert.assertEquals(conference.getId(), java.util.UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+		Assert.assertEquals(conference.getId(), UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 		Assert.assertEquals(conference.getName(), "Northern Michigan Fall Extravaganza");
 		Assert.assertEquals(conference.getTotalSlots(), 80);
 		Assert.assertEquals(conference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2013,8,24,9,32,8));
@@ -76,7 +74,7 @@ public class ConferenceServiceTest
 	@Test
 	public void checkPageFetch()
 	{
-		ConferenceEntity conference = conferenceService.fetchConferenceBy(java.util.UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 		
 		Assert.assertNotNull(conference);
 		
@@ -89,5 +87,22 @@ public class ConferenceServiceTest
 		Assert.assertEquals(conference.getPages().get(2).getName(), "Lorem ipsum dolor sit amet,");
 	}
 	
+	@Test
+	public void testUpdateConference()
+	{
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("1cfa829f-2c3a-f803-a966-9a6510ee2f33"));
+		
+		Assert.assertEquals(conference.getName(), "NC State Wolfpack Camp");
+		
+		conference.setName("NCSU Wolfpack Camp");
+		
+		conferenceService.updateConference(conference);
+		
+		ConferenceEntity updatedConference = conferenceService.fetchConferenceBy(UUID.fromString("1cfa829f-2c3a-f803-a966-9a6510ee2f33"));
+		Assert.assertEquals(updatedConference.getName(), "NCSU Wolfpack Camp");
+		
+		updatedConference.setName("NC State Wolfpack Camp");
+		conferenceService.updateConference(updatedConference);
+	}
 	
 }
