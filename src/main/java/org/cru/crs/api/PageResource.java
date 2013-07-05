@@ -27,7 +27,7 @@ public class PageResource
 	@Inject EntityManager em;
 	
 	@GET
-	@Path("/{pageId")
+	@Path("/{pageId}")
 	public Response getPage(@PathParam(value="pageId") String pageId)
 	{
 		return Response.ok(new PageService(em).fetchPageBy(UUID.fromString(pageId))).build();

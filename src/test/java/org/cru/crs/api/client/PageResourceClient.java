@@ -17,7 +17,7 @@ import org.cru.crs.model.PageEntity;
 public interface PageResourceClient
 {
 	@GET
-	@Path("/{pageId")
+	@Path("/{pageId}")
 	public Response getPage(@PathParam(value="pageId") String pageId);
 	
 	@POST
