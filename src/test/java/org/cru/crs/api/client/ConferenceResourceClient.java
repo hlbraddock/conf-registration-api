@@ -12,8 +12,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PageEntity;
 import org.jboss.resteasy.client.ClientResponse;
 
 @Path("/conferences")
@@ -38,4 +40,9 @@ public interface ConferenceResourceClient
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public ClientResponse<ConferenceEntity> updateConference(ConferenceEntity conference, @PathParam(value = "conferenceId") String conferenceId);
+	
+	@POST
+	@Path("/{conferenceId}/pages")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") String conferenceId) throws URISyntaxException;
 }

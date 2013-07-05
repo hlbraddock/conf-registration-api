@@ -20,7 +20,9 @@ import javax.ws.rs.core.Response;
 
 import org.cru.crs.api.optimizer.ConferenceOptimizer;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.PageService;
 
 import com.google.common.base.Preconditions;
 
@@ -109,4 +111,17 @@ public class ConferenceResource
 		return Response.noContent().build();
 	}
 	
+	@POST
+	@Path("/{conferenceId}/pages")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") String conferenceId) throws URISyntaxException
+	{
+		Preconditions.checkState(newPage.getId() == null);
+
+		newPage.setId(UUID.randomUUID());
+		
+		new PageService(em).createNewPage(newPage);
+		
+		return Response.created(new URI("/pages/" + newPage.getId())).build();
+	}
 }
