@@ -32,4 +32,9 @@ public class ConferenceService
 	{
 		em.persist(newConference);
 	}
+	
+	public void updateConference(ConferenceEntity conferenceToUpdate)
+	{
+		em.merge(conferenceToUpdate);
+	}
 }
