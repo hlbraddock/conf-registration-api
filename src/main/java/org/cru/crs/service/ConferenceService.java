@@ -23,9 +23,7 @@ public class ConferenceService
 
 	public ConferenceEntity fetchConferenceBy(UUID id)
 	{
-        return em.createQuery("SELECT conf FROM ConferenceEntity conf WHERE conf.id = :id", ConferenceEntity.class)
-                .setParameter("id", id)
-                .getSingleResult();
+        return em.find(ConferenceEntity.class, id);
     }
 	
 	public void createNewConference(ConferenceEntity newConference)

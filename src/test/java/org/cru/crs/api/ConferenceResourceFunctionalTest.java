@@ -9,6 +9,7 @@ import javax.persistence.Persistence;
 
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;
@@ -128,6 +129,64 @@ public class ConferenceResourceFunctionalTest
 		removeFakeConference(conferenceIdString);
 	}
 	
+	@Test
+	public void addPageToConference() throws URISyntaxException 
+	{
+		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		
+		//do this pre-check b/c JPA doesn't always do the delete correctly.  the last test might not have
+		//cleaned up after itself
+		removeAddedPage(setupEm);
+		
+		PageEntity newPage = createFakePage();
+		
+		try
+		{
+			ClientResponse<ConferenceEntity> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+
+			//status code, 201-Created
+			Assert.assertEquals(response.getStatus(), 201);
+
+			ConferenceEntity conference = setupEm.find(ConferenceEntity.class, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+
+			Assert.assertEquals(conference.getPages().size(), 2);
+			Assert.assertEquals(conference.getPages().get(1).getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
+		}
+		finally
+		{
+			removeAddedPage(setupEm);
+			setupEm.close();
+
+		}
+	}
+
+	@Test
+	public void addPageToBogusConference() throws URISyntaxException
+	{
+		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		
+		try
+		{
+			//do this pre-check b/c JPA doesn't always do the delete correctly.  the last test might not have
+			//cleaned up after itself
+			removeAddedPage(setupEm);
+
+			PageEntity newPage = createFakePage();
+			newPage.setConferenceId(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
+
+			ClientResponse<ConferenceEntity> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
+
+			//status code, 400-Bad Request
+			Assert.assertEquals(response.getStatus(), 400);
+
+			Assert.assertNull(setupEm.find(PageEntity.class, newPage.getId()));
+		}
+		finally
+		{
+			setupEm.close();
+		}
+	}
+	
 	private void removeFakeConference(String conferenceIdString)
 	{
 		EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
@@ -135,9 +194,22 @@ public class ConferenceResourceFunctionalTest
 		
 		cleanupEm.getTransaction().begin();
 		cleanupEm.remove(fakeFoundConference);
+		cleanupEm.flush();
 		cleanupEm.getTransaction().commit();
+		cleanupEm.close();
 	}
 
+	private void removeAddedPage(EntityManager setupEm)
+	{
+		PageEntity pageToDelete = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
+		if(pageToDelete == null) return;
+		
+		setupEm.getTransaction().begin();
+		setupEm.remove(pageToDelete);
+		setupEm.flush();
+		setupEm.getTransaction().commit();
+	}
+	
 	private ConferenceEntity createFakeConference()
 	{
 		ConferenceEntity fakeConference = new ConferenceEntity();
@@ -150,5 +222,18 @@ public class ConferenceResourceFunctionalTest
 		fakeConference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 7, 9, 11, 0, 0));
 		
 		return fakeConference;
+	}
+	
+	private PageEntity createFakePage()
+	{
+		PageEntity fakePage = new PageEntity();
+		
+		fakePage.setName("Ministry Prefs");
+		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
+		fakePage.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
+		fakePage.setPosition(1);
+		fakePage.setBlocks(null);
+		
+		return fakePage;
 	}
 }
