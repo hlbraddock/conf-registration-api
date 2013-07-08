@@ -47,14 +47,14 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePage(PageEntity page, @PathParam(value="pageId") UUID pageId)
 	{
-		Preconditions.checkNotNull(page.getId());
+		Preconditions.checkNotNull(pageId);
 		
 		PageService pageService = new PageService(em);
 		
 		if(pageService.fetchPageBy(pageId) == null)
 		{
-			ConferenceService conferenceService = new ConferenceService(em);
-			ConferenceEntity conference = conferenceService.fetchConferenceBy(page.getConferenceId());
+			ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(page.getConferenceId());
+			
 			if(conference != null)
 			{
 				conference.getPages().add(page);

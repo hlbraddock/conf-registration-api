@@ -93,6 +93,11 @@ public class PageResourceFunctionalTest
 		}
 	}
 
+	/**
+	 * This test tests the fact that a PUT for a page with an ID that does not yet exist should just
+	 * create the new page.  However, if it tries to associate it to a conference that doesn't exist,
+	 * then we should get back 
+	 */
 	@Test
 	public void updatePageWhichDoesNotExist()
 	{
@@ -123,6 +128,23 @@ public class PageResourceFunctionalTest
 				setupEm.getTransaction().commit();
 			}
 		}
+	}
+	
+	/**
+	 * Trying to update a page on a conference that does not exist should return a 400
+	 * Bad request error.
+	 */
+	public void updatePageWhichDoesNotExistOnConferenceThatDoesNotExist()
+	{		
+		PageEntity page = createFakePage();
+
+		//now change the conference ID to one that does not exist
+		page.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa61"));
+
+		ClientResponse<PageEntity> response = pageClient.updatePage(page, page.getId());
+
+		//check the response, 400-Bad Request
+		Assert.assertEquals(response.getStatus(), 400);
 	}
 
 	private PageEntity createFakePage()
