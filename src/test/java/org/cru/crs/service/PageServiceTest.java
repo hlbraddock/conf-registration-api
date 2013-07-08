@@ -106,7 +106,7 @@ public class PageServiceTest
 		
 		em.persist(page);
 		
-//		pageService.deletePage(page);
+		pageService.deletePage(page);
 		
 		Assert.assertNull(em.find(PageEntity.class, page.getId()));
 	}

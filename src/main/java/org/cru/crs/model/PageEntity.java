@@ -1,5 +1,6 @@
 package org.cru.crs.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,10 +37,10 @@ public class PageEntity implements java.io.Serializable
 	@Column(name = "POSITION")
 	private int position;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(cascade =CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "page_id", nullable = false)
     @OrderColumn(name = "position", nullable = false)
-	private List<BlockEntity> blocks;
+	private List<BlockEntity> blocks = new ArrayList<BlockEntity>();
 
 	public UUID getId()
 	{

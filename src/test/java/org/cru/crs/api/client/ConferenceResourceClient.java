@@ -20,7 +20,6 @@ import org.jboss.resteasy.client.ClientResponse;
 public interface ConferenceResourceClient
 {
 	@GET
-	@Path("")
 	@Produces(MediaType.APPLICATION_JSON)
 	public ClientResponse<List<ConferenceEntity>> getConferences();
 	
@@ -30,7 +29,6 @@ public interface ConferenceResourceClient
 	public ClientResponse<ConferenceEntity> getConference(@PathParam(value = "conferenceId") UUID conferenceId);
 	
 	@POST
-	@Path("")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public ClientResponse<ConferenceEntity> createConference(ConferenceEntity conference)throws URISyntaxException;
 	

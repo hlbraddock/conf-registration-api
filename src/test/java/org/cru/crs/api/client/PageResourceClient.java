@@ -1,36 +1,34 @@
 package org.cru.crs.api.client;
 
-import java.net.URISyntaxException;
+import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.cru.crs.model.PageEntity;
+import org.jboss.resteasy.client.ClientResponse;
 
+@Path("/pages")
 public interface PageResourceClient
 {
 	@GET
 	@Path("/{pageId}")
-	public Response getPage(@PathParam(value="pageId") String pageId);
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") String conferenceId) throws URISyntaxException;	
+	@Produces(MediaType.APPLICATION_JSON)
+	public ClientResponse<PageEntity> getPage(@PathParam(value="pageId") UUID pageId);
 	
 	@PUT
 	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updatePage(PageEntity page, @PathParam(value="pageId") String pageId);
+	public ClientResponse<PageEntity> updatePage(PageEntity page, @PathParam(value="pageId") UUID pageId);
 	
 	@DELETE
 	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deletePage(PageEntity page, @PathParam(value="pageId") String pageId);
+	public ClientResponse<PageEntity> deletePage(PageEntity page, @PathParam(value="pageId") UUID pageId);
 }

@@ -1,7 +1,5 @@
 package org.cru.crs.api;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 import javax.ejb.Stateless;
@@ -10,12 +8,13 @@ import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.PageService;
@@ -23,47 +22,39 @@ import org.cru.crs.service.PageService;
 import com.google.common.base.Preconditions;
 
 @Stateless
-@Path("/conferences/{conferenceId}/pages")
+@Path("/pages")
 public class PageResource
 {
 	@Inject EntityManager em;
 	
 	@GET
 	@Path("/{pageId}")
-	public Response getPage(@PathParam(value="pageId") String pageId)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPage(@PathParam(value="pageId") UUID pageId)
 	{
-		return Response.ok(new PageService(em).fetchPageBy(UUID.fromString(pageId))).build();
-	}
-	
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") String conferenceId) throws URISyntaxException
-	{
-		Preconditions.checkState(newPage.getId() == null);
-
-		newPage.setId(UUID.randomUUID());
+		PageEntity requestedPage = new PageService(em).fetchPageBy(pageId);
 		
-		new PageService(em).createNewPage(newPage);
+		if(requestedPage == null) return Response.status(Status.NOT_FOUND).build();
 		
-		return Response.created(new URI("/confereneces/" + conferenceId + "/pages/" + newPage.getId())).build();
+		return Response.ok(requestedPage).build();
 	}
 	
 	@PUT
 	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updatePage(PageEntity page, @PathParam(value="pageId") String pageId)
+	public Response updatePage(PageEntity page, @PathParam(value="pageId") UUID pageId)
 	{
 		Preconditions.checkNotNull(page.getId());
 		
 		new PageService(em).updatePage(page);
-				
+		
 		return Response.noContent().build();
 	}
 	
 	@DELETE
 	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deletePage(PageEntity page, @PathParam(value="pageId") String pageId)
+	public Response deletePage(PageEntity page, @PathParam(value="pageId") UUID pageId)
 	{
 		Preconditions.checkNotNull(page.getId());
 		
