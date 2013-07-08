@@ -23,7 +23,6 @@ import org.cru.crs.api.optimizer.ConferenceOptimizer;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
-import org.cru.crs.service.PageService;
 
 import com.google.common.base.Preconditions;
 
@@ -121,11 +120,13 @@ public class ConferenceResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
-		Preconditions.checkState(newPage.getId() == null);
-
-		newPage.setId(UUID.randomUUID());
+		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
 		
-		new PageService(em).createNewPage(newPage);
+		ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(conferenceId);
+		
+		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+		
+		conference.getPages().add(newPage);
 		
 		return Response.created(new URI("/confereneces/" + conferenceId + "/pages/" + newPage.getId())).build();
 	}

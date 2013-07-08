@@ -57,7 +57,6 @@ public class PageResourceFunctionalTest
 	public void updatePage()
 	{
 		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-//		
 		
 		try
 		{
