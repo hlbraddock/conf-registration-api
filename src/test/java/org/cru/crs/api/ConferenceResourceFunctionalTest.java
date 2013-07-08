@@ -114,7 +114,7 @@ public class ConferenceResourceFunctionalTest
 		createClient();
 		
 		/*call the update endpoint*/
-		ClientResponse<ConferenceEntity> updateResponse = conferenceClient.updateConference(fakeConference);
+		ClientResponse<ConferenceEntity> updateResponse = conferenceClient.updateConference(fakeConference, conferenceIdString);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
 		/*get a fresh client*/

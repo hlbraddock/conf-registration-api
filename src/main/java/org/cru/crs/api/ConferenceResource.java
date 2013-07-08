@@ -90,13 +90,17 @@ public class ConferenceResource
 	/**
 	 * Updates an existing conference
 	 * 
+	 * Accepts conference ID as a path parameter, but not sure how to use that at first.  It seems
+	 * reasonable to assume the conference entity has the ID in it already.
+	 * 
 	 * Preconditions: the conference already exists and therefore has a valid Id.
 	 * @param conference
 	 * @return
 	 */
 	@PUT
+	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateConference(ConferenceEntity conference)
+	public Response updateConference(ConferenceEntity conference, @PathParam(value = "conferenceId") String conferenceId)
 	{
 		Preconditions.checkNotNull(conference.getId());
 		
