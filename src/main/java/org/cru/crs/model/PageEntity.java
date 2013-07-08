@@ -27,14 +27,14 @@ public class PageEntity implements java.io.Serializable
 	@Type(type="pg-uuid")
 	private UUID id;
 	
-	@Column
+	@Column(name = "NAME")
 	private String name;
 	
-	@Column(name = "CONFERENCE_ID")
+	@Column(name = "CONFERENCE_ID", insertable = false, updatable = false)
 	@Type(type="pg-uuid")
 	private UUID conferenceId;
 	
-	@Column(name = "POSITION")
+	@Column(name = "POSITION", insertable = false, updatable = false)
 	private int position;
 
 	@OneToMany(cascade =CascadeType.ALL, fetch = FetchType.EAGER)

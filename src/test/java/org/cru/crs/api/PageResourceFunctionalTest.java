@@ -1,13 +1,11 @@
 package org.cru.crs.api;
 
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 
 import org.cru.crs.api.client.PageResourceClient;
-import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;
@@ -59,7 +57,7 @@ public class PageResourceFunctionalTest
 	public void updatePage()
 	{
 		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		PageEntity updatedPage = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+//		
 		
 		try
 		{
@@ -77,13 +75,17 @@ public class PageResourceFunctionalTest
 			//check the response, 204-No Content
 			Assert.assertEquals(response.getStatus(), 204);
 			
+			PageEntity updatedPage = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+			
 			//this entity is still managed, so we should get the new value;
 			Assert.assertEquals(updatedPage.getName(), "Ministry Prefs");
 		}
 		finally
 		{
+			PageEntity pageToRevert = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+			
 			//updatedPage is still managed, so setting the title back and flushing reverts the change
-			updatedPage.setName("Ministry preferences");
+			pageToRevert.setName("Ministry preferences");
 			setupEm.getTransaction().begin();
 			setupEm.flush();
 			setupEm.getTransaction().commit();
@@ -114,7 +116,12 @@ public class PageResourceFunctionalTest
 		finally
 		{
 			PageEntity pageToDelete = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
-			if(pageToDelete != null) setupEm.remove(pageToDelete);
+			if(pageToDelete != null)
+			{
+				setupEm.getTransaction().begin();
+				setupEm.remove(pageToDelete);
+				setupEm.getTransaction().commit();
+			}
 		}
 	}
 
@@ -124,8 +131,8 @@ public class PageResourceFunctionalTest
 		
 		fakePage.setName("Ministry Prefs");
 		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
-		fakePage.setConferenceId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"));
-		fakePage.setPosition(0);
+		fakePage.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
+		fakePage.setPosition(7);
 		fakePage.setBlocks(null);
 		
 		return fakePage;

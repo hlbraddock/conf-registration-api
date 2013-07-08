@@ -15,8 +15,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.StatusType;
 
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 
 import com.google.common.base.Preconditions;
@@ -46,7 +49,25 @@ public class PageResource
 	{
 		Preconditions.checkNotNull(page.getId());
 		
-		new PageService(em).updatePage(page);
+		PageService pageService = new PageService(em);
+		
+		if(pageService.fetchPageBy(pageId) == null)
+		{
+			ConferenceService conferenceService = new ConferenceService(em);
+			ConferenceEntity conference = conferenceService.fetchConferenceBy(page.getConferenceId());
+			if(conference != null)
+			{
+				conference.getPages().add(page);
+			}
+			else
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+		}
+		else
+		{
+			pageService.updatePage(page);
+		}
 		
 		return Response.noContent().build();
 	}
