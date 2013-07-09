@@ -17,12 +17,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.optimizer.ConferenceOptimizer;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
-import org.cru.crs.service.PageService;
 
 import com.google.common.base.Preconditions;
 
@@ -62,9 +62,13 @@ public class ConferenceResource
 	@GET
 	@Path("/{conferenceId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ConferenceEntity getConference(@PathParam(value = "conferenceId") UUID conferenceId)
+	public Response getConference(@PathParam(value = "conferenceId") UUID conferenceId)
 	{
-		return new ConferenceService(em).fetchConferenceBy(conferenceId);
+		ConferenceEntity requestedConference = new ConferenceService(em).fetchConferenceBy(conferenceId);
+		
+		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
+		
+		return Response.ok(requestedConference).build();
 	}
 	
 	/**
@@ -114,14 +118,16 @@ public class ConferenceResource
 	@POST
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") String conferenceId) throws URISyntaxException
+	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
-		Preconditions.checkState(newPage.getId() == null);
-
-		newPage.setId(UUID.randomUUID());
+		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
 		
-		new PageService(em).createNewPage(newPage);
+		ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(conferenceId);
 		
-		return Response.created(new URI("/pages/" + newPage.getId())).build();
+		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+		
+		conference.getPages().add(newPage);
+		
+		return Response.created(new URI("/confereneces/" + conferenceId + "/pages/" + newPage.getId())).build();
 	}
 }

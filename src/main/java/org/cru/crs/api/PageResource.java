@@ -14,8 +14,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 
 import com.google.common.base.Preconditions;
@@ -30,17 +33,39 @@ public class PageResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPage(@PathParam(value="pageId") UUID pageId)
 	{
-		return Response.ok(new PageService(em).fetchPageBy(pageId)).build();
+		PageEntity requestedPage = new PageService(em).fetchPageBy(pageId);
+		
+		if(requestedPage == null) return Response.status(Status.NOT_FOUND).build();
+		
+		return Response.ok(requestedPage).build();
 	}
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePage(PageEntity page, @PathParam(value="pageId") UUID pageId)
 	{
-		Preconditions.checkNotNull(page.getId());
+		Preconditions.checkNotNull(pageId);
 		
-		new PageService(em).updatePage(page);
-				
+		PageService pageService = new PageService(em);
+		
+		if(pageService.fetchPageBy(pageId) == null)
+		{
+			ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(page.getConferenceId());
+			
+			if(conference != null)
+			{
+				conference.getPages().add(page);
+			}
+			else
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+		}
+		else
+		{
+			pageService.updatePage(page);
+		}
+		
 		return Response.noContent().build();
 	}
 	
