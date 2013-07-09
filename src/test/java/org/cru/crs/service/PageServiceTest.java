@@ -12,10 +12,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-
-
-
-@Test
+@Test(groups="db-integration-tests")
 public class PageServiceTest
 {
 	private static final String PERSISTENCE_UNIT_NAME = "crsLocalTest";
@@ -40,7 +37,7 @@ public class PageServiceTest
 		emFactory.close();
 	}
 
-	@Test
+	@Test(groups="db-integration-tests")
 	public void fetchPageById()
 	{
 		PageEntity page = pageService.fetchPageBy(UUID.fromString("7a52af36-2f3c-5e45-9f76-0af10ff50bb8"));
@@ -51,7 +48,7 @@ public class PageServiceTest
 		Assert.assertEquals(page.getConferenceId(), UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 	}
 
-	@Test
+	@Test(groups="db-integration-tests")
 	public void testCreateNewPage()
 	{
 		PageEntity page = new PageEntity();
@@ -74,7 +71,7 @@ public class PageServiceTest
 		em.remove(foundPage);
 	}
 
-	@Test
+	@Test(groups="db-integration-tests")
 	public void testUpdatePage()
 	{
 		PageEntity page = pageService.fetchPageBy(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
@@ -94,7 +91,7 @@ public class PageServiceTest
 		em.merge(updatedPage);
 	}
 
-	@Test
+	@Test(groups="db-integration-tests")
 	public void testDeletePage()
 	{
 		PageEntity page = new PageEntity();

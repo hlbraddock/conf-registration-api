@@ -14,7 +14,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-@Test
+@Test(groups="functional-tests")
 public class PageResourceFunctionalTest
 {
 	static final String RESOURCE_PREFIX = "rest";
@@ -30,7 +30,7 @@ public class PageResourceFunctionalTest
         pageClient = ProxyFactory.create(PageResourceClient.class, restApiBaseUrl);
 	}
 	
-	@Test
+	@Test(groups="functional-tests")
 	public void getPage()
 	{
 		ClientResponse<PageEntity> response = pageClient.getPage(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
@@ -45,7 +45,7 @@ public class PageResourceFunctionalTest
 		Assert.assertEquals(page.getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 	}
 	
-	@Test
+	@Test(groups="functional-tests")
 	public void getPageNotFound()
 	{
 		ClientResponse<PageEntity> response = pageClient.getPage(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
@@ -53,7 +53,7 @@ public class PageResourceFunctionalTest
 		Assert.assertEquals(response.getStatus(), 404);
 	}
 	
-	@Test
+	@Test(groups="functional-tests")
 	public void updatePage()
 	{
 		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
@@ -97,7 +97,7 @@ public class PageResourceFunctionalTest
 	 * create the new page.  However, if it tries to associate it to a conference that doesn't exist,
 	 * then we should get back 
 	 */
-	@Test
+	@Test(groups="functional-tests")
 	public void updatePageWhichDoesNotExist()
 	{
 		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();

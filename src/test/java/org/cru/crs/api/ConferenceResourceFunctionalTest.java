@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
  * @author ryancarlson
  *
  */
-@Test
+@Test(groups="functional-tests")
 public class ConferenceResourceFunctionalTest
 {
 	static final String RESOURCE_PREFIX = "rest";
@@ -39,7 +39,7 @@ public class ConferenceResourceFunctionalTest
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
 	}
 	
-	@Test
+	@Test(groups="functional-tests")
 	public void fetchAllTheConferences()
 	{
 		ClientResponse<List<ConferenceEntity>> response = conferenceClient.getConferences();
@@ -51,7 +51,7 @@ public class ConferenceResourceFunctionalTest
 		Assert.assertEquals(conferences.size(), 10);
 	}
 	
-	@Test
+	@Test(groups="functional-tests")
 	public void fetchConferenceById()
 	{
 		ClientResponse<ConferenceEntity> response = conferenceClient.getConference(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
@@ -68,7 +68,7 @@ public class ConferenceResourceFunctionalTest
 	 * TODO: method needs to clean up after itself
 	 * @throws URISyntaxException
 	 */
-	@Test
+	@Test(groups="functional-tests")
 	public void createConference() throws URISyntaxException
 	{
 		ConferenceEntity fakeConference = createFakeConference();
@@ -93,7 +93,7 @@ public class ConferenceResourceFunctionalTest
 		removeFakeConference(conferenceIdString);
 	}
 
-	@Test
+	@Test(groups="functional-tests")
 	public void updateConference() throws URISyntaxException
 	{
 		ConferenceEntity fakeConference = createFakeConference();
@@ -129,7 +129,7 @@ public class ConferenceResourceFunctionalTest
 		removeFakeConference(conferenceIdString);
 	}
 	
-	@Test
+	@Test(groups="functional-tests")
 	public void addPageToConference() throws URISyntaxException 
 	{
 		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
@@ -160,7 +160,7 @@ public class ConferenceResourceFunctionalTest
 		}
 	}
 
-	@Test
+	@Test(groups="functional-tests")
 	public void addPageToBogusConference() throws URISyntaxException
 	{
 		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
