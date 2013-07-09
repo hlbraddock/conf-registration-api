@@ -37,7 +37,7 @@ echo 'Success!'
 
 printf '\n'
 echo 'Setting up database...'
-./init_crs_mock_db.sh
+./populate_crs_db.sh
 
 printf '\n'
 echo 'Finished creating database.. happy conferencing!'
