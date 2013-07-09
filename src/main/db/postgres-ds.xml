@@ -1,0 +1,20 @@
+<!-- Add this section to the <datasources></datasourcess> block in $JBOSS_HOME/standalone/configuration/standalone.xml -->
+<datasource jndi-name="java:jboss/datasources/crsLocalDS" pool-name="LocalDS" enabled="true" use-java-context="true">
+	<connection-url>jdbc:postgresql://127.0.0.1/crsdb</connection-url>
+	<driver>postgresql</driver>
+	<pool>
+		<min-pool-size>1</min-pool-size>
+		<max-pool-size>10</max-pool-size>
+	</pool>
+	<security>
+		<user-name>crsuser</user-name>
+		<password>crsuser</password>
+	</security>
+</datasource>
+
+<!-- Add this section to the <drivers></drivers> block in $JBOSS_HOME/standalone/configuration/standalone.xml -->
+<driver name="postgresql" module="org.postgresql">
+	<driver-class>org.postgresql.Driver</driver-class>
+	<datasource-class>org.postgresql.ds.PGPoolingDataSource</datasource-class>
+</driver>
+
