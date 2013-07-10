@@ -3,3 +3,5 @@ target/
 .project
 test-output/
 src/main/db/logs/*
+.idea/
+*.iml
