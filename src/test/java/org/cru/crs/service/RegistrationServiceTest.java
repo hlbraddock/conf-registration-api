@@ -20,16 +20,16 @@ public class RegistrationServiceTest
 
 	private RegistrationService registrationService;
 
-	private UUID originalRegistrationUUID = UUID.fromString("7a52af36-2f3c-5e45-9f76-0af10ff50bb8");
-	private UUID originalUserUUID = UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309");
-	private UUID originalConferenceUUID = UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309");
+	private UUID originalRegistrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
+	private UUID originalUserUUID = UUID.fromString("1F6250CA-6D25-2BF4-4E56-F368B2FB8F8A");
+	private UUID originalConferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
 	@BeforeClass
 	public void setup()
 	{
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
-		
+
 		registrationService = new RegistrationService(em);
 	}
 

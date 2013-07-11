@@ -20,7 +20,7 @@ public class AnswerServiceTest
 
 	private AnswerService answerService;
 
-	private UUID originalAnswerUUID = UUID.fromString("7a52af36-2f3c-5e45-9f76-0af10ff50bb8");
+	private UUID originalAnswerUUID = UUID.fromString("441AD805-7AA6-4B20-8315-8F1390DC4A9E");
 	private String originalAnswerValue = "Incredibly excited about this retreat.";
 
 	@BeforeClass
