@@ -29,11 +29,11 @@ public class RegistrationEntity implements java.io.Serializable
 	@Type(type = "pg-uuid")
 	private UUID id;
 
-	@Column(name = "CONFERENCE_ID")
+	@Column(name = "CONFERENCE_ID", insertable = false, updatable = false)
 	@Type(type = "pg-uuid")
 	private UUID conferenceId;
 
-	@Column(name = "USER_ID")
+	@Column(name = "USER_ID", insertable = false, updatable = false)
 	@Type(type = "pg-uuid")
 	private UUID userId;
 
