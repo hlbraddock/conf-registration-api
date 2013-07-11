@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response.Status;
 import org.cru.crs.api.optimizer.ConferenceOptimizer;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 
 import com.google.common.base.Preconditions;
@@ -114,21 +115,37 @@ public class ConferenceResource
 		
 		return Response.noContent().build();
 	}
-	
+
 	@POST
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
-		
+
 		ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(conferenceId);
-		
+
 		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
-		
+
 		conference.getPages().add(newPage);
-		
-		return Response.created(new URI("/confereneces/" + conferenceId + "/pages/" + newPage.getId())).build();
+
+		return Response.created(new URI("/conferences/" + conferenceId + "/pages/" + newPage.getId())).build();
 	}
-	
+
+	@POST
+	@Path("/{conferenceId}/registrations")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response createRegistration(RegistrationEntity newRegistration, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	{
+		if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
+
+		ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(conferenceId);
+
+		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+
+		conference.getRegistrations().add(newRegistration);
+
+		return Response.created(new URI("/conferences/" + conferenceId + "/registrations/" + newRegistration.getId())).build();
+	}
+
 }

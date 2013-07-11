@@ -40,8 +40,12 @@ public class ConferenceEntity implements java.io.Serializable
     @JoinColumn(name = "CONFERENCE_ID", nullable = false)
     @OrderColumn(name = "POSITION", nullable = false)
 	private List<PageEntity> pages;
-	
-	@Column(name = "EVENT_START_TIME")
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "CONFERENCE_ID", nullable = false)
+    private List<RegistrationEntity> registrations;
+
+    @Column(name = "EVENT_START_TIME")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime eventStartTime;
 	
@@ -153,5 +157,14 @@ public class ConferenceEntity implements java.io.Serializable
 	{
 		this.pages = pages;
 	}
-	
+
+	public List<RegistrationEntity> getRegistrations()
+	{
+		return registrations;
+	}
+
+	public void setRegistrations(List<RegistrationEntity> registrations)
+	{
+		this.registrations = registrations;
+	}
 }

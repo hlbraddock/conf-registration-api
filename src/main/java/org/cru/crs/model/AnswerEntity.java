@@ -16,49 +16,57 @@ public class AnswerEntity implements java.io.Serializable
 
 	@Id
 	@Column(name = "ID")
-	@Type(type="pg-uuid")
+	@Type(type = "pg-uuid")
 	private UUID id;
-	
+
 	@Column(name = "REGISTRATION_ID")
-	@Type(type="pg-uuid")
+	@Type(type = "pg-uuid")
 	private UUID registrationId;
-	
+
 	@Column(name = "BLOCK_ID")
-	@Type(type="pg-uuid")
+	@Type(type = "pg-uuid")
 	private UUID blockId;
-	
+
 	@Column(name = "ANSWER")
 	private String answer;
 
-    public UUID getId() {
-        return id;
-    }
+	public UUID getId()
+	{
+		return id;
+	}
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+	public void setId(UUID id)
+	{
+		this.id = id;
+	}
 
-    public UUID getRegistrationId() {
-        return registrationId;
-    }
+	public UUID getRegistrationId()
+	{
+		return registrationId;
+	}
 
-    public void setRegistrationId(UUID registrationId) {
-        this.registrationId = registrationId;
-    }
+	public void setRegistrationId(UUID registrationId)
+	{
+		this.registrationId = registrationId;
+	}
 
-    public UUID getBlockId() {
-        return blockId;
-    }
+	public UUID getBlockId()
+	{
+		return blockId;
+	}
 
-    public void setBlockId(UUID blockId) {
-        this.blockId = blockId;
-    }
+	public void setBlockId(UUID blockId)
+	{
+		this.blockId = blockId;
+	}
 
-    public String getAnswer() {
-        return answer;
-    }
+	public String getAnswer()
+	{
+		return answer;
+	}
 
-    public void setAnswer(String answer) {
-        this.answer = answer;
-    }
+	public void setAnswer(String answer)
+	{
+		this.answer = answer;
+	}
 }

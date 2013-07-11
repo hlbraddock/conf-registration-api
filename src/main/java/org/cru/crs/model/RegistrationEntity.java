@@ -1,8 +1,19 @@
 package org.cru.crs.model;
 
+
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,22 +26,22 @@ public class RegistrationEntity implements java.io.Serializable
 
 	@Id
 	@Column(name = "ID")
-	@Type(type="pg-uuid")
+	@Type(type = "pg-uuid")
 	private UUID id;
 
 	@Column(name = "CONFERENCE_ID")
-	@Type(type="pg-uuid")
+	@Type(type = "pg-uuid")
 	private UUID conferenceId;
 
 	@Column(name = "USER_ID")
-	@Type(type="pg-uuid")
+	@Type(type = "pg-uuid")
 	private UUID userId;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "REGISTRATION_ID", nullable = false)
-    private List<AnswerEntity> answers;
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "REGISTRATION_ID", nullable = false)
+	private List<AnswerEntity> answers;
 
-    public UUID getId()
+	public UUID getId()
 	{
 		return id;
 	}
@@ -50,19 +61,23 @@ public class RegistrationEntity implements java.io.Serializable
 		this.conferenceId = conferenceId;
 	}
 
-    public UUID getUserId() {
-        return userId;
-    }
+	public UUID getUserId()
+	{
+		return userId;
+	}
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
+	public void setUserId(UUID userId)
+	{
+		this.userId = userId;
+	}
 
-    public List<AnswerEntity> getAnswers() {
-        return answers;
-    }
+	public List<AnswerEntity> getAnswers()
+	{
+		return answers;
+	}
 
-    public void setAnswers(List<AnswerEntity> answers) {
-        this.answers = answers;
-    }
+	public void setAnswers(List<AnswerEntity> answers)
+	{
+		this.answers = answers;
+	}
 }

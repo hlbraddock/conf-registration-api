@@ -19,12 +19,6 @@ public class RegistrationService {
         this.em = em;
     }
 
-    public List<RegistrationEntity> fetchAllRegistrations()
-    {
-        return em.createQuery("SELECT registration FROM RegistrationEntity registration", RegistrationEntity.class)
-                .getResultList();
-    }
-
     public RegistrationEntity getRegistrationBy(UUID registrationId)
     {
         return em.find(RegistrationEntity.class, registrationId);

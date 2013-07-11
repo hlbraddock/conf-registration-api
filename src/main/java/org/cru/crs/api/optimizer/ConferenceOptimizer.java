@@ -13,8 +13,10 @@ public class ConferenceOptimizer
 	 */
 	public static ConferenceEntity removePagesFromConference(ConferenceEntity conference)
 	{
-		conference.setPages(null);
-		
+        conference.setPages(null);
+
+        conference.setRegistrations(null);
+
 		return conference;
 	}
 }
