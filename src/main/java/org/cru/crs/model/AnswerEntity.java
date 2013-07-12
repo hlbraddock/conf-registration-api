@@ -19,8 +19,8 @@ public class AnswerEntity implements java.io.Serializable
 	@Type(type = "pg-uuid")
 	private UUID id;
 
-	@Column(name = "REGISTRATION_ID")
-	@Type(type = "pg-uuid")
+	@Column(name = "REGISTRATION_ID", insertable = false, updatable = false)
+    @Type(type = "pg-uuid")
 	private UUID registrationId;
 
 	@Column(name = "BLOCK_ID")

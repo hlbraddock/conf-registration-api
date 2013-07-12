@@ -1,6 +1,7 @@
 package org.cru.crs.model;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
@@ -13,6 +14,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
@@ -43,7 +46,7 @@ public class ConferenceEntity implements java.io.Serializable
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "CONFERENCE_ID", nullable = false)
-    private List<RegistrationEntity> registrations;
+    private Set<RegistrationEntity> registrations;
 
     @Column(name = "EVENT_START_TIME")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
@@ -158,13 +161,11 @@ public class ConferenceEntity implements java.io.Serializable
 		this.pages = pages;
 	}
 
-	public List<RegistrationEntity> getRegistrations()
-	{
-		return registrations;
-	}
+    public Set<RegistrationEntity> getRegistrations() {
+        return registrations;
+    }
 
-	public void setRegistrations(List<RegistrationEntity> registrations)
-	{
-		this.registrations = registrations;
-	}
+    public void setRegistrations(Set<RegistrationEntity> registrations) {
+        this.registrations = registrations;
+    }
 }
