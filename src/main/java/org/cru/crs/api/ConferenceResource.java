@@ -128,7 +128,6 @@ public class ConferenceResource
 		
 		conference.getPages().add(newPage);
 		
-		return Response.created(new URI("/confereneces/" + conferenceId + "/pages/" + newPage.getId())).build();
+		return Response.created(new URI("/pages/" + newPage.getId())).build();
 	}
-	
 }
