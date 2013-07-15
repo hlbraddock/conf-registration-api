@@ -31,13 +31,15 @@ import com.google.common.base.Preconditions;
 @Path("/pages/{pageId}")
 public class PageResource
 {
-	@Inject EntityManager em;
+	@Inject PageService pageService;
+
+    @Inject ConferenceService conferenceService;
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPage(@PathParam(value="pageId") UUID pageId)
 	{
-		PageEntity requestedPage = new PageService(em).fetchPageBy(pageId);
+		PageEntity requestedPage = pageService.fetchPageBy(pageId);
 
 		if(requestedPage == null) return Response.status(Status.NOT_FOUND).build();
 
@@ -50,11 +52,9 @@ public class PageResource
 	{
 		Preconditions.checkNotNull(pageId);
 
-		PageService pageService = new PageService(em);
-
 		if(pageService.fetchPageBy(pageId) == null)
 		{
-			ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(page.getConferenceId());
+			ConferenceEntity conference = conferenceService.fetchConferenceBy(page.getConferenceId());
 
 			if(conference != null)
 			{
@@ -79,7 +79,7 @@ public class PageResource
 	{
 		Preconditions.checkNotNull(page.getId());
 
-		new PageService(em).deletePage(page);
+		pageService.deletePage(page);
 
 		return Response.ok().build();
 	}
@@ -91,7 +91,7 @@ public class PageResource
 	{
 		if(newBlock.getId() == null) newBlock.setId(UUID.randomUUID());
 
-		PageEntity page = new PageService(em).fetchPageBy(pageId);
+		PageEntity page = pageService.fetchPageBy(pageId);
 
 		if(page == null) return Response.status(Status.BAD_REQUEST).build();
 
