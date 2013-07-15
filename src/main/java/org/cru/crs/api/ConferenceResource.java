@@ -2,7 +2,6 @@ package org.cru.crs.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.UUID;
 
 import javax.ejb.Stateless;
@@ -19,9 +18,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.cru.crs.api.optimizer.ConferenceOptimizer;
+import org.cru.crs.api.model.Conference;
+import org.cru.crs.api.model.Page;
 import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
 
 import com.google.common.base.Preconditions;
@@ -42,20 +41,14 @@ public class ConferenceResource
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<ConferenceEntity> getConferences()
+	public Response getConferences()
 	{
-		List<ConferenceEntity> conferences = new ConferenceService(em).fetchAllConferences();
-		for(ConferenceEntity conference : conferences)
-		{
-			conference = ConferenceOptimizer.removePagesFromConference(conference);
-		}
-		return conferences;
+		return Response.ok(Conference.fromJpa(new ConferenceService(em).fetchAllConferences())).build();
 	}
 	
 	/**
-	 * Desired design: Get conference specified by Id if the user has access to it.
+	 * Return the conference identified by ID with all associated Pages and Blocks
 	 * 
-	 * Current status: No authentication in place.
 	 * @param conferenceId
 	 * @return
 	 */
@@ -68,7 +61,7 @@ public class ConferenceResource
 		
 		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
 		
-		return Response.ok(requestedConference).build();
+		return Response.ok(Conference.fromJpa(requestedConference)).build();
 	}
 	
 	/**
@@ -82,13 +75,13 @@ public class ConferenceResource
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createConference(ConferenceEntity conference)throws URISyntaxException
+	public Response createConference(Conference conference)throws URISyntaxException
 	{
 		Preconditions.checkState(conference.getId() == null);
 		
 		conference.setId(UUID.randomUUID());
 		
-		new ConferenceService(em).createNewConference(conference);
+		new ConferenceService(em).createNewConference(conference.toJpaConferenceEntity());
 		
 		return Response.created(new URI("/conferences/" + conference.getId())).build();
 	}
@@ -106,11 +99,11 @@ public class ConferenceResource
 	@PUT
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateConference(ConferenceEntity conference, @PathParam(value = "conferenceId") String conferenceId)
+	public Response updateConference(Conference conference, @PathParam(value = "conferenceId") String conferenceId)
 	{
 		Preconditions.checkNotNull(conference.getId());
 		
-		new ConferenceService(em).updateConference(conference);
+		new ConferenceService(em).updateConference(conference.toJpaConferenceEntity());
 		
 		return Response.noContent().build();
 	}
@@ -118,7 +111,7 @@ public class ConferenceResource
 	@POST
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createPage(PageEntity newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
 		
@@ -126,7 +119,7 @@ public class ConferenceResource
 		
 		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
 		
-		conference.getPages().add(newPage);
+		conference.getPages().add(newPage.toJpaPageEntity());
 		
 		return Response.created(new URI("/pages/" + newPage.getId())).build();
 	}

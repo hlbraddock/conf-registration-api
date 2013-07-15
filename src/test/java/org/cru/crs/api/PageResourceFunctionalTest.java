@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 
 import org.cru.crs.api.client.PageResourceClient;
+import org.cru.crs.api.model.Page;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;
@@ -33,11 +34,11 @@ public class PageResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getPage()
 	{
-		ClientResponse<PageEntity> response = pageClient.getPage(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+		ClientResponse<Page> response = pageClient.getPage(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 		
 		Assert.assertEquals(response.getStatus(), 200);
 		
-		PageEntity page = response.getEntity();
+		Page page = response.getEntity();
 		
 		Assert.assertEquals(page.getName(),"Ministry preferences");
 		Assert.assertEquals(page.getPosition(), 1);
@@ -48,7 +49,7 @@ public class PageResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getPageNotFound()
 	{
-		ClientResponse<PageEntity> response = pageClient.getPage(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
+		ClientResponse<Page> response = pageClient.getPage(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
 		
 		Assert.assertEquals(response.getStatus(), 404);
 	}
@@ -69,7 +70,7 @@ public class PageResourceFunctionalTest
 
 			page.setName("Ministry Prefs");
 
-			ClientResponse<PageEntity> response = pageClient.updatePage(page, page.getId());			
+			ClientResponse<Page> response = pageClient.updatePage(Page.fromJpa(page), page.getId());			
 			
 			//check the response, 204-No Content
 			Assert.assertEquals(response.getStatus(), 204);
@@ -106,7 +107,7 @@ public class PageResourceFunctionalTest
 		{
 			PageEntity page = createFakePage();
 
-			ClientResponse<PageEntity> response = pageClient.updatePage(page, page.getId());
+			ClientResponse<Page> response = pageClient.updatePage(Page.fromJpa(page), page.getId());
 			
 			//check the response, 204-No Content
 			Assert.assertEquals(response.getStatus(), 204);
@@ -140,7 +141,7 @@ public class PageResourceFunctionalTest
 		//now change the conference ID to one that does not exist
 		page.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa61"));
 
-		ClientResponse<PageEntity> response = pageClient.updatePage(page, page.getId());
+		ClientResponse<Page> response = pageClient.updatePage(Page.fromJpa(page), page.getId());
 
 		//check the response, 400-Bad Request
 		Assert.assertEquals(response.getStatus(), 400);

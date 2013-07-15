@@ -21,6 +21,9 @@ public class Conference implements java.io.Serializable
 	private DateTime registrationStartTime;
 	private DateTime registrationEndTime;
 	
+	private UUID contactUser;
+	private int totalSlots;
+	
 	/**
 	 * Creates a web api friendly conference, with no pages attached to it.
 	 * 
@@ -37,7 +40,8 @@ public class Conference implements java.io.Serializable
 		webConference.eventEndTime = jpaConference.getEventEndTime();
 		webConference.registrationStartTime = jpaConference.getRegistrationStartTime();
 		webConference.registrationEndTime = jpaConference.getRegistrationEndTime();
-		
+		webConference.totalSlots = jpaConference.getTotalSlots();
+		webConference.contactUser = jpaConference.getContactUser();
 		return webConference;
 	}
 	
@@ -53,6 +57,21 @@ public class Conference implements java.io.Serializable
 		return conferences;
 	}
 	
+	public ConferenceEntity toJpaConferenceEntity()
+	{
+		ConferenceEntity jpaConference = new ConferenceEntity();
+		
+		jpaConference.setId(id);
+		jpaConference.setName(name);
+		jpaConference.setEventStartTime(eventStartTime);
+		jpaConference.setEventEndTime(eventEndTime);
+		jpaConference.setRegistrationStartTime(registrationStartTime);
+		jpaConference.setRegistrationEndTime(registrationEndTime);
+		jpaConference.setTotalSlots(totalSlots);
+		jpaConference.setContactUser(contactUser);
+		
+		return jpaConference;
+	}
 	/**
 	 * Creates a web api friendly conference, with no pages attached to it.
 	 * 
@@ -136,6 +155,26 @@ public class Conference implements java.io.Serializable
 	public void setRegistrationEndTime(DateTime registrationEndTime)
 	{
 		this.registrationEndTime = registrationEndTime;
+	}
+
+	public UUID getContactUser()
+	{
+		return contactUser;
+	}
+
+	public void setContactUser(UUID contactUser)
+	{
+		this.contactUser = contactUser;
+	}
+
+	public int getTotalSlots()
+	{
+		return totalSlots;
+	}
+
+	public void setTotalSlots(int totalSlots)
+	{
+		this.totalSlots = totalSlots;
 	}
 	
 }

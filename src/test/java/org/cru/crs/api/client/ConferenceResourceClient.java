@@ -13,8 +13,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.PageEntity;
+import org.cru.crs.api.model.Conference;
+import org.cru.crs.api.model.Page;
 import org.jboss.resteasy.client.ClientResponse;
 
 @Path("/conferences")
@@ -22,24 +22,24 @@ public interface ConferenceResourceClient
 {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<List<ConferenceEntity>> getConferences();
+	public ClientResponse<List<Conference>> getConferences();
 	
 	@GET
 	@Path("/{conferenceId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<ConferenceEntity> getConference(@PathParam(value = "conferenceId") UUID conferenceId);
+	public ClientResponse<Conference> getConference(@PathParam(value = "conferenceId") UUID conferenceId);
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<ConferenceEntity> createConference(ConferenceEntity conference)throws URISyntaxException;
+	public ClientResponse<Conference> createConference(Conference conference)throws URISyntaxException;
 	
 	@PUT
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<ConferenceEntity> updateConference(ConferenceEntity conference, @PathParam(value = "conferenceId") String conferenceId);
+	public ClientResponse<Conference> updateConference(Conference conference, @PathParam(value = "conferenceId") String conferenceId);
 	
 	@POST
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<ConferenceEntity> createPage(PageEntity newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException;
+	public ClientResponse<Conference> createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException;
 }
