@@ -14,7 +14,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-@Test
+@Test(groups="db-integration-tests")
 public class ConferenceServiceTest
 {
 	private static final String PERSISTENCE_UNIT_NAME = "crsLocalTest";
@@ -39,7 +39,7 @@ public class ConferenceServiceTest
 		emFactory.close();
 	}
 	
-	@Test
+	@Test(groups="db-integration-tests")
 	public void fetchAllTheConferences()
 	{
 		List<ConferenceEntity> allConferences = conferenceService.fetchAllConferences();
@@ -55,7 +55,7 @@ public class ConferenceServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="db-integration-tests")
 	public void fetchConferenceById()
 	{
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(java.util.UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
@@ -71,7 +71,7 @@ public class ConferenceServiceTest
 		Assert.assertEquals(conference.getRegistrationEndTime(), DateTimeCreaterHelper.createDateTime(2013,5,22,17,53,8));
 	}
 	
-	@Test
+	@Test(groups="db-integration-tests")
 	public void checkPageFetch()
 	{
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
@@ -87,7 +87,7 @@ public class ConferenceServiceTest
 		Assert.assertEquals(conference.getPages().get(2).getName(), "Hobbies and activities");
 	}
 	
-	@Test
+	@Test(groups="db-integration-tests")
 	public void checkBlockFetch()
 	{
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
@@ -99,7 +99,7 @@ public class ConferenceServiceTest
 		Assert.assertNotNull(conference.getPages().get(0).getBlocks().get(0).getBlockType(), "Foo");
 	}
 	
-	@Test
+	@Test(groups="db-integration-tests")
 	public void testUpdateConference()
 	{
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("1cfa829f-2c3a-f803-a966-9a6510ee2f33"));
