@@ -20,7 +20,7 @@ public class BlockEntity implements java.io.Serializable
 	@Type(type="pg-uuid")
 	private UUID id;
 	
-	@Column(name = "PAGE_ID")
+	@Column(name = "PAGE_ID", insertable = false, updatable = false)
 	@Type(type="pg-uuid")
 	private UUID pageId;
 	

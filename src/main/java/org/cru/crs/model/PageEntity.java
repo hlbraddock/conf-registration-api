@@ -37,7 +37,7 @@ public class PageEntity implements java.io.Serializable
 	@Column(name = "POSITION", insertable = false, updatable = false)
 	private int position;
 
-	@OneToMany(cascade =CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(cascade =CascadeType.ALL)
     @JoinColumn(name = "page_id", nullable = false)
     @OrderColumn(name = "position", nullable = false)
 	private List<BlockEntity> blocks = new ArrayList<BlockEntity>();

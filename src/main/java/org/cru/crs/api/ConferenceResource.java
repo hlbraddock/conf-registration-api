@@ -59,7 +59,7 @@ public class ConferenceResource
 		
 		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
 		
-		return Response.ok(Conference.fromJpa(requestedConference)).build();
+		return Response.ok(Conference.fromJpaWithPages(requestedConference)).build();
 	}
 	
 	/**
