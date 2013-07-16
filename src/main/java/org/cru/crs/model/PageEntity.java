@@ -47,9 +47,10 @@ public class PageEntity implements java.io.Serializable
 		return id;
 	}
 
-	public void setId(UUID id)
+	public PageEntity setId(UUID id)
 	{
 		this.id = id;
+		return this;
 	}
 
 	public String getName()
@@ -67,9 +68,10 @@ public class PageEntity implements java.io.Serializable
 		return conferenceId;
 	}
 
-	public void setConferenceId(UUID conferenceId)
+	public PageEntity setConferenceId(UUID conferenceId)
 	{
 		this.conferenceId = conferenceId;
+		return this;
 	}
 
 	public int getPosition()

@@ -174,7 +174,6 @@ public class ConferenceResourceFunctionalTest
 			removeAddedPage(setupEm);
 
 			Page newPage = createFakePage();
-			newPage.setConferenceId(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
 
 			ClientResponse<Conference> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
 
@@ -232,7 +231,6 @@ public class ConferenceResourceFunctionalTest
 		
 		fakePage.setName("Ministry Prefs");
 		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
-		fakePage.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
 		fakePage.setPosition(1);
 		fakePage.setBlocks(null);
 		

@@ -20,11 +20,6 @@ public class PageService
 		return em.find(PageEntity.class, id);
 	}
 	
-	public void createNewPage(PageEntity newPage)
-	{
-		em.persist(newPage);
-	}
-	
 	public void updatePage(PageEntity pageToUpdate)
 	{
 		em.merge(pageToUpdate);

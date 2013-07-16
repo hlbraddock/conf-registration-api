@@ -42,7 +42,6 @@ public class PageResourceFunctionalTest
 		
 		Assert.assertEquals(page.getName(),"Ministry preferences");
 		Assert.assertEquals(page.getPosition(), 1);
-		Assert.assertEquals(page.getConferenceId(), UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 		Assert.assertEquals(page.getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 	}
 	
@@ -95,8 +94,7 @@ public class PageResourceFunctionalTest
 
 	/**
 	 * This test tests the fact that a PUT for a page with an ID that does not yet exist should just
-	 * create the new page.  However, if it tries to associate it to a conference that doesn't exist,
-	 * then we should get back 
+	 * create the new page.
 	 */
 	@Test(groups="functional-tests")
 	public void updatePageWhichDoesNotExist()

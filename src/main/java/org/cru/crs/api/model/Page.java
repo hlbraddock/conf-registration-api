@@ -11,9 +11,9 @@ public class Page implements java.io.Serializable
 	private static final long serialVersionUID = 1L;
 
 	private UUID id;
-	private String name;
 	private UUID conferenceId;
 	
+	private String name;
 	private int position;
 	private List<Block> blocks;
 	
@@ -22,17 +22,23 @@ public class Page implements java.io.Serializable
 		Page page = new Page();
 		
 		page.id = jpaPage.getId();
-		page.name = jpaPage.getName();
 		page.conferenceId = jpaPage.getConferenceId();
+		page.name = jpaPage.getName();
 		page.position = jpaPage.getPosition();
-//		page.blocks = jpaPage.
 		
 		return page;
 	}
 	
 	public static List<Page> fromJpa(List<PageEntity> jpaPages)
 	{
-		return new ArrayList<Page>();
+		List<Page> pages = new ArrayList<Page>();
+		
+		for(PageEntity jpaPage : jpaPages)
+		{
+			pages.add(fromJpa(jpaPage));
+		}
+		
+		return pages;
 	}
 	
 	public PageEntity toJpaPageEntity()
@@ -40,6 +46,10 @@ public class Page implements java.io.Serializable
 		PageEntity jpaPage = new PageEntity();
 		
 		jpaPage.setId(id);
+		jpaPage.setConferenceId(conferenceId);
+		jpaPage.setName(name);
+		jpaPage.setPosition(position);
+//		jpaPage.setBlocks(blocks);
 		
 		return jpaPage;
 	}
@@ -49,9 +59,10 @@ public class Page implements java.io.Serializable
 		return id;
 	}
 
-	public void setId(UUID id)
+	public Page setId(UUID id)
 	{
 		this.id = id;
+		return this;
 	}
 
 	public String getName()
@@ -62,16 +73,6 @@ public class Page implements java.io.Serializable
 	public void setName(String name)
 	{
 		this.name = name;
-	}
-
-	public UUID getConferenceId()
-	{
-		return conferenceId;
-	}
-
-	public void setConferenceId(UUID conferenceId)
-	{
-		this.conferenceId = conferenceId;
 	}
 
 	public int getPosition()
@@ -92,5 +93,15 @@ public class Page implements java.io.Serializable
 	public void setBlocks(List<Block> blocks)
 	{
 		this.blocks = blocks;
+	}
+
+	public UUID getConferenceId()
+	{
+		return conferenceId;
+	}
+
+	public void setConferenceId(UUID conferenceId)
+	{
+		this.conferenceId = conferenceId;
 	}
 }

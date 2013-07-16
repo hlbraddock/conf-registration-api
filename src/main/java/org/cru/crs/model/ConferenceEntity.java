@@ -69,9 +69,10 @@ public class ConferenceEntity implements java.io.Serializable
 		return id;
 	}
 
-	public void setId(UUID id)
+	public ConferenceEntity setId(UUID id)
 	{
 		this.id = id;
+		return this;
 	}
 
 	public String getName()
