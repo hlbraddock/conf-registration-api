@@ -20,11 +20,7 @@ public class BlockEntity implements java.io.Serializable
 	@Type(type="pg-uuid")
 	private UUID id;
 	
-	@Column(name = "CONFERENCE_ID")
-	@Type(type="pg-uuid")
-	private UUID conferenceId;
-	
-	@Column(name = "PAGE_ID")
+	@Column(name = "PAGE_ID", insertable = false, updatable = false)
 	@Type(type="pg-uuid")
 	private UUID pageId;
 	
@@ -34,8 +30,11 @@ public class BlockEntity implements java.io.Serializable
 	@Column(name = "ADMIN_ONLY")
 	private boolean adminOnly;
 	
-	@Column(name = "BLOCK_DESCRIPTION")
-	private String blockDescription;
+	@Column(name = "CONTENT")
+	private String content;
+	
+	@Column(name = "TITLE")
+	private String title;
 
 	public UUID getId()
 	{
@@ -45,16 +44,6 @@ public class BlockEntity implements java.io.Serializable
 	public void setId(UUID id)
 	{
 		this.id = id;
-	}
-
-	public UUID getConferenceId()
-	{
-		return conferenceId;
-	}
-
-	public void setConferenceId(UUID conferenceId)
-	{
-		this.conferenceId = conferenceId;
 	}
 
 	public UUID getPageId()
@@ -87,13 +76,23 @@ public class BlockEntity implements java.io.Serializable
 		this.adminOnly = adminOnly;
 	}
 
-	public String getBlockDescription()
+	public String getContent()
 	{
-		return blockDescription;
+		return content;
 	}
 
-	public void setBlockDescription(String blockDescription)
+	public void setContent(String content)
 	{
-		this.blockDescription = blockDescription;
+		this.content = content;
+	}
+
+	public String getTitle()
+	{
+		return title;
+	}
+
+	public void setTitle(String title)
+	{
+		this.title = title;
 	}
 }

@@ -58,7 +58,7 @@ public class PageServiceTest
 		page.setPosition(3);
 		page.setConferenceId(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 
-		pageService.createNewPage(page);
+//		pageService.createNewPage(page);
 
 		PageEntity foundPage = em.find(PageEntity.class, page.getId());
 

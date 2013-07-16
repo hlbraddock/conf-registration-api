@@ -1,0 +1,153 @@
+package org.cru.crs.api.model;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.cru.crs.model.BlockEntity;
+import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PageEntity;
+import org.cru.crs.utils.DateTimeCreaterHelper;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class ConferenceDataTransferTest
+{
+
+	@Test(groups="unittest")
+	public void testWebEntityToJpaEntity()
+	{
+		Conference conference = new Conference();
+		
+		conference.setContactUser(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
+		conference.setEventEndTime(DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
+		conference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
+		conference.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));
+		conference.setName("Awesome fall retreat");
+		conference.setRegistrationEndTime(DateTimeCreaterHelper.createDateTime(2013, 8, 30, 12, 0, 0));
+		conference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 8, 12, 17, 30, 10));
+		conference.setTotalSlots(150);
+		
+		ConferenceEntity jpaConference = conference.toJpaConferenceEntity();
+		
+		Assert.assertNotNull(jpaConference);
+		Assert.assertEquals(jpaConference.getContactUser(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
+		Assert.assertEquals(jpaConference.getEventEndTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
+		Assert.assertEquals(jpaConference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
+		Assert.assertEquals(jpaConference.getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));
+		Assert.assertEquals(jpaConference.getName(), "Awesome fall retreat");
+		Assert.assertEquals(jpaConference.getRegistrationEndTime(), DateTimeCreaterHelper.createDateTime(2013, 8, 30, 12, 0, 0));
+		Assert.assertEquals(jpaConference.getRegistrationStartTime(), DateTimeCreaterHelper.createDateTime(2013, 8, 12, 17, 30, 10));
+		Assert.assertEquals(jpaConference.getTotalSlots(), 150);
+	}
+	
+	@Test(groups="unittest")
+	public void testJpaEntityToWebEntity()
+	{
+		ConferenceEntity conference = new ConferenceEntity();
+		
+		conference.setContactUser(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
+		conference.setEventEndTime(DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
+		conference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
+		conference.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));
+		conference.setName("Awesome fall retreat");
+		conference.setRegistrationEndTime(DateTimeCreaterHelper.createDateTime(2013, 8, 30, 12, 0, 0));
+		conference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 8, 12, 17, 30, 10));
+		conference.setTotalSlots(150);
+		
+		Conference webConference = Conference.fromJpa(conference);
+		
+		Assert.assertNotNull(webConference);
+		Assert.assertEquals(webConference.getContactUser(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
+		Assert.assertEquals(webConference.getEventEndTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
+		Assert.assertEquals(webConference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
+		Assert.assertEquals(webConference.getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));
+		Assert.assertEquals(webConference.getName(), "Awesome fall retreat");
+		Assert.assertEquals(webConference.getRegistrationEndTime(), DateTimeCreaterHelper.createDateTime(2013, 8, 30, 12, 0, 0));
+		Assert.assertEquals(webConference.getRegistrationStartTime(), DateTimeCreaterHelper.createDateTime(2013, 8, 12, 17, 30, 10));
+		Assert.assertEquals(webConference.getTotalSlots(), 150);
+	}
+	
+	@Test(groups="unittest")
+	public void testJpaEntityWithPagesToWebEntityWithPages()
+	{
+		ConferenceEntity jpaConference = new ConferenceEntity();
+		
+		PageEntity page1 = new PageEntity();
+		PageEntity page2 = new PageEntity();
+		PageEntity page3 = new PageEntity();
+		
+		BlockEntity block1 = new BlockEntity();
+		BlockEntity block2 = new BlockEntity();
+		
+		page1.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
+		page1.setConferenceId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
+		page1.setName("About you");
+		page1.setPosition(0);
+		
+		page2.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe2222"));
+		page2.setConferenceId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
+		page2.setName("About me");
+		page2.setPosition(1);
+
+		page3.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe3333"));
+		page3.setConferenceId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
+		page3.setName("About your cat");
+		page3.setPosition(2);
+
+		List<PageEntity> pages = new ArrayList<PageEntity>();
+		pages.add(page1);
+		pages.add(page2);
+		pages.add(page3);
+		
+		block1.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1122"));
+		block1.setPageId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
+		block1.setAdminOnly(false);
+		block1.setBlockType("multipleChoice");
+		block1.setContent("Year in college");
+		
+		block2.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1133"));
+		block2.setPageId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
+		block2.setAdminOnly(false);
+		block2.setBlockType("text");
+		block2.setContent("Cats name");
+		
+		List<BlockEntity> blocks = new ArrayList<BlockEntity>();
+		blocks.add(block1);
+		blocks.add(block2);
+		
+		page1.setBlocks(blocks);
+		
+		jpaConference.setPages(pages);
+		
+		Conference conferenceWithPages = Conference.fromJpaWithPages(jpaConference);
+		
+		List<Page> webRegistrationPages = conferenceWithPages.getRegistrationPages();
+		
+		Assert.assertNotNull(webRegistrationPages);
+		Assert.assertEquals(webRegistrationPages.size(), 3);
+		
+		Assert.assertEquals(webRegistrationPages.get(0).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
+		Assert.assertEquals(webRegistrationPages.get(0).getName(), "About you");
+		Assert.assertEquals(webRegistrationPages.get(0).getPosition(), 0);
+		Assert.assertEquals(webRegistrationPages.get(0).getConferenceId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
+		
+		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(0).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1122"));
+		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(0).getPageId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
+		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(0).getType(), "multipleChoice");
+		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(1).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1133"));
+		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(1).getPageId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
+		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(1).getType(), "text");
+		
+		Assert.assertEquals(webRegistrationPages.get(1).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe2222"));
+		Assert.assertEquals(webRegistrationPages.get(1).getName(), "About me");
+		Assert.assertEquals(webRegistrationPages.get(1).getPosition(), 1);
+		Assert.assertEquals(webRegistrationPages.get(1).getConferenceId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
+
+		Assert.assertEquals(webRegistrationPages.get(2).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe3333"));
+		Assert.assertEquals(webRegistrationPages.get(2).getName(), "About your cat");
+		Assert.assertEquals(webRegistrationPages.get(2).getPosition(), 2);
+		Assert.assertEquals(webRegistrationPages.get(2).getConferenceId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
+
+	}
+}

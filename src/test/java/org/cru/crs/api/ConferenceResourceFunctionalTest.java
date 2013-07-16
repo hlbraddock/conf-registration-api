@@ -8,6 +8,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 
 import org.cru.crs.api.client.ConferenceResourceClient;
+import org.cru.crs.api.model.Conference;
+import org.cru.crs.api.model.Page;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.DateTimeCreaterHelper;
@@ -42,10 +44,10 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void fetchAllTheConferences()
 	{
-		ClientResponse<List<ConferenceEntity>> response = conferenceClient.getConferences();
+		ClientResponse<List<Conference>> response = conferenceClient.getConferences();
 		
 		Assert.assertEquals(response.getStatus(), 200);
-		List<ConferenceEntity> conferences = response.getEntity();
+		List<Conference> conferences = response.getEntity();
 		
 		Assert.assertNotNull(conferences);
 		Assert.assertEquals(conferences.size(), 10);
@@ -54,10 +56,10 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void fetchConferenceById()
 	{
-		ClientResponse<ConferenceEntity> response = conferenceClient.getConference(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+		ClientResponse<Conference> response = conferenceClient.getConference(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
 		
 		Assert.assertEquals(response.getStatus(), 200);
-		ConferenceEntity conference = response.getEntity();
+		Conference conference = response.getEntity();
 		
 		Assert.assertNotNull(conference);
 		Assert.assertEquals(conference.getName(), "New York U. Retreat Weekend");
@@ -71,8 +73,8 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void createConference() throws URISyntaxException
 	{
-		ConferenceEntity fakeConference = createFakeConference();
-		ClientResponse<ConferenceEntity> response = conferenceClient.createConference(fakeConference);
+		Conference fakeConference = createFakeConference();
+		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference);
 		
 		String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 		String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/conferences/";
@@ -96,8 +98,8 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void updateConference() throws URISyntaxException
 	{
-		ConferenceEntity fakeConference = createFakeConference();
-		ClientResponse<ConferenceEntity> response = conferenceClient.createConference(fakeConference);
+		Conference fakeConference = createFakeConference();
+		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference);
 		
 		String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 		String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/conferences/";
@@ -115,14 +117,14 @@ public class ConferenceResourceFunctionalTest
 		createClient();
 		
 		/*call the update endpoint*/
-		ClientResponse<ConferenceEntity> updateResponse = conferenceClient.updateConference(fakeConference, conferenceIdString);
+		ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, conferenceIdString);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
 		/*get a fresh client*/
 		createClient();
 		
-		ClientResponse<ConferenceEntity> fetchResponse = conferenceClient.getConference(fakeConference.getId());
-		ConferenceEntity updatedFakeConference = fetchResponse.getEntity();
+		ClientResponse<Conference> fetchResponse = conferenceClient.getConference(fakeConference.getId());
+		Conference updatedFakeConference = fetchResponse.getEntity();
 		
 		Assert.assertEquals(updatedFakeConference.getName(), "Updated Fake Fall Retreat");
 		
@@ -138,11 +140,11 @@ public class ConferenceResourceFunctionalTest
 		//cleaned up after itself
 		removeAddedPage(setupEm);
 		
-		PageEntity newPage = createFakePage();
+		Page newPage = createFakePage();
 		
 		try
 		{
-			ClientResponse<ConferenceEntity> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+			ClientResponse<Conference> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
 
 			//status code, 201-Created
 			Assert.assertEquals(response.getStatus(), 201);
@@ -171,10 +173,9 @@ public class ConferenceResourceFunctionalTest
 			//cleaned up after itself
 			removeAddedPage(setupEm);
 
-			PageEntity newPage = createFakePage();
-			newPage.setConferenceId(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
+			Page newPage = createFakePage();
 
-			ClientResponse<ConferenceEntity> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
+			ClientResponse<Conference> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
 
 			//status code, 400-Bad Request
 			Assert.assertEquals(response.getStatus(), 400);
@@ -210,9 +211,9 @@ public class ConferenceResourceFunctionalTest
 		setupEm.getTransaction().commit();
 	}
 	
-	private ConferenceEntity createFakeConference()
+	private Conference createFakeConference()
 	{
-		ConferenceEntity fakeConference = new ConferenceEntity();
+		Conference fakeConference = new Conference();
 		fakeConference.setContactUser(UUID.randomUUID());
 		fakeConference.setName("Fake Fall Retreat");
 		fakeConference.setTotalSlots(202);
@@ -224,13 +225,12 @@ public class ConferenceResourceFunctionalTest
 		return fakeConference;
 	}
 	
-	private PageEntity createFakePage()
+	private Page createFakePage()
 	{
-		PageEntity fakePage = new PageEntity();
+		Page fakePage = new Page();
 		
 		fakePage.setName("Ministry Prefs");
 		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
-		fakePage.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
 		fakePage.setPosition(1);
 		fakePage.setBlocks(null);
 		

@@ -36,7 +36,7 @@ public class ConferenceEntity implements java.io.Serializable
 	@Column(name = "NAME")
 	private String name;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "CONFERENCE_ID", nullable = false)
     @OrderColumn(name = "POSITION", nullable = false)
 	private List<PageEntity> pages;
@@ -69,9 +69,10 @@ public class ConferenceEntity implements java.io.Serializable
 		return id;
 	}
 
-	public void setId(UUID id)
+	public ConferenceEntity setId(UUID id)
 	{
 		this.id = id;
+		return this;
 	}
 
 	public String getName()
