@@ -27,13 +27,17 @@ import com.google.common.base.Preconditions;
 @Path("/blocks/{blockId}")
 public class BlockResource
 {
-	@Inject EntityManager em;
-	
+
+    @Inject BlockService blockService;
+
+    @Inject PageService pageService;
+
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getBlock(@PathParam(value="blockId") UUID blockId)
 	{
-		BlockEntity requestedBlock = new BlockService(em).getBlockBy(blockId);
+		BlockEntity requestedBlock = blockService.getBlockBy(blockId);
 		
 		if(requestedBlock == null) return Response.status(Status.NOT_FOUND).build();
 		
@@ -46,11 +50,9 @@ public class BlockResource
 	{
 		Preconditions.checkNotNull(blockId);
 		
-		BlockService blockService = new BlockService(em);
-		
 		if(blockService.getBlockBy(blockId) == null)
 		{
-			PageEntity page = new PageService(em).fetchPageBy(block.getPageId());
+			PageEntity page = pageService.fetchPageBy(block.getPageId());
 			
 			if(page != null)
 			{
@@ -70,8 +72,8 @@ public class BlockResource
 	public Response deleteBlock(BlockEntity block, @PathParam(value="blockId") UUID blockId)
 	{
 		Preconditions.checkNotNull(block.getId());
-		
-		new BlockService(em).deleteBlock(block);
+
+        blockService.deleteBlock(block);
 		
 		return Response.ok().build();
 	}

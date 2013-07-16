@@ -30,7 +30,7 @@ import com.google.common.base.Preconditions;
 @Path("/conferences")
 public class ConferenceResource
 {
-	@Inject EntityManager em;
+	@Inject ConferenceService conferenceService;
 	
 	/**
 	 * Desired design: Gets all the conferences for which the authenticated user has access to.
@@ -44,7 +44,7 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ConferenceEntity> getConferences()
 	{
-		List<ConferenceEntity> conferences = new ConferenceService(em).fetchAllConferences();
+		List<ConferenceEntity> conferences = conferenceService.fetchAllConferences();
 		for(ConferenceEntity conference : conferences)
 		{
 			conference = ConferenceOptimizer.removePagesFromConference(conference);
@@ -64,7 +64,7 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getConference(@PathParam(value = "conferenceId") UUID conferenceId)
 	{
-		ConferenceEntity requestedConference = new ConferenceService(em).fetchConferenceBy(conferenceId);
+		ConferenceEntity requestedConference = conferenceService.fetchConferenceBy(conferenceId);
 		
 		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
 		
@@ -88,7 +88,7 @@ public class ConferenceResource
 		
 		conference.setId(UUID.randomUUID());
 		
-		new ConferenceService(em).createNewConference(conference);
+		conferenceService.createNewConference(conference);
 		
 		return Response.created(new URI("/conferences/" + conference.getId())).build();
 	}
@@ -110,7 +110,7 @@ public class ConferenceResource
 	{
 		Preconditions.checkNotNull(conference.getId());
 		
-		new ConferenceService(em).updateConference(conference);
+		conferenceService.updateConference(conference);
 		
 		return Response.noContent().build();
 	}
@@ -122,7 +122,7 @@ public class ConferenceResource
 	{
 		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
 		
-		ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(conferenceId);
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
 		
 		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
 		
