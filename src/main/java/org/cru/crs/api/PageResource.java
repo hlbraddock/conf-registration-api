@@ -20,13 +20,10 @@ import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Page;
-import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.utils.IdComparer;
-
-import com.google.common.base.Preconditions;
 
 @Stateless
 @Path("/pages/{pageId}")

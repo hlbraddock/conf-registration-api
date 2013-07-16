@@ -25,6 +25,7 @@ public class Page implements java.io.Serializable
 		page.conferenceId = jpaPage.getConferenceId();
 		page.name = jpaPage.getName();
 		page.position = jpaPage.getPosition();
+		page.blocks = Block.fromJpa(jpaPage.getBlocks());
 		
 		return page;
 	}
@@ -49,7 +50,6 @@ public class Page implements java.io.Serializable
 		jpaPage.setConferenceId(conferenceId);
 		jpaPage.setName(name);
 		jpaPage.setPosition(position);
-//		jpaPage.setBlocks(blocks);
 		
 		return jpaPage;
 	}

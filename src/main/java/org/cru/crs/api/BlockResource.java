@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -16,10 +15,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cru.crs.api.model.Block;
 import org.cru.crs.model.BlockEntity;
-import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.PageService;
+import org.cru.crs.utils.IdComparer;
 
 import com.google.common.base.Preconditions;
 
@@ -41,29 +41,57 @@ public class BlockResource
 		
 		if(requestedBlock == null) return Response.status(Status.NOT_FOUND).build();
 		
-		return Response.ok(requestedBlock).build();
+		return Response.ok(Block.fromJpa(requestedBlock)).build();
 	}
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateBlock(BlockEntity block, @PathParam(value="blockId") UUID blockId)
+	public Response updateBlock(Block block, @PathParam(value="blockId") UUID blockId)
 	{
-		Preconditions.checkNotNull(blockId);
-		
-		if(blockService.getBlockBy(blockId) == null)
+		/**
+		 * If the Path pageId does not match the pageId in the body of the JSON object,
+		 * then fail fast and return a 400.  
+		 */
+		if(IdComparer.idsAreNotNullAndDifferent(blockId, block.getId()))
 		{
-			PageEntity page = pageService.fetchPageBy(block.getPageId());
-			
-			if(page != null)
-			{
-				page.getBlocks().add(block);
-			}
-			else
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		/**
+		 * Now that we know that the blockIds are not different.. take the first not-null
+		 * one we find and treat it as the "official" block ID.  Note in this case it still
+		 * could be null at this point, and we would need to create a new block.
+		 */
+		UUID officialBlockId = blockId != null ? blockId : block.getId(); 
+		
+		if(officialBlockId == null || blockService.getBlockBy(officialBlockId) == null)
+		{
+			/**
+			 * If there is no conference ID, then this is a bad request.  We must know
+			 * which conference to associate the page with.
+			 */
+			if(block.getPageId() == null || pageService.fetchPageBy(block.getPageId()) == null)
 			{
 				return Response.status(Status.BAD_REQUEST).build();
 			}
+			/**
+			 * If the client didn't specify an ID for the new page, we'll create one
+			 */
+			if(officialBlockId == null) officialBlockId = UUID.randomUUID();
+			
+			/**
+			 * Make sure the Page ID is set in the object, it could be that it was only
+			 * specified as a path parameter.
+			 */
+			pageService.fetchPageBy(block.getPageId())
+								.getBlocks()
+								.add(block.setId(officialBlockId).toJpaBlockEntity());
 		}
-				
+		else
+		{
+			blockService.updateBlock(block.setId(officialBlockId).toJpaBlockEntity());
+		}
+		
 		return Response.noContent().build();
 	}
 	
