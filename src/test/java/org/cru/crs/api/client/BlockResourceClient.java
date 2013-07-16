@@ -12,7 +12,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.cru.crs.model.BlockEntity;
+import org.cru.crs.api.model.Block;
 import org.jboss.resteasy.client.ClientResponse;
 
 @Stateless
@@ -21,13 +21,13 @@ public interface BlockResourceClient
 {
 		@GET
 		@Produces(MediaType.APPLICATION_JSON)
-		public ClientResponse<BlockEntity> getBlock(@PathParam(value="blockId") UUID blockId);
+		public ClientResponse<Block> getBlock(@PathParam(value="blockId") UUID blockId);
 		
 		@PUT
 		@Consumes(MediaType.APPLICATION_JSON)
-		public ClientResponse<BlockEntity> updateBlock(BlockEntity block, @PathParam(value="blockId") UUID blockId);
+		public ClientResponse<Block> updateBlock(Block block, @PathParam(value="blockId") UUID blockId);
 		
 		@DELETE
 		@Consumes(MediaType.APPLICATION_JSON)
-		public ClientResponse<BlockEntity> deleteBlock(BlockEntity block, @PathParam(value="blockId") UUID blockId);
+		public ClientResponse<Block> deleteBlock(Block block, @PathParam(value="blockId") UUID blockId);
 }
