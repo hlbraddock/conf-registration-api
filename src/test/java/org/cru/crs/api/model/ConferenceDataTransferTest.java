@@ -104,13 +104,13 @@ public class ConferenceDataTransferTest
 		block1.setPageId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
 		block1.setAdminOnly(false);
 		block1.setBlockType("multipleChoice");
-		block1.setBlockDescription("Year in college");
+		block1.setContent("Year in college");
 		
 		block2.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1133"));
 		block2.setPageId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
 		block2.setAdminOnly(false);
 		block2.setBlockType("text");
-		block2.setBlockDescription("Cats name");
+		block2.setContent("Cats name");
 		
 		List<BlockEntity> blocks = new ArrayList<BlockEntity>();
 		blocks.add(block1);

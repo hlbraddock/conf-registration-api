@@ -7,7 +7,6 @@ import javax.persistence.Persistence;
 
 import org.cru.crs.api.client.PageResourceClient;
 import org.cru.crs.api.model.Page;
-import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;

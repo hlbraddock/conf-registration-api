@@ -34,6 +34,8 @@ public class Page implements java.io.Serializable
 	{
 		List<Page> pages = new ArrayList<Page>();
 		
+		if(jpaPages == null) return pages;
+		
 		for(PageEntity jpaPage : jpaPages)
 		{
 			pages.add(fromJpa(jpaPage));

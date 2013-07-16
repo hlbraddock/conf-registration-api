@@ -21,9 +21,9 @@ public class Block implements java.io.Serializable
 		Block block = new Block();
 		
 		block.id = jpaBlock.getId();
-		block.title = jpaBlock.getBlockDescription();
+		block.title = jpaBlock.getContent();
 		block.type = jpaBlock.getBlockType();
-//		block.content = jpaBlock.
+		block.content = jpaBlock.getContent();
 		block.pageId = jpaBlock.getPageId();
 		
 		return block;
@@ -32,6 +32,8 @@ public class Block implements java.io.Serializable
 	public static List<Block> fromJpa(List<BlockEntity> jpaBlocks)
 	{
 		List<Block> webBlocks = new ArrayList<Block>();
+		
+		if(jpaBlocks == null) return webBlocks;
 		
 		for(BlockEntity jpaBlock : jpaBlocks)
 		{
@@ -48,8 +50,8 @@ public class Block implements java.io.Serializable
 		jpaBlock.setId(id);
 		jpaBlock.setPageId(pageId);
 		jpaBlock.setBlockType(type);
-		jpaBlock.setBlockDescription(title);
-//		jpaBlock.set
+		jpaBlock.setContent(content);
+		jpaBlock.setTitle(title);
 		
 		return jpaBlock;
 	}
