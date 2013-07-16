@@ -24,6 +24,7 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
+import org.cru.crs.utils.IdComparer;
 
 import com.google.common.base.Preconditions;
 
@@ -46,8 +47,7 @@ public class PageResource
 	}
 
 	/**
-	 * Update the page or create it under the following conditions:
-	 * -If the page exists
+	 * Update the page or create it.
 	 * 
 	 * @param page
 	 * @param pageId
@@ -61,48 +61,75 @@ public class PageResource
 		 * If the Path pageId does not match the pageId in the body of the JSON object,
 		 * then fail fast and return a 400.  
 		 */
-		if(pageId != null && page.getId() != null && !pageId.equals(page.getId()))
+		if(IdComparer.idsAreNotNullAndDifferent(pageId, page.getId()))
 		{
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 		
-		UUID canonicalPageId = pageId != null ? pageId : page.getId(); 
+		/**
+		 * Now that we know that the pageIds are not different.. take the first not-null
+		 * one we find and treat it as the "official" page ID.  Note in this case it still
+		 * could be null at this point, and we would need to create a new page.
+		 */
+		UUID officialPageId = pageId != null ? pageId : page.getId(); 
 		
-		if(pageService.fetchPageBy(canonicalPageId) == null)
+		if(officialPageId == null || pageService.fetchPageBy(officialPageId) == null)
 		{
+			/**
+			 * If there is no conference ID, then this is a bad request.  We must know
+			 * which conference to associate the page with.
+			 */
 			if(page.getConferenceId() == null || conferenceService.fetchConferenceBy(page.getConferenceId()) == null)
 			{
 				return Response.status(Status.BAD_REQUEST).build();
 			}
-		
 			/**
-			 * If there is no ID, then create a random one.
+			 * If the client didn't specify an ID for the new page, we'll create one
 			 */
-			if(canonicalPageId == null) canonicalPageId = UUID.randomUUID();
+			if(officialPageId == null) officialPageId = UUID.randomUUID();
 			
 			/**
 			 * Make sure the Page ID is set in the object, it could be that it was only
 			 * specified as a path parameter.
 			 */
-			ConferenceEntity conference = conferenceService.fetchConferenceBy(page.getConferenceId());
-			conference.getPages().add(page.setId(canonicalPageId).toJpaPageEntity());
+			conferenceService.fetchConferenceBy(page.getConferenceId())
+								.getPages()
+								.add(page.setId(officialPageId).toJpaPageEntity());
 		}
 		else
 		{
-			pageService.updatePage(page.toJpaPageEntity().setId(canonicalPageId));
+			pageService.updatePage(page.toJpaPageEntity().setId(officialPageId));
 		}
 		
 		return Response.noContent().build();
 		
 	}
 
+	/**
+	 * This method will delete a page specified by ID.  If the ID in the path
+	 * doesn't match the one in the body, a 400-Bad Request is returned to ensure
+	 * data integrity.
+	 * 
+	 * @param page
+	 * @param pageId
+	 * @return
+	 */
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deletePage(Page page, @PathParam(value="pageId") UUID pageId)
 	{
-		Preconditions.checkNotNull(page.getId());
-
-		pageService.deletePage(page.toJpaPageEntity());
+		/**
+		 * Again, if the IDs are different in the path and body, fail fast. We
+		 * want to be sure we know what we're doing is correct on delete operations
+		 */
+		if(IdComparer.idsAreNotNullAndDifferent(pageId, page.getId()))
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		/**
+		 * Matt drees to fill in this method :)
+		 */
 
 		return Response.ok().build();
 	}

@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -22,6 +21,7 @@ import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.service.ConferenceService;
+import org.cru.crs.utils.IdComparer;
 
 @Stateless
 @Path("/conferences")
@@ -89,7 +89,8 @@ public class ConferenceResource
 	 * This PUT will create a new conference resource if the conference specified by @Param conferenceId does
 	 * not exist.
 	 * 
-	 * The Path @Param conference ID is used to lookup whether or not the conference exists or not.
+	 * If the conference ID path parameter and the conference ID body parameter (in the JSON object) do not match
+	 * then this method will fail-fast and return a 400-Bad Request response.
 	 * 
 	 * @param conference
 	 * @return
@@ -98,7 +99,18 @@ public class ConferenceResource
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId)
-	{		
+	{
+		/**
+		 * First check if the conference IDs are both present, and are different.  If so then throw a 400.
+		 */
+		if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		/**
+		 * Now, if we don't have a conference ID, or we do but it doesn't exist, then create a new conference.
+		 */
 		if(conferenceId == null)
 		{
 			conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(UUID.randomUUID()));
