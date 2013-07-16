@@ -2,6 +2,7 @@ package org.cru.crs.service;
 
 import java.util.UUID;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.cru.crs.model.PageEntity;
@@ -9,7 +10,8 @@ import org.cru.crs.model.PageEntity;
 public class PageService
 {
 	EntityManager em;
-	
+
+    @Inject
 	public PageService(EntityManager em)
 	{
 		this.em = em;

@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -32,13 +31,14 @@ import com.google.common.base.Preconditions;
 @Path("/pages/{pageId}")
 public class PageResource
 {
-	@Inject EntityManager em;
+	@Inject PageService pageService;
+    @Inject ConferenceService conferenceService;
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPage(@PathParam(value="pageId") UUID pageId)
 	{
-		PageEntity requestedPage = new PageService(em).fetchPageBy(pageId);
+		PageEntity requestedPage = pageService.fetchPageBy(pageId);
 
 		if(requestedPage == null) return Response.status(Status.NOT_FOUND).build();
 
@@ -56,9 +56,7 @@ public class PageResource
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePage(Page page, @PathParam(value="pageId") UUID pageId)
-	{
-		PageService pageService = new PageService(em);
-		
+	{		
 		/**
 		 * If the Path pageId does not match the pageId in the body of the JSON object,
 		 * then fail fast and return a 400.  
@@ -72,7 +70,7 @@ public class PageResource
 		
 		if(pageService.fetchPageBy(canonicalPageId) == null)
 		{
-			if(page.getConferenceId() == null || new ConferenceService(em).fetchConferenceBy(page.getConferenceId()) == null)
+			if(page.getConferenceId() == null || conferenceService.fetchConferenceBy(page.getConferenceId()) == null)
 			{
 				return Response.status(Status.BAD_REQUEST).build();
 			}
@@ -86,7 +84,7 @@ public class PageResource
 			 * Make sure the Page ID is set in the object, it could be that it was only
 			 * specified as a path parameter.
 			 */
-			ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(page.getConferenceId());
+			ConferenceEntity conference = conferenceService.fetchConferenceBy(page.getConferenceId());
 			conference.getPages().add(page.setId(canonicalPageId).toJpaPageEntity());
 		}
 		else
@@ -104,7 +102,7 @@ public class PageResource
 	{
 		Preconditions.checkNotNull(page.getId());
 
-		new PageService(em).deletePage(page.toJpaPageEntity());
+		pageService.deletePage(page.toJpaPageEntity());
 
 		return Response.ok().build();
 	}
@@ -116,7 +114,7 @@ public class PageResource
 	{
 		if(newBlock.getId() == null) newBlock.setId(UUID.randomUUID());
 
-		PageEntity page = new PageService(em).fetchPageBy(pageId);
+		PageEntity page = pageService.fetchPageBy(pageId);
 
 		if(page == null) return Response.status(Status.BAD_REQUEST).build();
 

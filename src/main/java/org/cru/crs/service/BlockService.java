@@ -2,6 +2,7 @@ package org.cru.crs.service;
 
 import java.util.UUID;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.cru.crs.model.BlockEntity;
@@ -9,7 +10,8 @@ import org.cru.crs.model.BlockEntity;
 public class BlockService
 {
 	EntityManager em;
-	
+
+    @Inject
 	public BlockService(EntityManager em)
 	{
 		this.em = em;

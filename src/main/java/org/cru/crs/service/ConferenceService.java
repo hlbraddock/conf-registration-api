@@ -2,6 +2,7 @@ package org.cru.crs.service;
 
 import org.cru.crs.model.ConferenceEntity;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
@@ -9,7 +10,8 @@ import java.util.UUID;
 public class ConferenceService
 {
 	EntityManager em;
-	
+
+    @Inject
 	public ConferenceService(EntityManager em)
 	{
 		this.em = em;

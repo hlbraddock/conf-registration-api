@@ -27,7 +27,7 @@ import org.cru.crs.service.ConferenceService;
 @Path("/conferences")
 public class ConferenceResource
 {
-	@Inject EntityManager em;
+	@Inject ConferenceService conferenceService;
 	
 	/**
 	 * Desired design: Gets all the conferences for which the authenticated user has access to.
@@ -41,7 +41,7 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getConferences()
 	{
-		return Response.ok(Conference.fromJpa(new ConferenceService(em).fetchAllConferences())).build();
+		return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences())).build();
 	}
 	
 	/**
@@ -55,7 +55,7 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getConference(@PathParam(value = "conferenceId") UUID conferenceId)
 	{
-		ConferenceEntity requestedConference = new ConferenceService(em).fetchConferenceBy(conferenceId);
+		ConferenceEntity requestedConference = conferenceService.fetchConferenceBy(conferenceId);
 		
 		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
 		
@@ -78,7 +78,7 @@ public class ConferenceResource
 			conference.setId(UUID.randomUUID());
 		}
 		
-		new ConferenceService(em).createNewConference(conference.toJpaConferenceEntity());
+		conferenceService.createNewConference(conference.toJpaConferenceEntity());
 		
 		return Response.created(new URI("/conferences/" + conference.getId())).build();
 	}
@@ -98,9 +98,7 @@ public class ConferenceResource
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId)
-	{
-		ConferenceService conferenceService = new ConferenceService(em);
-		
+	{		
 		if(conferenceId == null)
 		{
 			conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(UUID.randomUUID()));
@@ -122,7 +120,7 @@ public class ConferenceResource
 	{
 		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
 		
-		ConferenceEntity conference = new ConferenceService(em).fetchConferenceBy(conferenceId);
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
 		
 		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
 		
