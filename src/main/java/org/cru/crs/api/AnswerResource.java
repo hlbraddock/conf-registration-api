@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cru.crs.api.model.Answer;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.AnswerService;
@@ -46,7 +47,7 @@ public class AnswerResource {
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateAnswer(AnswerEntity answer, @PathParam(value="answerId") UUID answerId)
+    public Response updateAnswer(Answer answer, @PathParam(value="answerId") UUID answerId)
     {
         Preconditions.checkNotNull(answer.getId());
 
@@ -55,14 +56,14 @@ public class AnswerResource {
         if(answerService.getAnswerBy(answer.getId()) == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        answerService.updateAnswer(answer);
+        answerService.updateAnswer(answer.toJpaAnswerEntity());
 
         return Response.noContent().build();
     }
 
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteAnswer(AnswerEntity answer, @PathParam(value="answerId") UUID answerId)
+    public Response deleteAnswer(Answer answer, @PathParam(value="answerId") UUID answerId)
     {
         Preconditions.checkNotNull(answer.getId());
 
@@ -71,7 +72,7 @@ public class AnswerResource {
         if(answerService.getAnswerBy(answer.getId()) == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        answerService.deleteAnswer(answer);
+        answerService.deleteAnswer(answer.toJpaAnswerEntity());
 
         return Response.ok().build();
     }

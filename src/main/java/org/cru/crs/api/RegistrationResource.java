@@ -19,6 +19,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
@@ -41,12 +43,12 @@ public class RegistrationResource
 
         if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
 
-        return Response.ok(requestedRegistration).build();
+        return Response.ok(Registration.fromJpa(requestedRegistration)).build();
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateRegistration(RegistrationEntity registration, @PathParam(value="registrationId") UUID registrationId)
+    public Response updateRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)
     {
         Preconditions.checkNotNull(registrationId);
 
@@ -55,18 +57,18 @@ public class RegistrationResource
         if(registrationService.getRegistrationBy(registrationId) == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        registrationService.updateRegistration(registration);
+        registrationService.updateRegistration(registration.toJpaRegistrationEntity());
 
         return Response.noContent().build();
     }
 
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteRegistration(RegistrationEntity registration, @PathParam(value="registrationId") UUID registrationId)
+    public Response deleteRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)
     {
         Preconditions.checkNotNull(registration.getId());
 
-        new RegistrationService(em).deleteRegistration(registration);
+        new RegistrationService(em).deleteRegistration(registration.toJpaRegistrationEntity());
 
         return Response.ok().build();
     }
@@ -74,7 +76,7 @@ public class RegistrationResource
     @POST
     @Path("/answers/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createAnswer(AnswerEntity newAnswer, @PathParam(value="registrationId") UUID registrationId) throws URISyntaxException
+    public Response createAnswer(Answer newAnswer, @PathParam(value="registrationId") UUID registrationId) throws URISyntaxException
     {
         if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
 
@@ -82,7 +84,7 @@ public class RegistrationResource
 
         if(registration == null) return Response.status(Status.BAD_REQUEST).build();
 
-        registration.getAnswers().add(newAnswer);
+        registration.getAnswers().add(newAnswer.toJpaAnswerEntity());
 
         return Response.created(new URI("/answers/" + newAnswer.getId())).build();
     }
