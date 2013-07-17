@@ -1,9 +1,13 @@
 package org.cru.crs.service;
 
+import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javax.persistence.EntityManager;
@@ -18,22 +22,26 @@ public class RegistrationServiceTest
 	private EntityManagerFactory emFactory;
 	private EntityManager em;
 
-	private RegistrationService registrationService;
+    private RegistrationService registrationService;
+    private ConferenceService conferenceService;
 
 	private UUID originalRegistrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 	private UUID originalUserUUID = UUID.fromString("1F6250CA-6D25-2BF4-4E56-F368B2FB8F8A");
 	private UUID originalConferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-	@BeforeClass
+    private String originalAnswerValue = "{ \"Imya\": \"Alexander Solzhenitsyn\"}";
+
+    @BeforeMethod
 	public void setup()
 	{
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
 
-		registrationService = new RegistrationService(em);
+        registrationService = new RegistrationService(em);
+        conferenceService = new ConferenceService(em);
 	}
 
-	@AfterClass
+	@AfterMethod
 	public void cleanup()
 	{
 		em.close();
@@ -47,7 +55,7 @@ public class RegistrationServiceTest
 
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getUserId(), originalUserUUID);
-		Assert.assertEquals(registration.getConferenceId(), originalConferenceUUID);
+		Assert.assertEquals(registration.getConference().getId(), originalConferenceUUID);
 	}
 
 	@Test(groups="db-integration-tests")
@@ -55,9 +63,11 @@ public class RegistrationServiceTest
 	{
 		RegistrationEntity registration = new RegistrationEntity();
 
-		registration.setId(UUID.randomUUID());
+        ConferenceEntity conference = conferenceService.fetchConferenceBy(originalConferenceUUID);
+
+        registration.setId(UUID.randomUUID());
+        registration.setConference(conference);
 		registration.setUserId(originalUserUUID);
-		registration.setConferenceId(originalConferenceUUID);
 
 		registrationService.createNewRegistration(registration);
 
@@ -66,7 +76,7 @@ public class RegistrationServiceTest
 		Assert.assertNotNull(foundRegistration);
 		Assert.assertEquals(foundRegistration.getId(), registration.getId());
 		Assert.assertEquals(foundRegistration.getUserId(), registration.getUserId());
-		Assert.assertEquals(foundRegistration.getConferenceId(), registration.getConferenceId());
+		Assert.assertEquals(foundRegistration.getConference().getId(), registration.getConference().getId());
 
 		em.remove(foundRegistration);
 	}
@@ -89,21 +99,46 @@ public class RegistrationServiceTest
 		updatedRegistration.setUserId(originalUserUUID);
 
 		em.merge(updatedRegistration);
-	}
+    }
 
 	@Test(groups="db-integration-tests")
 	public void testDeleteRegistration()
 	{
 		RegistrationEntity registration = new RegistrationEntity();
 
+        ConferenceEntity conference = conferenceService.fetchConferenceBy(originalConferenceUUID);
+
 		registration.setId(UUID.randomUUID());
+        registration.setConference(conference);
 		registration.setUserId(originalUserUUID);
-		registration.setConferenceId(originalConferenceUUID);
 
 		em.persist(registration);
-		
+
 		registrationService.deleteRegistration(registration);
-		
+
 		Assert.assertNull(em.find(RegistrationEntity.class, registration.getId()));
 	}
+
+    @Test(groups="db-integration-tests")
+    public void testCreateNewAnswer()
+    {
+        AnswerEntity answer = new AnswerEntity();
+
+        RegistrationEntity registrationEntity = registrationService.getRegistrationBy(originalRegistrationUUID);
+
+        answer.setId(UUID.randomUUID());
+        answer.setAnswer(originalAnswerValue);
+
+        registrationEntity.getAnswers().add(answer);
+
+        registrationService.updateRegistration(registrationEntity);
+
+        AnswerEntity foundAnswer = em.find(AnswerEntity.class, answer.getId());
+
+        Assert.assertNotNull(foundAnswer);
+        Assert.assertEquals(foundAnswer.getId(), answer.getId());
+        Assert.assertEquals(foundAnswer.getAnswer(), answer.getAnswer());
+
+        em.remove(foundAnswer);
+    }
 }

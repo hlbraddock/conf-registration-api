@@ -23,12 +23,8 @@ public class AnswerServiceTest
 
 	private AnswerService answerService;
 
-    private UUID originalRegistrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
-
     private UUID originalAnswerUUID = UUID.fromString("441AD805-7AA6-4B20-8315-8F1390DC4A9E");
 	private String originalAnswerValue = "{ \"Imya\": \"Alexander Solzhenitsyn\"}";
-
-    private RegistrationService registrationService;
 
     @BeforeClass
 	public void setup()
@@ -37,7 +33,6 @@ public class AnswerServiceTest
 		em = emFactory.createEntityManager();
 		
 		answerService = new AnswerService(em);
-        registrationService = new RegistrationService(em);
 	}
 
 	@AfterClass
@@ -54,30 +49,6 @@ public class AnswerServiceTest
 
 		Assert.assertNotNull(answer);
 		Assert.assertEquals(answer.getAnswer(), originalAnswerValue);
-	}
-
-    // TODO Move to registration service test
-	@Test(groups="db-integration-tests")
-	public void testCreateNewAnswer()
-	{
-		AnswerEntity answer = new AnswerEntity();
-
-        RegistrationEntity registrationEntity = registrationService.getRegistrationBy(originalRegistrationUUID);
-
-        answer.setId(UUID.randomUUID());
-		answer.setAnswer(originalAnswerValue);
-
-        registrationEntity.getAnswers().add(answer);
-
-        registrationService.updateRegistration(registrationEntity);
-
-		AnswerEntity foundAnswer = em.find(AnswerEntity.class, answer.getId());
-
-		Assert.assertNotNull(foundAnswer);
-		Assert.assertEquals(foundAnswer.getId(), answer.getId());
-		Assert.assertEquals(foundAnswer.getAnswer(), answer.getAnswer());
-
-		em.remove(foundAnswer);
 	}
 
 	@Test(groups="db-integration-tests")

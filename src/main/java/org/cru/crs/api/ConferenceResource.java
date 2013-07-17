@@ -20,15 +20,18 @@ import javax.ws.rs.core.Response.Status;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 
 @Stateless
 @Path("/conferences")
 public class ConferenceResource
 {
-	@Inject ConferenceService conferenceService;
-	
+    @Inject ConferenceService conferenceService;
+    @Inject RegistrationService registrationService;
+
 	/**
 	 * Desired design: Gets all the conferences for which the authenticated user has access to.
 	 * 
@@ -140,4 +143,22 @@ public class ConferenceResource
 		
 		return Response.created(new URI("/pages/" + newPage.getId())).build();
 	}
+
+    @POST
+    @Path("/{conferenceId}/registrations")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createRegistration(RegistrationEntity newRegistrationEntity, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+    {
+        if(newRegistrationEntity.getId() == null) newRegistrationEntity.setId(UUID.randomUUID());
+
+        ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+
+        if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+
+        newRegistrationEntity.setConference(conference);
+
+        registrationService.createNewRegistration(newRegistrationEntity);
+
+        return Response.created(new URI("/registrations/" + newRegistrationEntity.getId())).build();
+    }
 }

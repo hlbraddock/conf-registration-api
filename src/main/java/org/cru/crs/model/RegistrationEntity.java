@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -30,15 +31,15 @@ public class RegistrationEntity implements java.io.Serializable
 	@Type(type = "pg-uuid")
 	private UUID id;
 
-	@Column(name = "CONFERENCE_ID", insertable = false, updatable = false)
-	@Type(type = "pg-uuid")
-	private UUID conferenceId;
+    // NO! cascade = CascadeType.ALL - unless you want to remove the parent (conference)
+    @ManyToOne(fetch = FetchType.EAGER)
+    private ConferenceEntity conference;
 
-	@Column(name = "USER_ID", insertable = false, updatable = false)
+    @Column(name = "USER_ID", insertable = false, updatable = false)
 	@Type(type = "pg-uuid")
 	private UUID userId;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "REGISTRATION_ID", nullable = false)
 	private Set<AnswerEntity> answers;
 
@@ -52,17 +53,17 @@ public class RegistrationEntity implements java.io.Serializable
 		this.id = id;
 	}
 
-	public UUID getConferenceId()
-	{
-		return conferenceId;
-	}
+    public ConferenceEntity getConference()
+    {
+        return conference;
+    }
 
-	public void setConferenceId(UUID conferenceId)
-	{
-		this.conferenceId = conferenceId;
-	}
+    public void setConference(ConferenceEntity conference)
+    {
+        this.conference = conference;
+    }
 
-	public UUID getUserId()
+    public UUID getUserId()
 	{
 		return userId;
 	}

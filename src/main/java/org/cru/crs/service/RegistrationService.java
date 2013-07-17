@@ -3,6 +3,7 @@ package org.cru.crs.service;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +15,7 @@ public class RegistrationService {
 
     EntityManager em;
 
+    @Inject
     public RegistrationService(EntityManager em)
     {
         this.em = em;
