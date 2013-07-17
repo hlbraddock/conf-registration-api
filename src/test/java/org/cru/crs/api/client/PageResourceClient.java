@@ -11,24 +11,21 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.cru.crs.model.PageEntity;
+import org.cru.crs.api.model.Page;
 import org.jboss.resteasy.client.ClientResponse;
 
-@Path("/pages")
+@Path("/pages/{pageId}")
 public interface PageResourceClient
 {
 	@GET
-	@Path("/{pageId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<PageEntity> getPage(@PathParam(value="pageId") UUID pageId);
+	public ClientResponse<Page> getPage(@PathParam(value="pageId") UUID pageId);
 	
 	@PUT
-	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<PageEntity> updatePage(PageEntity page, @PathParam(value="pageId") UUID pageId);
+	public ClientResponse<Page> updatePage(Page page, @PathParam(value="pageId") UUID pageId);
 	
 	@DELETE
-	@Path("/{pageId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<PageEntity> deletePage(PageEntity page, @PathParam(value="pageId") UUID pageId);
+	public ClientResponse<Page> deletePage(Page page, @PathParam(value="pageId") UUID pageId);
 }
