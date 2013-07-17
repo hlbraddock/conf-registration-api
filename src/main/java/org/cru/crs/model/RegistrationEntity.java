@@ -16,6 +16,7 @@ import javax.persistence.Table;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -39,7 +40,7 @@ public class RegistrationEntity implements java.io.Serializable
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "REGISTRATION_ID", nullable = false)
-	private List<AnswerEntity> answers;
+	private Set<AnswerEntity> answers;
 
 	public UUID getId()
 	{
@@ -71,13 +72,13 @@ public class RegistrationEntity implements java.io.Serializable
 		this.userId = userId;
 	}
 
-	public List<AnswerEntity> getAnswers()
-	{
-		return answers;
-	}
+    public Set<AnswerEntity> getAnswers()
+    {
+        return answers;
+    }
 
-	public void setAnswers(List<AnswerEntity> answers)
-	{
-		this.answers = answers;
-	}
+    public void setAnswers(Set<AnswerEntity> answers)
+    {
+        this.answers = answers;
+    }
 }
