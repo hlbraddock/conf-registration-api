@@ -2,6 +2,7 @@ package org.cru.crs.service;
 
 import java.util.UUID;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.cru.crs.model.AnswerEntity;
@@ -13,6 +14,7 @@ public class AnswerService {
 
     EntityManager em;
 
+    @Inject
     public AnswerService(EntityManager em)
     {
         this.em = em;
@@ -21,11 +23,6 @@ public class AnswerService {
     public AnswerEntity getAnswerBy(UUID answerId)
     {
         return em.find(AnswerEntity.class, answerId);
-    }
-
-    public void createNewAnswer(AnswerEntity newAnswer)
-    {
-        em.persist(newAnswer);
     }
 
     public void updateAnswer(AnswerEntity answerToUpdate)

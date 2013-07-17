@@ -1,6 +1,8 @@
 package org.cru.crs.service;
 
 import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.RegistrationEntity;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -9,6 +11,7 @@ import org.testng.annotations.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import java.util.Set;
 import java.util.UUID;
 
 @Test(groups="db-integration-tests")
@@ -20,16 +23,21 @@ public class AnswerServiceTest
 
 	private AnswerService answerService;
 
-	private UUID originalAnswerUUID = UUID.fromString("441AD805-7AA6-4B20-8315-8F1390DC4A9E");
+    private UUID originalRegistrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
+
+    private UUID originalAnswerUUID = UUID.fromString("441AD805-7AA6-4B20-8315-8F1390DC4A9E");
 	private String originalAnswerValue = "{ \"Imya\": \"Alexander Solzhenitsyn\"}";
 
-	@BeforeClass
+    private RegistrationService registrationService;
+
+    @BeforeClass
 	public void setup()
 	{
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
 		
 		answerService = new AnswerService(em);
+        registrationService = new RegistrationService(em);
 	}
 
 	@AfterClass
@@ -48,15 +56,20 @@ public class AnswerServiceTest
 		Assert.assertEquals(answer.getAnswer(), originalAnswerValue);
 	}
 
+    // TODO Move to registration service test
 	@Test(groups="db-integration-tests")
 	public void testCreateNewAnswer()
 	{
 		AnswerEntity answer = new AnswerEntity();
 
-		answer.setId(UUID.randomUUID());
+        RegistrationEntity registrationEntity = registrationService.getRegistrationBy(originalRegistrationUUID);
+
+        answer.setId(UUID.randomUUID());
 		answer.setAnswer(originalAnswerValue);
 
-		answerService.createNewAnswer(answer);
+        registrationEntity.getAnswers().add(answer);
+
+        registrationService.updateRegistration(registrationEntity);
 
 		AnswerEntity foundAnswer = em.find(AnswerEntity.class, answer.getId());
 
