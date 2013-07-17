@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
+import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.ConferenceEntity;
 import org.joda.time.DateTime;
 
@@ -15,10 +20,19 @@ public class Conference implements java.io.Serializable
 	private String name;
 	
 	private List<Page> registrationPages;
-	private DateTime eventStartTime;
-	private DateTime eventEndTime;
 	
+	@JsonProperty("eventStartTime")
+	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
+	@JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
+	private DateTime eventStartTime;
+	@JsonProperty("eventEndTime")
+	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
+	@JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
+	private DateTime eventEndTime;
+
+	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
 	private DateTime registrationStartTime;
+	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
 	private DateTime registrationEndTime;
 	
 	private UUID contactUser;
