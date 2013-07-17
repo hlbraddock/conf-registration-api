@@ -5,7 +5,9 @@ import org.cru.crs.model.RegistrationEntity;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import java.util.List;
+import javax.persistence.Query;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -19,6 +21,15 @@ public class RegistrationService {
     public RegistrationService(EntityManager em)
     {
         this.em = em;
+    }
+
+    public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId)
+    {
+        Query query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.conference_id = :conference_id", RegistrationEntity.class);
+
+        query.setParameter("conference_id", conferenceId.toString());
+
+        return new HashSet<RegistrationEntity>(query.getResultList());
     }
 
     public RegistrationEntity getRegistrationBy(UUID registrationId)

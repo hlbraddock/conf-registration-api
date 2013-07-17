@@ -161,4 +161,11 @@ public class ConferenceResource
 
         return Response.created(new URI("/registrations/" + newRegistrationEntity.getId())).build();
     }
+
+    @GET
+    @Path("/{conferenceId}/registrations")
+    public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+    {
+        return Response.ok(registrationService.fetchAllRegistrations(conferenceId)).build();
+    }
 }
