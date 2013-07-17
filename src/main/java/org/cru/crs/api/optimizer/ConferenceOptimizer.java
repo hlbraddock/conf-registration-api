@@ -15,8 +15,6 @@ public class ConferenceOptimizer
 	{
         conference.setPages(null);
 
-        conference.setRegistrations(null);
-
 		return conference;
 	}
 }
