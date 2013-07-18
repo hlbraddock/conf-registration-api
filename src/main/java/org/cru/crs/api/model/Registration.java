@@ -3,9 +3,7 @@ package org.cru.crs.api.model;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.RegistrationEntity;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,9 +32,9 @@ public class Registration implements java.io.Serializable
 		return webRegistration;
 	}
 	
-	public static List<Registration> fromJpa(List<RegistrationEntity> jpaRegistrations)
+	public static Set<Registration> fromJpa(Set<RegistrationEntity> jpaRegistrations)
 	{
-		List<Registration> registrations = new ArrayList<Registration>();
+		Set<Registration> registrations = new HashSet<Registration>();
 		
 		for(RegistrationEntity jpaRegistration : jpaRegistrations)
 		{

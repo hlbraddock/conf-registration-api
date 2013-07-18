@@ -169,6 +169,6 @@ public class ConferenceResource
     @Path("/{conferenceId}/registrations")
     public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
     {
-        return Response.ok(registrationService.fetchAllRegistrations(conferenceId)).build();
+        return Response.ok(Registration.fromJpa(registrationService.fetchAllRegistrations(conferenceId))).build();
     }
 }
