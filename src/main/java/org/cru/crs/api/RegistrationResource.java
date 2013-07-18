@@ -74,7 +74,7 @@ public class RegistrationResource
     }
 
     @POST
-    @Path("/answers/")
+    @Path("/answers")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createAnswer(Answer newAnswer, @PathParam(value="registrationId") UUID registrationId) throws URISyntaxException
     {

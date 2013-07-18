@@ -10,8 +10,10 @@ import javax.persistence.Persistence;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;
@@ -187,7 +189,53 @@ public class ConferenceResourceFunctionalTest
 			setupEm.close();
 		}
 	}
-	
+
+	@Test(groups="functional-tests")
+	public void addRegistrationToConference() throws URISyntaxException
+	{
+		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+
+		//do this pre-check b/c JPA doesn't always do the delete correctly.  the last test might not have
+		//cleaned up after itself
+		removeAddedRegistration(setupEm);
+
+		Registration newRegistration = createFakeRegistration();
+
+		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+
+		try
+		{
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID);
+
+			//status code, 201-Created
+			Assert.assertEquals(response.getStatus(), 201);
+
+			RegistrationEntity registrationEntity = setupEm.find(RegistrationEntity.class, response.getEntity().getId());
+
+			Assert.assertNotNull(registrationEntity);
+			Assert.assertEquals(registrationEntity.getUserId(), newRegistration.getUserId());
+		}
+		finally
+		{
+			removeAddedRegistration(setupEm);
+			setupEm.close();
+		}
+	}
+
+	@Test(groups="functional-tests")
+	public void getAllConferenceRegistrations()
+	{
+		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+
+		ClientResponse<List<Registration>> response = conferenceClient.getRegistrations(conferenceUUID);
+
+		Assert.assertEquals(response.getStatus(), 200);
+		List<Registration> registrations = response.getEntity();
+
+		Assert.assertNotNull(registrations);
+		Assert.assertEquals(registrations.size(), 3);
+	}
+
 	private void removeFakeConference(String conferenceIdString)
 	{
 		EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
@@ -235,5 +283,29 @@ public class ConferenceResourceFunctionalTest
 		fakePage.setBlocks(null);
 		
 		return fakePage;
+	}
+
+	UUID fakeRegistrationUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cdef");
+	UUID fakeUserUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0deaf");
+
+	private Registration createFakeRegistration()
+	{
+		Registration fakeRegistration = new Registration();
+
+		fakeRegistration.setId(fakeRegistrationUUID);
+		fakeRegistration.setUserId(fakeUserUUID);
+
+		return fakeRegistration;
+	}
+
+	private void removeAddedRegistration(EntityManager setupEm)
+	{
+		RegistrationEntity registrationToDelete = setupEm.find(RegistrationEntity.class, fakeRegistrationUUID);
+		if(registrationToDelete == null) return;
+
+		setupEm.getTransaction().begin();
+		setupEm.remove(registrationToDelete);
+		setupEm.flush();
+		setupEm.getTransaction().commit();
 	}
 }

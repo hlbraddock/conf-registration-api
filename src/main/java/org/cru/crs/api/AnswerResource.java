@@ -42,7 +42,7 @@ public class AnswerResource {
 
         if(requestedAnswer == null) return Response.status(Status.NOT_FOUND).build();
 
-        return Response.ok(requestedAnswer).build();
+        return Response.ok(Answer.fromJpa(requestedAnswer)).build();
     }
 
     @PUT
