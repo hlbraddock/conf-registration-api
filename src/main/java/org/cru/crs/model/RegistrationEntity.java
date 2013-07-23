@@ -35,7 +35,7 @@ public class RegistrationEntity implements java.io.Serializable
     @ManyToOne(fetch = FetchType.EAGER)
     private ConferenceEntity conference;
 
-    @Column(name = "USER_ID", insertable = false, updatable = false)
+    @Column(name = "USER_ID")
 	@Type(type = "pg-uuid")
 	private UUID userId;
 

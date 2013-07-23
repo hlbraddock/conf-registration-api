@@ -2,6 +2,8 @@ package org.cru.crs.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.ejb.Stateless;
@@ -28,6 +30,7 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
 
 import com.google.common.base.Preconditions;
+import org.jboss.logging.Logger;
 
 @Stateless
 @Path("/registrations/{registrationId}")
@@ -35,15 +38,23 @@ public class RegistrationResource
 {
     @Inject EntityManager em;
 
-    @GET
+	Logger logger = Logger.getLogger(RegistrationResource.class);
+
+	@GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRegistration(@PathParam(value="registrationId") UUID registrationId)
     {
         RegistrationEntity requestedRegistration = new RegistrationService(em).getRegistrationBy(registrationId);
 
+        log("get:", requestedRegistration);
+
         if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
 
-        return Response.ok(Registration.fromJpa(requestedRegistration)).build();
+        Registration registration = Registration.fromJpa(requestedRegistration);
+
+        log("get:", registration);
+
+        return Response.ok(registration).build();
     }
 
     @PUT
@@ -52,12 +63,22 @@ public class RegistrationResource
     {
         Preconditions.checkNotNull(registrationId);
 
+		log("update(provided)", registration);
+
         RegistrationService registrationService = new RegistrationService(em);
 
-        if(registrationService.getRegistrationBy(registrationId) == null)
+        RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
+
+        if(currentRegistrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        registrationService.updateRegistration(registration.toJpaRegistrationEntity());
+        log("update(existing):", currentRegistrationEntity);
+
+        RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(currentRegistrationEntity.getConference());
+
+        log("update:", registrationEntity);
+
+        registrationService.updateRegistration(registrationEntity);
 
         return Response.noContent().build();
     }
@@ -68,7 +89,18 @@ public class RegistrationResource
     {
         Preconditions.checkNotNull(registration.getId());
 
-        new RegistrationService(em).deleteRegistration(registration.toJpaRegistrationEntity());
+        log("delete:", registration);
+
+        RegistrationService registrationService = new RegistrationService(em);
+
+        RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
+
+        log("delete:", currentRegistrationEntity);
+
+        if(currentRegistrationEntity == null)
+            return Response.status(Status.BAD_REQUEST).build();
+
+        new RegistrationService(em).deleteRegistration(currentRegistrationEntity);
 
         return Response.ok().build();
     }
@@ -80,6 +112,8 @@ public class RegistrationResource
     {
         if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
 
+		AnswerResource.log("create:", newAnswer, logger);
+
         RegistrationEntity registration = new RegistrationService(em).getRegistrationBy(registrationId);
 
         if(registration == null) return Response.status(Status.BAD_REQUEST).build();
@@ -87,5 +121,62 @@ public class RegistrationResource
         registration.getAnswers().add(newAnswer.toJpaAnswerEntity());
 
         return Response.created(new URI("/answers/" + newAnswer.getId())).build();
+    }
+
+    private void log(String message, RegistrationEntity registration)
+    {
+        if(registration == null)
+        {
+            logger.info(message + registration);
+            return;
+        }
+
+        logger.info(message + registration.getId());
+        logger.info(message + registration.getUserId());
+
+        if(registration.getConference() == null)
+            logger.info(message + registration.getConference());
+        else
+            logger.info(message + registration.getConference().getId());
+
+        logger.info(message + fromAnswerEntity(registration.getAnswers()));
+    }
+
+    private void log(String message, Registration registration)
+    {
+        if(registration == null)
+        {
+            logger.info(message + registration);
+            return;
+        }
+
+        logger.info(message + " entity: " + registration.getId());
+        logger.info(message + " entity: " + registration.getUserId());
+        logger.info(message + " entity: " + fromAnswer(registration.getAnswers()));
+    }
+
+    private Set<String> fromAnswer(Set<Answer> answers)
+    {
+        Set<String> strings = new HashSet<String>();
+
+        for(Answer answer : answers)
+            strings.add(answer.getValue());
+
+        return strings;
+    }
+
+    private Set<String> fromAnswerEntity(Set<AnswerEntity> answers)
+    {
+        Set<String> strings = new HashSet<String>();
+
+        for(AnswerEntity answer : answers)
+            strings.add(answer.getAnswer());
+
+        return strings;
+    }
+
+    private void log(String message)
+    {
+        logger.info(message);
     }
 }

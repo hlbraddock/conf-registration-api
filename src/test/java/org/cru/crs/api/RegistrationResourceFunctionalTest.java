@@ -4,11 +4,13 @@ import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
+import org.jboss.resteasy.spi.Link;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -16,6 +18,7 @@ import org.testng.annotations.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.UUID;
 
 @Test(groups="functional-tests")
@@ -37,6 +40,7 @@ public class RegistrationResourceFunctionalTest
 	public void createClient()
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
+        answerClient = ProxyFactory.create(AnswerResourceClient.class, restApiBaseUrl);
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
 		conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
 	}
@@ -90,6 +94,7 @@ public class RegistrationResourceFunctionalTest
 		//get registration
 		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID);
 		Registration registration = response.getEntity();
+        UUID originalUserId = registration.getUserId();
 
 		// update registration
 		UUID updatedUserUUID = UUID.randomUUID();
@@ -104,6 +109,7 @@ public class RegistrationResourceFunctionalTest
 
 		// restore registration
 		registration.setId(registrationUUID);
+        registration.setUserId(originalUserId);
 		response = registrationClient.updateRegistration(registration, registrationUUID);
 		Assert.assertEquals(response.getStatus(), 204);
 	}
@@ -142,18 +148,23 @@ public class RegistrationResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void deleteRegistration()
 	{
+        ClientResponse<Registration> response = null;
+
 		// create registration
 		UUID createUserUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a5678");
-		Registration registration = createRegistration(null, createUserUUID);
-		ClientResponse<Registration> response = conferenceClient.createRegistration(registration, conferenceUUID);
-		UUID createdRegistrationUUID = response.getEntity().getId();
+        UUID createRegistrationIdUUID = UUID.randomUUID();
+		Registration registration = createRegistration(createRegistrationIdUUID, createUserUUID);
+
+		response = conferenceClient.createRegistration(registration, conferenceUUID);
+        Assert.assertEquals(response.getStatus(), 201);
 
 		// get registration
-		response = registrationClient.getRegistration(createdRegistrationUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+//		UUID registrationIdUUID = getIdFromResponseLocation(response);
+//		response = registrationClient.getRegistration(registrationUUID);
+//		Assert.assertEquals(response.getStatus(), 200);
 
-		// delete registration
-		response = registrationClient.deleteRegistration(registration, createdRegistrationUUID);
+        // delete registration
+		response = registrationClient.deleteRegistration(registration, createRegistrationIdUUID);
 		Assert.assertEquals(response.getStatus(), 200);
 	}
 
@@ -164,25 +175,45 @@ public class RegistrationResourceFunctionalTest
 		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
 		String createAnswerValue = "{ \"Name\": \"Alex Solz\"}";
 		Answer answer = createAnswer(null, createBlockUUID, createAnswerValue);
-		ClientResponse<Answer> response = registrationClient.createAnswer(answer, registrationUUID);
-		UUID createdAnswerUUID = response.getEntity().getId();
+		ClientResponse<Answer> registrationResponse = registrationClient.createAnswer(answer, registrationUUID);
 
-		// get answer
-		response = answerClient.getAnswer(createdAnswerUUID);
+        Assert.assertEquals(registrationResponse.getStatus(), 201);
+
+        UUID answerIdUUID = getIdFromResponseLocation(registrationResponse.getLocation());
+
+        System.out.println("UUID " + answerIdUUID);
+
+        // get answer
+		ClientResponse<Answer> response = answerClient.getAnswer(answerIdUUID);
+
 		Answer gotAnswer = response.getEntity();
 		Assert.assertEquals(response.getStatus(), 200);
 		Assert.assertNotNull(gotAnswer);
-		Assert.assertEquals(gotAnswer.getId(), createdAnswerUUID);
+		Assert.assertEquals(gotAnswer.getId(), answerIdUUID);
 		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 	}
 
-	private Registration createRegistration(UUID registrationUUID, UUID userUUID)
+    private UUID getIdFromResponseLocation(Link locationLink)
+    {
+        String location = locationLink.toString();
+
+        location = location.substring(1, location.length()-1);
+
+        String answerId = location.substring(location.lastIndexOf("/"));
+        answerId = answerId.substring(1);
+
+        return UUID.fromString(answerId);
+    }
+
+    private Registration createRegistration(UUID registrationUUID, UUID userUUID)
 	{
 		Registration registration = new Registration();
 
 		registration.setId(registrationUUID);
 		registration.setUserId(userUUID);
+
+        registration.setAnswers(new HashSet<Answer>());
 
 		return registration;
 	}

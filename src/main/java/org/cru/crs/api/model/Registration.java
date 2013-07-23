@@ -1,6 +1,7 @@
 package org.cru.crs.api.model;
 
 import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 
 import java.util.HashSet;
@@ -14,7 +15,7 @@ public class Registration implements java.io.Serializable
     private UUID id;
     private UUID userId;
 
-    private Set<AnswerEntity> answers;
+    private Set<Answer> answers = new HashSet<Answer>();
 
 	/**
 	 * Creates a web api friendly registration
@@ -28,7 +29,7 @@ public class Registration implements java.io.Serializable
 		
 		webRegistration.id = jpaRegistration.getId();
         webRegistration.userId = jpaRegistration.getUserId();
-        webRegistration.answers = new HashSet<AnswerEntity>(jpaRegistration.getAnswers());
+        webRegistration.answers = Answer.fromJpa(jpaRegistration.getAnswers());
 		return webRegistration;
 	}
 	
@@ -44,13 +45,17 @@ public class Registration implements java.io.Serializable
 		return registrations;
 	}
 	
-	public RegistrationEntity toJpaRegistrationEntity()
+	public RegistrationEntity toJpaRegistrationEntity(ConferenceEntity conferenceEntity)
 	{
 		RegistrationEntity jpaRegistration = new RegistrationEntity();
 		
 		jpaRegistration.setId(id);
         jpaRegistration.setUserId(userId);
-        jpaRegistration.setAnswers(new HashSet<AnswerEntity>(answers));
+        jpaRegistration.setConference(conferenceEntity);
+
+        jpaRegistration.setAnswers(new HashSet<AnswerEntity>());
+        for (Answer answer : getAnswers())
+            jpaRegistration.getAnswers().add(answer.toJpaAnswerEntity());
 
 		return jpaRegistration;
 	}
@@ -75,12 +80,12 @@ public class Registration implements java.io.Serializable
         this.userId = userId;
     }
 
-    public Set<AnswerEntity> getAnswers()
+    public Set<Answer> getAnswers()
     {
         return answers;
     }
 
-    public void setAnswers(Set<AnswerEntity> answers)
+    public void setAnswers(Set<Answer> answers)
     {
         this.answers = answers;
     }

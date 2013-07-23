@@ -24,25 +24,34 @@ import org.cru.crs.service.PageService;
 
 import com.google.common.base.Preconditions;
 import org.cru.crs.service.AnswerService;
+import org.jboss.logging.Logger;
 
 /**
  * User: lee.braddock
  */
 @Stateless
-@Path("/answer/{answerId}")
+@Path("/answers/{answerId}")
 public class AnswerResource {
 
     @Inject EntityManager em;
 
-    @GET
+	Logger logger = Logger.getLogger(AnswerResource.class);
+
+	@GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAnswer(@PathParam(value="answerId") UUID answerId)
     {
         AnswerEntity requestedAnswer = new AnswerService(em).getAnswerBy(answerId);
 
-        if(requestedAnswer == null) return Response.status(Status.NOT_FOUND).build();
+		log("get:", requestedAnswer);
 
-        return Response.ok(Answer.fromJpa(requestedAnswer)).build();
+		if(requestedAnswer == null) return Response.status(Status.NOT_FOUND).build();
+
+        Answer answer = Answer.fromJpa(requestedAnswer);
+
+        log("get:", answer);
+
+        return Response.ok(answer).build();
     }
 
     @PUT
@@ -51,12 +60,21 @@ public class AnswerResource {
     {
         Preconditions.checkNotNull(answer.getId());
 
-        AnswerService answerService = new AnswerService(em);
+		log("update(provided):", answer);
 
-        if(answerService.getAnswerBy(answer.getId()) == null)
+		AnswerService answerService = new AnswerService(em);
+
+        AnswerEntity currentAnswerEntity = answerService.getAnswerBy(answer.getId());
+        if(currentAnswerEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        answerService.updateAnswer(answer.toJpaAnswerEntity());
+        log("update(existing):", currentAnswerEntity);
+
+        AnswerEntity answerEntity = answer.toJpaAnswerEntity();
+
+        log("update(existing):", answer);
+
+        answerService.updateAnswer(answerEntity);
 
         return Response.noContent().build();
     }
@@ -67,13 +85,55 @@ public class AnswerResource {
     {
         Preconditions.checkNotNull(answer.getId());
 
+        log("delete:", answer);
+
         AnswerService answerService = new AnswerService(em);
 
-        if(answerService.getAnswerBy(answer.getId()) == null)
+        AnswerEntity answerEntity = answerService.getAnswerBy(answer.getId());
+
+        if(answerEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        answerService.deleteAnswer(answer.toJpaAnswerEntity());
+        log("delete:", answerEntity);
+
+        answerService.deleteAnswer(answerEntity);
 
         return Response.ok().build();
+    }
+
+	private void log(String message, AnswerEntity answer)
+    {
+        if(answer == null)
+        {
+            logger.info(message + answer);
+            return;
+        }
+
+        logger.info(message + " entity: " + answer.getId());
+        logger.info(message + " entity: " + answer.getBlockId());
+        logger.info(message + " entity: " + answer.getAnswer());
+    }
+
+	private void log(String message, Answer answer)
+	{
+		log(message, answer, logger);
+	}
+
+	public static void log(String message, Answer answer, Logger logger)
+    {
+        if(answer == null)
+        {
+            logger.info(message + answer);
+            return;
+        }
+
+        logger.info(message + answer.getId());
+        logger.info(message + answer.getBlockId());
+        logger.info(message + answer.getValue());
+    }
+
+    private void log(String message)
+    {
+        logger.info(message);
     }
 }

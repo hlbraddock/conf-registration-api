@@ -4,7 +4,9 @@ import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Registration;
 import org.cru.crs.utils.Environment;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
@@ -48,9 +50,9 @@ public class AnswerResourceFunctionalTest
 	public void getAnswer()
 	{
 		ClientResponse<Answer> response = answerClient.getAnswer(answerUUID);
-		
+
 		Assert.assertEquals(response.getStatus(), 200);
-		
+
 		Answer answer = response.getEntity();
 
 		Assert.assertNotNull(answer);
@@ -89,7 +91,7 @@ public class AnswerResourceFunctionalTest
 		Answer answer = response.getEntity();
 
 		// update answer
-		String updatedAnswerValue = "{ \"Nombre\": \"Alexandrea Solzendo\"}";
+		String updatedAnswerValue = "{ \"Nombre\": \"Alexandrea Solzendo\" }";
 		answer.setValue(updatedAnswerValue);
 		response = answerClient.updateAnswer(answer, answerUUID);
 		Assert.assertEquals(response.getStatus(), 204);
@@ -140,19 +142,23 @@ public class AnswerResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void deleteAnswer()
 	{
+		ClientResponse<Answer> response;
+
 		// create answer
 		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86Ebaba");
+		UUID createAnswerIdUUID = UUID.randomUUID();
 		String createAnswerValue = "{ \"N\": \"Oleg Salvador\"}";
-		Answer answer = createAnswer(null, createBlockUUID, createAnswerValue);
-		ClientResponse<Answer> response = registrationClient.createAnswer(answer, registrationUUID);
-		UUID createdAnswerUUID = response.getEntity().getId();
+		Answer answer = createAnswer(createAnswerIdUUID, createBlockUUID, createAnswerValue);
+
+		response = registrationClient.createAnswer(answer, registrationUUID);
+		Assert.assertEquals(response.getStatus(), 201);
 
 		// get answer
-		response = answerClient.getAnswer(createdAnswerUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+//		response = answerClient.getAnswer(createdAnswerUUID);
+//		Assert.assertEquals(response.getStatus(), 200);
 
 		// delete answer
-		response = answerClient.deleteAnswer(answer, createdAnswerUUID);
+		response = answerClient.deleteAnswer(answer, createAnswerIdUUID);
 		Assert.assertEquals(response.getStatus(), 200);
 	}
 

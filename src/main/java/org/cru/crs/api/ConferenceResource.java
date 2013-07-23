@@ -156,9 +156,7 @@ public class ConferenceResource
 
         if(conference == null) return Response.status(Status.BAD_REQUEST).build();
 
-        RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity();
-
-        newRegistrationEntity.setConference(conference);
+        RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity(conference);
 
         registrationService.createNewRegistration(newRegistrationEntity);
 
@@ -167,6 +165,7 @@ public class ConferenceResource
 
     @GET
     @Path("/{conferenceId}/registrations")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
     {
         return Response.ok(Registration.fromJpa(registrationService.fetchAllRegistrations(conferenceId))).build();

@@ -2,8 +2,8 @@ package org.cru.crs.api.model;
 
 import org.cru.crs.model.AnswerEntity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class Answer implements java.io.Serializable
@@ -26,9 +26,9 @@ public class Answer implements java.io.Serializable
 		return answer;
 	}
 	
-	public static List<Answer> fromJpa(List<AnswerEntity> jpaAnswers)
+	public static Set<Answer> fromJpa(Set<AnswerEntity> jpaAnswers)
 	{
-		List<Answer> answers = new ArrayList<Answer>();
+		Set<Answer> answers = new HashSet<Answer>();
 		
 		if(jpaAnswers == null) return answers;
 		
