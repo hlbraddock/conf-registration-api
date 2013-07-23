@@ -38,7 +38,7 @@ public interface ConferenceResourceClient
 	@PUT
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse updateConference(Conference conference, @PathParam(value = "conferenceId") String conferenceId);
+	public ClientResponse updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId);
 	
 	@SuppressWarnings(value="rawtypes")
 	@POST

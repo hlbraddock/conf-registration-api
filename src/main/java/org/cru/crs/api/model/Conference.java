@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PageEntity;
 import org.joda.time.DateTime;
 
 public class Conference implements java.io.Serializable
@@ -28,6 +29,33 @@ public class Conference implements java.io.Serializable
 	
 	private UUID contactUser;
 	private int totalSlots;
+	
+	
+	public ConferenceEntity toJpaConferenceEntity()
+	{
+		ConferenceEntity jpaConference = new ConferenceEntity();
+		
+		jpaConference.setId(id);
+		jpaConference.setName(name);
+		jpaConference.setEventStartTime(eventStartTime);
+		jpaConference.setEventEndTime(eventEndTime);
+		jpaConference.setRegistrationStartTime(registrationStartTime);
+		jpaConference.setRegistrationEndTime(registrationEndTime);
+		jpaConference.setTotalSlots(totalSlots);
+		jpaConference.setContactUser(contactUser);
+		
+		jpaConference.setPages(new ArrayList<PageEntity>());
+		
+		if(registrationPages != null)
+		{
+			for(Page page : registrationPages)
+
+			{
+				jpaConference.getPages().add(page.toJpaPageEntity());
+			}
+		}
+		return jpaConference;
+	}
 	
 	/**
 	 * Creates a web api friendly conference, with no pages attached to it.
@@ -49,6 +77,15 @@ public class Conference implements java.io.Serializable
 		webConference.contactUser = jpaConference.getContactUser();
 		return webConference;
 	}
+
+	public static Conference fromJpaWithPages(ConferenceEntity jpaConference)
+	{
+		Conference webConference = fromJpa(jpaConference);
+		
+		webConference.registrationPages = Page.fromJpa(jpaConference.getPages());
+		
+		return webConference;
+	}
 	
 	public static List<Conference> fromJpa(List<ConferenceEntity> jpaConferences)
 	{
@@ -60,36 +97,6 @@ public class Conference implements java.io.Serializable
 		}
 		
 		return conferences;
-	}
-	
-	public ConferenceEntity toJpaConferenceEntity()
-	{
-		ConferenceEntity jpaConference = new ConferenceEntity();
-		
-		jpaConference.setId(id);
-		jpaConference.setName(name);
-		jpaConference.setEventStartTime(eventStartTime);
-		jpaConference.setEventEndTime(eventEndTime);
-		jpaConference.setRegistrationStartTime(registrationStartTime);
-		jpaConference.setRegistrationEndTime(registrationEndTime);
-		jpaConference.setTotalSlots(totalSlots);
-		jpaConference.setContactUser(contactUser);
-		
-		return jpaConference;
-	}
-	/**
-	 * Creates a web api friendly conference, with no pages attached to it.
-	 * 
-	 * @param jpaConference
-	 * @return
-	 */
-	public static Conference fromJpaWithPages(ConferenceEntity jpaConference)
-	{
-		Conference webConference = fromJpa(jpaConference);
-		
-		webConference.registrationPages = Page.fromJpa(jpaConference.getPages());
-		
-		return webConference;
 	}
 
 	public UUID getId()

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 
 public class Page implements java.io.Serializable
@@ -52,7 +53,15 @@ public class Page implements java.io.Serializable
 		jpaPage.setConferenceId(conferenceId);
 		jpaPage.setName(name);
 		jpaPage.setPosition(position);
+		jpaPage.setBlocks(new ArrayList<BlockEntity>());
 		
+		if(blocks != null)
+		{
+			for(Block block : blocks)
+			{
+				jpaPage.getBlocks().add(block.toJpaBlockEntity());
+			}
+		}			
 		return jpaPage;
 	}
 
