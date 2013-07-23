@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
+import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.ConferenceEntity;
 import org.joda.time.DateTime;
 
@@ -15,9 +19,10 @@ public class Conference implements java.io.Serializable
 	private String name;
 	
 	private List<Page> registrationPages;
+	
 	private DateTime eventStartTime;
 	private DateTime eventEndTime;
-	
+
 	private DateTime registrationStartTime;
 	private DateTime registrationEndTime;
 	
@@ -117,41 +122,49 @@ public class Conference implements java.io.Serializable
 		this.registrationPages = registrationPages;
 	}
 
+	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
 	public DateTime getEventStartTime()
 	{
 		return eventStartTime;
 	}
 
+	@JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
 	public void setEventStartTime(DateTime eventStartTime)
 	{
 		this.eventStartTime = eventStartTime;
 	}
 
+	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
 	public DateTime getEventEndTime()
 	{
 		return eventEndTime;
 	}
 
+	@JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
 	public void setEventEndTime(DateTime eventEndTime)
 	{
 		this.eventEndTime = eventEndTime;
 	}
 
+	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
 	public DateTime getRegistrationStartTime()
 	{
 		return registrationStartTime;
 	}
 
+	@JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
 	public void setRegistrationStartTime(DateTime registrationStartTime)
 	{
 		this.registrationStartTime = registrationStartTime;
 	}
 
+	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
 	public DateTime getRegistrationEndTime()
 	{
 		return registrationEndTime;
 	}
 
+	@JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
 	public void setRegistrationEndTime(DateTime registrationEndTime)
 	{
 		this.registrationEndTime = registrationEndTime;
