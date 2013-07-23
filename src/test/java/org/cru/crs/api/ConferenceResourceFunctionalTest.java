@@ -74,7 +74,9 @@ public class ConferenceResourceFunctionalTest
 	public void createConference() throws URISyntaxException
 	{
 		Conference fakeConference = createFakeConference();
-		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference);
+		
+		@SuppressWarnings("rawtypes")
+		ClientResponse response = conferenceClient.createConference(fakeConference);
 		
 		String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 		String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/conferences/";
@@ -99,7 +101,9 @@ public class ConferenceResourceFunctionalTest
 	public void updateConference() throws URISyntaxException
 	{
 		Conference fakeConference = createFakeConference();
-		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference);
+		
+		@SuppressWarnings("rawtypes")
+		ClientResponse response = conferenceClient.createConference(fakeConference);
 		
 		String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 		String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/conferences/";
@@ -117,7 +121,8 @@ public class ConferenceResourceFunctionalTest
 		createClient();
 		
 		/*call the update endpoint*/
-		ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, conferenceIdString);
+		@SuppressWarnings("rawtypes") 
+		ClientResponse updateResponse = conferenceClient.updateConference(fakeConference, conferenceIdString);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
 		/*get a fresh client*/
@@ -134,17 +139,14 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void addPageToConference() throws URISyntaxException 
 	{
-		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		
-		//do this pre-check b/c JPA doesn't always do the delete correctly.  the last test might not have
-		//cleaned up after itself
-		removeAddedPage(setupEm);
-		
 		Page newPage = createFakePage();
 		
 		try
 		{
-			ClientResponse<Conference> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			
+			@SuppressWarnings("rawtypes") 
+			ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
 
 			//status code, 201-Created
 			Assert.assertEquals(response.getStatus(), 201);
@@ -153,11 +155,15 @@ public class ConferenceResourceFunctionalTest
 
 			Assert.assertEquals(conference.getPages().size(), 2);
 			Assert.assertEquals(conference.getPages().get(1).getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
+			
+			setupEm.close();
 		}
 		finally
 		{
-			removeAddedPage(setupEm);
-			setupEm.close();
+			EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			
+			removeAddedPage(cleanupEm);
+			cleanupEm.close();
 
 		}
 	}
@@ -169,13 +175,10 @@ public class ConferenceResourceFunctionalTest
 		
 		try
 		{
-			//do this pre-check b/c JPA doesn't always do the delete correctly.  the last test might not have
-			//cleaned up after itself
-			removeAddedPage(setupEm);
-
 			Page newPage = createFakePage();
 
-			ClientResponse<Conference> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
+			@SuppressWarnings("rawtypes")
+			ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
 
 			//status code, 400-Bad Request
 			Assert.assertEquals(response.getStatus(), 400);

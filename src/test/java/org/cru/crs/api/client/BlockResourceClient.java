@@ -23,11 +23,13 @@ public interface BlockResourceClient
 		@Produces(MediaType.APPLICATION_JSON)
 		public ClientResponse<Block> getBlock(@PathParam(value="blockId") UUID blockId);
 		
+		@SuppressWarnings(value="rawtypes")
 		@PUT
 		@Consumes(MediaType.APPLICATION_JSON)
-		public ClientResponse<Block> updateBlock(Block block, @PathParam(value="blockId") UUID blockId);
+		public ClientResponse updateBlock(Block block, @PathParam(value="blockId") UUID blockId);
 		
+		@SuppressWarnings(value="rawtypes")
 		@DELETE
 		@Consumes(MediaType.APPLICATION_JSON)
-		public ClientResponse<Block> deleteBlock(Block block, @PathParam(value="blockId") UUID blockId);
+		public ClientResponse deleteBlock(Block block, @PathParam(value="blockId") UUID blockId);
 }
