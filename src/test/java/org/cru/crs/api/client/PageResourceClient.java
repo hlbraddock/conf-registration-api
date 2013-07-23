@@ -21,11 +21,13 @@ public interface PageResourceClient
 	@Produces(MediaType.APPLICATION_JSON)
 	public ClientResponse<Page> getPage(@PathParam(value="pageId") UUID pageId);
 	
+	@SuppressWarnings(value="rawtypes")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<Page> updatePage(Page page, @PathParam(value="pageId") UUID pageId);
+	public ClientResponse updatePage(Page page, @PathParam(value="pageId") UUID pageId);
 	
+	@SuppressWarnings(value="rawtypes")
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<Page> deletePage(Page page, @PathParam(value="pageId") UUID pageId);
+	public ClientResponse deletePage(Page page, @PathParam(value="pageId") UUID pageId);
 }

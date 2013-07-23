@@ -49,29 +49,6 @@ public class PageServiceTest
 	}
 
 	@Test(groups="db-integration-tests")
-	public void testCreateNewPage()
-	{
-		PageEntity page = new PageEntity();
-
-		page.setId(UUID.randomUUID());
-		page.setName("New Page");
-		page.setPosition(3);
-		page.setConferenceId(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
-
-//		pageService.createNewPage(page);
-
-		PageEntity foundPage = em.find(PageEntity.class, page.getId());
-
-		Assert.assertNotNull(foundPage);
-		Assert.assertEquals(foundPage.getId(), page.getId());
-		Assert.assertEquals(foundPage.getName(), page.getName());
-		Assert.assertEquals(foundPage.getConferenceId(), page.getConferenceId());
-		Assert.assertEquals(foundPage.getPosition(), page.getPosition());
-
-		em.remove(foundPage);
-	}
-
-	@Test(groups="db-integration-tests")
 	public void testUpdatePage()
 	{
 		PageEntity page = pageService.fetchPageBy(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));

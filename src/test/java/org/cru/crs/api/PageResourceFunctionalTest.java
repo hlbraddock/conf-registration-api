@@ -82,40 +82,49 @@ public class PageResourceFunctionalTest
 	 */
 	@Test(groups="functional-tests")
 	public void updatePage()
-	{
-		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		
+	{	
 		try
 		{
+			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			
 			PageEntity page = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 
 			Assert.assertEquals(page.getName(), "Ministry preferences");
 
-			//don't let JPA make the change for us...
-			setupEm.detach(page);
+			Page webModelPage = Page.fromJpa(page);
 
-			page.setName("Ministry Prefs");
+			webModelPage.setName("Ministry Prefs");
 
-			ClientResponse<Page> response = pageClient.updatePage(Page.fromJpa(page), page.getId());			
+			@SuppressWarnings("rawtypes")
+			ClientResponse response = pageClient.updatePage(webModelPage, webModelPage.getId());			
 			
 			//check the response, 204-No Content
 			Assert.assertEquals(response.getStatus(), 204);
 			
-			PageEntity updatedPage = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+			//close the Entity manager, JPA can't tell the entity changed in the underlying DB
+			setupEm.close();
+			
+			//create a new Entity Manager to verify the underlying change took place
+			EntityManager postCheckEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			
+			PageEntity updatedPage = postCheckEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 			
 			//this entity is still managed, so we should get the new value;
 			Assert.assertEquals(updatedPage.getName(), "Ministry Prefs");
+			
+			postCheckEm.close();
 		}
 		finally
 		{
-			PageEntity pageToRevert = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+			EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			PageEntity pageToRevert = cleanupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 			
 			//updatedPage is still managed, so setting the title back and flushing reverts the change
 			pageToRevert.setName("Ministry preferences");
-			setupEm.getTransaction().begin();
-			setupEm.flush();
-			setupEm.getTransaction().commit();
-			setupEm.close();
+			cleanupEm.getTransaction().begin();
+			cleanupEm.flush();
+			cleanupEm.getTransaction().commit();
+			cleanupEm.close();
 		}
 	}
 
@@ -132,13 +141,14 @@ public class PageResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void updatePageWhichDoesNotExist()
 	{
-		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		
 		try
 		{
+			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			
 			PageEntity page = createFakePage();
 
-			ClientResponse<Page> response = pageClient.updatePage(Page.fromJpa(page), page.getId());
+			@SuppressWarnings("rawtypes")
+			ClientResponse response = pageClient.updatePage(Page.fromJpa(page), page.getId());
 			
 			//check the response, 204-No Content
 			Assert.assertEquals(response.getStatus(), 204);
@@ -151,12 +161,15 @@ public class PageResourceFunctionalTest
 		}
 		finally
 		{
-			PageEntity pageToDelete = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
+			EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			
+			PageEntity pageToDelete = cleanupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
 			if(pageToDelete != null)
 			{
-				setupEm.getTransaction().begin();
-				setupEm.remove(pageToDelete);
-				setupEm.getTransaction().commit();
+				cleanupEm.getTransaction().begin();
+				cleanupEm.remove(pageToDelete);
+				cleanupEm.getTransaction().commit();
+				cleanupEm.close();
 			}
 		}
 	}
@@ -179,7 +192,8 @@ public class PageResourceFunctionalTest
 		//now change the conference ID to one that does not exist
 		page.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa61"));
 
-		ClientResponse<Page> response = pageClient.updatePage(Page.fromJpa(page), page.getId());
+		@SuppressWarnings("rawtypes")
+		ClientResponse response = pageClient.updatePage(Page.fromJpa(page), page.getId());
 
 		//check the response, 400-Bad Request
 		Assert.assertEquals(response.getStatus(), 400);
@@ -200,7 +214,8 @@ public class PageResourceFunctionalTest
 	{		
 		PageEntity page = createFakePage();
 
-		ClientResponse<Page> response = pageClient.updatePage(Page.fromJpa(page), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"));
+		@SuppressWarnings("rawtypes")
+		ClientResponse response = pageClient.updatePage(Page.fromJpa(page), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"));
 
 		//check the response, 400-Bad Request
 		Assert.assertEquals(response.getStatus(), 400);
@@ -255,7 +270,8 @@ public class PageResourceFunctionalTest
 	{
 		PageEntity jpaPage = createFakePage();
 		
-		ClientResponse<Page> response = pageClient.deletePage(Page.fromJpa(jpaPage), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
+		@SuppressWarnings("rawtypes")
+		ClientResponse response = pageClient.deletePage(Page.fromJpa(jpaPage), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
 		
 		Assert.assertEquals(response.getStatus(), 400);
 	}
