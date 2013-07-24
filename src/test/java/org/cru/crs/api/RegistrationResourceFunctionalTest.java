@@ -179,9 +179,7 @@ public class RegistrationResourceFunctionalTest
 
         Assert.assertEquals(registrationResponse.getStatus(), 201);
 
-        UUID answerIdUUID = getIdFromResponseLocation(registrationResponse.getLocation());
-
-        System.out.println("UUID " + answerIdUUID);
+        UUID answerIdUUID = getIdFromResponseLocation(registrationResponse.getLocation().toString());
 
         // get answer
 		ClientResponse<Answer> response = answerClient.getAnswer(answerIdUUID);
@@ -192,21 +190,20 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getId(), answerIdUUID);
 		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
+
+		answer.setId(answerIdUUID);
+		response = answerClient.deleteAnswer(answer, registrationUUID);
+		Assert.assertEquals(response.getStatus(), 200);
 	}
 
-    private UUID getIdFromResponseLocation(Link locationLink)
-    {
-        String location = locationLink.toString();
+	private UUID getIdFromResponseLocation(String location)
+	{
+		location = location.substring(1, location.length()-1);
 
-        location = location.substring(1, location.length()-1);
+		return UUID.fromString(location.substring(location.lastIndexOf("/")).substring(1));
+	}
 
-        String answerId = location.substring(location.lastIndexOf("/"));
-        answerId = answerId.substring(1);
-
-        return UUID.fromString(answerId);
-    }
-
-    private Registration createRegistration(UUID registrationUUID, UUID userUUID)
+	private Registration createRegistration(UUID registrationUUID, UUID userUUID)
 	{
 		Registration registration = new Registration();
 

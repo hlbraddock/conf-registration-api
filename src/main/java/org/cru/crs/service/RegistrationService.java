@@ -1,6 +1,5 @@
 package org.cru.crs.service;
 
-import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 
 import javax.inject.Inject;
@@ -25,9 +24,9 @@ public class RegistrationService {
 
     public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId)
     {
-        Query query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.conference_id = :conference_id", RegistrationEntity.class);
+        Query query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.conference.id = :conference_id", RegistrationEntity.class);
 
-        query.setParameter("conference_id", conferenceId.toString());
+        query.setParameter("conference_id", conferenceId);
 
         return new HashSet<RegistrationEntity>(query.getResultList());
     }

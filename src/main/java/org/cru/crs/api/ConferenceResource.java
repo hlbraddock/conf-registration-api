@@ -25,6 +25,7 @@ import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
+import org.jboss.logging.Logger;
 
 @Stateless
 @Path("/conferences")
@@ -32,6 +33,8 @@ public class ConferenceResource
 {
     @Inject ConferenceService conferenceService;
     @Inject RegistrationService registrationService;
+
+	Logger logger = Logger.getLogger(ConferenceResource.class);
 
 	/**
 	 * Desired design: Gets all the conferences for which the authenticated user has access to.
@@ -154,13 +157,17 @@ public class ConferenceResource
 
         ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
 
-        if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+		logger.info("conference retrieved by id " + conferenceId + " is " + conference);
+
+		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
 
         RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity(conference);
 
-        registrationService.createNewRegistration(newRegistrationEntity);
+		registrationService.createNewRegistration(newRegistrationEntity);
 
-        return Response.created(new URI("/registrations/" + newRegistration.getId())).build();
+		logger.info("new registration created");
+
+		return Response.created(new URI("/registrations/" + newRegistration.getId())).build();
     }
 
     @GET

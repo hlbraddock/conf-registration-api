@@ -1,6 +1,10 @@
 package org.cru.crs.api;
 
-import java.util.UUID;
+import com.google.common.base.Preconditions;
+import org.cru.crs.api.model.Answer;
+import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.service.AnswerService;
+import org.jboss.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -15,16 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.cru.crs.api.model.Answer;
-import org.cru.crs.model.AnswerEntity;
-import org.cru.crs.model.PageEntity;
-import org.cru.crs.service.AnswerService;
-import org.cru.crs.service.PageService;
-
-import com.google.common.base.Preconditions;
-import org.cru.crs.service.AnswerService;
-import org.jboss.logging.Logger;
+import java.util.UUID;
 
 /**
  * User: lee.braddock
@@ -35,7 +30,7 @@ public class AnswerResource {
 
     @Inject EntityManager em;
 
-	Logger logger = Logger.getLogger(AnswerResource.class);
+	private Logger logger = Logger.getLogger(AnswerResource.class);
 
 	@GET
     @Produces(MediaType.APPLICATION_JSON)

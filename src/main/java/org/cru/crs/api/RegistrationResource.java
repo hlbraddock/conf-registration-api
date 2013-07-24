@@ -38,7 +38,7 @@ public class RegistrationResource
 {
     @Inject EntityManager em;
 
-	Logger logger = Logger.getLogger(RegistrationResource.class);
+	private Logger logger = Logger.getLogger(RegistrationResource.class);
 
 	@GET
     @Produces(MediaType.APPLICATION_JSON)

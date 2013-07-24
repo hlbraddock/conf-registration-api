@@ -2,7 +2,9 @@ package org.cru.crs.api;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -19,6 +21,7 @@ import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
+import org.jboss.resteasy.spi.Link;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,7 +38,7 @@ public class ConferenceResourceFunctionalTest
 	
 	Environment environment = Environment.LOCAL;
 	ConferenceResourceClient conferenceClient;
-	
+
 	@BeforeMethod
 	public void createClient()
 	{
@@ -235,32 +238,38 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void addRegistrationToConference() throws URISyntaxException
 	{
-		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		UUID registrationIdUUID = null;
+		UUID userIdUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0deaf");
 
-		//do this pre-check b/c JPA doesn't always do the delete correctly.  the last test might not have
-		//cleaned up after itself
-		removeAddedRegistration(setupEm);
-
-		Registration newRegistration = createFakeRegistration();
-
-		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+		Registration newRegistration = createRegistration(registrationIdUUID, userIdUUID);
 
 		try
 		{
+			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+
+			UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+
 			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID);
 
-			//status code, 201-Created
 			Assert.assertEquals(response.getStatus(), 201);
 
-			RegistrationEntity registrationEntity = setupEm.find(RegistrationEntity.class, response.getEntity().getId());
+			registrationIdUUID = getIdFromResponseLocation(response.getLocation().toString());
 
-			Assert.assertNotNull(registrationEntity);
-			Assert.assertEquals(registrationEntity.getUserId(), newRegistration.getUserId());
+			RegistrationEntity registration = setupEm.find(RegistrationEntity.class, registrationIdUUID);
+
+			Assert.assertEquals(registration.getId(), registrationIdUUID);
+
+			Assert.assertEquals(registration.getUserId(), newRegistration.getUserId());
+
+			setupEm.close();
 		}
 		finally
 		{
-			removeAddedRegistration(setupEm);
-			setupEm.close();
+			EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+
+			removeAddedRegistration(cleanupEm, registrationIdUUID);
+
+			cleanupEm.close();
 		}
 	}
 
@@ -274,26 +283,38 @@ public class ConferenceResourceFunctionalTest
 		Assert.assertEquals(response.getStatus(), 200);
 		List<Registration> registrations = response.getEntity();
 
+		UUID userIdUUID1 = UUID.fromString("1f6250ca-6d25-2bf4-4e56-f368b2fb8f8a");
+		UUID userIdUUID2 = UUID.fromString("7d2201e9-073f-7037-92e0-3b9f7712a8c1");
+		UUID userIdUUID3 = UUID.fromString("9c971175-2807-83cc-cb24-ab83433e0e1a");
+
+		Set<UUID> userIdUUIDSet = new HashSet<UUID>();
+
+		userIdUUIDSet.add(userIdUUID1);
+		userIdUUIDSet.add(userIdUUID2);
+		userIdUUIDSet.add(userIdUUID3);
+
 		Assert.assertNotNull(registrations);
 		Assert.assertEquals(registrations.size(), 3);
+
+		for(Registration registration : registrations)
+			userIdUUIDSet.remove(registration.getUserId());
+
+		Assert.assertTrue(userIdUUIDSet.size() == 0);
 	}
 
-	UUID fakeRegistrationUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cdef");
-	UUID fakeUserUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0deaf");
-
-	private Registration createFakeRegistration()
+	private Registration createRegistration(UUID registrationIdUUID, UUID userIdUUID)
 	{
-		Registration fakeRegistration = new Registration();
+		Registration registration = new Registration();
 
-		fakeRegistration.setId(fakeRegistrationUUID);
-		fakeRegistration.setUserId(fakeUserUUID);
+		registration.setId(registrationIdUUID);
+		registration.setUserId(userIdUUID);
 
-		return fakeRegistration;
+		return registration;
 	}
 
-	private void removeAddedRegistration(EntityManager setupEm)
+	private void removeAddedRegistration(EntityManager setupEm, UUID registrationIdUUID)
 	{
-		RegistrationEntity registrationToDelete = setupEm.find(RegistrationEntity.class, fakeRegistrationUUID);
+		RegistrationEntity registrationToDelete = setupEm.find(RegistrationEntity.class, registrationIdUUID);
 		if(registrationToDelete == null) return;
 
 		setupEm.getTransaction().begin();
@@ -350,5 +371,24 @@ public class ConferenceResourceFunctionalTest
 		fakePage.setBlocks(null);
 		
 		return fakePage;
+	}
+
+	private UUID getIdFromResponseLocation(Link locationLink)
+	{
+		String location = locationLink.toString();
+
+		location = location.substring(1, location.length()-1);
+
+		String answerId = location.substring(location.lastIndexOf("/"));
+		answerId = answerId.substring(1);
+
+		return UUID.fromString(answerId);
+	}
+
+	private UUID getIdFromResponseLocation(String location)
+	{
+		location = location.substring(1, location.length()-1);
+
+		return UUID.fromString(location.substring(location.lastIndexOf("/")).substring(1));
 	}
 }
