@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
@@ -155,17 +157,19 @@ public class ConferenceResource
     {
         if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
 
+		logger.info(conferenceId);
+
         ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
 
-		logger.info("conference retrieved by id " + conferenceId + " is " + conference);
+		logObject(conference, logger);
 
 		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
 
         RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity(conference);
 
-		registrationService.createNewRegistration(newRegistrationEntity);
+		logObject(newRegistrationEntity, logger);
 
-		logger.info("new registration created");
+		registrationService.createNewRegistration(newRegistrationEntity);
 
 		return Response.created(new URI("/registrations/" + newRegistration.getId())).build();
     }
@@ -175,6 +179,19 @@ public class ConferenceResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
     {
-        return Response.ok(Registration.fromJpa(registrationService.fetchAllRegistrations(conferenceId))).build();
+		logger.info(conferenceId);
+
+		return Response.ok(Registration.fromJpa(registrationService.fetchAllRegistrations(conferenceId))).build();
     }
+
+	private void logObject(Object object, Logger logger)
+	{
+		try
+		{
+			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package org.cru.crs.api;
 
 import com.google.common.base.Preconditions;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.service.AnswerService;
@@ -19,6 +20,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -38,13 +40,13 @@ public class AnswerResource {
     {
         AnswerEntity requestedAnswer = new AnswerService(em).getAnswerBy(answerId);
 
-		log("get:", requestedAnswer);
+		logObject(requestedAnswer, logger);
 
 		if(requestedAnswer == null) return Response.status(Status.NOT_FOUND).build();
 
         Answer answer = Answer.fromJpa(requestedAnswer);
 
-        log("get:", answer);
+		logObject(answer, logger);
 
         return Response.ok(answer).build();
     }
@@ -55,7 +57,7 @@ public class AnswerResource {
     {
         Preconditions.checkNotNull(answer.getId());
 
-		log("update(provided):", answer);
+		logObject(answer, logger);
 
 		AnswerService answerService = new AnswerService(em);
 
@@ -63,11 +65,9 @@ public class AnswerResource {
         if(currentAnswerEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        log("update(existing):", currentAnswerEntity);
-
         AnswerEntity answerEntity = answer.toJpaAnswerEntity();
 
-        log("update(existing):", answer);
+		logObject(answerEntity, logger);
 
         answerService.updateAnswer(answerEntity);
 
@@ -80,8 +80,6 @@ public class AnswerResource {
     {
         Preconditions.checkNotNull(answer.getId());
 
-        log("delete:", answer);
-
         AnswerService answerService = new AnswerService(em);
 
         AnswerEntity answerEntity = answerService.getAnswerBy(answer.getId());
@@ -89,46 +87,21 @@ public class AnswerResource {
         if(answerEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        log("delete:", answerEntity);
+		logObject(answerEntity, logger);
 
         answerService.deleteAnswer(answerEntity);
 
         return Response.ok().build();
     }
 
-	private void log(String message, AnswerEntity answer)
-    {
-        if(answer == null)
-        {
-            logger.info(message + answer);
-            return;
-        }
-
-        logger.info(message + " entity: " + answer.getId());
-        logger.info(message + " entity: " + answer.getBlockId());
-        logger.info(message + " entity: " + answer.getAnswer());
-    }
-
-	private void log(String message, Answer answer)
+	private void logObject(Object object, Logger logger)
 	{
-		log(message, answer, logger);
+		try
+		{
+			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
-
-	public static void log(String message, Answer answer, Logger logger)
-    {
-        if(answer == null)
-        {
-            logger.info(message + answer);
-            return;
-        }
-
-        logger.info(message + answer.getId());
-        logger.info(message + answer.getBlockId());
-        logger.info(message + answer.getValue());
-    }
-
-    private void log(String message)
-    {
-        logger.info(message);
-    }
 }

@@ -1,5 +1,7 @@
 package org.cru.crs.api;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -21,6 +23,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.util.JSONPObject;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.AnswerEntity;
@@ -46,13 +50,13 @@ public class RegistrationResource
     {
         RegistrationEntity requestedRegistration = new RegistrationService(em).getRegistrationBy(registrationId);
 
-        log("get:", requestedRegistration);
+		logObject(requestedRegistration, logger);
 
-        if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
+		if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
 
         Registration registration = Registration.fromJpa(requestedRegistration);
 
-        log("get:", registration);
+        logObject(registration, logger);
 
         return Response.ok(registration).build();
     }
@@ -63,22 +67,20 @@ public class RegistrationResource
     {
         Preconditions.checkNotNull(registrationId);
 
-		log("update(provided)", registration);
+		logObject(registration, logger);
 
-        RegistrationService registrationService = new RegistrationService(em);
+		RegistrationService registrationService = new RegistrationService(em);
 
         RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
 
         if(currentRegistrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        log("update(existing):", currentRegistrationEntity);
-
         RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(currentRegistrationEntity.getConference());
 
-        log("update:", registrationEntity);
+		logObject(registrationEntity, logger);
 
-        registrationService.updateRegistration(registrationEntity);
+		registrationService.updateRegistration(registrationEntity);
 
         return Response.noContent().build();
     }
@@ -89,18 +91,16 @@ public class RegistrationResource
     {
         Preconditions.checkNotNull(registration.getId());
 
-        log("delete:", registration);
+		RegistrationService registrationService = new RegistrationService(em);
 
-        RegistrationService registrationService = new RegistrationService(em);
+        RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
-        RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
+		logObject(registrationEntity, logger);
 
-        log("delete:", currentRegistrationEntity);
-
-        if(currentRegistrationEntity == null)
+        if(registrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        new RegistrationService(em).deleteRegistration(currentRegistrationEntity);
+        new RegistrationService(em).deleteRegistration(registrationEntity);
 
         return Response.ok().build();
     }
@@ -112,7 +112,7 @@ public class RegistrationResource
     {
         if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
 
-		AnswerResource.log("create:", newAnswer, logger);
+		logObject(newAnswer, logger);
 
         RegistrationEntity registration = new RegistrationService(em).getRegistrationBy(registrationId);
 
@@ -123,60 +123,14 @@ public class RegistrationResource
         return Response.created(new URI("/answers/" + newAnswer.getId())).build();
     }
 
-    private void log(String message, RegistrationEntity registration)
+    private void logObject(Object object, Logger logger)
     {
-        if(registration == null)
-        {
-            logger.info(message + registration);
-            return;
-        }
-
-        logger.info(message + registration.getId());
-        logger.info(message + registration.getUserId());
-
-        if(registration.getConference() == null)
-            logger.info(message + registration.getConference());
-        else
-            logger.info(message + registration.getConference().getId());
-
-        logger.info(message + fromAnswerEntity(registration.getAnswers()));
-    }
-
-    private void log(String message, Registration registration)
-    {
-        if(registration == null)
-        {
-            logger.info(message + registration);
-            return;
-        }
-
-        logger.info(message + " entity: " + registration.getId());
-        logger.info(message + " entity: " + registration.getUserId());
-        logger.info(message + " entity: " + fromAnswer(registration.getAnswers()));
-    }
-
-    private Set<String> fromAnswer(Set<Answer> answers)
-    {
-        Set<String> strings = new HashSet<String>();
-
-        for(Answer answer : answers)
-            strings.add(answer.getValue());
-
-        return strings;
-    }
-
-    private Set<String> fromAnswerEntity(Set<AnswerEntity> answers)
-    {
-        Set<String> strings = new HashSet<String>();
-
-        for(AnswerEntity answer : answers)
-            strings.add(answer.getAnswer());
-
-        return strings;
-    }
-
-    private void log(String message)
-    {
-        logger.info(message);
-    }
+		try
+		{
+			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }
