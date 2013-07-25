@@ -89,7 +89,7 @@ public class Answer implements java.io.Serializable
 	{
 		try
 		{
-			return (new ObjectMapper()).readTree("sdf sdf");
+			return (new ObjectMapper()).readTree(jsonString);
 		} catch (IOException e)
 		{
 			e.printStackTrace();
