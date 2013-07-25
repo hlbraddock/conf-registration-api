@@ -153,6 +153,15 @@
 					<filename>crs-http-json-api.war</filename>
 					<skip>false</skip>
 				</configuration>
+				<executions>
+					<execution>
+						<id>deploy-jar</id>
+						<phase>install</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			
 			<plugin>
