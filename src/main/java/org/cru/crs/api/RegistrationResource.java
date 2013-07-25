@@ -72,6 +72,13 @@ public class RegistrationResource
 		logger.info("update registration");
 		logObject(registration, logger);
 
+		ConferenceService conferenceService = new ConferenceService(em);
+
+		ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(registration.getConferenceId());
+
+		if(conferenceEntity == null)
+			return Response.status(Status.BAD_REQUEST).build();
+
 		RegistrationService registrationService = new RegistrationService(em);
 
         RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
@@ -82,7 +89,7 @@ public class RegistrationResource
         if(currentRegistrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(currentRegistrationEntity.getConference());
+        RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
 		logger.info("update registration entity");
 		logObject(registrationEntity, logger);

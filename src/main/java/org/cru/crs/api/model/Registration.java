@@ -13,7 +13,8 @@ public class Registration implements java.io.Serializable
 	private static final long serialVersionUID = 1L;
 
     private UUID id;
-    private UUID userId;
+	private UUID userId;
+	private UUID conferenceId;
 
     private Set<Answer> answers = new HashSet<Answer>();
 
@@ -29,6 +30,7 @@ public class Registration implements java.io.Serializable
 		
 		webRegistration.id = jpaRegistration.getId();
         webRegistration.userId = jpaRegistration.getUserId();
+		webRegistration.conferenceId = jpaRegistration.getConference().getId();
         webRegistration.answers = Answer.fromJpa(jpaRegistration.getAnswers());
 		return webRegistration;
 	}
@@ -50,7 +52,7 @@ public class Registration implements java.io.Serializable
 		RegistrationEntity jpaRegistration = new RegistrationEntity();
 		
 		jpaRegistration.setId(id);
-        jpaRegistration.setUserId(userId);
+		jpaRegistration.setUserId(userId);
         jpaRegistration.setConference(conferenceEntity);
 
         jpaRegistration.setAnswers(new HashSet<AnswerEntity>());
@@ -89,4 +91,14 @@ public class Registration implements java.io.Serializable
     {
         this.answers = answers;
     }
+
+	public UUID getConferenceId()
+	{
+		return conferenceId;
+	}
+
+	public void setConferenceId(UUID conferenceId)
+	{
+		this.conferenceId = conferenceId;
+	}
 }

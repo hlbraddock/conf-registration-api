@@ -27,7 +27,7 @@ public class RegistrationEntity implements java.io.Serializable
 	private UUID id;
 
     // NO! cascade = CascadeType.ALL - unless you want to remove the parent (conference)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private ConferenceEntity conference;
 
     @Column(name = "USER_ID")

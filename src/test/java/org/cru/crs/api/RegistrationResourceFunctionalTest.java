@@ -61,6 +61,7 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getId(), registrationUUID);
 		Assert.assertEquals(registration.getUserId(), userUUID);
+		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
 	}
 	
 	/**
@@ -125,8 +126,7 @@ public class RegistrationResourceFunctionalTest
 	public void updateRegistrationWherePathAndBodyRegistrationIdsDontMatch()
 	{
 		UUID randomRegistrationUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0face");
-		UUID randomUserUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0fade");
-		Registration registration = createRegistration(randomRegistrationUUID, randomUserUUID);
+		Registration registration = createRegistration(randomRegistrationUUID, userUUID, conferenceUUID);
 
 		ClientResponse<Registration> response = registrationClient.updateRegistration(registration, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"));
 
@@ -150,7 +150,7 @@ public class RegistrationResourceFunctionalTest
 		// create registration
 		UUID createUserUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a5678");
         UUID createRegistrationIdUUID = UUID.randomUUID();
-		Registration registration = createRegistration(createRegistrationIdUUID, createUserUUID);
+		Registration registration = createRegistration(createRegistrationIdUUID, createUserUUID, null);
 
 		response = conferenceClient.createRegistration(registration, conferenceUUID);
         Assert.assertEquals(response.getStatus(), 201);
@@ -200,12 +200,13 @@ public class RegistrationResourceFunctionalTest
 		return UUID.fromString(location.substring(location.lastIndexOf("/")).substring(1));
 	}
 
-	private Registration createRegistration(UUID registrationUUID, UUID userUUID)
+	private Registration createRegistration(UUID registrationUUID, UUID userUUID, UUID conferenceUUID)
 	{
 		Registration registration = new Registration();
 
 		registration.setId(registrationUUID);
 		registration.setUserId(userUUID);
+		registration.setConferenceId(conferenceUUID);
 
         registration.setAnswers(new HashSet<Answer>());
 
