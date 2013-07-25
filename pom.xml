@@ -143,9 +143,15 @@
 			<plugin>
 				<groupId>org.jboss.as.plugins</groupId>
 				<artifactId>jboss-as-maven-plugin</artifactId>
-				<version>7.3.Final</version>
+				<version>7.2.0.Final</version>
 				<configuration>
-					<jbossHome>/opt/jboss-7.2.0.Final</jbossHome>
+					<hostname>${deploy.jboss.host}</hostname>
+					<port>${deploy.jboss.port}</port>
+					<username>${deploy.jboss.user}</username>
+					<password>${deploy.jboss.password}</password>
+				<!--	<name>${backend.deployment-name}</name> -->
+					<filename>crs-http-json-api.war</filename>
+					<skip>false</skip>
 				</configuration>
 			</plugin>
 			
