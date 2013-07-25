@@ -1,5 +1,7 @@
 package org.cru.crs.api;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
@@ -13,6 +15,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Test(groups="functional-tests")
@@ -29,7 +32,7 @@ public class AnswerResourceFunctionalTest
 
 	UUID answerUUID = UUID.fromString("441AD805-7AA6-4B20-8315-8F1390DC4A9E");
 	UUID blockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
-	String answerValue = "{ \"Imya\": \"Alexander Solzhenitsyn\"}";
+	JsonNode answerValue = jsonNodeFromString("{\"Imya\":\"Alexander Solzhenitsyn\"}");
 
 	@BeforeMethod
 	public void createClient()
@@ -38,7 +41,7 @@ public class AnswerResourceFunctionalTest
         answerClient = ProxyFactory.create(AnswerResourceClient.class, restApiBaseUrl);
 		registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
 	}
-	
+
 	/**
 	 * Test: find a answer specified by ID
 	 * 
@@ -91,7 +94,7 @@ public class AnswerResourceFunctionalTest
 		Answer answer = response.getEntity();
 
 		// update answer
-		String updatedAnswerValue = "{ \"Nombre\": \"Alexandrea Solzendo\" }";
+		JsonNode updatedAnswerValue = jsonNodeFromString("{\"Nombre\": \"Alexandrea Solzendo\"}");
 		answer.setValue(updatedAnswerValue);
 		response = answerClient.updateAnswer(answer, answerUUID);
 		Assert.assertEquals(response.getStatus(), 204);
@@ -122,7 +125,7 @@ public class AnswerResourceFunctionalTest
 	{
 		UUID randomAnswerUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a09876");
 		UUID randomBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
-		String randomAnswerValue = "{ \"N\": \"Oleg Salvador\"}";
+		JsonNode randomAnswerValue = jsonNodeFromString("{ \"N\": \"Oleg Salvador\"}");
 		Answer answer = createAnswer(randomAnswerUUID, randomBlockUUID, randomAnswerValue);
 
 		ClientResponse<Answer> response = answerClient.updateAnswer(answer, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cade"));
@@ -147,7 +150,7 @@ public class AnswerResourceFunctionalTest
 		// create answer
 		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86Ebaba");
 		UUID createAnswerIdUUID = UUID.randomUUID();
-		String createAnswerValue = "{ \"N\": \"Oleg Salvador\"}";
+		JsonNode createAnswerValue = jsonNodeFromString("{\"N\": \"Oleg Salvador\"}");
 		Answer answer = createAnswer(createAnswerIdUUID, createBlockUUID, createAnswerValue);
 
 		response = registrationClient.createAnswer(answer, registrationUUID);
@@ -162,7 +165,7 @@ public class AnswerResourceFunctionalTest
 		Assert.assertEquals(response.getStatus(), 200);
 	}
 
-	private Answer createAnswer(UUID answerUUID, UUID blockUUID, String value)
+	private Answer createAnswer(UUID answerUUID, UUID blockUUID, JsonNode value)
 	{
 		Answer answer = new Answer();
 
@@ -171,5 +174,17 @@ public class AnswerResourceFunctionalTest
 		answer.setValue(value);
 
 		return answer;
+	}
+
+	private static JsonNode jsonNodeFromString(String jsonString)
+	{
+		try
+		{
+			return (new ObjectMapper()).readTree(jsonString);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

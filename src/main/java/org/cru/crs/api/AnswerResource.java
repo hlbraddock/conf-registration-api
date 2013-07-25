@@ -40,12 +40,14 @@ public class AnswerResource {
     {
         AnswerEntity requestedAnswer = new AnswerService(em).getAnswerBy(answerId);
 
+		logger.info("get answer entity");
 		logObject(requestedAnswer, logger);
 
 		if(requestedAnswer == null) return Response.status(Status.NOT_FOUND).build();
 
         Answer answer = Answer.fromJpa(requestedAnswer);
 
+		logger.info("get answer");
 		logObject(answer, logger);
 
         return Response.ok(answer).build();
@@ -57,6 +59,7 @@ public class AnswerResource {
     {
         Preconditions.checkNotNull(answer.getId());
 
+		logger.info("update answer");
 		logObject(answer, logger);
 
 		AnswerService answerService = new AnswerService(em);
@@ -65,8 +68,12 @@ public class AnswerResource {
         if(currentAnswerEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        AnswerEntity answerEntity = answer.toJpaAnswerEntity();
+		logger.info("update current answer entity");
+		logObject(currentAnswerEntity, logger);
 
+		AnswerEntity answerEntity = answer.toJpaAnswerEntity();
+
+		logger.info("updat to answer entity");
 		logObject(answerEntity, logger);
 
         answerService.updateAnswer(answerEntity);
@@ -87,6 +94,7 @@ public class AnswerResource {
         if(answerEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
+		logger.info("delete answer entity");
 		logObject(answerEntity, logger);
 
         answerService.deleteAnswer(answerEntity);

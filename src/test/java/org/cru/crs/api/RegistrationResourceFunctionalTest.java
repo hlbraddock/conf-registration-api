@@ -1,23 +1,20 @@
 package org.cru.crs.api;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
-import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
-import org.jboss.resteasy.spi.Link;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -44,7 +41,7 @@ public class RegistrationResourceFunctionalTest
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
 		conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
 	}
-	
+
 	/**
 	 * Test: find a registration specified by ID
 	 * 
@@ -173,7 +170,7 @@ public class RegistrationResourceFunctionalTest
 	{
 		// create answer
 		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
-		String createAnswerValue = "{ \"Name\": \"Alex Solz\"}";
+		JsonNode createAnswerValue = jsonNodeFromString("{\"Name\": \"Alex Solz\"}");
 		Answer answer = createAnswer(null, createBlockUUID, createAnswerValue);
 		ClientResponse<Answer> registrationResponse = registrationClient.createAnswer(answer, registrationUUID);
 
@@ -215,7 +212,7 @@ public class RegistrationResourceFunctionalTest
 		return registration;
 	}
 
-	private Answer createAnswer(UUID answerUUID, UUID blockUUID, String value)
+	private Answer createAnswer(UUID answerUUID, UUID blockUUID, JsonNode value)
 	{
 		Answer answer = new Answer();
 
@@ -224,5 +221,17 @@ public class RegistrationResourceFunctionalTest
 		answer.setValue(value);
 
 		return answer;
+	}
+
+	private static JsonNode jsonNodeFromString(String jsonString)
+	{
+		try
+		{
+			return (new ObjectMapper()).readTree(jsonString);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

@@ -50,12 +50,14 @@ public class RegistrationResource
     {
         RegistrationEntity requestedRegistration = new RegistrationService(em).getRegistrationBy(registrationId);
 
+		logger.info("get registration entity");
 		logObject(requestedRegistration, logger);
 
 		if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
 
         Registration registration = Registration.fromJpa(requestedRegistration);
 
+		logger.info("get registration");
         logObject(registration, logger);
 
         return Response.ok(registration).build();
@@ -67,17 +69,22 @@ public class RegistrationResource
     {
         Preconditions.checkNotNull(registrationId);
 
+		logger.info("update registration");
 		logObject(registration, logger);
 
 		RegistrationService registrationService = new RegistrationService(em);
 
         RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
 
+		logger.info("update current registration entity");
+		logObject(currentRegistrationEntity, logger);
+
         if(currentRegistrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
         RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(currentRegistrationEntity.getConference());
 
+		logger.info("update registration entity");
 		logObject(registrationEntity, logger);
 
 		registrationService.updateRegistration(registrationEntity);
@@ -95,6 +102,7 @@ public class RegistrationResource
 
         RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
+		logger.info("delete registration entity");
 		logObject(registrationEntity, logger);
 
         if(registrationEntity == null)
@@ -112,13 +120,17 @@ public class RegistrationResource
     {
         if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
 
+		logger.info("create answer");
 		logObject(newAnswer, logger);
 
-        RegistrationEntity registration = new RegistrationService(em).getRegistrationBy(registrationId);
+        RegistrationEntity registrationEntity = new RegistrationService(em).getRegistrationBy(registrationId);
 
-        if(registration == null) return Response.status(Status.BAD_REQUEST).build();
+		logger.info("create answer with registration entity");
+		logObject(registrationEntity, logger);
 
-        registration.getAnswers().add(newAnswer.toJpaAnswerEntity());
+		if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
+
+        registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
 
         return Response.created(new URI("/answers/" + newAnswer.getId())).build();
     }
