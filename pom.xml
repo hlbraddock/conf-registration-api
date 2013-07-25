@@ -150,8 +150,8 @@
 					<username>${deploy.jboss.user}</username>
 					<password>${deploy.jboss.password}</password>
 				<!--	<name>${backend.deployment-name}</name> -->
-					<targetDir>target/</targetDir>
-					<filename>crs-http-json-api.war</filename>
+					<targetDir>${deploy.jboss.targetDir}</targetDir>
+					<filename>${deploy.jboss.filename}</filename>
 					<skip>false</skip>
 				</configuration>
 				<executions>
