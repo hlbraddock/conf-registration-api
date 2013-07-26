@@ -145,8 +145,24 @@
 				<artifactId>jboss-as-maven-plugin</artifactId>
 				<version>7.3.Final</version>
 				<configuration>
-					<jbossHome>/opt/jboss-7.2.0.Final</jbossHome>
+					<hostname>${deploy.jboss.host}</hostname>
+					<port>${deploy.jboss.port}</port>
+					<username>${deploy.jboss.user}</username>
+					<password>${deploy.jboss.password}</password>
+				<!--	<name>${backend.deployment-name}</name> -->
+					<targetDir>${deploy.jboss.targetDir}</targetDir>
+					<filename>${deploy.jboss.filename}</filename>
+					<skip>false</skip>
 				</configuration>
+				<executions>
+					<execution>
+						<id>deploy-jar</id>
+						<phase>install</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			
 			<plugin>
