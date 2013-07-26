@@ -35,7 +35,7 @@ public class ConferenceResourceFunctionalTest
 	ConferenceResourceClient conferenceClient;
 	
 	@BeforeMethod
-	public void createClient()
+	private void createClient()
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);

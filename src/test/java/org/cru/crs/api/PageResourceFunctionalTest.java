@@ -29,7 +29,7 @@ public class PageResourceFunctionalTest
 	PageResourceClient pageClient;
 	
 	@BeforeMethod
-	public void createClient()
+	private void createClient()
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         pageClient = ProxyFactory.create(PageResourceClient.class, restApiBaseUrl);

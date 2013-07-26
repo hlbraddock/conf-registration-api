@@ -22,7 +22,7 @@ public class BlockResourceFunctionalTest
 	BlockResourceClient blockClient;
 	
 	@BeforeMethod
-	public void createClient()
+	private void createClient()
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         blockClient = ProxyFactory.create(BlockResourceClient.class, restApiBaseUrl);
