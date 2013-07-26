@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -17,18 +18,26 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
+import org.jboss.logging.Logger;
 
 @Stateless
 @Path("/conferences")
 public class ConferenceResource
 {
-	@Inject ConferenceService conferenceService;
-	
+    @Inject ConferenceService conferenceService;
+    @Inject RegistrationService registrationService;
+
+	Logger logger = Logger.getLogger(ConferenceResource.class);
+
 	/**
 	 * Desired design: Gets all the conferences for which the authenticated user has access to.
 	 * 
@@ -139,5 +148,50 @@ public class ConferenceResource
 		conference.getPages().add(newPage.toJpaPageEntity().setConferenceId(conferenceId));
 		
 		return Response.created(new URI("/pages/" + newPage.getId())).build();
+	}
+
+    @POST
+    @Path("/{conferenceId}/registrations")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createRegistration(Registration newRegistration, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+    {
+        if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
+
+		logger.info(conferenceId);
+
+        ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+
+		logObject(conference, logger);
+
+		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+
+        RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity(conference);
+
+		logObject(newRegistrationEntity, logger);
+
+		registrationService.createNewRegistration(newRegistrationEntity);
+
+		return Response.created(new URI("/registrations/" + newRegistration.getId())).build();
+    }
+
+    @GET
+    @Path("/{conferenceId}/registrations")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+    {
+		logger.info(conferenceId);
+
+		return Response.ok(Registration.fromJpa(registrationService.fetchAllRegistrations(conferenceId))).build();
+    }
+
+	private void logObject(Object object, Logger logger)
+	{
+		try
+		{
+			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
