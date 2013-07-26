@@ -41,6 +41,15 @@ public class ConferenceResourceFunctionalTest
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
 	}
 	
+	/**
+	 * Test: find all the conferences in the system
+	 * 
+	 * Expected outcome: 10 conferences found
+	 * 
+	 * Input: none
+	 * 
+	 * Expected return: 200 - OK and array of 10 json-i-fied conferences
+	 */
 	@Test(groups="functional-tests")
 	public void fetchAllTheConferences()
 	{
@@ -53,6 +62,15 @@ public class ConferenceResourceFunctionalTest
 		Assert.assertEquals(conferences.size(), 10);
 	}
 	
+	/**
+	 * Test: find conference by id
+	 * 
+	 * Expected outcome: conference found and returned as json w/ associated pages and blocks
+	 * 
+	 * Input: UUID - d5878eba-9b3f-7f33-8355-3193bf4fb698
+	 * 
+	 * Expected return: 200 - OK and conference JSON resource specified by ID
+	 */
 	@Test(groups="functional-tests")
 	public void fetchConferenceById()
 	{
@@ -67,8 +85,13 @@ public class ConferenceResourceFunctionalTest
 	}
 	
 	/**
-	 * TODO: method needs to clean up after itself
-	 * @throws URISyntaxException
+	 * Test: create a new conference
+	 * 
+	 * Expected outcome: conference created and location header of new conference is returned
+	 * 
+	 * Input: conference JSON resource
+	 * 
+	 * Expected return: 201 - Created and location header of new conference resource
 	 */
 	@Test(groups="functional-tests")
 	public void createConference() throws URISyntaxException
@@ -97,6 +120,15 @@ public class ConferenceResourceFunctionalTest
 		removeFakeConference(conferenceIdString);
 	}
 
+	/**
+	 * Test: update existing conference by changing name
+	 * 
+	 * Expected outcome: conference after update can be retrieved and new name is verified
+	 * 
+	 * Input: Updated conference object
+	 * 
+	 * Expected return: 204 - No Content
+	 */
 	@Test(groups="functional-tests")
 	public void updateConference() throws URISyntaxException
 	{
@@ -136,6 +168,15 @@ public class ConferenceResourceFunctionalTest
 		removeFakeConference(conferenceId.toString());
 	}
 	
+	/**
+	 * Test: add a new page to an existing conference
+	 * 
+	 * Expected outcome: existing conference will have a new page added to it
+	 * 
+	 * Input: new page JSON resource and conference UUID - d5878eba-9b3f-7f33-8355-3193bf4fb698
+	 * 
+	 * Expected return: 201 - Created and location header to newly created page
+	 */
 	@Test(groups="functional-tests")
 	public void addPageToConference() throws URISyntaxException 
 	{
@@ -168,6 +209,15 @@ public class ConferenceResourceFunctionalTest
 		}
 	}
 
+	/**
+	 * Test: add a page to conference that doesn't exist
+	 * 
+	 * Expected outcome: should fail.. cannot add a page to non-existant conference
+	 * 
+	 * Input: JSON page resource and UUID - d5878eba-9b3f-7f33-8355-3193bf4fb699
+	 * 
+	 * Expected return: 400 - Bad Request
+	 */
 	@Test(groups="functional-tests")
 	public void addPageToBogusConference() throws URISyntaxException
 	{
@@ -190,10 +240,19 @@ public class ConferenceResourceFunctionalTest
 			setupEm.close();
 		}
 	}
-	
-	@Test(groups="functional-tests")
-	public void addPageToConferenceByAddingToAConferenceResourceAndUpdating()
-	{
+
+	/**
+	 * Test: add a page to conference by fetching the conference and adding a child page to it. this is different than hitting
+	 * the createPage endpoint, but should have the same outcome
+	 * 
+	 * Expected outcome: page should be stored and associated with conference
+	 * 
+	 * Input: JSON conference resource with new page attached to it
+	 * 
+	 * Expected return: 204 - No Content
+	 */	@Test(groups="functional-tests")
+	 public void addPageToConferenceByAddingToAConferenceResourceAndUpdating()
+	 {
 		UUID testConferenceId = UUID.randomUUID();
 		
 		try
@@ -230,6 +289,10 @@ public class ConferenceResourceFunctionalTest
 		}
 	}
 	
+	 //**********************************************************************
+	 // Helper methods
+	 //**********************************************************************
+
 	private void removeFakeConference(String conferenceIdString)
 	{
 		EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();

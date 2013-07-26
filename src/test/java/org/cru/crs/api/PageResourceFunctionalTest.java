@@ -15,6 +15,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * This test requires an EE app server to be running to test the endpoint/resource
+ * @author ryancarlson
+ */
 @Test(groups="functional-tests")
 public class PageResourceFunctionalTest
 {
