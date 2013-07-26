@@ -73,7 +73,7 @@ public class AnswerResource {
 
 		AnswerEntity answerEntity = answer.toJpaAnswerEntity();
 
-		logger.info("updat to answer entity");
+		logger.info("update to answer entity");
 		logObject(answerEntity, logger);
 
         answerService.updateAnswer(answerEntity);

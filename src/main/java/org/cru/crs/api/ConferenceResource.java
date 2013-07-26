@@ -3,6 +3,7 @@ package org.cru.crs.api;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.ejb.Stateless;
@@ -181,7 +182,13 @@ public class ConferenceResource
     {
 		logger.info(conferenceId);
 
-		return Response.ok(Registration.fromJpa(registrationService.fetchAllRegistrations(conferenceId))).build();
+		Set<RegistrationEntity> registrationEntitySet = registrationService.fetchAllRegistrations (conferenceId);
+
+		Set<Registration> registrationSet = Registration.fromJpa(registrationEntitySet);
+
+		logObject(registrationSet, logger);
+
+		return Response.ok(registrationSet).build();
     }
 
 	private void logObject(Object object, Logger logger)
