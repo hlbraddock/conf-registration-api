@@ -1,6 +1,7 @@
 package org.cru.crs.model;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
@@ -13,6 +14,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
@@ -40,8 +43,8 @@ public class ConferenceEntity implements java.io.Serializable
     @JoinColumn(name = "CONFERENCE_ID", nullable = false)
     @OrderColumn(name = "POSITION", nullable = false)
 	private List<PageEntity> pages;
-	
-	@Column(name = "EVENT_START_TIME")
+
+    @Column(name = "EVENT_START_TIME")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime eventStartTime;
 	
@@ -154,5 +157,4 @@ public class ConferenceEntity implements java.io.Serializable
 	{
 		this.pages = pages;
 	}
-	
 }

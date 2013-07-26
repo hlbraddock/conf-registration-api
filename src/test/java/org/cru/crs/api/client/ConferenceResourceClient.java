@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.api.model.Registration;
 import org.jboss.resteasy.client.ClientResponse;
 
 @Path("/conferences")
@@ -45,4 +46,15 @@ public interface ConferenceResourceClient
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public ClientResponse createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException;
+
+	@SuppressWarnings(value="rawtypes")
+	@POST
+	@Path("/{conferenceId}/registrations")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ClientResponse createRegistration(Registration newRegistration, @PathParam(value = "conferenceId") UUID conferenceId);
+
+	@GET
+	@Path("/{conferenceId}/registrations")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ClientResponse<List<Registration>> getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId);
 }
