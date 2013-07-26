@@ -25,4 +25,12 @@
 		<param-name>resteasy.scan</param-name>
 		<param-value>true</param-value>
 	</context-param>
+	<filter>
+		<filter-name>CorsFilter</filter-name>
+		<filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>CorsFilter</filter-name>
+		<url-pattern>/rest/*</url-pattern>
+	</filter-mapping>
 </web-app>
