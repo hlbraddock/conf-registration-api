@@ -11,15 +11,6 @@
 		</properties>
 	</persistence-unit>
 	
-	<persistence-unit name="crsDev">
-		<provider>org.hibernate.ejb.HibernatePersistence</provider>
-		<jta-data-source>java:jboss/datasources/crsDevDS</jta-data-source>
-		<properties>
-			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
-			<property name="jadira.usertype.autoRegisterUserTypes" value="true" />
-		</properties>
-	</persistence-unit>
-	
 	<persistence-unit name="crsLocalTest">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<properties>
