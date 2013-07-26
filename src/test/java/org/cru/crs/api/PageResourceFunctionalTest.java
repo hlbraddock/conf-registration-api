@@ -15,6 +15,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * This test requires an EE app server to be running to test the endpoint/resource
+ * @author ryancarlson
+ */
 @Test(groups="functional-tests")
 public class PageResourceFunctionalTest
 {
@@ -25,7 +29,7 @@ public class PageResourceFunctionalTest
 	PageResourceClient pageClient;
 	
 	@BeforeMethod
-	public void createClient()
+	private void createClient()
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         pageClient = ProxyFactory.create(PageResourceClient.class, restApiBaseUrl);

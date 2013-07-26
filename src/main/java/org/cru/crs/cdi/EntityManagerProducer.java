@@ -6,15 +6,7 @@ import javax.persistence.PersistenceContext;
 
 public class EntityManagerProducer
 {
-	private static final String PERSISTENCE_UNIT_NAME = "crsLocalTest";
 
-	@Produces @PersistenceContext(unitName="crsLocal")
+	@Produces @PersistenceContext(unitName="crsDev")
 	EntityManager em;
-	
-//	public EntityManager getEntityManager()
-//	{
-//		EntityManagerFactory emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-//		
-//		return emFactory.createEntityManager();
-//	}
 }
