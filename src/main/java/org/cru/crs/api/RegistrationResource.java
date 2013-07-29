@@ -43,12 +43,12 @@ public class RegistrationResource
     {
         RegistrationEntity requestedRegistration = registrationService.getRegistrationBy(registrationId);
 
+		if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
+
 		logger.info("get registration entity");
 		logObject(Registration.fromJpa(requestedRegistration), logger);
 
-		if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
-
-        Registration registration = Registration.fromJpa(requestedRegistration);
+		Registration registration = Registration.fromJpa(requestedRegistration);
 
 		logger.info("get registration");
         logObject(registration, logger);
@@ -72,13 +72,13 @@ public class RegistrationResource
 
         RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
 
-		logger.info("update current registration entity");
-		logObject(Registration.fromJpa(currentRegistrationEntity), logger);
-
         if(currentRegistrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
+		logger.info("update current registration entity");
+		logObject(Registration.fromJpa(currentRegistrationEntity), logger);
+
+		RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
 		logger.info("update registration entity");
 		logObject(Registration.fromJpa(registrationEntity), logger);
@@ -96,13 +96,13 @@ public class RegistrationResource
 
         RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
-		logger.info("delete registration entity");
-		logObject(Registration.fromJpa(registrationEntity), logger);
-
         if(registrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        registrationService.deleteRegistration(registrationEntity);
+		logger.info("delete registration entity");
+		logObject(Registration.fromJpa(registrationEntity), logger);
+
+		registrationService.deleteRegistration(registrationEntity);
 
         return Response.ok().build();
     }
@@ -120,18 +120,21 @@ public class RegistrationResource
 
         RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
+		if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
+
 		logger.info("create answer with registration entity");
 		logObject(Registration.fromJpa(registrationEntity), logger);
 
-		if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
-
-        registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
+		registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
 
 		return Response.status(Status.CREATED).entity(newAnswer).header("location", new URI("/answers/" + newAnswer.getId())).build();
     }
 
     private void logObject(Object object, Logger logger)
     {
+		if(object == null)
+			return;
+
 		try
 		{
 			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));

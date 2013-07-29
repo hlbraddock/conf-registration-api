@@ -39,12 +39,12 @@ public class AnswerResource {
     {
         AnswerEntity requestedAnswer = answerService.getAnswerBy(answerId);
 
+		if(requestedAnswer == null) return Response.status(Status.NOT_FOUND).build();
+
 		logger.info("get answer entity");
 		logObject(requestedAnswer, logger);
 
-		if(requestedAnswer == null) return Response.status(Status.NOT_FOUND).build();
-
-        Answer answer = Answer.fromJpa(requestedAnswer);
+		Answer answer = Answer.fromJpa(requestedAnswer);
 
 		logger.info("get answer");
 		logObject(answer, logger);
@@ -99,6 +99,9 @@ public class AnswerResource {
 
 	private void logObject(Object object, Logger logger)
 	{
+		if(object == null)
+			return;
+
 		try
 		{
 			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
