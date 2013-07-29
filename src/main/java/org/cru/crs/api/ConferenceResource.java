@@ -90,7 +90,11 @@ public class ConferenceResource
 		
 		conferenceService.createNewConference(conference.toJpaConferenceEntity());
 		
-		return Response.created(new URI("/conferences/" + conference.getId())).build();
+		return Response.status(Status.CREATED)
+						.location(new URI("/conferences/" + conference.getId()))
+						.entity(conference).build();
+		
+//		return Response.created(new URI("/conferences/" + conference.getId())).build();
 	}
 	
 	/**

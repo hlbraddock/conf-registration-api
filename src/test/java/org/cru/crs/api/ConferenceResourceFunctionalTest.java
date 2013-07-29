@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
 public class ConferenceResourceFunctionalTest
 {
 	static final String RESOURCE_PREFIX = "rest";
-	static final String PERSISTENCE_UNIT_NAME = "crsLocalTest";
+	static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
 	
 	Environment environment = Environment.LOCAL;
 	ConferenceResourceClient conferenceClient;
@@ -139,8 +139,7 @@ public class ConferenceResourceFunctionalTest
 	{
 		Conference fakeConference = createFakeConference();
 		
-		@SuppressWarnings("rawtypes")
-		ClientResponse response = conferenceClient.createConference(fakeConference);
+		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference);
 		
 		String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 		String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/conferences/";
@@ -362,8 +361,7 @@ public class ConferenceResourceFunctionalTest
 
 			UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-			// raw types
-			ClientResponse response = conferenceClient.createRegistration(newRegistration, conferenceUUID);
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID);
 
 			Assert.assertEquals(response.getStatus(), 201);
 
