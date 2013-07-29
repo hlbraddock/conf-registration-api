@@ -1,12 +1,14 @@
 package org.cru.crs.api;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import com.google.common.base.Preconditions;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Registration;
+import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.RegistrationService;
+import org.jboss.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -22,19 +24,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.util.JSONPObject;
-import org.cru.crs.api.model.Answer;
-import org.cru.crs.api.model.Registration;
-import org.cru.crs.model.AnswerEntity;
-import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.RegistrationEntity;
-import org.cru.crs.service.ConferenceService;
-import org.cru.crs.service.RegistrationService;
-
-import com.google.common.base.Preconditions;
-import org.jboss.logging.Logger;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.UUID;
 
 @Stateless
 @Path("/registrations/{registrationId}")
@@ -51,7 +44,7 @@ public class RegistrationResource
         RegistrationEntity requestedRegistration = new RegistrationService(em).getRegistrationBy(registrationId);
 
 		logger.info("get registration entity");
-		logObject(requestedRegistration, logger);
+		logObject(Registration.fromJpa(requestedRegistration), logger);
 
 		if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
 
@@ -84,7 +77,7 @@ public class RegistrationResource
         RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
 
 		logger.info("update current registration entity");
-		logObject(currentRegistrationEntity, logger);
+		logObject(Registration.fromJpa(currentRegistrationEntity), logger);
 
         if(currentRegistrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
@@ -92,7 +85,7 @@ public class RegistrationResource
         RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
 		logger.info("update registration entity");
-		logObject(registrationEntity, logger);
+		logObject(Registration.fromJpa(registrationEntity), logger);
 
 		registrationService.updateRegistration(registrationEntity);
 
@@ -110,7 +103,7 @@ public class RegistrationResource
         RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
 		logger.info("delete registration entity");
-		logObject(registrationEntity, logger);
+		logObject(Registration.fromJpa(registrationEntity), logger);
 
         if(registrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
@@ -133,13 +126,15 @@ public class RegistrationResource
         RegistrationEntity registrationEntity = new RegistrationService(em).getRegistrationBy(registrationId);
 
 		logger.info("create answer with registration entity");
-		logObject(registrationEntity, logger);
+		logObject(Registration.fromJpa(registrationEntity), logger);
 
 		if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
         registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
 
-        return Response.created(new URI("/answers/" + newAnswer.getId())).build();
+		// return Response.status(Status.CREATED).entity(newAnswer).header("location", new URI("/answers/" + newAnswer.getId())).build();
+
+		return Response.created(new URI("/answers/" + newAnswer.getId())).build();
     }
 
     private void logObject(Object object, Logger logger)
