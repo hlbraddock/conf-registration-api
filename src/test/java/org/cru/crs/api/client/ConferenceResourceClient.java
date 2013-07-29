@@ -32,6 +32,7 @@ public interface ConferenceResourceClient
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public ClientResponse<Conference> createConference(Conference conference)throws URISyntaxException;
 	
 	@SuppressWarnings(value="rawtypes")
@@ -40,11 +41,11 @@ public interface ConferenceResourceClient
 	@Consumes(MediaType.APPLICATION_JSON)
 	public ClientResponse updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId);
 	
-	@SuppressWarnings(value="rawtypes")
 	@POST
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException;
+	@Produces(MediaType.APPLICATION_JSON)
+	public ClientResponse<Page> createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException;
 
 	@POST
 	@Path("/{conferenceId}/registrations")

@@ -81,8 +81,9 @@ public class ConferenceResource
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response createConference(Conference conference)throws URISyntaxException
-	{		
+	{
 		if(conference.getId() == null)
 		{
 			conference.setId(UUID.randomUUID());
@@ -93,8 +94,6 @@ public class ConferenceResource
 		return Response.status(Status.CREATED)
 						.location(new URI("/conferences/" + conference.getId()))
 						.entity(conference).build();
-		
-//		return Response.created(new URI("/conferences/" + conference.getId())).build();
 	}
 	
 	/**
@@ -142,6 +141,7 @@ public class ConferenceResource
 	@POST
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
@@ -151,13 +151,17 @@ public class ConferenceResource
 		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
 		
 		conference.getPages().add(newPage.toJpaPageEntity().setConferenceId(conferenceId));
-		
-		return Response.created(new URI("/pages/" + newPage.getId())).build();
+				
+		return Response.status(Status.CREATED)
+				.location(new URI("/pages/" + newPage.getId()))
+				.entity(newPage)
+				.build();
 	}
 
     @POST
     @Path("/{conferenceId}/registrations")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response createRegistration(Registration newRegistration, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
     {
         if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
@@ -176,7 +180,10 @@ public class ConferenceResource
 
 		registrationService.createNewRegistration(newRegistrationEntity);
 
-		return Response.created(new URI("/registrations/" + newRegistration.getId())).build();
+		return Response.status(Status.CREATED)
+				.location(new URI("/pages/" + newRegistration.getId()))
+				.entity(newRegistration)
+				.build();
     }
 
     @GET
