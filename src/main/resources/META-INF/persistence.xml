@@ -2,16 +2,16 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
  version="2.0">
-	<persistence-unit name="crsLocal">
+	<persistence-unit name="crsPersistence">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
-		<jta-data-source>java:jboss/datasources/crsLocalDS</jta-data-source>
+		<jta-data-source>${db.datasouce.name}</jta-data-source>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
 			<property name="jadira.usertype.autoRegisterUserTypes" value="true" />
 		</properties>
 	</persistence-unit>
 	
-	<persistence-unit name="crsLocalTest">
+	<persistence-unit name="crsUnitTestPersistence">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />

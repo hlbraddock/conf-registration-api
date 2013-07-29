@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 public class PageResourceFunctionalTest
 {
 	static final String RESOURCE_PREFIX = "rest";
-	static final String PERSISTENCE_UNIT_NAME = "crsLocalTest";
+	static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
 	
 	Environment environment = Environment.LOCAL;
 	PageResourceClient pageClient;

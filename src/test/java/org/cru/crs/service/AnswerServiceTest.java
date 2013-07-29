@@ -17,7 +17,7 @@ import java.util.UUID;
 @Test(groups="db-integration-tests")
 public class AnswerServiceTest
 {
-	private static final String PERSISTENCE_UNIT_NAME = "crsLocalTest";
+	private static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
 	private EntityManagerFactory emFactory;
 	private EntityManager em;
 

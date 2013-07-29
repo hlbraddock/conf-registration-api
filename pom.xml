@@ -155,7 +155,6 @@
 					<port>${deploy.jboss.port}</port>
 					<username>${deploy.jboss.user}</username>
 					<password>${deploy.jboss.password}</password>
-				<!--	<name>${backend.deployment-name}</name> -->
 					<targetDir>${deploy.jboss.targetDir}</targetDir>
 					<filename>${deploy.jboss.filename}</filename>
 					<skip>false</skip>
@@ -229,5 +228,32 @@
 				</executions>
 			</plugin>
 		</plugins>
+		
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 	</build>
+	
+	<profiles>
+		<profile>
+			<id>local</id>
+			<properties>
+				<db.datasouce.name>java:jboss/datasources/crsLocalDS</db.datasouce.name>
+			</properties>
+			<activation>
+    			<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		
+		<profile>
+			<id>development</id>
+			<properties>
+				<db.datasouce.name>java:jboss/datasources/crsDevDS</db.datasouce.name>
+			</properties>
+		</profile>
+	</profiles>
+	
 </project>

@@ -7,6 +7,6 @@ import javax.persistence.PersistenceContext;
 public class EntityManagerProducer
 {
 
-	@Produces @PersistenceContext(unitName="crsLocal")
+	@Produces @PersistenceContext(unitName="crsPersistence")
 	EntityManager em;
 }
