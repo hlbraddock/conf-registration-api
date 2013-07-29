@@ -9,7 +9,6 @@ import org.jboss.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -30,7 +29,7 @@ import java.util.UUID;
 @Path("/answers/{answerId}")
 public class AnswerResource {
 
-    @Inject EntityManager em;
+	@Inject	AnswerService answerService;
 
 	private Logger logger = Logger.getLogger(AnswerResource.class);
 
@@ -38,7 +37,7 @@ public class AnswerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAnswer(@PathParam(value="answerId") UUID answerId)
     {
-        AnswerEntity requestedAnswer = new AnswerService(em).getAnswerBy(answerId);
+        AnswerEntity requestedAnswer = answerService.getAnswerBy(answerId);
 
 		logger.info("get answer entity");
 		logObject(requestedAnswer, logger);
@@ -62,8 +61,6 @@ public class AnswerResource {
 		logger.info("update answer");
 		logObject(answer, logger);
 
-		AnswerService answerService = new AnswerService(em);
-
         AnswerEntity currentAnswerEntity = answerService.getAnswerBy(answer.getId());
         if(currentAnswerEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
@@ -86,8 +83,6 @@ public class AnswerResource {
     public Response deleteAnswer(Answer answer, @PathParam(value="answerId") UUID answerId)
     {
         Preconditions.checkNotNull(answer.getId());
-
-        AnswerService answerService = new AnswerService(em);
 
         AnswerEntity answerEntity = answerService.getAnswerBy(answer.getId());
 

@@ -12,7 +12,6 @@ import org.jboss.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -33,7 +32,8 @@ import java.util.UUID;
 @Path("/registrations/{registrationId}")
 public class RegistrationResource
 {
-    @Inject EntityManager em;
+	@Inject	RegistrationService registrationService;
+	@Inject ConferenceService conferenceService;
 
 	private Logger logger = Logger.getLogger(RegistrationResource.class);
 
@@ -41,7 +41,7 @@ public class RegistrationResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRegistration(@PathParam(value="registrationId") UUID registrationId)
     {
-        RegistrationEntity requestedRegistration = new RegistrationService(em).getRegistrationBy(registrationId);
+        RegistrationEntity requestedRegistration = registrationService.getRegistrationBy(registrationId);
 
 		logger.info("get registration entity");
 		logObject(Registration.fromJpa(requestedRegistration), logger);
@@ -65,14 +65,10 @@ public class RegistrationResource
 		logger.info("update registration");
 		logObject(registration, logger);
 
-		ConferenceService conferenceService = new ConferenceService(em);
-
 		ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(registration.getConferenceId());
 
 		if(conferenceEntity == null)
 			return Response.status(Status.BAD_REQUEST).build();
-
-		RegistrationService registrationService = new RegistrationService(em);
 
         RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
 
@@ -98,8 +94,6 @@ public class RegistrationResource
     {
         Preconditions.checkNotNull(registration.getId());
 
-		RegistrationService registrationService = new RegistrationService(em);
-
         RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
 		logger.info("delete registration entity");
@@ -108,7 +102,7 @@ public class RegistrationResource
         if(registrationEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
 
-        new RegistrationService(em).deleteRegistration(registrationEntity);
+        registrationService.deleteRegistration(registrationEntity);
 
         return Response.ok().build();
     }
@@ -124,7 +118,7 @@ public class RegistrationResource
 		logger.info("create answer");
 		logObject(newAnswer, logger);
 
-        RegistrationEntity registrationEntity = new RegistrationService(em).getRegistrationBy(registrationId);
+        RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
 		logger.info("create answer with registration entity");
 		logObject(Registration.fromJpa(registrationEntity), logger);
