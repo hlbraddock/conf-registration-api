@@ -26,5 +26,6 @@ public interface RegistrationResourceClient
 	@POST
 	@Path("/answers")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public ClientResponse<Answer> createAnswer(Answer newAnswer, @PathParam(value = "registrationId") UUID conferenceId);
 }

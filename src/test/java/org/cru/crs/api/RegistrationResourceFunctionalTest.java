@@ -175,14 +175,22 @@ public class RegistrationResourceFunctionalTest
 		ClientResponse<Answer> registrationResponse = registrationClient.createAnswer(answer, registrationUUID);
 
         Assert.assertEquals(registrationResponse.getStatus(), 201);
+		Answer gotAnswer = registrationResponse.getEntity();
+		Assert.assertNotNull(gotAnswer);
+		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);
+		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
         UUID answerIdUUID = getIdFromResponseLocation(registrationResponse.getLocation().toString());
 
         // get answer
-		ClientResponse<Answer> response = answerClient.getAnswer(answerIdUUID);
 
-		Answer gotAnswer = response.getEntity();
+		ClientResponse<Answer> response = null;
+		response = answerClient.getAnswer(answerIdUUID);
+
+		gotAnswer = response.getEntity();
 		Assert.assertEquals(response.getStatus(), 200);
+
+
 		Assert.assertNotNull(gotAnswer);
 		Assert.assertEquals(gotAnswer.getId(), answerIdUUID);
 		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);

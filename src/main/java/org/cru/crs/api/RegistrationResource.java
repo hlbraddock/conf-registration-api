@@ -115,7 +115,8 @@ public class RegistrationResource
 
     @POST
     @Path("/answers")
-    @Consumes(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
     public Response createAnswer(Answer newAnswer, @PathParam(value="registrationId") UUID registrationId) throws URISyntaxException
     {
         if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
@@ -132,9 +133,7 @@ public class RegistrationResource
 
         registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
 
-		// return Response.status(Status.CREATED).entity(newAnswer).header("location", new URI("/answers/" + newAnswer.getId())).build();
-
-		return Response.created(new URI("/answers/" + newAnswer.getId())).build();
+		return Response.status(Status.CREATED).entity(newAnswer).header("location", new URI("/answers/" + newAnswer.getId())).build();
     }
 
     private void logObject(Object object, Logger logger)
