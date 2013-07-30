@@ -17,6 +17,7 @@ public interface RegistrationResourceClient
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public ClientResponse<Registration> updateRegistration(Registration registration, @PathParam(value = "registrationId") UUID registrationId);
 	
 	@DELETE

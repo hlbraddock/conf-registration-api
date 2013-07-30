@@ -15,6 +15,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -110,6 +111,39 @@ public class RegistrationResourceFunctionalTest
         registration.setUserId(originalUserId);
 		response = registrationClient.updateRegistration(registration, registrationUUID);
 		Assert.assertEquals(response.getStatus(), 204);
+	}
+
+	@Test(groups="functional-tests")
+	public void createRegistrationOnUpdate() throws URISyntaxException
+	{
+		UUID registrationIdUUID = UUID.randomUUID();
+		UUID userIdUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0deaf");
+		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+
+		Registration createRegistration = createRegistration(registrationIdUUID, userIdUUID, conferenceUUID);
+
+		// create registration through update
+		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID);
+		Assert.assertEquals(response.getStatus(), 201);
+
+		Registration registration = response.getEntity();
+
+		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
+		Assert.assertEquals(registration.getId(), createRegistration.getId());
+		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
+
+		// get updated registration
+		response = registrationClient.getRegistration(registrationIdUUID);
+		Assert.assertEquals(response.getStatus(), 200);
+
+		registration = response.getEntity();
+		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
+		Assert.assertEquals(registration.getId(), createRegistration.getId());
+		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
+
+		// delete created registration
+		response = registrationClient.deleteRegistration(registration, registrationIdUUID);
+		Assert.assertEquals(response.getStatus(), 200);
 	}
 
 	/**

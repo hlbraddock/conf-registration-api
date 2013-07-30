@@ -57,10 +57,14 @@ public class RegistrationResource
     }
 
     @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+    public Response updateRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)  throws URISyntaxException
     {
 		if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
+			return Response.status(Status.BAD_REQUEST).build();
+
+		if(registration.getId() == null || registrationId == null)
 			return Response.status(Status.BAD_REQUEST).build();
 
 		logger.info("update registration");
@@ -73,8 +77,21 @@ public class RegistrationResource
 
         RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
 
+		// create the entity if none exists
         if(currentRegistrationEntity == null)
-            return Response.status(Status.BAD_REQUEST).build();
+		{
+			RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
+
+			logger.info("update registration creating");
+			logObject(registrationEntity, logger);
+
+			registrationService.createNewRegistration(registrationEntity);
+
+			return Response.status(Status.CREATED)
+					.location(new URI("/registrations/" + registration.getId()))
+					.entity(registration)
+					.build();
+		}
 
 		logger.info("update current registration entity");
 		logObject(Registration.fromJpa(currentRegistrationEntity), logger);
