@@ -56,4 +56,9 @@ public interface ConferenceResourceClient
 	@Path("/{conferenceId}/registrations")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public ClientResponse<List<Registration>> getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId);
+
+	@GET
+	@Path("/{conferenceId}/registrations/current")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public ClientResponse<Registration> getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId);
 }

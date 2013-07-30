@@ -22,16 +22,26 @@ public class RegistrationService {
         this.em = em;
     }
 
-    public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId)
-    {
-        Query query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.conference.id = :conference_id", RegistrationEntity.class);
+	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId)
+	{
+		Query query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.conference.id = :conference_id", RegistrationEntity.class);
 
-        query.setParameter("conference_id", conferenceId);
+		query.setParameter("conference_id", conferenceId);
 
-        return new HashSet<RegistrationEntity>(query.getResultList());
-    }
+		return new HashSet<RegistrationEntity>(query.getResultList());
+	}
 
-    public RegistrationEntity getRegistrationBy(UUID registrationId)
+	public RegistrationEntity getRegistrationByConferenceIdUserId(UUID conferenceId, UUID userId)
+	{
+		Query query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.userId = :user_id and registration.conference.id = :conference_id", RegistrationEntity.class);
+
+		query.setParameter("conference_id", conferenceId);
+		query.setParameter("user_id", userId);
+
+		return (RegistrationEntity) query.getSingleResult();
+	}
+
+	public RegistrationEntity getRegistrationBy(UUID registrationId)
     {
         return em.find(RegistrationEntity.class, registrationId);
     }

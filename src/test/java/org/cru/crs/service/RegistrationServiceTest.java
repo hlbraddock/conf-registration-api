@@ -4,9 +4,7 @@ import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -52,6 +50,16 @@ public class RegistrationServiceTest
 	public void getRegistrationById()
 	{
 		RegistrationEntity registration = registrationService.getRegistrationBy(originalRegistrationUUID);
+
+		Assert.assertNotNull(registration);
+		Assert.assertEquals(registration.getUserId(), originalUserUUID);
+		Assert.assertEquals(registration.getConference().getId(), originalConferenceUUID);
+	}
+
+	@Test(groups="db-integration-tests")
+	public void getRegistrationByConferenceIdUserId()
+	{
+		RegistrationEntity registration = registrationService.getRegistrationByConferenceIdUserId(originalConferenceUUID, originalUserUUID);
 
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getUserId(), originalUserUUID);

@@ -186,11 +186,11 @@ public class ConferenceResource
 				.build();
     }
 
-    @GET
-    @Path("/{conferenceId}/registrations")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
-    {
+	@GET
+	@Path("/{conferenceId}/registrations")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	{
 		logger.info(conferenceId);
 
 		Set<RegistrationEntity> registrationEntitySet = registrationService.fetchAllRegistrations (conferenceId);
@@ -200,7 +200,26 @@ public class ConferenceResource
 		logObject(registrationSet, logger);
 
 		return Response.ok(registrationSet).build();
-    }
+	}
+
+	@GET
+	@Path("/{conferenceId}/registrations/current")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	{
+		logger.info(conferenceId);
+
+		UUID userId = null; // TODO get user id from session
+		userId = UUID.fromString("7d2201e9-073f-7037-92e0-3b9f7712a8c1"); // TODO remove
+
+		RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, userId);
+
+		Registration registration = Registration.fromJpa(registrationEntity);
+
+		logObject(registration, logger);
+
+		return Response.ok(registration).build();
+	}
 
 	private void logObject(Object object, Logger logger)
 	{

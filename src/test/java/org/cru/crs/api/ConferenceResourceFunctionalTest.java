@@ -424,6 +424,26 @@ public class ConferenceResourceFunctionalTest
 		Assert.assertTrue(userIdUUIDSet.size() == 0);
 	}
 
+	@Test(groups="functional-tests")
+	public void getCurrentRegistration()
+	{
+		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+
+		ClientResponse<Registration> response = conferenceClient.getCurrentRegistration(conferenceUUID);
+
+		Assert.assertEquals(response.getStatus(), 200);
+
+		Registration registration = response.getEntity();
+
+		UUID registrationUUID = UUID.fromString("670a2732-a8b4-4863-b69a-019be680339c");
+		UUID userUUID = UUID.fromString("7d2201e9-073f-7037-92e0-3b9f7712a8c1");
+
+		Assert.assertNotNull(registration);
+		Assert.assertEquals(registration.getId(), registrationUUID);
+		Assert.assertEquals(registration.getUserId(), userUUID);
+		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
+	}
+
 	private Registration createRegistration(UUID registrationIdUUID, UUID userIdUUID)
 	{
 		Registration registration = new Registration();
