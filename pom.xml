@@ -99,6 +99,12 @@
 		</dependency>
     
 		<dependency>
+			<groupId>org.cru</groupId>
+			<artifactId>cas-client</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.jboss.spec.javax.ws.rs</groupId>
 			<artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
 			<scope>provided</scope>
