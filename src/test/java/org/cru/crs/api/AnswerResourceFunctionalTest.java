@@ -145,8 +145,8 @@ public class AnswerResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
 		answer.setId(answerIdUUID);
-		response = answerClient.deleteAnswer(answer, registrationUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+		response = answerClient.deleteAnswer(answerIdUUID);
+		Assert.assertEquals(response.getStatus(), 204);
 	}
 
 	/**
@@ -200,8 +200,8 @@ public class AnswerResourceFunctionalTest
 //		Assert.assertEquals(response.getStatus(), 200);
 
 		// delete answer
-		response = answerClient.deleteAnswer(answer, createAnswerIdUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+		response = answerClient.deleteAnswer(createAnswerIdUUID);
+		Assert.assertEquals(response.getStatus(), 204);
 	}
 
 	private Answer createAnswer(UUID answerUUID, UUID registrationUUID,  UUID blockUUID, JsonNode value)

@@ -107,8 +107,7 @@ public class RegistrationResource
     }
 
     @DELETE
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)
+    public Response deleteRegistration(@PathParam(value="registrationId") UUID registrationId)
     {
         RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
@@ -120,7 +119,7 @@ public class RegistrationResource
 
 		registrationService.deleteRegistration(registrationEntity);
 
-        return Response.ok().build();
+		return Response.noContent().build();
     }
 
     @POST

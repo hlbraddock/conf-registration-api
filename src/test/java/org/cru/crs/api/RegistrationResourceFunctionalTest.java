@@ -142,8 +142,8 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
 
 		// delete created registration
-		response = registrationClient.deleteRegistration(registration, registrationIdUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+		response = registrationClient.deleteRegistration(registrationIdUUID);
+		Assert.assertEquals(response.getStatus(), 204);
 	}
 
 	/**
@@ -195,8 +195,8 @@ public class RegistrationResourceFunctionalTest
 //		Assert.assertEquals(response.getStatus(), 200);
 
         // delete registration
-		response = registrationClient.deleteRegistration(registration, createRegistrationIdUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+		response = registrationClient.deleteRegistration(createRegistrationIdUUID);
+		Assert.assertEquals(response.getStatus(), 204);
 	}
 
 	@Test(groups="functional-tests")
@@ -231,8 +231,8 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
 		answer.setId(answerIdUUID);
-		response = answerClient.deleteAnswer(answer, registrationUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+		response = answerClient.deleteAnswer(answerIdUUID);
+		Assert.assertEquals(response.getStatus(), 204);
 	}
 
 	private UUID getIdFromResponseLocation(String location)

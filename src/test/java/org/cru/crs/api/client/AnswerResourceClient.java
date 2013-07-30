@@ -20,6 +20,5 @@ public interface AnswerResourceClient
 	public ClientResponse<Answer> updateAnswer(Answer answer, @PathParam(value = "answerId") UUID answerId);
 	
 	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<Answer> deleteAnswer(Answer answer, @PathParam(value = "answerId") UUID answerId);
+	public ClientResponse<Answer> deleteAnswer(@PathParam(value = "answerId") UUID answerId);
 }

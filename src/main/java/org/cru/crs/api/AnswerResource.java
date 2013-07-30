@@ -1,6 +1,5 @@
 package org.cru.crs.api;
 
-import com.google.common.base.Strings;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
@@ -101,10 +100,9 @@ public class AnswerResource {
     }
 
     @DELETE
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteAnswer(Answer answer, @PathParam(value="answerId") UUID answerId)
+    public Response deleteAnswer(@PathParam(value="answerId") UUID answerId)
     {
-        AnswerEntity answerEntity = answerService.getAnswerBy(answer.getId());
+        AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
         if(answerEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
@@ -114,7 +112,7 @@ public class AnswerResource {
 
         answerService.deleteAnswer(answerEntity);
 
-        return Response.ok().build();
+		return Response.noContent().build();
     }
 
 	private void logObject(Object object, Logger logger)
