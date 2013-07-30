@@ -16,6 +16,7 @@ public interface AnswerResourceClient
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public ClientResponse<Answer> updateAnswer(Answer answer, @PathParam(value = "answerId") UUID answerId);
 	
 	@DELETE

@@ -138,7 +138,7 @@ public class RegistrationResourceFunctionalTest
 	 * 
 	 * Expected outcome: registration resource specified by ID:  .. should be deleted
 	 * 
-	 * Input: JSON registration resource with registration ID: 
+	 * Input: JSON registration resource with registration ID:
 	 * 
 	 * Expected output: 204 - NO CONTENT
 	 */
@@ -171,7 +171,7 @@ public class RegistrationResourceFunctionalTest
 		// create answer
 		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
 		JsonNode createAnswerValue = jsonNodeFromString("{\"Name\": \"Alex Solz\"}");
-		Answer answer = createAnswer(null, createBlockUUID, createAnswerValue);
+		Answer answer = createAnswer(null, registrationUUID, createBlockUUID, createAnswerValue);
 		ClientResponse<Answer> registrationResponse = registrationClient.createAnswer(answer, registrationUUID);
 
         Assert.assertEquals(registrationResponse.getStatus(), 201);
@@ -221,11 +221,12 @@ public class RegistrationResourceFunctionalTest
 		return registration;
 	}
 
-	private Answer createAnswer(UUID answerUUID, UUID blockUUID, JsonNode value)
+	private Answer createAnswer(UUID answerUUID, UUID registrationUUID, UUID blockUUID, JsonNode value)
 	{
 		Answer answer = new Answer();
 
 		answer.setId(answerUUID);
+		answer.setRegistrationId(registrationUUID);
 		answer.setBlockId(blockUUID);
 		answer.setValue(value);
 

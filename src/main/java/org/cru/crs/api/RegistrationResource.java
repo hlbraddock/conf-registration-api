@@ -1,6 +1,5 @@
 package org.cru.crs.api;
 
-import com.google.common.base.Preconditions;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
@@ -8,6 +7,7 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
+import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
 
 import javax.ejb.Stateless;
@@ -60,7 +60,8 @@ public class RegistrationResource
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)
     {
-        Preconditions.checkNotNull(registrationId);
+		if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
+			return Response.status(Status.BAD_REQUEST).build();
 
 		logger.info("update registration");
 		logObject(registration, logger);
@@ -92,8 +93,6 @@ public class RegistrationResource
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)
     {
-        Preconditions.checkNotNull(registration.getId());
-
         RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
         if(registrationEntity == null)
@@ -113,12 +112,15 @@ public class RegistrationResource
 	@Produces(MediaType.APPLICATION_JSON)
     public Response createAnswer(Answer newAnswer, @PathParam(value="registrationId") UUID registrationId) throws URISyntaxException
     {
-        if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
+		if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
+			return Response.status(Status.BAD_REQUEST).build();
+
+		if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
 
 		logger.info("create answer");
 		logObject(newAnswer, logger);
 
-        RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
 		if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
