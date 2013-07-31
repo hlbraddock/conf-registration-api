@@ -9,7 +9,6 @@ import java.util.UUID;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -26,6 +25,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
@@ -39,8 +39,9 @@ public class ConferenceResource
 {
     @Inject ConferenceService conferenceService;
     @Inject RegistrationService registrationService;
-
-    @Context HttpServletRequest httpRequest;
+    @Inject CrsUserService userService;
+    
+    @Context HttpServletRequest request;
     
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
@@ -56,7 +57,8 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getConferences()
 	{
-		HttpSession session = httpRequest.getSession();
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		
 		return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences())).build();
 	}
 	
