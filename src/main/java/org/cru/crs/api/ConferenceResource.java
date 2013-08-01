@@ -92,10 +92,19 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createConference(Conference conference)throws URISyntaxException
 	{
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		
+		if(appUserId == null)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		
 		if(conference.getId() == null)
 		{
 			conference.setId(UUID.randomUUID());
 		}
+		
+		conference.setContactUser(appUserId);
 		
 		conferenceService.createNewConference(conference.toJpaConferenceEntity());
 		
@@ -121,6 +130,13 @@ public class ConferenceResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId)
 	{
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		
+		if(appUserId == null || !appUserId.equals(conference.getContactUser()))
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		
 		/**
 		 * First check if the conference IDs are both present, and are different.  If so then throw a 400.
 		 */
@@ -152,6 +168,8 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		
 		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
 		
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
@@ -234,7 +252,8 @@ public class ConferenceResource
 		try
 		{
 			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
-		} catch (IOException e)
+		} 
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
