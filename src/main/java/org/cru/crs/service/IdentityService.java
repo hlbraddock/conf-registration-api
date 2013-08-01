@@ -52,7 +52,7 @@ public class IdentityService
 		ExternalIdentityEntity externalIdentityEntity = new ExternalIdentityEntity();
 		externalIdentityEntity.setId(UUID.randomUUID());
 		externalIdentityEntity.setCrsApplicationUserId(identityEntity.getId());
-		externalIdentityEntity.setIdFromExternalIdentityProvider(externalIdentityId);
+		externalIdentityEntity.setIdFromExternalIdentityProvider(externalIdentityId.toLowerCase());/*necessary for search to work*/
 		externalIdentityEntity.setExternalIdentityProviderName(externalIdentityProviderName);
 		
 		entityManager.persist(identityEntity);

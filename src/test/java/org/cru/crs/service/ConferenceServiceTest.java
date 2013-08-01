@@ -42,7 +42,7 @@ public class ConferenceServiceTest
 	@Test(groups="db-integration-tests")
 	public void fetchAllTheConferences()
 	{
-		List<ConferenceEntity> allConferences = conferenceService.fetchAllConferences();
+		List<ConferenceEntity> allConferences = conferenceService.fetchAllConferences(null);
 		
 		Assert.assertNotNull(allConferences);
 		Assert.assertFalse(allConferences.isEmpty());
