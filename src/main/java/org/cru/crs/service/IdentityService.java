@@ -1,0 +1,55 @@
+package org.cru.crs.service;
+
+import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+
+import org.cru.crs.model.ExternalIdentityEntity;
+import org.cru.crs.model.IdentityEntity;
+
+public class IdentityService
+{
+
+	EntityManager entityManager;
+
+	@Inject
+	public IdentityService(EntityManager entityManager)
+	{
+		this.entityManager = entityManager;
+	}
+
+	public ExternalIdentityEntity findExternalIdentityBy(String externalIdentityId)
+	{
+		try
+		{
+			return entityManager.createQuery("SELECT extId FROM ExternalIdentityEntity extId " +
+					"WHERE extId.idFromExternalIdentityProvider = :externalIdentityId", ExternalIdentityEntity.class)
+					.setParameter("externalIdentityId", externalIdentityId)
+					.getSingleResult();
+		}
+		catch(NoResultException nre)
+		{
+			/* silly JPA, this is no reason to throw an exception and make calling code handle it. it just means there is no
+			 * record matching my criteria. it's the same as asking a yes/no question and throwing an exception when the answer
+			 * is 'no'.  okay, i'll get off my soapbox now, but really.... */
+			return null;
+		}
+	}
+	
+	public void createIdentityRecords(String externalIdentityId, String externalIdentityProviderName)
+	{
+		IdentityEntity identityEntity = new IdentityEntity();
+		identityEntity.setId(UUID.randomUUID());
+		
+		ExternalIdentityEntity externalIdentityEntity = new ExternalIdentityEntity();
+		externalIdentityEntity.setId(UUID.randomUUID());
+		externalIdentityEntity.setCrsApplicationUserId(identityEntity.getId());
+		externalIdentityEntity.setIdFromExternalIdentityProvider(externalIdentityId);
+		externalIdentityEntity.setExternalIdentityProviderName(externalIdentityProviderName);
+		
+		entityManager.persist(identityEntity);
+		entityManager.persist(externalIdentityEntity);
+	}
+}

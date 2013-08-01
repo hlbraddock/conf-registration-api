@@ -3,28 +3,72 @@ package org.cru.crs.auth;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpSession;
+
+import org.cru.crs.model.ExternalIdentityEntity;
+import org.cru.crs.service.IdentityService;
 
 public class CrsUserService
 {
-	EntityManager entityManager;
+	IdentityService externalIdentityService;
 	
 	@Inject
-	public CrsUserService(EntityManager entityManager)
+	public CrsUserService(IdentityService externalIdentityService)
 	{
-		this.entityManager = entityManager;
+		this.externalIdentityService = externalIdentityService;
 	}
 	
 	public UUID findCrsAppUserIdIdentityProviderIdIn(HttpSession httpSession)
 	{
-		UUID relaySsoGuid = (UUID)httpSession.getAttribute("relaySsoGuid");
+		ExternalIdentityNameAndId externalIdentityInfo = checkSessionForExternalIdFromKnownIdentityProviders(httpSession);
 		
-		/* do a theoretical lookup on Relay GUID here... */
-		/* do a theoretical lookup on Facebook ID here... */
-		/* do a theoretical lookup on Email AddressID here... */
+		if(externalIdentityInfo == null) return null;
 		
-		//TODO: return the eventual CRS user ID once I get that far, but for Proof of Concept, return the relay ID
-		return relaySsoGuid;
+		ExternalIdentityEntity externalIdentity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.identityId);
+		
+		if(externalIdentity == null)
+		{
+			externalIdentityService.createIdentityRecords(externalIdentityInfo.identityId, 
+																	externalIdentityInfo.identityProviderName);
+		}
+		
+		externalIdentity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.identityId);
+		
+		return externalIdentity.getCrsApplicationUserId();
+	}
+
+	/**
+	 * Right now the known providers are: Facebook, Relay and Email Account ID
+	 * 
+	 * @param httpSession
+	 * @return
+	 */
+	private ExternalIdentityNameAndId checkSessionForExternalIdFromKnownIdentityProviders(HttpSession httpSession) 
+	{
+		if(httpSession.getAttribute("relaySsoGuid") != null)
+		{
+			return new ExternalIdentityNameAndId("Relay", ((UUID)httpSession.getAttribute("relaySsoGuid")).toString());
+		}
+		else if(httpSession.getAttribute("facebookId") != null)
+		{
+			return new ExternalIdentityNameAndId("Facebook", httpSession.getAttribute("facebookId").toString());
+		}
+		else if(httpSession.getAttribute("emailAccountId") != null)
+		{
+			return new ExternalIdentityNameAndId("Email", ((UUID)httpSession.getAttribute("emailAccountId")).toString());
+		}
+		return null;
+	}
+	
+	private static class ExternalIdentityNameAndId
+	{
+		String identityProviderName;
+		String identityId;
+		
+		public ExternalIdentityNameAndId(String identityProviderName,String identityId)
+		{
+			this.identityProviderName = identityProviderName;
+			this.identityId = identityId;
+		}
 	}
 }
