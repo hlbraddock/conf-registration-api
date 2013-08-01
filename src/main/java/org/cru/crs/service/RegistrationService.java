@@ -1,13 +1,15 @@
 package org.cru.crs.service;
 
-import org.cru.crs.model.RegistrationEntity;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+
+import org.cru.crs.model.RegistrationEntity;
 
 /**
  * User: lee.braddock
@@ -33,12 +35,19 @@ public class RegistrationService {
 
 	public RegistrationEntity getRegistrationByConferenceIdUserId(UUID conferenceId, UUID userId)
 	{
-		Query query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.userId = :user_id and registration.conference.id = :conference_id", RegistrationEntity.class);
-
-		query.setParameter("conference_id", conferenceId);
-		query.setParameter("user_id", userId);
-
-		return (RegistrationEntity) query.getSingleResult();
+		try
+		{
+			return em.createQuery("SELECT registration FROM RegistrationEntity registration" +
+								" WHERE registration.userId = :user_id " +
+									" AND registration.conference.id = :conference_id", RegistrationEntity.class)
+						.setParameter("conference_id", conferenceId)
+						.setParameter("user_id", userId)
+						.getSingleResult();
+		}
+		catch(NoResultException nre)
+		{
+			return null;
+		}
 	}
 
 	public RegistrationEntity getRegistrationBy(UUID registrationId)
