@@ -59,7 +59,7 @@ public class ConferenceResource
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		
-		return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences())).build();
+		return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences(appUserId))).build();
 	}
 	
 	/**

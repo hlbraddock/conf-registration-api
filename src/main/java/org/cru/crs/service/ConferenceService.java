@@ -17,9 +17,11 @@ public class ConferenceService
 		this.em = em;
 	}
 
-	public List<ConferenceEntity> fetchAllConferences()
+	public List<ConferenceEntity> fetchAllConferences(UUID crsAppUserId)
 	{
-		return em.createQuery("SELECT conf FROM ConferenceEntity conf", ConferenceEntity.class)
+		return em.createQuery("SELECT conf FROM ConferenceEntity conf " +
+								"WHERE conf.contactUser = :crsAppUserId", ConferenceEntity.class)
+							.setParameter("crsAppUserId", crsAppUserId)
 				 			.getResultList();
 	}
 
