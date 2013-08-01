@@ -20,20 +20,28 @@ public class CrsUserService
 	
 	public UUID findCrsAppUserIdIdentityProviderIdIn(HttpSession httpSession)
 	{
+		/*look in the session to see if there's an external identity id we know about*/
 		ExternalIdentityNameAndId externalIdentityInfo = checkSessionForExternalIdFromKnownIdentityProviders(httpSession);
-		
+
+		/*if not, then there's nothing further we can do*/
 		if(externalIdentityInfo == null) return null;
 		
+		/*we have an id, now go look for the row in our database to hopefully find an internal user*/
 		ExternalIdentityEntity externalIdentity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.identityId);
+		
 		
 		if(externalIdentity == null)
 		{
+			/*oops, this person has not previously logged in.  let's create a row for them so next time we'll
+			 * know who they are*/
 			externalIdentityService.createIdentityRecords(externalIdentityInfo.identityId, 
 																	externalIdentityInfo.identityProviderName);
+			
+			/*and fetch the information out. it wasn't elegant enough to just return it*/
+			externalIdentity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.identityId);
 		}
 		
-		externalIdentity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.identityId);
-		
+		/*finally return the CRS application id caller asked for*/
 		return externalIdentity.getCrsApplicationUserId();
 	}
 

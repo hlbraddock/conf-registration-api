@@ -38,6 +38,12 @@ public class IdentityService
 		}
 	}
 	
+	/**
+	 * Creates a new internal CRS App identity record along with a row for the external identity provider.
+	 * The two rows will be associated by a foreign key relationship
+	 * @param externalIdentityId
+	 * @param externalIdentityProviderName
+	 */
 	public void createIdentityRecords(String externalIdentityId, String externalIdentityProviderName)
 	{
 		IdentityEntity identityEntity = new IdentityEntity();
