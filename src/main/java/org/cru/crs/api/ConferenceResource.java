@@ -81,7 +81,8 @@ public class ConferenceResource
 	}
 	
 	/**
-	 * Creates a new conference.
+	 * Creates a new conference.  In order to create a conference the user must be logged in
+	 * with a known identity.  To check this, we look in the session for an appUserId.
 	 * 
 	 * @param conference
 	 * @return
@@ -94,20 +95,27 @@ public class ConferenceResource
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		
+		/*if there is no user ID, the return a 401 - Unauthorized*/
 		if(appUserId == null)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
+		/*associate the new conference to the app user specified by the id found in the session*/
+		conference.setContactUser(appUserId);
+		
+		/*if there is no id in the conference, then create one. the client has the ability, but not 
+		 * the obligation to create one*/
 		if(conference.getId() == null)
 		{
 			conference.setId(UUID.randomUUID());
 		}
 		
-		conference.setContactUser(appUserId);
-		
+		/*persist the new conference*/
 		conferenceService.createNewConference(conference.toJpaConferenceEntity());
 		
+		/*return a response with status 201 - Created and a location header to fetch the conference.
+		 * a copy of the entity is also returned.*/
 		return Response.status(Status.CREATED)
 						.location(new URI("/conferences/" + conference.getId()))
 						.entity(conference).build();
@@ -132,33 +140,33 @@ public class ConferenceResource
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		
+		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
 		if(appUserId == null || !appUserId.equals(conference.getContactUser()))
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		/**
-		 * First check if the conference IDs are both present, and are different.  If so then throw a 400.
-		 */
+		/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
 		if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
 		{
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 		
-		/**
-		 * Now, if we don't have a conference ID, or we do but it doesn't exist, then create a new conference.
-		 */
 		if(conferenceId == null)
 		{
+			/* If a conference ID wasn't passed in, then create a new conference.*/
 			conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(UUID.randomUUID()));
 		}
 		else if(conferenceService.fetchConferenceBy(conferenceId) == null)
 		{
+			/* If the conference id was passed in, but there's no conference associated with it, then create a new conference*/ 
 			conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(conferenceId));
 		}
-		
-		conferenceService.updateConference(conference.toJpaConferenceEntity().setId(conferenceId));
-		
+		else
+		{
+			/*there is an existing conference, so go update it*/
+			conferenceService.updateConference(conference.toJpaConferenceEntity().setId(conferenceId));
+		}
 		return Response.noContent().build();
 	}
 	
@@ -169,12 +177,19 @@ public class ConferenceResource
 	public Response createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
-		
-		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
-		
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
 		
+		/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
 		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+		
+		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
+		if(appUserId == null || !appUserId.equals(conference.getContactUser()))
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		
+		/*create a page id if the client didn't*/
+		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
 		
 		conference.getPages().add(newPage.toJpaPageEntity().setConferenceId(conferenceId));
 				
@@ -204,6 +219,9 @@ public class ConferenceResource
 
 		logObject(newRegistrationEntity, logger);
 
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		newRegistrationEntity.setUserId(appUserId);
+		
 		registrationService.createNewRegistration(newRegistrationEntity);
 
 		return Response.status(Status.CREATED)
@@ -235,8 +253,7 @@ public class ConferenceResource
 	{
 		logger.info(conferenceId);
 
-		UUID userId = null; // TODO get user id from session
-		userId = UUID.fromString("7d2201e9-073f-7037-92e0-3b9f7712a8c1"); // TODO remove
+		UUID userId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 
 		RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, userId);
 
