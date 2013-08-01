@@ -3,10 +3,14 @@ package org.cru.crs.model;
 import java.util.UUID;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
+@Entity
+@Table(name = "CRU_CRS_EXTERNAL_IDENTITIES")
 public class ExternalIdentityEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
