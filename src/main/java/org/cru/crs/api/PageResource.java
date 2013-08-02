@@ -113,16 +113,8 @@ public class PageResource
 	 */
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deletePage(Page page, @PathParam(value="pageId") UUID pageId)
+	public Response deletePage(@PathParam(value="pageId") UUID pageId)
 	{
-		/**
-		 * Again, if the IDs are different in the path and body, fail fast. We
-		 * want to be sure we know what we're doing is correct on delete operations
-		 */
-		if(IdComparer.idsAreNotNullAndDifferent(pageId, page.getId()))
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
 		
 		/**
 		 * Matt drees to fill in this method :)
