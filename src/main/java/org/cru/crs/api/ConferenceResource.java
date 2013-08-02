@@ -39,6 +39,8 @@ public class ConferenceResource
 {
     @Inject ConferenceService conferenceService;
     @Inject RegistrationService registrationService;
+    
+    @Context HttpServletRequest request;
     @Inject CrsUserService userService;
     
 	Logger logger = Logger.getLogger(ConferenceResource.class);
@@ -53,7 +55,7 @@ public class ConferenceResource
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getConferences(@Context HttpServletRequest request)
+	public Response getConferences()
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		
@@ -89,8 +91,7 @@ public class ConferenceResource
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createConference(@Context HttpServletRequest request, 
-											Conference conference)throws URISyntaxException
+	public Response createConference(Conference conference)throws URISyntaxException
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		
@@ -135,14 +136,12 @@ public class ConferenceResource
 	@PUT
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateConference(@Context HttpServletRequest request, 
-											Conference conference, 
-											@PathParam(value = "conferenceId") UUID conferenceId)
+	public Response updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId)
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		
 		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
-		if(appUserId == null || !appUserId.equals(conference.getContactUser()))
+		if(!userService.isUserAuthorizedOnConference(conference.toJpaConferenceEntity(), appUserId))
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
@@ -175,18 +174,19 @@ public class ConferenceResource
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createPage(@Context HttpServletRequest request, 
-									Page newPage, 
-									@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
-		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(conferenceId);
 		
 		/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
-		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+		if(conferencePageBelongsTo == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
 		
 		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
-		if(appUserId == null || !appUserId.equals(conference.getContactUser()))
+		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
@@ -194,7 +194,7 @@ public class ConferenceResource
 		/*create a page id if the client didn't*/
 		if(newPage.getId() == null) newPage.setId(UUID.randomUUID());
 		
-		conference.getPages().add(newPage.toJpaPageEntity().setConferenceId(conferenceId));
+		conferencePageBelongsTo.getPages().add(newPage.toJpaPageEntity().setConferenceId(conferenceId));
 				
 		return Response.status(Status.CREATED)
 				.location(new URI("/pages/" + newPage.getId()))
@@ -206,9 +206,7 @@ public class ConferenceResource
     @Path("/{conferenceId}/registrations")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createRegistration(@Context HttpServletRequest request, 
-    										Registration newRegistration, 
-    										@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+    public Response createRegistration(Registration newRegistration, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
     {
         if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
 
@@ -238,10 +236,15 @@ public class ConferenceResource
 	@GET
 	@Path("/{conferenceId}/registrations")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRegistrations(@Context HttpServletRequest request, 
-										@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		logger.info(conferenceId);
+
+		if(!userService.isUserAuthorizedOnConference(conferenceService.fetchConferenceBy(conferenceId),
+														userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession())))
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
 
 		Set<RegistrationEntity> registrationEntitySet = registrationService.fetchAllRegistrations (conferenceId);
 
@@ -255,8 +258,7 @@ public class ConferenceResource
 	@GET
 	@Path("/{conferenceId}/registrations/current")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getCurrentRegistration(@Context HttpServletRequest request, 
-												@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		logger.info(conferenceId);
 

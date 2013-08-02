@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -14,12 +15,15 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.auth.CrsUserService;
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
@@ -31,7 +35,10 @@ public class PageResource
 {
 	@Inject PageService pageService;
     @Inject ConferenceService conferenceService;
-
+    
+    @Context HttpServletRequest request;
+    @Inject CrsUserService userService;
+    
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPage(@PathParam(value="pageId") UUID pageId)
@@ -53,7 +60,22 @@ public class PageResource
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePage(Page page, @PathParam(value="pageId") UUID pageId)
-	{		
+	{
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
+		
+		/*if the conference id, specified in the incoming page doesn't map to a conference,
+		 * then this is a bad request*/
+		if(conferencePageBelongsTo == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		
 		/**
 		 * If the Path pageId does not match the pageId in the body of the JSON object,
 		 * then fail fast and return a 400.  
@@ -76,10 +98,11 @@ public class PageResource
 			 * If there is no conference ID, then this is a bad request.  We must know
 			 * which conference to associate the page with.
 			 */
-			if(page.getConferenceId() == null || conferenceService.fetchConferenceBy(page.getConferenceId()) == null)
+			if(page.getConferenceId() == null || conferencePageBelongsTo == null)
 			{
 				return Response.status(Status.BAD_REQUEST).build();
 			}
+			
 			/**
 			 * If the client didn't specify an ID for the new page, we'll create one
 			 */
@@ -89,9 +112,7 @@ public class PageResource
 			 * Make sure the Page ID is set in the object, it could be that it was only
 			 * specified as a path parameter.
 			 */
-			conferenceService.fetchConferenceBy(page.getConferenceId())
-								.getPages()
-								.add(page.setId(officialPageId).toJpaPageEntity());
+			conferencePageBelongsTo.getPages().add(page.setId(officialPageId).toJpaPageEntity());
 		}
 		else
 		{
@@ -115,6 +136,21 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deletePage(Page page, @PathParam(value="pageId") UUID pageId)
 	{
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
+		
+		/*if the conference id, specified in the incoming page doesn't map to a conference,
+		 * then this is a bad request*/
+		if(conferencePageBelongsTo == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		
 		/**
 		 * Again, if the IDs are different in the path and body, fail fast. We
 		 * want to be sure we know what we're doing is correct on delete operations
@@ -136,13 +172,33 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createBlock(Block newBlock, @PathParam(value="pageId") UUID pageId) throws URISyntaxException
 	{
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(pageId);
+		
+		/*if the page id, specified in the incoming block doesn't map to a page,
+		 * then this is a bad request*/
+		if(pageBlockBelongsTo == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId());
+		
+		/* highly unlikely that it wouldn't be, but lets make sure the conference is valid too
+		 */
+		if(conferencePageBelongsTo == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		
 		if(newBlock.getId() == null) newBlock.setId(UUID.randomUUID());
 
-		PageEntity page = pageService.fetchPageBy(pageId);
-
-		if(page == null) return Response.status(Status.BAD_REQUEST).build();
-
-		page.getBlocks().add(null);
+		pageBlockBelongsTo.getBlocks().add(null);
 
 		return Response.created(new URI("/blocks/" + newBlock.getId())).build();
 	}

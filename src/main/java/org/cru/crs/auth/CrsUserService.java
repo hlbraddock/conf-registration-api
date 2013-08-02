@@ -5,8 +5,11 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.ExternalIdentityEntity;
 import org.cru.crs.service.IdentityService;
+
+import com.google.common.base.Preconditions;
 
 public class CrsUserService
 {
@@ -45,6 +48,22 @@ public class CrsUserService
 		return externalIdentity.getCrsApplicationUserId();
 	}
 
+	/**
+	 * Returns true if there is an appUserId and it matches the user Id on the conference
+	 * 
+	 * preconditions: conference must not be null
+	 * 
+	 * @param conference
+	 * @param appUserId
+	 * @return
+	 */
+	public boolean isUserAuthorizedOnConference(ConferenceEntity conference, UUID appUserId)
+	{
+		Preconditions.checkNotNull(conference);
+		
+		return appUserId != null && appUserId.equals(conference.getContactUser());
+	}
+	
 	/**
 	 * Right now the known providers are: Facebook, Relay and Email Account ID
 	 * 
