@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response.Status;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.auth.CrsUserService;
+import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
@@ -63,10 +64,7 @@ public class PageResource
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
-		
-		Response responseIndicatingInvalidRequest = validateRequestMeetsAuthenticationCriteria(appUserId, conferencePageBelongsTo);
-		if(responseIndicatingInvalidRequest != null) return responseIndicatingInvalidRequest;
-		
+
 		/**
 		 * If the Path pageId does not match the pageId in the body of the JSON object,
 		 * then fail fast and return a 400.  
@@ -75,43 +73,40 @@ public class PageResource
 		{
 			return Response.status(Status.BAD_REQUEST).build();
 		}
-		
+
 		/**
 		 * Now that we know that the pageIds are not different.. take the first not-null
 		 * one we find and treat it as the "official" page ID.  Note in this case it still
 		 * could be null at this point, and we would need to create a new page.
 		 */
 		UUID officialPageId = pageId != null ? pageId : page.getId(); 
-		
-		if(officialPageId == null || pageService.fetchPageBy(officialPageId) == null)
+
+		try
 		{
-			/**
-			 * If there is no conference ID, then this is a bad request.  We must know
-			 * which conference to associate the page with.
-			 */
-			if(page.getConferenceId() == null || conferencePageBelongsTo == null)
+			if(officialPageId == null || pageService.fetchPageBy(officialPageId) == null)
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				/**
+				 * If the client didn't specify an ID for the new page, we'll create one
+				 */
+				if(officialPageId == null) officialPageId = UUID.randomUUID();
+
+				/**
+				 * Make sure the Page ID is set in the object, it could be that it was only
+				 * specified as a path parameter.
+				 */
+				conferenceService.addPageToConference(conferencePageBelongsTo, page.toJpaPageEntity(), appUserId);
 			}
-			
-			/**
-			 * If the client didn't specify an ID for the new page, we'll create one
-			 */
-			if(officialPageId == null) officialPageId = UUID.randomUUID();
-			
-			/**
-			 * Make sure the Page ID is set in the object, it could be that it was only
-			 * specified as a path parameter.
-			 */
-			conferencePageBelongsTo.getPages().add(page.setId(officialPageId).toJpaPageEntity());
+			else
+			{
+				pageService.updatePage(page.toJpaPageEntity().setId(officialPageId), appUserId);
+			}
 		}
-		else
+		catch(UnauthorizedException e)
 		{
-			pageService.updatePage(page.toJpaPageEntity().setId(officialPageId));
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
 		return Response.noContent().build();
-		
 	}
 
 	/**
