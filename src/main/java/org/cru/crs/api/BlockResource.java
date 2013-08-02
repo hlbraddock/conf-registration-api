@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -11,13 +12,18 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Block;
+import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.model.BlockEntity;
+import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.BlockService;
+import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.utils.IdComparer;
 
@@ -27,11 +33,12 @@ import com.google.common.base.Preconditions;
 @Path("/blocks/{blockId}")
 public class BlockResource
 {
-
     @Inject BlockService blockService;
-
     @Inject PageService pageService;
-
+    @Inject ConferenceService conferenceService;
+    
+    @Context HttpServletRequest request;
+    @Inject CrsUserService userService;
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -48,6 +55,30 @@ public class BlockResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateBlock(Block block, @PathParam(value="blockId") UUID blockId)
 	{
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(block.getPageId());
+		
+		/*if the page id, specified in the incoming block doesn't map to a page,
+		 * then this is a bad request*/
+		if(pageBlockBelongsTo == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId());
+		
+		/* highly unlikely that it wouldn't be, but lets make sure the conference is valid too
+		 */
+		if(conferencePageBelongsTo == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		
 		/**
 		 * If the Path pageId does not match the pageId in the body of the JSON object,
 		 * then fail fast and return a 400.  
@@ -99,6 +130,30 @@ public class BlockResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteBlock(BlockEntity block, @PathParam(value="blockId") UUID blockId)
 	{
+		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(block.getPageId());
+		
+		/*if the page id, specified in the incoming block doesn't map to a page,
+		 * then this is a bad request*/
+		if(pageBlockBelongsTo == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId());
+		
+		/* highly unlikely that it wouldn't be, but lets make sure the conference is valid too
+		 */
+		if(conferencePageBelongsTo == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		
 		Preconditions.checkNotNull(block.getId());
 
         blockService.deleteBlock(block);
