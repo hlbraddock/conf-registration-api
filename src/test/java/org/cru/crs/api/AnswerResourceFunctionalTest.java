@@ -62,6 +62,7 @@ public class AnswerResourceFunctionalTest
 		Assert.assertEquals(answer.getId(), answerUUID);
 		Assert.assertEquals(answer.getBlockId(), blockUUID);
 		Assert.assertEquals(answer.getValue(), answerValue);
+		Assert.assertEquals(answer.getRegistrationId(), registrationUUID);
 	}
 	
 	/**
@@ -96,6 +97,7 @@ public class AnswerResourceFunctionalTest
 		// update answer
 		JsonNode updatedAnswerValue = jsonNodeFromString("{\"Nombre\": \"Alexandrea Solzendo\"}");
 		answer.setValue(updatedAnswerValue);
+		answer.setRegistrationId(registrationUUID);
 		response = answerClient.updateAnswer(answer, answerUUID);
 		Assert.assertEquals(response.getStatus(), 204);
 
@@ -107,6 +109,43 @@ public class AnswerResourceFunctionalTest
 		// restore answer
 		answer.setValue(answerValue);
 		response = answerClient.updateAnswer(answer, answerUUID);
+		Assert.assertEquals(response.getStatus(), 204);
+	}
+
+	@Test(groups="functional-tests")
+	public void createAnswerOnUpdate()
+	{
+		// create answer
+		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
+		JsonNode createAnswerValue = jsonNodeFromString("{\"Name\": \"Alex Solz\"}");
+		UUID createAnswerId = UUID.randomUUID();
+		Answer answer = createAnswer(createAnswerId, registrationUUID, createBlockUUID, createAnswerValue);
+		ClientResponse<Answer> answerResponse = answerClient.updateAnswer(answer, createAnswerId);
+
+		Assert.assertEquals(answerResponse.getStatus(), 201);
+		Answer gotAnswer = answerResponse.getEntity();
+		Assert.assertNotNull(gotAnswer);
+		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);
+		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
+
+		UUID answerIdUUID = getIdFromResponseLocation(answerResponse.getLocation().toString());
+
+		// get answer
+
+		ClientResponse<Answer> response = null;
+		response = answerClient.getAnswer(answerIdUUID);
+
+		gotAnswer = response.getEntity();
+		Assert.assertEquals(response.getStatus(), 200);
+
+
+		Assert.assertNotNull(gotAnswer);
+		Assert.assertEquals(gotAnswer.getId(), answerIdUUID);
+		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);
+		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
+
+		answer.setId(answerIdUUID);
+		response = answerClient.deleteAnswer(answerIdUUID);
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 
@@ -126,7 +165,7 @@ public class AnswerResourceFunctionalTest
 		UUID randomAnswerUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a09876");
 		UUID randomBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
 		JsonNode randomAnswerValue = jsonNodeFromString("{ \"N\": \"Oleg Salvador\"}");
-		Answer answer = createAnswer(randomAnswerUUID, randomBlockUUID, randomAnswerValue);
+		Answer answer = createAnswer(randomAnswerUUID, registrationUUID, randomBlockUUID, randomAnswerValue);
 
 		ClientResponse<Answer> response = answerClient.updateAnswer(answer, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cade"));
 
@@ -151,7 +190,7 @@ public class AnswerResourceFunctionalTest
 		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86Ebaba");
 		UUID createAnswerIdUUID = UUID.randomUUID();
 		JsonNode createAnswerValue = jsonNodeFromString("{\"N\": \"Oleg Salvador\"}");
-		Answer answer = createAnswer(createAnswerIdUUID, createBlockUUID, createAnswerValue);
+		Answer answer = createAnswer(createAnswerIdUUID, registrationUUID, createBlockUUID, createAnswerValue);
 
 		response = registrationClient.createAnswer(answer, registrationUUID);
 		Assert.assertEquals(response.getStatus(), 201);
@@ -161,19 +200,27 @@ public class AnswerResourceFunctionalTest
 //		Assert.assertEquals(response.getStatus(), 200);
 
 		// delete answer
-		response = answerClient.deleteAnswer(answer, createAnswerIdUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+		response = answerClient.deleteAnswer(createAnswerIdUUID);
+		Assert.assertEquals(response.getStatus(), 204);
 	}
 
-	private Answer createAnswer(UUID answerUUID, UUID blockUUID, JsonNode value)
+	private Answer createAnswer(UUID answerUUID, UUID registrationUUID,  UUID blockUUID, JsonNode value)
 	{
 		Answer answer = new Answer();
 
 		answer.setId(answerUUID);
+		answer.setRegistrationId(registrationUUID);
 		answer.setBlockId(blockUUID);
 		answer.setValue(value);
 
 		return answer;
+	}
+
+	private UUID getIdFromResponseLocation(String location)
+	{
+		location = location.substring(1, location.length()-1);
+
+		return UUID.fromString(location.substring(location.lastIndexOf("/")).substring(1));
 	}
 
 	private static JsonNode jsonNodeFromString(String jsonString)

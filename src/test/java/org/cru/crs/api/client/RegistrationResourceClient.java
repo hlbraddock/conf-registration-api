@@ -17,11 +17,11 @@ public interface RegistrationResourceClient
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public ClientResponse<Registration> updateRegistration(Registration registration, @PathParam(value = "registrationId") UUID registrationId);
 	
 	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<Registration> deleteRegistration(Registration registration, @PathParam(value = "registrationId") UUID registrationId);
+	public ClientResponse<Registration> deleteRegistration(@PathParam(value = "registrationId") UUID registrationId);
 
 	@POST
 	@Path("/answers")

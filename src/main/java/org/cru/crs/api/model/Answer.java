@@ -14,8 +14,9 @@ public class Answer implements java.io.Serializable
 	private static final long serialVersionUID = 1L;
 
 	private UUID id;
-    private UUID blockId;
-	
+	private UUID registrationId;
+	private UUID blockId;
+
 	private JsonNode value;
 	
 	public static Answer fromJpa(AnswerEntity jpaAnswer)
@@ -23,6 +24,7 @@ public class Answer implements java.io.Serializable
 		Answer answer = new Answer();
 
 		answer.id = jpaAnswer.getId();
+		answer.registrationId = jpaAnswer.getRegistrationId();
 		answer.blockId = jpaAnswer.getBlockId();
 		answer.value = jsonNodeFromString(jpaAnswer.getAnswer());
 
@@ -48,9 +50,10 @@ public class Answer implements java.io.Serializable
 		AnswerEntity jpaAnswer = new AnswerEntity();
 		
 		jpaAnswer.setId(id);
+		jpaAnswer.setRegistrationId(registrationId);
         jpaAnswer.setBlockId(blockId);
 		jpaAnswer.setAnswer(value.toString());
-		
+
 		return jpaAnswer;
 	}
 
@@ -65,7 +68,17 @@ public class Answer implements java.io.Serializable
 		return this;
 	}
 
-    public UUID getBlockId()
+	public UUID getRegistrationId()
+	{
+		return registrationId;
+	}
+
+	public void setRegistrationId(UUID registrationId)
+	{
+		this.registrationId = registrationId;
+	}
+
+	public UUID getBlockId()
     {
         return blockId;
     }

@@ -1,10 +1,13 @@
 package org.cru.crs.api;
 
-import com.google.common.base.Preconditions;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
+import org.cru.crs.service.RegistrationService;
+import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
 
 import javax.ejb.Stateless;
@@ -20,6 +23,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 /**
@@ -30,6 +35,7 @@ import java.util.UUID;
 public class AnswerResource {
 
 	@Inject	AnswerService answerService;
+	@Inject	RegistrationService registrationService;
 
 	private Logger logger = Logger.getLogger(AnswerResource.class);
 
@@ -37,7 +43,9 @@ public class AnswerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAnswer(@PathParam(value="answerId") UUID answerId)
     {
-        AnswerEntity requestedAnswer = answerService.getAnswerBy(answerId);
+		logger.info("get answer by id " + answerId);
+
+		AnswerEntity requestedAnswer = answerService.getAnswerBy(answerId);
 
 		if(requestedAnswer == null) return Response.status(Status.NOT_FOUND).build();
 
@@ -53,38 +61,48 @@ public class AnswerResource {
     }
 
     @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateAnswer(Answer answer, @PathParam(value="answerId") UUID answerId)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+    public Response updateAnswer(Answer answer, @PathParam(value="answerId") UUID answerId) throws URISyntaxException
     {
-        Preconditions.checkNotNull(answer.getId());
+		if(IdComparer.idsAreNotNullAndDifferent(answerId, answer.getId()))
+			return Response.status(Status.BAD_REQUEST).build();
+
+		if(answer.getId() == null || answerId == null)
+			return Response.status(Status.BAD_REQUEST).build();
 
 		logger.info("update answer");
 		logObject(answer, logger);
 
-        AnswerEntity currentAnswerEntity = answerService.getAnswerBy(answer.getId());
+		AnswerEntity currentAnswerEntity = answerService.getAnswerBy(answerId);
+
+		// create the answer if none yet exists for the given answer id
         if(currentAnswerEntity == null)
-            return Response.status(Status.BAD_REQUEST).build();
+		{
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answer.getRegistrationId());
+
+			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
+
+			logger.info("create answer with registration entity");
+			logObject(Registration.fromJpa(registrationEntity), logger);
+
+			registrationEntity.getAnswers().add(answer.toJpaAnswerEntity());
+
+			return Response.status(Status.CREATED).entity(answer).header("location", new URI("/answers/" + answer.getId())).build();
+		}
 
 		logger.info("update current answer entity");
 		logObject(currentAnswerEntity, logger);
 
-		AnswerEntity answerEntity = answer.toJpaAnswerEntity();
-
-		logger.info("update to answer entity");
-		logObject(answerEntity, logger);
-
-        answerService.updateAnswer(answerEntity);
+        answerService.updateAnswer(answer.toJpaAnswerEntity());
 
         return Response.noContent().build();
     }
 
     @DELETE
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteAnswer(Answer answer, @PathParam(value="answerId") UUID answerId)
+    public Response deleteAnswer(@PathParam(value="answerId") UUID answerId)
     {
-        Preconditions.checkNotNull(answer.getId());
-
-        AnswerEntity answerEntity = answerService.getAnswerBy(answer.getId());
+        AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
         if(answerEntity == null)
             return Response.status(Status.BAD_REQUEST).build();
@@ -94,7 +112,7 @@ public class AnswerResource {
 
         answerService.deleteAnswer(answerEntity);
 
-        return Response.ok().build();
+		return Response.noContent().build();
     }
 
 	private void logObject(Object object, Logger logger)

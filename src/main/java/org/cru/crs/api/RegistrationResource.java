@@ -1,6 +1,5 @@
 package org.cru.crs.api;
 
-import com.google.common.base.Preconditions;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
@@ -8,6 +7,7 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
+import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
 
 import javax.ejb.Stateless;
@@ -57,10 +57,15 @@ public class RegistrationResource
     }
 
     @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+    public Response updateRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)  throws URISyntaxException
     {
-        Preconditions.checkNotNull(registrationId);
+		if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
+			return Response.status(Status.BAD_REQUEST).build();
+
+		if(registration.getId() == null || registrationId == null)
+			return Response.status(Status.BAD_REQUEST).build();
 
 		logger.info("update registration");
 		logObject(registration, logger);
@@ -72,8 +77,21 @@ public class RegistrationResource
 
         RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
 
+		// create the entity if none exists
         if(currentRegistrationEntity == null)
-            return Response.status(Status.BAD_REQUEST).build();
+		{
+			RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
+
+			logger.info("update registration creating");
+			logObject(registrationEntity, logger);
+
+			registrationService.createNewRegistration(registrationEntity);
+
+			return Response.status(Status.CREATED)
+					.location(new URI("/registrations/" + registration.getId()))
+					.entity(registration)
+					.build();
+		}
 
 		logger.info("update current registration entity");
 		logObject(Registration.fromJpa(currentRegistrationEntity), logger);
@@ -89,11 +107,8 @@ public class RegistrationResource
     }
 
     @DELETE
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)
+    public Response deleteRegistration(@PathParam(value="registrationId") UUID registrationId)
     {
-        Preconditions.checkNotNull(registration.getId());
-
         RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
         if(registrationEntity == null)
@@ -104,7 +119,7 @@ public class RegistrationResource
 
 		registrationService.deleteRegistration(registrationEntity);
 
-        return Response.ok().build();
+		return Response.noContent().build();
     }
 
     @POST
@@ -113,12 +128,15 @@ public class RegistrationResource
 	@Produces(MediaType.APPLICATION_JSON)
     public Response createAnswer(Answer newAnswer, @PathParam(value="registrationId") UUID registrationId) throws URISyntaxException
     {
-        if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
+		if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
+			return Response.status(Status.BAD_REQUEST).build();
+
+		if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
 
 		logger.info("create answer");
 		logObject(newAnswer, logger);
 
-        RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
 		if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 

@@ -15,6 +15,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -112,6 +113,39 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 
+	@Test(groups="functional-tests")
+	public void createRegistrationOnUpdate() throws URISyntaxException
+	{
+		UUID registrationIdUUID = UUID.randomUUID();
+		UUID userIdUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0deaf");
+		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+
+		Registration createRegistration = createRegistration(registrationIdUUID, userIdUUID, conferenceUUID);
+
+		// create registration through update
+		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID);
+		Assert.assertEquals(response.getStatus(), 201);
+
+		Registration registration = response.getEntity();
+
+		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
+		Assert.assertEquals(registration.getId(), createRegistration.getId());
+		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
+
+		// get updated registration
+		response = registrationClient.getRegistration(registrationIdUUID);
+		Assert.assertEquals(response.getStatus(), 200);
+
+		registration = response.getEntity();
+		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
+		Assert.assertEquals(registration.getId(), createRegistration.getId());
+		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
+
+		// delete created registration
+		response = registrationClient.deleteRegistration(registrationIdUUID);
+		Assert.assertEquals(response.getStatus(), 204);
+	}
+
 	/**
 	 * Test: test update endpoint where the registration ID specified in the path does not match the registration ID
 	 * in the body of the Registration JSON resource
@@ -138,7 +172,7 @@ public class RegistrationResourceFunctionalTest
 	 * 
 	 * Expected outcome: registration resource specified by ID:  .. should be deleted
 	 * 
-	 * Input: JSON registration resource with registration ID: 
+	 * Input: JSON registration resource with registration ID:
 	 * 
 	 * Expected output: 204 - NO CONTENT
 	 */
@@ -161,8 +195,8 @@ public class RegistrationResourceFunctionalTest
 //		Assert.assertEquals(response.getStatus(), 200);
 
         // delete registration
-		response = registrationClient.deleteRegistration(registration, createRegistrationIdUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+		response = registrationClient.deleteRegistration(createRegistrationIdUUID);
+		Assert.assertEquals(response.getStatus(), 204);
 	}
 
 	@Test(groups="functional-tests")
@@ -171,7 +205,7 @@ public class RegistrationResourceFunctionalTest
 		// create answer
 		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
 		JsonNode createAnswerValue = jsonNodeFromString("{\"Name\": \"Alex Solz\"}");
-		Answer answer = createAnswer(null, createBlockUUID, createAnswerValue);
+		Answer answer = createAnswer(null, registrationUUID, createBlockUUID, createAnswerValue);
 		ClientResponse<Answer> registrationResponse = registrationClient.createAnswer(answer, registrationUUID);
 
         Assert.assertEquals(registrationResponse.getStatus(), 201);
@@ -197,8 +231,8 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
 		answer.setId(answerIdUUID);
-		response = answerClient.deleteAnswer(answer, registrationUUID);
-		Assert.assertEquals(response.getStatus(), 200);
+		response = answerClient.deleteAnswer(answerIdUUID);
+		Assert.assertEquals(response.getStatus(), 204);
 	}
 
 	private UUID getIdFromResponseLocation(String location)
@@ -221,11 +255,12 @@ public class RegistrationResourceFunctionalTest
 		return registration;
 	}
 
-	private Answer createAnswer(UUID answerUUID, UUID blockUUID, JsonNode value)
+	private Answer createAnswer(UUID answerUUID, UUID registrationUUID, UUID blockUUID, JsonNode value)
 	{
 		Answer answer = new Answer();
 
 		answer.setId(answerUUID);
+		answer.setRegistrationId(registrationUUID);
 		answer.setBlockId(blockUUID);
 		answer.setValue(value);
 
