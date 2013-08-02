@@ -27,8 +27,6 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.utils.IdComparer;
 
-import com.google.common.base.Preconditions;
-
 @Stateless
 @Path("/blocks/{blockId}")
 public class BlockResource
@@ -128,11 +126,24 @@ public class BlockResource
 	
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteBlock(BlockEntity block, @PathParam(value="blockId") UUID blockId)
+	public Response deleteBlock(@PathParam(value="blockId") UUID blockId)
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
-		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(block.getPageId());
+
+		if(blockId == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
 		
+		BlockEntity blockToDelete = blockService.getBlockBy(blockId);
+
+		if(blockToDelete == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+
+		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(blockToDelete.getPageId());
+
 		/*if the page id, specified in the incoming block doesn't map to a page,
 		 * then this is a bad request*/
 		if(pageBlockBelongsTo == null)
@@ -154,9 +165,7 @@ public class BlockResource
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		Preconditions.checkNotNull(block.getId());
-
-        blockService.deleteBlock(block);
+		blockService.deleteBlock(blockToDelete);
 		
 		return Response.ok().build();
 	}

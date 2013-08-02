@@ -134,10 +134,10 @@ public class PageResource
 	 */
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deletePage(Page page, @PathParam(value="pageId") UUID pageId)
+	public Response deletePage(@PathParam(value="pageId") UUID pageId)
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
+		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageId);
 		
 		/*if the conference id, specified in the incoming page doesn't map to a conference,
 		 * then this is a bad request*/
@@ -149,15 +149,6 @@ public class PageResource
 		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
-		}
-		
-		/**
-		 * Again, if the IDs are different in the path and body, fail fast. We
-		 * want to be sure we know what we're doing is correct on delete operations
-		 */
-		if(IdComparer.idsAreNotNullAndDifferent(pageId, page.getId()))
-		{
-			return Response.status(Status.BAD_REQUEST).build();
 		}
 		
 		/**
