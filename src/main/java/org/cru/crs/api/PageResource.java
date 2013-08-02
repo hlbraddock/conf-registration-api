@@ -64,17 +64,8 @@ public class PageResource
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
 		
-		/*if the conference id, specified in the incoming page doesn't map to a conference,
-		 * then this is a bad request*/
-		if(conferencePageBelongsTo == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
-		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
+		Response responseIndicatingInvalidRequest = validateRequestMeetsAuthenticationCriteria(appUserId, conferencePageBelongsTo);
+		if(responseIndicatingInvalidRequest != null) return responseIndicatingInvalidRequest;
 		
 		/**
 		 * If the Path pageId does not match the pageId in the body of the JSON object,
@@ -139,17 +130,8 @@ public class PageResource
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageId);
 		
-		/*if the conference id, specified in the incoming page doesn't map to a conference,
-		 * then this is a bad request*/
-		if(conferencePageBelongsTo == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
-		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
+		Response responseIndicatingInvalidRequest = validateRequestMeetsAuthenticationCriteria(appUserId, conferencePageBelongsTo);
+		if(responseIndicatingInvalidRequest != null) return responseIndicatingInvalidRequest;
 		
 		/**
 		 * Matt drees to fill in this method :)
@@ -175,8 +157,20 @@ public class PageResource
 		
 		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId());
 		
-		/* highly unlikely that it wouldn't be, but lets make sure the conference is valid too
-		 */
+		Response responseIndicatingInvalidRequest = validateRequestMeetsAuthenticationCriteria(appUserId, conferencePageBelongsTo);
+		if(responseIndicatingInvalidRequest != null) return responseIndicatingInvalidRequest;
+		
+		if(newBlock.getId() == null) newBlock.setId(UUID.randomUUID());
+
+		pageBlockBelongsTo.getBlocks().add(null);
+
+		return Response.created(new URI("/blocks/" + newBlock.getId())).build();
+	}
+	
+	private Response validateRequestMeetsAuthenticationCriteria(UUID appUserId, ConferenceEntity conferencePageBelongsTo)
+	{
+		/*if the conference id, specified in the incoming page doesn't map to a conference,
+		 * then this is a bad request*/
 		if(conferencePageBelongsTo == null)
 		{
 			return Response.status(Status.BAD_REQUEST).build();
@@ -187,10 +181,6 @@ public class PageResource
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		if(newBlock.getId() == null) newBlock.setId(UUID.randomUUID());
-
-		pageBlockBelongsTo.getBlocks().add(null);
-
-		return Response.created(new URI("/blocks/" + newBlock.getId())).build();
+		return null;
 	}
 }
