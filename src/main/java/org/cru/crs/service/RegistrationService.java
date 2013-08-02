@@ -7,7 +7,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.cru.crs.model.RegistrationEntity;
 
@@ -26,7 +26,7 @@ public class RegistrationService {
 
 	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId)
 	{
-		Query query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.conference.id = :conference_id", RegistrationEntity.class);
+		TypedQuery<RegistrationEntity> query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.conference.id = :conference_id", RegistrationEntity.class);
 
 		query.setParameter("conference_id", conferenceId);
 
