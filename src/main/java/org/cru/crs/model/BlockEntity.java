@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 
@@ -24,12 +25,16 @@ public class BlockEntity implements java.io.Serializable
 	@Type(type="pg-uuid")
 	private UUID pageId;
 	
+	@Column(name = "POSITION", insertable = false, updatable = false)
+	private int position;
+
 	@Column(name = "BLOCK_TYPE")
 	private String blockType;
 	
 	@Column(name = "ADMIN_ONLY")
 	private boolean adminOnly;
 	
+	@Transient
 	@Column(name = "CONTENT")
 	private String content;
 	
@@ -41,9 +46,10 @@ public class BlockEntity implements java.io.Serializable
 		return id;
 	}
 
-	public void setId(UUID id)
+	public BlockEntity setId(UUID id)
 	{
 		this.id = id;
+		return this;
 	}
 
 	public UUID getPageId()
@@ -51,9 +57,10 @@ public class BlockEntity implements java.io.Serializable
 		return pageId;
 	}
 
-	public void setPageId(UUID pageId)
+	public BlockEntity setPageId(UUID pageId)
 	{
 		this.pageId = pageId;
+		return this;
 	}
 
 	public String getBlockType()
@@ -94,5 +101,16 @@ public class BlockEntity implements java.io.Serializable
 	public void setTitle(String title)
 	{
 		this.title = title;
+	}
+	
+	
+	public int getPosition()
+	{
+		return position;
+	}
+
+	public void setPosition(int position)
+	{
+		this.position = position;
 	}
 }

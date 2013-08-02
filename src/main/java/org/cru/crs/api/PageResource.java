@@ -110,9 +110,7 @@ public class PageResource
 	}
 
 	/**
-	 * This method will delete a page specified by ID.  If the ID in the path
-	 * doesn't match the one in the body, a 400-Bad Request is returned to ensure
-	 * data integrity.
+	 * This method will delete a page specified by ID.
 	 * 
 	 * @param page
 	 * @param pageId
@@ -123,14 +121,20 @@ public class PageResource
 	public Response deletePage(@PathParam(value="pageId") UUID pageId)
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageId);
 		
-		Response responseIndicatingInvalidRequest = validateRequestMeetsAuthenticationCriteria(appUserId, conferencePageBelongsTo);
-		if(responseIndicatingInvalidRequest != null) return responseIndicatingInvalidRequest;
+		if(pageId == null)
+		{
+			return Response.status(Status.BAD_REQUEST).build();
+		}
 		
-		/**
-		 * Matt drees to fill in this method :)
-		 */
+		try
+		{
+			pageService.deletePage(pageId, appUserId);
+		}
+		catch (UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
 
 		return Response.ok().build();
 	}
@@ -150,32 +154,18 @@ public class PageResource
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 		
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId());
-		
-		Response responseIndicatingInvalidRequest = validateRequestMeetsAuthenticationCriteria(appUserId, conferencePageBelongsTo);
-		if(responseIndicatingInvalidRequest != null) return responseIndicatingInvalidRequest;
-		
-		if(newBlock.getId() == null) newBlock.setId(UUID.randomUUID());
-
-		pageBlockBelongsTo.getBlocks().add(null);
-
-		return Response.created(new URI("/blocks/" + newBlock.getId())).build();
-	}
-	
-	private Response validateRequestMeetsAuthenticationCriteria(UUID appUserId, ConferenceEntity conferencePageBelongsTo)
-	{
-		/*if the conference id, specified in the incoming page doesn't map to a conference,
-		 * then this is a bad request*/
-		if(conferencePageBelongsTo == null)
+		try
 		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
-		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
+			pageService.addBlockToPage(pageBlockBelongsTo, newBlock.toJpaBlockEntity(), appUserId);
+		} 
+		catch (UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		return null;
+		return Response.status(Status.CREATED)
+				.location(new URI("/blocks/" + newBlock.getId()))
+				.entity(newBlock)
+				.build();
 	}
 }

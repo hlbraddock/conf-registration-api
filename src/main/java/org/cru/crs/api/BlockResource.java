@@ -19,8 +19,8 @@ import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Block;
 import org.cru.crs.auth.CrsUserService;
+import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.BlockEntity;
-import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceService;
@@ -42,7 +42,7 @@ public class BlockResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getBlock(@PathParam(value="blockId") UUID blockId)
 	{
-		BlockEntity requestedBlock = blockService.getBlockBy(blockId);
+		BlockEntity requestedBlock = blockService.fetchBlockBy(blockId);
 		
 		if(requestedBlock == null) return Response.status(Status.NOT_FOUND).build();
 		
@@ -55,27 +55,6 @@ public class BlockResource
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(block.getPageId());
-		
-		/*if the page id, specified in the incoming block doesn't map to a page,
-		 * then this is a bad request*/
-		if(pageBlockBelongsTo == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId());
-		
-		/* highly unlikely that it wouldn't be, but lets make sure the conference is valid too
-		 */
-		if(conferencePageBelongsTo == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
-		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
 		
 		/**
 		 * If the Path pageId does not match the pageId in the body of the JSON object,
@@ -93,32 +72,29 @@ public class BlockResource
 		 */
 		UUID officialBlockId = blockId != null ? blockId : block.getId(); 
 		
-		if(officialBlockId == null || blockService.getBlockBy(officialBlockId) == null)
+		try
 		{
-			/**
-			 * If there is no conference ID, then this is a bad request.  We must know
-			 * which conference to associate the page with.
-			 */
-			if(block.getPageId() == null || pageService.fetchPageBy(block.getPageId()) == null)
+			if(officialBlockId == null || pageService.fetchPageBy(officialBlockId) == null)
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				/**
+				 * If the client didn't specify an ID for the new page, we'll create one
+				 */
+				if(officialBlockId == null) officialBlockId = UUID.randomUUID();
+
+				/**
+				 * Make sure the Page ID is set in the object, it could be that it was only
+				 * specified as a path parameter.
+				 */
+				pageService.addBlockToPage(pageBlockBelongsTo, block.toJpaBlockEntity(), appUserId);
 			}
-			/**
-			 * If the client didn't specify an ID for the new page, we'll create one
-			 */
-			if(officialBlockId == null) officialBlockId = UUID.randomUUID();
-			
-			/**
-			 * Make sure the Page ID is set in the object, it could be that it was only
-			 * specified as a path parameter.
-			 */
-			pageService.fetchPageBy(block.getPageId())
-								.getBlocks()
-								.add(block.setId(officialBlockId).toJpaBlockEntity());
+			else
+			{
+				blockService.updateBlock(block.toJpaBlockEntity().setId(officialBlockId), appUserId);
+			}
 		}
-		else
+		catch(UnauthorizedException e)
 		{
-			blockService.updateBlock(block.setId(officialBlockId).toJpaBlockEntity());
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
 		return Response.noContent().build();
@@ -134,38 +110,15 @@ public class BlockResource
 		{
 			return Response.status(Status.BAD_REQUEST).build();
 		}
-		
-		BlockEntity blockToDelete = blockService.getBlockBy(blockId);
 
-		if(blockToDelete == null)
+		try
 		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-
-		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(blockToDelete.getPageId());
-
-		/*if the page id, specified in the incoming block doesn't map to a page,
-		 * then this is a bad request*/
-		if(pageBlockBelongsTo == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId());
-		
-		/* highly unlikely that it wouldn't be, but lets make sure the conference is valid too
-		 */
-		if(conferencePageBelongsTo == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
-		if(!userService.isUserAuthorizedOnConference(conferencePageBelongsTo, appUserId))
+			blockService.deleteBlock(blockId, appUserId);
+		} 
+		catch (UnauthorizedException e) 
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		
-		blockService.deleteBlock(blockToDelete);
 		
 		return Response.ok().build();
 	}

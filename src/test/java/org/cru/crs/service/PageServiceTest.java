@@ -124,7 +124,7 @@ public class PageServiceTest
 
 		em.getTransaction().begin();
 
-		pageService.deletePage(page, testAppUserId);
+		pageService.deletePage(page.getId(), testAppUserId);
 
 		em.flush();
 		em.getTransaction().commit();
@@ -136,16 +136,10 @@ public class PageServiceTest
 	@Test(groups="db-integration-tests")
 	public void testDeletePageNotAuthorized() throws UnauthorizedException
 	{
-		PageEntity page = new PageEntity();
-
-		page.setId(UUID.randomUUID());
-		page.setName("New Page");
-		page.setConferenceId(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
-
 		try
 		{
 			em.getTransaction().begin();
-			pageService.deletePage(page, UUID.randomUUID());
+			pageService.deletePage(UUID.fromString("bf37618e-4f86-2df5-8ae9-0ed3be0ed248"),UUID.randomUUID());
 			Assert.fail("Should have thrown an UnauthorizedException");
 		}
 		catch(UnauthorizedException e)
