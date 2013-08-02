@@ -41,8 +41,6 @@ public class ConferenceResource
     @Inject RegistrationService registrationService;
     @Inject CrsUserService userService;
     
-    @Context HttpServletRequest request;
-    
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
 	/**
@@ -55,7 +53,7 @@ public class ConferenceResource
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getConferences()
+	public Response getConferences(@Context HttpServletRequest request)
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		
@@ -91,7 +89,8 @@ public class ConferenceResource
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createConference(Conference conference)throws URISyntaxException
+	public Response createConference(@Context HttpServletRequest request, 
+											Conference conference)throws URISyntaxException
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		
@@ -136,7 +135,9 @@ public class ConferenceResource
 	@PUT
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId)
+	public Response updateConference(@Context HttpServletRequest request, 
+											Conference conference, 
+											@PathParam(value = "conferenceId") UUID conferenceId)
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		
@@ -174,7 +175,9 @@ public class ConferenceResource
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response createPage(@Context HttpServletRequest request, 
+									Page newPage, 
+									@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
@@ -203,7 +206,9 @@ public class ConferenceResource
     @Path("/{conferenceId}/registrations")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createRegistration(Registration newRegistration, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+    public Response createRegistration(@Context HttpServletRequest request, 
+    										Registration newRegistration, 
+    										@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
     {
         if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
 
@@ -233,7 +238,8 @@ public class ConferenceResource
 	@GET
 	@Path("/{conferenceId}/registrations")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response getRegistrations(@Context HttpServletRequest request, 
+										@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		logger.info(conferenceId);
 
@@ -249,7 +255,8 @@ public class ConferenceResource
 	@GET
 	@Path("/{conferenceId}/registrations/current")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response getCurrentRegistration(@Context HttpServletRequest request, 
+												@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
 		logger.info(conferenceId);
 
