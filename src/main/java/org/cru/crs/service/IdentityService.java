@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+import org.cru.crs.auth.ExternalIdentityAuthenticationProviderAndId;
 import org.cru.crs.model.ExternalIdentityEntity;
 import org.cru.crs.model.IdentityEntity;
 
@@ -44,7 +45,7 @@ public class IdentityService
 	 * @param externalIdentityId
 	 * @param externalIdentityProviderName
 	 */
-	public void createIdentityRecords(String externalIdentityId, String externalIdentityProviderName)
+	public void createIdentityRecords(ExternalIdentityAuthenticationProviderAndId externalAuthenticationInfo)
 	{
 		IdentityEntity identityEntity = new IdentityEntity();
 		identityEntity.setId(UUID.randomUUID());
@@ -52,8 +53,8 @@ public class IdentityService
 		ExternalIdentityEntity externalIdentityEntity = new ExternalIdentityEntity();
 		externalIdentityEntity.setId(UUID.randomUUID());
 		externalIdentityEntity.setCrsApplicationUserId(identityEntity.getId());
-		externalIdentityEntity.setIdFromExternalIdentityProvider(externalIdentityId.toLowerCase());/*necessary for search to work*/
-		externalIdentityEntity.setExternalIdentityProviderName(externalIdentityProviderName);
+		externalIdentityEntity.setIdFromExternalIdentityProvider(externalAuthenticationInfo.getAuthProviderId().toLowerCase());/*necessary for search to work*/
+		externalIdentityEntity.setExternalIdentityProviderName(externalAuthenticationInfo.getAuthProviderType().name());
 		
 		entityManager.persist(identityEntity);
 		entityManager.persist(externalIdentityEntity);

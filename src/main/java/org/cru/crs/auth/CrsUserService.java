@@ -24,28 +24,25 @@ public class CrsUserService
 	public UUID findCrsAppUserIdIdentityProviderIdIn(HttpSession httpSession)
 	{
 		/*look in the session to see if there's an external identity id we know about*/
-		ExternalIdentityNameAndId externalIdentityInfo = checkSessionForExternalIdFromKnownIdentityProviders(httpSession);
-
+		ExternalIdentityAuthenticationProviderAndId externalIdentityInfo = checkSessionForExternalIdFromKnownIdentityProviders(httpSession);
+		
 		/*if not, then there's nothing further we can do*/
 		if(externalIdentityInfo == null) return null;
 		
 		/*we have an id, now go look for the row in our database to hopefully find an internal user*/
-		ExternalIdentityEntity externalIdentity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.identityId);
+		ExternalIdentityEntity externalIdentityEntity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.getAuthProviderId());
 		
-		
-		if(externalIdentity == null)
+		if(externalIdentityEntity == null)
 		{
 			/*oops, this person has not previously logged in.  let's create a row for them so next time we'll
 			 * know who they are*/
-			externalIdentityService.createIdentityRecords(externalIdentityInfo.identityId, 
-																	externalIdentityInfo.identityProviderName);
-			
+			externalIdentityService.createIdentityRecords(externalIdentityInfo);
 			/*and fetch the information out. it wasn't elegant enough to just return it*/
-			externalIdentity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.identityId);
+			externalIdentityEntity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.getAuthProviderId());
 		}
 		
 		/*finally return the CRS application id caller asked for*/
-		return externalIdentity.getCrsApplicationUserId();
+		return externalIdentityEntity.getCrsApplicationUserId();
 	}
 
 	/**
@@ -70,32 +67,17 @@ public class CrsUserService
 	 * @param httpSession
 	 * @return
 	 */
-	private ExternalIdentityNameAndId checkSessionForExternalIdFromKnownIdentityProviders(HttpSession httpSession) 
+	private ExternalIdentityAuthenticationProviderAndId checkSessionForExternalIdFromKnownIdentityProviders(HttpSession httpSession) 
 	{
-		if(httpSession.getAttribute("relaySsoGuid") != null)
+		for(AuthenticationProviderType providerType : AuthenticationProviderType.values())
 		{
-			return new ExternalIdentityNameAndId("Relay", ((UUID)httpSession.getAttribute("relaySsoGuid")).toString());
-		}
-		else if(httpSession.getAttribute("facebookUser") != null)
-		{
-			return new ExternalIdentityNameAndId("Facebook", ((FacebookUser)httpSession.getAttribute("facebookUser")).getId());
-		}
-		else if(httpSession.getAttribute("emailAccountId") != null)
-		{
-			return new ExternalIdentityNameAndId("Email", ((UUID)httpSession.getAttribute("emailAccountId")).toString());
+			if(httpSession.getAttribute(providerType.getSessionIdentifierName()) != null)
+			{
+				return new ExternalIdentityAuthenticationProviderAndId(providerType, 
+												httpSession.getAttribute(providerType.getSessionIdentifierName()).toString());
+			}
 		}
 		return null;
 	}
 	
-	private static class ExternalIdentityNameAndId
-	{
-		String identityProviderName;
-		String identityId;
-		
-		public ExternalIdentityNameAndId(String identityProviderName,String identityId)
-		{
-			this.identityProviderName = identityProviderName;
-			this.identityId = identityId;
-		}
-	}
 }

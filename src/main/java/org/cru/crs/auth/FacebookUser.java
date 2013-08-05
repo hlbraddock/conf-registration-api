@@ -24,6 +24,12 @@ public class FacebookUser
 		return facebookUser;
 	}
 
+	@Override
+	public String toString()
+	{
+		return getId();
+	}
+	
 	public String getId()
 	{
 		return id;
