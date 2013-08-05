@@ -76,9 +76,9 @@ public class CrsUserService
 		{
 			return new ExternalIdentityNameAndId("Relay", ((UUID)httpSession.getAttribute("relaySsoGuid")).toString());
 		}
-		else if(httpSession.getAttribute("facebookId") != null)
+		else if(httpSession.getAttribute("facebookUser") != null)
 		{
-			return new ExternalIdentityNameAndId("Facebook", httpSession.getAttribute("facebookId").toString());
+			return new ExternalIdentityNameAndId("Facebook", ((FacebookUser)httpSession.getAttribute("facebookUser")).getId());
 		}
 		else if(httpSession.getAttribute("emailAccountId") != null)
 		{
