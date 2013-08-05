@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.UUID;
 
 /**
  * User: Lee_Braddock
@@ -36,11 +37,8 @@ public class FacebookAuthManager
 
 	@Path("/authorization")
 	@GET
-	public Response authorization(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "returnUrl") String returnUrl) throws URISyntaxException, MalformedURLException
+	public Response authorization(@Context HttpServletRequest httpServletRequest) throws URISyntaxException, MalformedURLException
 	{
-		// save user return url for redirect on login
-		httpServletRequest.getSession().setAttribute("returnUrl", returnUrl);
-
 		// get oauth service
 		OAuthService service = OauthServices.build(FacebookApi.class, getUrlWithService(httpServletRequest, "login").toString(), apiKey, apiSecret);
 
@@ -55,7 +53,7 @@ public class FacebookAuthManager
 	@GET
 	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "code") String code, @QueryParam(value = "error") String error) throws URISyntaxException, MalformedURLException
 	{
-		if(isLoginError(code, error))
+		if (isLoginError(code, error))
 			return Response.status(Response.Status.UNAUTHORIZED).build();
 
 		// get verifier for identity provider provided code
@@ -65,7 +63,15 @@ public class FacebookAuthManager
 		OAuthService service = OauthServices.build(FacebookApi.class, getUrlWithService(httpServletRequest, "login").toString(), apiKey, apiSecret);
 
 		// get identity provider access token
-		Token accessToken = service.getAccessToken(null, verifier);
+		Token accessToken;
+		try
+		{
+			accessToken = service.getAccessToken(null, verifier);
+		}
+		catch(Exception	e)
+		{
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
 
 		// build request
 		OAuthRequest request = new OAuthRequest(Verb.GET, "https://graph.facebook.com/me");
@@ -77,8 +83,8 @@ public class FacebookAuthManager
 		org.scribe.model.Response response = request.send();
 
 		// check response code
-		if(response.getCode() != 200)
-			return Response.status(Response.Status.UNAUTHORIZED).build();
+		if (response.getCode() != 200)
+			return Response.status(response.getCode()).build();
 
 		// transform the facebook response into facebook user
 		FacebookUser facebookUser = FacebookUser.fromJsonNode(JsonUtils.jsonNodeFromString(response.getBody()));
@@ -86,16 +92,26 @@ public class FacebookAuthManager
 		// add the facebook user to the session
 		httpServletRequest.getSession().setAttribute("facebookUser", facebookUser);
 
-		// get the original return url
-		String returnUrl = (String) httpServletRequest.getSession().getAttribute("returnUrl");
+		// generate and store auth code
+		String authCode = generateSecureAuthCode();
+		httpServletRequest.getSession().setAttribute("authCode", authCode);
 
-		// redirect to return url
-		return Response.seeOther(new URI(returnUrl)).build();
+		// TODO read from properties
+		String authCodeUrl = "http://localhost:8080/crs-http-json-api/#/auth/";
+
+		// redirect to client managed url with auth code
+		return Response.seeOther(new URI(authCodeUrl + authCode)).build();
+	}
+
+	private String generateSecureAuthCode()
+	{
+		// TODO generate more securely
+		return UUID.randomUUID().toString();
 	}
 
 	private boolean isLoginError(String code, String error)
 	{
-		if(Strings.isNullOrEmpty(code))
+		if (Strings.isNullOrEmpty(code))
 			return true;
 
 		return !Strings.isNullOrEmpty(error);
