@@ -1,9 +1,13 @@
 package org.cru.crs.api.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
@@ -69,7 +73,7 @@ public class ConferenceDataTransferTest
 	}
 	
 	@Test(groups="unittest")
-	public void testJpaEntityWithPagesToWebEntityWithPages()
+	public void testJpaEntityWithPagesToWebEntityWithPages() throws JsonParseException, JsonProcessingException, IOException
 	{
 		ConferenceEntity jpaConference = new ConferenceEntity();
 		
@@ -104,13 +108,13 @@ public class ConferenceDataTransferTest
 		block1.setPageId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
 		block1.setAdminOnly(false);
 		block1.setBlockType("multipleChoice");
-		block1.setContent("Year in college");
+		block1.setContent(new ObjectMapper().getJsonFactory().createJsonParser("{\"Year in college\" : \"Sophomore\"}").readValueAsTree());
 		
 		block2.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1133"));
 		block2.setPageId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
 		block2.setAdminOnly(false);
 		block2.setBlockType("text");
-		block2.setContent("Cats name");
+		block2.setContent(new ObjectMapper().getJsonFactory().createJsonParser("{\"Cats name\" : \"Reese\"}").readValueAsTree());
 		
 		List<BlockEntity> blocks = new ArrayList<BlockEntity>();
 		blocks.add(block1);
@@ -135,9 +139,11 @@ public class ConferenceDataTransferTest
 		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(0).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1122"));
 		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(0).getPageId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
 		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(0).getType(), "multipleChoice");
+		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(0).getContent().get("Year in college").getTextValue(), "Sophomore");
 		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(1).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1133"));
 		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(1).getPageId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
 		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(1).getType(), "text");
+		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(1).getContent().get("Cats name").getTextValue(), "Reese");
 		
 		Assert.assertEquals(webRegistrationPages.get(1).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe2222"));
 		Assert.assertEquals(webRegistrationPages.get(1).getName(), "About me");

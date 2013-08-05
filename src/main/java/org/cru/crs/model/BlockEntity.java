@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.codehaus.jackson.JsonNode;
 import org.hibernate.annotations.Type;
 
 @Entity
@@ -36,7 +37,8 @@ public class BlockEntity implements java.io.Serializable
 	
 	@Transient
 	@Column(name = "CONTENT")
-	private String content;
+	@Type(type="org.cru.crs.utils.JsonUserType")
+	private JsonNode content;
 	
 	@Column(name = "TITLE")
 	private String title;
@@ -83,12 +85,12 @@ public class BlockEntity implements java.io.Serializable
 		this.adminOnly = adminOnly;
 	}
 
-	public String getContent()
+	public JsonNode getContent()
 	{
 		return content;
 	}
 
-	public void setContent(String content)
+	public void setContent(JsonNode content)
 	{
 		this.content = content;
 	}
