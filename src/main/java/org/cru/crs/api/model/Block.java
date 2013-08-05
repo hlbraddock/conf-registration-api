@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.codehaus.jackson.JsonNode;
 import org.cru.crs.model.BlockEntity;
 
 public class Block implements java.io.Serializable
@@ -14,14 +15,14 @@ public class Block implements java.io.Serializable
 	private UUID pageId;
 	private String title;
 	private String type;
-	private String content;
+	private JsonNode content;
 	
 	public static Block fromJpa(BlockEntity jpaBlock)
 	{
 		Block block = new Block();
 		
 		block.id = jpaBlock.getId();
-		block.title = jpaBlock.getContent();
+		block.title = jpaBlock.getTitle();
 		block.type = jpaBlock.getBlockType();
 		block.content = jpaBlock.getContent();
 		block.pageId = jpaBlock.getPageId();
@@ -81,11 +82,11 @@ public class Block implements java.io.Serializable
 	{
 		this.type = type;
 	}
-	public String getContent()
+	public JsonNode getContent()
 	{
 		return content;
 	}
-	public void setContent(String content)
+	public void setContent(JsonNode content)
 	{
 		this.content = content;
 	}
