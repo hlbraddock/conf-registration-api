@@ -35,7 +35,6 @@ public class BlockEntity implements java.io.Serializable
 	@Column(name = "ADMIN_ONLY")
 	private boolean adminOnly;
 	
-	@Transient
 	@Column(name = "CONTENT")
 	@Type(type="org.cru.crs.utils.JsonUserType")
 	private JsonNode content;
