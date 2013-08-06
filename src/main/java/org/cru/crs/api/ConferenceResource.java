@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -39,12 +40,12 @@ import org.jboss.logging.Logger;
 @Path("/conferences")
 public class ConferenceResource
 {
-    @Inject ConferenceService conferenceService;
-    @Inject RegistrationService registrationService;
-    
-    @Context HttpServletRequest request;
-    @Inject CrsUserService userService;
-    
+	@Inject ConferenceService conferenceService;
+	@Inject RegistrationService registrationService;
+
+	@Context HttpServletRequest request;
+	@Inject CrsUserService userService;
+
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
 	/**
@@ -57,13 +58,20 @@ public class ConferenceResource
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getConferences()
+	public Response getConferences(@HeaderParam(value="Authentication") String authCode)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-		
-		return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences(loggedInUser))).build();
+		try
+		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+
+			return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences(loggedInUser))).build();
+		}
+		catch(UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
 	}
-	
+
 	/**
 	 * Return the conference identified by ID with all associated Pages and Blocks
 	 * 
@@ -76,12 +84,12 @@ public class ConferenceResource
 	public Response getConference(@PathParam(value = "conferenceId") UUID conferenceId)
 	{
 		ConferenceEntity requestedConference = conferenceService.fetchConferenceBy(conferenceId);
-		
+
 		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
-		
+
 		return Response.ok(Conference.fromJpaWithPages(requestedConference)).build();
 	}
-	
+
 	/**
 	 * Creates a new conference.  In order to create a conference the user must be logged in
 	 * with a known identity.  To check this, we look in the session for an appUserId.
@@ -93,34 +101,35 @@ public class ConferenceResource
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createConference(Conference conference)throws URISyntaxException
+	public Response createConference(Conference conference, 
+			@HeaderParam(value="Authentication") String authCode)throws URISyntaxException
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-		
-		/*if there is no id in the conference, then create one. the client has the ability, but not 
-		 * the obligation to create one*/
-		if(conference.getId() == null)
-		{
-			conference.setId(UUID.randomUUID());
-		}
-		
 		try
 		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+
+			/*if there is no id in the conference, then create one. the client has the ability, but not 
+			 * the obligation to create one*/
+			if(conference.getId() == null)
+			{
+				conference.setId(UUID.randomUUID());
+			}
+
 			/*persist the new conference*/
 			conferenceService.createNewConference(conference.toJpaConferenceEntity(), loggedInUser);
+			
+			/*return a response with status 201 - Created and a location header to fetch the conference.
+			 * a copy of the entity is also returned.*/
+			return Response.status(Status.CREATED)
+					.location(new URI("/conferences/" + conference.getId()))
+					.entity(conference).build();
 		}
 		catch(UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		
-		/*return a response with status 201 - Created and a location header to fetch the conference.
-		 * a copy of the entity is also returned.*/
-		return Response.status(Status.CREATED)
-						.location(new URI("/conferences/" + conference.getId()))
-						.entity(conference).build();
 	}
-	
+
 	/**
 	 * Updates an existing conference
 	 * 
@@ -136,141 +145,170 @@ public class ConferenceResource
 	@PUT
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId)
+	public Response updateConference(Conference conference, 
+			@PathParam(value = "conferenceId") UUID conferenceId,
+			@HeaderParam(value="Authentication") String authCode)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-		
-		/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
-		if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
+
 		try
 		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+
+			/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
+			if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+
 			if(conferenceId == null)
 			{
 				/* If a conference ID wasn't passed in, then create a new conference.*/
-				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(UUID.randomUUID()), loggedInUser);
+				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(UUID.randomUUID()), 
+						loggedInUser);
 			}
 			else if(conferenceService.fetchConferenceBy(conferenceId) == null)
 			{
 				/* If the conference id was passed in, but there's no conference associated with it, then create a new conference*/ 
-				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(conferenceId), loggedInUser);
+				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(conferenceId), 
+						loggedInUser);
 			}
 			else
 			{
 				/*there is an existing conference, so go update it*/
-				conferenceService.updateConference(conference.toJpaConferenceEntity().setId(conferenceId), loggedInUser);
+				conferenceService.updateConference(conference.toJpaConferenceEntity().setId(conferenceId), 
+						loggedInUser);
+				
+				
 			}
+			
+			return Response.noContent().build();
 		}
 		catch(UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		
-		return Response.noContent().build();
 	}
-	
+
 	@POST
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response createPage(Page newPage, 
+			@PathParam(value = "conferenceId") UUID conferenceId,
+			@HeaderParam(value = "Authentication") String authCode) throws URISyntaxException
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-		final ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(conferenceId);
-		
-		/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
-		if(conferencePageBelongsTo == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
 		try
 		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			final ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(conferenceId);
+
+			/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
+			if(conferencePageBelongsTo == null)
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+
 			conferenceService.addPageToConference(conferencePageBelongsTo, newPage.toJpaPageEntity(), loggedInUser);
+			
+			return Response.status(Status.CREATED)
+					.location(new URI("/pages/" + newPage.getId()))
+					.entity(newPage)
+					.build();
 		} 
 		catch (UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		
-		return Response.status(Status.CREATED)
-				.location(new URI("/pages/" + newPage.getId()))
-				.entity(newPage)
-				.build();
 	}
 
-    @POST
-    @Path("/{conferenceId}/registrations")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createRegistration(Registration newRegistration, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
-    {
-        if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
+	@POST
+	@Path("/{conferenceId}/registrations")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createRegistration(Registration newRegistration, 
+			@PathParam(value = "conferenceId") UUID conferenceId,
+			@HeaderParam(value = "authCode") String authCode) throws URISyntaxException
+	{
+		if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
 
 		logger.info(conferenceId);
 
-        ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
 
 		logObject(conference, logger);
 
 		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
 
-        RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity(conference);
+		RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity(conference);
 
 		logObject(newRegistrationEntity, logger);
 
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-		newRegistrationEntity.setUserId(loggedInUser.getId());
-		
+		try
+		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			newRegistrationEntity.setUserId(loggedInUser.getId());
+		}
+		catch(UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+
 		registrationService.createNewRegistration(newRegistrationEntity);
 
 		return Response.status(Status.CREATED)
 				.location(new URI("/pages/" + newRegistration.getId()))
 				.entity(newRegistration)
 				.build();
-    }
+	}
 
 	@GET
 	@Path("/{conferenceId}/registrations")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId,
+			@HeaderParam(value = "Authentication") String authCode) throws URISyntaxException
 	{
 		logger.info(conferenceId);
 
-		if(!userService.isUserAuthorizedOnConference(conferenceService.fetchConferenceBy(conferenceId),
-														userService.buildCrsApplicationUserBasedOnDataIn(request.getSession()).getId()))
+		try
+		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			Set<RegistrationEntity> registrationEntitySet = registrationService.fetchAllRegistrations(conferenceId, loggedInUser);
+
+			Set<Registration> registrationSet = Registration.fromJpa(registrationEntitySet);
+
+			logObject(registrationSet, logger);
+			return Response.ok(registrationSet).build();
+
+		}
+		catch(UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-
-		Set<RegistrationEntity> registrationEntitySet = registrationService.fetchAllRegistrations(conferenceId);
-
-		Set<Registration> registrationSet = Registration.fromJpa(registrationEntitySet);
-
-		logObject(registrationSet, logger);
-
-		return Response.ok(registrationSet).build();
 	}
 
 	@GET
 	@Path("/{conferenceId}/registrations/current")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
+	public Response getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId,
+			@HeaderParam(value = "authCode") String authCode) throws URISyntaxException
 	{
 		logger.info(conferenceId);
+		try
+		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
 
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
+			RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
 
-		RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
+			Registration registration = Registration.fromJpa(registrationEntity);
 
-		Registration registration = Registration.fromJpa(registrationEntity);
+			logObject(registration, logger);
 
-		logObject(registration, logger);
-
-		return Response.ok(registration).build();
+			return Response.ok(registration).build();
+		}
+		catch(UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build(); 
+		}
 	}
 
 	private void logObject(Object object, Logger logger)

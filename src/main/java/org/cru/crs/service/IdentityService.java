@@ -21,13 +21,31 @@ public class IdentityService
 		this.entityManager = entityManager;
 	}
 
-	public AuthenticationProviderIdentityEntity findAuthProviderIdentityBy(String externalIdentityId)
+	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderId(String authenticationProviderId)
 	{
 		try
 		{
-			return entityManager.createQuery("SELECT extId FROM ExternalIdentityEntity extId " +
-					"WHERE extId.idFromExternalIdentityProvider = :externalIdentityId", AuthenticationProviderIdentityEntity.class)
-					.setParameter("externalIdentityId", externalIdentityId)
+			return entityManager.createQuery("SELECT ape FROM AuthenticationProviderIdentityEntity ape " +
+					"WHERE ape.authenticationProviderId = :authenticationProviderId", AuthenticationProviderIdentityEntity.class)
+					.setParameter("authenticationProviderId", authenticationProviderId)
+					.getSingleResult();
+		}
+		catch(NoResultException nre)
+		{
+			/* silly JPA, this is no reason to throw an exception and make calling code handle it. it just means there is no
+			 * record matching my criteria. it's the same as asking a yes/no question and throwing an exception when the answer
+			 * is 'no'.  okay, i'll get off my soapbox now, but really.... */
+			return null;
+		}
+	}
+	
+	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByEmailCode(String emailCode)
+	{
+		try
+		{
+			return entityManager.createQuery("SELECT ape FROM AuthenticationProviderIdentityEntity ape " +
+					"WHERE ape.emailAuthAccessCode = :emailCode", AuthenticationProviderIdentityEntity.class)
+					.setParameter("emailCode", emailCode)
 					.getSingleResult();
 		}
 		catch(NoResultException nre)
@@ -40,7 +58,7 @@ public class IdentityService
 	}
 	
 	/**
-	 * Creates a new internal CRS App identity record along with a row for the external identity provider.
+	 * Creates a new internal CRS App identity record along with a row for the authentication provider identity.
 	 * The two rows will be associated by a foreign key relationship
 	 * @param externalIdentityId
 	 * @param externalIdentityProviderName
@@ -53,8 +71,8 @@ public class IdentityService
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
 		authProviderIdentityEntity.setCrsApplicationUserId(identityEntity.getId());
-		authProviderIdentityEntity.setIdFromExternalIdentityProvider(authProviderId.toLowerCase());/*necessary for search to work*/
-		authProviderIdentityEntity.setExternalIdentityProviderName(authProviderType.name());
+		authProviderIdentityEntity.setAuthenticationProviderId(authProviderId.toLowerCase());/*necessary for search to work*/
+		authProviderIdentityEntity.setAuthenticationProviderName(authProviderType.name());
 		
 		entityManager.persist(identityEntity);
 		entityManager.persist(authProviderIdentityEntity);

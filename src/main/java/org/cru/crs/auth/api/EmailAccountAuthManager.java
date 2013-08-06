@@ -3,17 +3,20 @@ package org.cru.crs.auth.api;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.model.AuthenticationProviderIdentityEntity;
+import org.cru.crs.service.IdentityService;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 
@@ -23,14 +26,24 @@ public class EmailAccountAuthManager
 {
 	CrsProperties crsProperties = CrsProperties.get();
 
+	@Inject IdentityService authenticationProviderService;
+	
 	@Path("/login")
 	@GET
 	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "code") String code) throws URISyntaxException, MalformedURLException
 	{
-		if(httpServletRequest.getSession().getAttribute(AuthenticationProviderType.CRS.getSessionIdentifierName()) == null)
+		code = "xxxyyy";
+		
+		AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByEmailCode(code);
+		
+		if(authProviderEntity == null)
 		{
-			httpServletRequest.getSession().setAttribute(AuthenticationProviderType.CRS.getSessionIdentifierName(), UUID.randomUUID());			
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
+		
+		// set email account auth provider ID into session
+		httpServletRequest.getSession().setAttribute(AuthenticationProviderType.EMAIL_ACCOUNT.getSessionIdentifierName(), 
+														authProviderEntity.getAuthenticationProviderId());
 		
 		// generate and store auth code
 		String authCode = AuthCodeGenerator.generate();

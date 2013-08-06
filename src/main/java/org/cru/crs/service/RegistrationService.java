@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
+import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.model.RegistrationEntity;
 
 /**
@@ -24,9 +25,12 @@ public class RegistrationService {
         this.em = em;
     }
 
-	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId)
+	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId, CrsApplicationUser loggedInUser)
 	{
-		TypedQuery<RegistrationEntity> query = em.createQuery("SELECT registration FROM RegistrationEntity registration where registration.conference.id = :conference_id", RegistrationEntity.class);
+		//TODO: this needs to verify user has access to get registrations!
+		TypedQuery<RegistrationEntity> query = em.createQuery("SELECT registration " +
+																"FROM RegistrationEntity registration " +
+																"WHERE registration.conference.id = :conference_id", RegistrationEntity.class);
 
 		query.setParameter("conference_id", conferenceId);
 

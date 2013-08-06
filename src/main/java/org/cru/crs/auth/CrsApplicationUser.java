@@ -18,7 +18,7 @@ public class CrsApplicationUser implements java.io.Serializable
 	/**
 	 * An easy way to identify the authentication provider the user used to identify him/herself*/
 	AuthenticationProviderType authProviderType;
-
+	
 	public CrsApplicationUser(UUID id, String authProviderId, AuthenticationProviderType authProviderType)
 	{
 		this.id = id;
@@ -33,7 +33,7 @@ public class CrsApplicationUser implements java.io.Serializable
 	 */
 	public boolean isCrsAuthenticatedOnly()
 	{
-		return authProviderType.equals(AuthenticationProviderType.CRS);
+		return authProviderType.equals(AuthenticationProviderType.EMAIL_ACCOUNT);
 	}
 	
 	/**
@@ -46,4 +46,6 @@ public class CrsApplicationUser implements java.io.Serializable
 	{
 		return id;
 	}
+	
+	
 }

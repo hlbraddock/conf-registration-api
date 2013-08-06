@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -61,29 +62,31 @@ public class PageResource
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updatePage(Page page, @PathParam(value="pageId") UUID pageId)
+	public Response updatePage(Page page, 
+			@PathParam(value="pageId") UUID pageId,
+			@HeaderParam(value="Authentication") String authCode)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
-
-		/**
-		 * If the Path pageId does not match the pageId in the body of the JSON object,
-		 * then fail fast and return a 400.  
-		 */
-		if(IdComparer.idsAreNotNullAndDifferent(pageId, page.getId()))
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-
-		/**
-		 * Now that we know that the pageIds are not different.. take the first not-null
-		 * one we find and treat it as the "official" page ID.  Note in this case it still
-		 * could be null at this point, and we would need to create a new page.
-		 */
-		UUID officialPageId = pageId != null ? pageId : page.getId(); 
-
 		try
 		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
+
+			/**
+			 * If the Path pageId does not match the pageId in the body of the JSON object,
+			 * then fail fast and return a 400.  
+			 */
+			if(IdComparer.idsAreNotNullAndDifferent(pageId, page.getId()))
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+
+			/**
+			 * Now that we know that the pageIds are not different.. take the first not-null
+			 * one we find and treat it as the "official" page ID.  Note in this case it still
+			 * could be null at this point, and we would need to create a new page.
+			 */
+			UUID officialPageId = pageId != null ? pageId : page.getId(); 
+
 			if(officialPageId == null || pageService.fetchPageBy(officialPageId) == null)
 			{
 				/**
@@ -101,13 +104,13 @@ public class PageResource
 			{
 				pageService.updatePage(page.toJpaPageEntity().setId(officialPageId), loggedInUser);
 			}
+
+			return Response.noContent().build();
 		}
 		catch(UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		
-		return Response.noContent().build();
 	}
 
 	/**
@@ -119,54 +122,56 @@ public class PageResource
 	 */
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deletePage(@PathParam(value="pageId") UUID pageId)
+	public Response deletePage(@PathParam(value="pageId") UUID pageId, @HeaderParam(value="Authentication") String authCode)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-		
-		if(pageId == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
 		try
 		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+
+			if(pageId == null)
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+
 			pageService.deletePage(pageId, loggedInUser);
+
+			return Response.ok().build();
 		}
 		catch (UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-
-		return Response.ok().build();
 	}
 
 	@POST
 	@Path("/blocks/")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createBlock(Block newBlock, @PathParam(value="pageId") UUID pageId) throws URISyntaxException
+	public Response createBlock(Block newBlock, 
+			@PathParam(value="pageId") UUID pageId,
+			@HeaderParam(value="Authentication") String authCode) throws URISyntaxException
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(pageId);
-		
-		/*if the page id, specified in the incoming block doesn't map to a page,
-		 * then this is a bad request*/
-		if(pageBlockBelongsTo == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
 		try
 		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			PageEntity pageBlockBelongsTo = pageService.fetchPageBy(pageId);
+
+			/*if the page id, specified in the incoming block doesn't map to a page,
+			 * then this is a bad request*/
+			if(pageBlockBelongsTo == null)
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+
 			pageService.addBlockToPage(pageBlockBelongsTo, newBlock.toJpaBlockEntity(), loggedInUser);
+
+			return Response.status(Status.CREATED)
+					.location(new URI("/blocks/" + newBlock.getId()))
+					.entity(newBlock)
+					.build();
 		} 
 		catch (UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		
-		return Response.status(Status.CREATED)
-				.location(new URI("/blocks/" + newBlock.getId()))
-				.entity(newBlock)
-				.build();
 	}
 }

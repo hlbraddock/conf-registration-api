@@ -21,8 +21,10 @@ public class CrsUserService
 		this.authProviderIdentityService = authProviderIdentityService;
 	}
 	
-	public CrsApplicationUser buildCrsApplicationUserBasedOnDataIn(HttpSession httpSession)
+	public CrsApplicationUser buildCrsApplicationUserBasedOnDataIn(HttpSession httpSession, String authCode) throws UnauthorizedException
 	{
+		verifyAuthCode(httpSession, authCode);
+		
 		/*look in the session to see if there's an external identity id we know about*/
 		IdentityAuthenticationProviderAndId authProviderIdentityInfo = checkSessionForIdFromKnownIdentityProviders(httpSession);
 		
@@ -30,7 +32,7 @@ public class CrsUserService
 		if(authProviderIdentityInfo == null) return null; //TODO: have this throw an exception
 		
 		/*we have an id, now go look for the row in our database to hopefully find an internal user*/
-		AuthenticationProviderIdentityEntity authProviderIdentityEntity = authProviderIdentityService.findAuthProviderIdentityBy(authProviderIdentityInfo.authProviderId);
+		AuthenticationProviderIdentityEntity authProviderIdentityEntity = authProviderIdentityService.findAuthProviderIdentityByAuthProviderId(authProviderIdentityInfo.authProviderId);
 		
 		if(authProviderIdentityEntity == null)
 		{
@@ -38,7 +40,7 @@ public class CrsUserService
 			 * know who they are*/
 			authProviderIdentityService.createIdentityRecords(authProviderIdentityInfo.authProviderId,authProviderIdentityInfo.authProviderType);
 			/*and fetch the information out. it wasn't elegant enough to just return it*/
-			authProviderIdentityEntity = authProviderIdentityService.findAuthProviderIdentityBy(authProviderIdentityInfo.authProviderId);
+			authProviderIdentityEntity = authProviderIdentityService.findAuthProviderIdentityByAuthProviderId(authProviderIdentityInfo.authProviderId);
 		}
 		
 		/*finally return the CRS application id caller asked for*/
@@ -80,6 +82,15 @@ public class CrsUserService
 			}
 		}
 		return null;
+	}
+	
+	private void verifyAuthCode(HttpSession session, String authCode) throws UnauthorizedException
+	{
+		String sessionAuthCode = (String)session.getAttribute("authCode");
+		if(sessionAuthCode == null || authCode == null || !authCode.equals(sessionAuthCode))
+		{
+			throw new UnauthorizedException();
+		}
 	}
 	
 	private static class IdentityAuthenticationProviderAndId

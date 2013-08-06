@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -32,49 +33,52 @@ import org.cru.crs.utils.IdComparer;
 @Path("/blocks/{blockId}")
 public class BlockResource
 {
-    @Inject BlockService blockService;
-    @Inject PageService pageService;
-    @Inject ConferenceService conferenceService;
-    
-    @Context HttpServletRequest request;
-    @Inject CrsUserService userService;
+	@Inject BlockService blockService;
+	@Inject PageService pageService;
+	@Inject ConferenceService conferenceService;
+
+	@Context HttpServletRequest request;
+	@Inject CrsUserService userService;
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getBlock(@PathParam(value="blockId") UUID blockId)
 	{
 		BlockEntity requestedBlock = blockService.fetchBlockBy(blockId);
-		
+
 		if(requestedBlock == null) return Response.status(Status.NOT_FOUND).build();
-		
+
 		return Response.ok(Block.fromJpa(requestedBlock)).build();
 	}
-	
+
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateBlock(Block block, @PathParam(value="blockId") UUID blockId)
+	public Response updateBlock(Block block, 
+			@PathParam(value="blockId") UUID blockId,
+			@HeaderParam(value="authCode") String authCode)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(block.getPageId());
-		
-		/**
-		 * If the Path pageId does not match the pageId in the body of the JSON object,
-		 * then fail fast and return a 400.  
-		 */
-		if(IdComparer.idsAreNotNullAndDifferent(blockId, block.getId()))
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-		
-		/**
-		 * Now that we know that the blockIds are not different.. take the first not-null
-		 * one we find and treat it as the "official" block ID.  Note in this case it still
-		 * could be null at this point, and we would need to create a new block.
-		 */
-		UUID officialBlockId = blockId != null ? blockId : block.getId(); 
-		
 		try
 		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(),authCode);
+
+			PageEntity pageBlockBelongsTo = pageService.fetchPageBy(block.getPageId());
+
+			/**
+			 * If the Path pageId does not match the pageId in the body of the JSON object,
+			 * then fail fast and return a 400.  
+			 */
+			if(IdComparer.idsAreNotNullAndDifferent(blockId, block.getId()))
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+
+			/**
+			 * Now that we know that the blockIds are not different.. take the first not-null
+			 * one we find and treat it as the "official" block ID.  Note in this case it still
+			 * could be null at this point, and we would need to create a new block.
+			 */
+			UUID officialBlockId = blockId != null ? blockId : block.getId(); 
+
 			if(officialBlockId == null || pageService.fetchPageBy(officialBlockId) == null)
 			{
 				/**
@@ -92,35 +96,36 @@ public class BlockResource
 			{
 				blockService.updateBlock(block.toJpaBlockEntity().setId(officialBlockId), loggedInUser);
 			}
+			
+			return Response.noContent().build();
 		}
 		catch(UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		
-		return Response.noContent().build();
 	}
-	
+
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteBlock(@PathParam(value="blockId") UUID blockId)
+	public Response deleteBlock(@PathParam(value="blockId") UUID blockId,
+			@HeaderParam(value="authCode") String authCode)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
-
-		if(blockId == null)
-		{
-			return Response.status(Status.BAD_REQUEST).build();
-		}
-
 		try
 		{
+			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+
+			if(blockId == null)
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+
 			blockService.deleteBlock(blockId, loggedInUser);
+			
+			return Response.ok().build();
 		} 
 		catch (UnauthorizedException e) 
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		
-		return Response.ok().build();
 	}
 }

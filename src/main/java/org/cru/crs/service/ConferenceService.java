@@ -52,7 +52,7 @@ public class ConferenceService
 		{
 			throw new UnauthorizedException();
 		}
-		
+				
 		em.merge(conferenceToUpdate);
 	}
 	
