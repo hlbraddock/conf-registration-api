@@ -7,6 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.cru.crs.api.model.Page;
+import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
@@ -24,8 +25,9 @@ public class PageServiceTest
 
 	private PageService pageService;
 
-	private UUID testAppUserId = UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1");
-
+	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1"), null);
+	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null);
+	
 	@BeforeClass
 	public void setup()
 	{
@@ -63,7 +65,7 @@ public class PageServiceTest
 		Page webPage = Page.fromJpa(page);
 		webPage.setName("Fun stuff");
 
-		pageService.updatePage(webPage.toJpaPageEntity(), testAppUserId);
+		pageService.updatePage(webPage.toJpaPageEntity(), testAppUser);
 
 		PageEntity updatedPage = em.find(PageEntity.class, UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
 
@@ -86,7 +88,7 @@ public class PageServiceTest
 		try
 		{
 			em.getTransaction().begin();
-			pageService.updatePage(webPage.toJpaPageEntity(), UUID.randomUUID());
+			pageService.updatePage(webPage.toJpaPageEntity(), testAppUserNotAuthorized);
 			Assert.fail("Should have thrown an UnauthorizedException");
 		}
 		catch(UnauthorizedException e)
@@ -124,7 +126,7 @@ public class PageServiceTest
 
 		em.getTransaction().begin();
 
-		pageService.deletePage(page.getId(), testAppUserId);
+		pageService.deletePage(page.getId(), testAppUser);
 
 		em.flush();
 		em.getTransaction().commit();
@@ -139,7 +141,7 @@ public class PageServiceTest
 		try
 		{
 			em.getTransaction().begin();
-			pageService.deletePage(UUID.fromString("bf37618e-4f86-2df5-8ae9-0ed3be0ed248"),UUID.randomUUID());
+			pageService.deletePage(UUID.fromString("bf37618e-4f86-2df5-8ae9-0ed3be0ed248"),testAppUserNotAuthorized);
 			Assert.fail("Should have thrown an UnauthorizedException");
 		}
 		catch(UnauthorizedException e)

@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
@@ -20,11 +21,11 @@ public class ConferenceService
 		this.em = em;
 	}
 
-	public List<ConferenceEntity> fetchAllConferences(UUID crsAppUserId)
+	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
 	{
 		return em.createQuery("SELECT conf FROM ConferenceEntity conf " +
 								"WHERE conf.contactUser = :crsAppUserId", ConferenceEntity.class)
-							.setParameter("crsAppUserId", crsAppUserId)
+							.setParameter("crsAppUserId", crsLoggedInUser.getId())
 				 			.getResultList();
 	}
 
@@ -33,21 +34,21 @@ public class ConferenceService
         return em.find(ConferenceEntity.class, id);
     }
 	
-	public void createNewConference(ConferenceEntity newConference, UUID crsAppUserId) throws UnauthorizedException
+	public void createNewConference(ConferenceEntity newConference, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
-		if(crsAppUserId == null)
+		if(crsLoggedInUser == null || crsLoggedInUser.isCrsAuthenticatedOnly())
 		{
 			throw new UnauthorizedException();
 		}
 		
-		newConference.setContactUser(crsAppUserId);
+		newConference.setContactUser(crsLoggedInUser.getId());
 		
 		em.persist(newConference);
 	}
 	
-	public void updateConference(ConferenceEntity conferenceToUpdate, UUID crsAppUserId) throws UnauthorizedException
+	public void updateConference(ConferenceEntity conferenceToUpdate,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
-		if(crsAppUserId == null || !crsAppUserId.equals(conferenceToUpdate.getContactUser()))
+		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferenceToUpdate.getContactUser()))
 		{
 			throw new UnauthorizedException();
 		}
@@ -55,10 +56,10 @@ public class ConferenceService
 		em.merge(conferenceToUpdate);
 	}
 	
-	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd, UUID crsAppUserId) throws UnauthorizedException
+	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
-		if(crsAppUserId == null || !crsAppUserId.equals(conferenceToAddPageTo.getContactUser()))
+		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferenceToAddPageTo.getContactUser()))
 		{
 			throw new UnauthorizedException();
 		}

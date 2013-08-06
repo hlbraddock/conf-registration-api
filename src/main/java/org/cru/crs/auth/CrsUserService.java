@@ -21,7 +21,7 @@ public class CrsUserService
 		this.externalIdentityService = externalIdentityService;
 	}
 	
-	public UUID findCrsAppUserIdIdentityProviderIdIn(HttpSession httpSession)
+	public CrsApplicationUser buildCrsApplicationUserFromDataIn(HttpSession httpSession)
 	{
 		/*look in the session to see if there's an external identity id we know about*/
 		ExternalIdentityAuthenticationProviderAndId externalIdentityInfo = checkSessionForExternalIdFromKnownIdentityProviders(httpSession);
@@ -42,7 +42,7 @@ public class CrsUserService
 		}
 		
 		/*finally return the CRS application id caller asked for*/
-		return externalIdentityEntity.getCrsApplicationUserId();
+		return new CrsApplicationUser(externalIdentityEntity.getCrsApplicationUserId(), externalIdentityInfo);
 	}
 
 	/**
@@ -79,5 +79,4 @@ public class CrsUserService
 		}
 		return null;
 	}
-	
 }

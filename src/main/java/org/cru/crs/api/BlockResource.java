@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Block;
+import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.BlockEntity;
@@ -53,7 +54,7 @@ public class BlockResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateBlock(Block block, @PathParam(value="blockId") UUID blockId)
 	{
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(block.getPageId());
 		
 		/**
@@ -85,11 +86,11 @@ public class BlockResource
 				 * Make sure the Page ID is set in the object, it could be that it was only
 				 * specified as a path parameter.
 				 */
-				pageService.addBlockToPage(pageBlockBelongsTo, block.toJpaBlockEntity(), appUserId);
+				pageService.addBlockToPage(pageBlockBelongsTo, block.toJpaBlockEntity(), loggedInUser);
 			}
 			else
 			{
-				blockService.updateBlock(block.toJpaBlockEntity().setId(officialBlockId), appUserId);
+				blockService.updateBlock(block.toJpaBlockEntity().setId(officialBlockId), loggedInUser);
 			}
 		}
 		catch(UnauthorizedException e)
@@ -104,7 +105,7 @@ public class BlockResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteBlock(@PathParam(value="blockId") UUID blockId)
 	{
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 
 		if(blockId == null)
 		{
@@ -113,7 +114,7 @@ public class BlockResource
 
 		try
 		{
-			blockService.deleteBlock(blockId, appUserId);
+			blockService.deleteBlock(blockId, loggedInUser);
 		} 
 		catch (UnauthorizedException e) 
 		{

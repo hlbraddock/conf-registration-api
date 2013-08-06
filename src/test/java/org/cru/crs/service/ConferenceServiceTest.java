@@ -11,6 +11,9 @@ import javax.persistence.Persistence;
 
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.auth.CrsApplicationUser;
+import org.cru.crs.auth.ExternalIdentityAuthenticationProviderAndId;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
@@ -29,8 +32,10 @@ public class ConferenceServiceTest
 	
 	private ConferenceService conferenceService;
 	
-	private UUID testAppUserId = UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1");
-	
+	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1"), 
+												new ExternalIdentityAuthenticationProviderAndId(AuthenticationProviderType.RELAY, null));
+	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null);
+		
 	@BeforeClass
 	public void setup()
 	{
@@ -50,7 +55,7 @@ public class ConferenceServiceTest
 	@Test(groups="db-integration-tests")
 	public void fetchAllTheConferences()
 	{
-		List<ConferenceEntity> allConferences = conferenceService.fetchAllConferences(testAppUserId);
+		List<ConferenceEntity> allConferences = conferenceService.fetchAllConferences(testAppUser);
 		
 		Assert.assertNotNull(allConferences);
 		Assert.assertFalse(allConferences.isEmpty());
@@ -116,13 +121,13 @@ public class ConferenceServiceTest
 		
 		conference.setName("NCSU Wolfpack Camp");
 		
-		conferenceService.updateConference(conference, testAppUserId);
+		conferenceService.updateConference(conference, testAppUser);
 		
 		ConferenceEntity updatedConference = conferenceService.fetchConferenceBy(UUID.fromString("1cfa829f-2c3a-f803-a966-9a6510ee2f33"));
 		Assert.assertEquals(updatedConference.getName(), "NCSU Wolfpack Camp");
 		
 		updatedConference.setName("NC State Wolfpack Camp");
-		conferenceService.updateConference(updatedConference, testAppUserId);
+		conferenceService.updateConference(updatedConference, testAppUser);
 	}
 	
 	@Test(groups="db-integration-tests")
@@ -139,7 +144,7 @@ public class ConferenceServiceTest
 		try
 		{
 			em.getTransaction().begin();
-			conferenceService.updateConference(conferenceToUpdate.toJpaConferenceEntity(), UUID.randomUUID());
+			conferenceService.updateConference(conferenceToUpdate.toJpaConferenceEntity(), testAppUserNotAuthorized);
 			Assert.fail("Should have thrown UnauthorizedException");
 		}
 		catch(UnauthorizedException e)
@@ -172,7 +177,7 @@ public class ConferenceServiceTest
 			conferenceService.addPageToConference(setupEm.find(ConferenceEntity.class, 
 																	UUID.fromString("42e4c1B2-0cc1-89f7-9f4b-6bc3e0db5309")),
 													newPage.toJpaPageEntity(),
-													testAppUserId);
+													testAppUser);
 			
 			setupEm.flush();
 			setupEm.getTransaction().commit();
@@ -218,7 +223,7 @@ public class ConferenceServiceTest
 			conferenceService.addPageToConference(em.find(ConferenceEntity.class, 
 					UUID.fromString("42e4c1B2-0cc1-89f7-9f4b-6bc3e0db5309")),
 					newPage.toJpaPageEntity(),
-					UUID.randomUUID());
+					testAppUserNotAuthorized);
 			
 			
 			Assert.fail("Should have thrown UnauthorizedException");
@@ -247,7 +252,7 @@ public class ConferenceServiceTest
 		try
 		{
 			em.getTransaction().begin();
-			conferenceService.createNewConference(conferenceToCreate.toJpaConferenceEntity(), testAppUserId);
+			conferenceService.createNewConference(conferenceToCreate.toJpaConferenceEntity(), testAppUser);
 			em.flush();
 			em.getTransaction().commit();
 			
@@ -259,7 +264,7 @@ public class ConferenceServiceTest
 			Assert.assertEquals(persistedConference.getId(), conferenceToCreate.getId());
 			Assert.assertEquals(persistedConference.getName(), conferenceToCreate.getName());
 			Assert.assertEquals(persistedConference.getTotalSlots(),  conferenceToCreate.getTotalSlots());
-			Assert.assertEquals(persistedConference.getContactUser(), testAppUserId);
+			Assert.assertEquals(persistedConference.getContactUser(), testAppUser.getId());
 			Assert.assertEquals(persistedConference.getPages().size(), 0);
 			//not checking times, at the point
 		}

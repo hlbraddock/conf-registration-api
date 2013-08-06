@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
@@ -62,7 +63,7 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePage(Page page, @PathParam(value="pageId") UUID pageId)
 	{
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
 
 		/**
@@ -94,11 +95,11 @@ public class PageResource
 				 * Make sure the Page ID is set in the object, it could be that it was only
 				 * specified as a path parameter.
 				 */
-				conferenceService.addPageToConference(conferencePageBelongsTo, page.toJpaPageEntity(), appUserId);
+				conferenceService.addPageToConference(conferencePageBelongsTo, page.toJpaPageEntity(), loggedInUser);
 			}
 			else
 			{
-				pageService.updatePage(page.toJpaPageEntity().setId(officialPageId), appUserId);
+				pageService.updatePage(page.toJpaPageEntity().setId(officialPageId), loggedInUser);
 			}
 		}
 		catch(UnauthorizedException e)
@@ -120,7 +121,7 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deletePage(@PathParam(value="pageId") UUID pageId)
 	{
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 		
 		if(pageId == null)
 		{
@@ -129,7 +130,7 @@ public class PageResource
 		
 		try
 		{
-			pageService.deletePage(pageId, appUserId);
+			pageService.deletePage(pageId, loggedInUser);
 		}
 		catch (UnauthorizedException e)
 		{
@@ -144,7 +145,7 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createBlock(Block newBlock, @PathParam(value="pageId") UUID pageId) throws URISyntaxException
 	{
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(pageId);
 		
 		/*if the page id, specified in the incoming block doesn't map to a page,
@@ -156,7 +157,7 @@ public class PageResource
 		
 		try
 		{
-			pageService.addBlockToPage(pageBlockBelongsTo, newBlock.toJpaBlockEntity(), appUserId);
+			pageService.addBlockToPage(pageBlockBelongsTo, newBlock.toJpaBlockEntity(), loggedInUser);
 		} 
 		catch (UnauthorizedException e)
 		{

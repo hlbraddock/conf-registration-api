@@ -7,6 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.cru.crs.api.model.Block;
+import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
@@ -24,8 +25,9 @@ public class BlockServiceTest
 
 	private BlockService blockService;
 
-	private UUID testAppUserId = UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1");
-
+	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1"), null);
+	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null);
+	
 	@BeforeClass
 	public void setup()
 	{
@@ -67,7 +69,7 @@ public class BlockServiceTest
 		webBlock.setTitle("Kittys name");
 
 		em.getTransaction().begin();
-		blockService.updateBlock(webBlock.toJpaBlockEntity(), testAppUserId);
+		blockService.updateBlock(webBlock.toJpaBlockEntity(), testAppUser);
 		em.flush();
 		em.getTransaction().commit();
 		
@@ -91,7 +93,7 @@ public class BlockServiceTest
 		try
 		{
 			em.getTransaction().begin();
-			blockService.updateBlock(webBlock.toJpaBlockEntity(), UUID.randomUUID());
+			blockService.updateBlock(webBlock.toJpaBlockEntity(), testAppUserNotAuthorized);
 			Assert.fail("Should have thrown an UnauthorizedException");
 		}
 		catch(UnauthorizedException e)
@@ -129,7 +131,7 @@ public class BlockServiceTest
 
 		em.getTransaction().begin();
 
-		blockService.deleteBlock(block.getId(), testAppUserId);
+		blockService.deleteBlock(block.getId(), testAppUser);
 
 		em.flush();
 		em.getTransaction().commit();
@@ -144,7 +146,7 @@ public class BlockServiceTest
 		try
 		{
 			em.getTransaction().begin();
-			blockService.deleteBlock(UUID.fromString("af60d878-4741-4f21-9d25-231db86e43ee"),UUID.randomUUID());
+			blockService.deleteBlock(UUID.fromString("af60d878-4741-4f21-9d25-231db86e43ee"), testAppUserNotAuthorized);
 			Assert.fail("Should have thrown an UnauthorizedException");
 		}
 		catch(UnauthorizedException e)

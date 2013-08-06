@@ -5,6 +5,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
@@ -27,28 +28,28 @@ public class PageService
 		return em.find(PageEntity.class, id);
 	}
 	
-	public void updatePage(PageEntity pageToUpdate, UUID crsAppUserId) throws UnauthorizedException
+	public void updatePage(PageEntity pageToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
-		verifyUserIdHasAccessToModifyThisPagesConference(pageToUpdate,crsAppUserId);
+		verifyUserIdHasAccessToModifyThisPagesConference(pageToUpdate, crsLoggedInUser.getId());
 		
 		em.merge(pageToUpdate);
 	}
 	
-	public void deletePage(UUID pageId, UUID crsAppUserId) throws UnauthorizedException
+	public void deletePage(UUID pageId, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		PageEntity pageToDelete = em.find(PageEntity.class, pageId);
 		
-		verifyUserIdHasAccessToModifyThisPagesConference(pageToDelete, crsAppUserId);
+		verifyUserIdHasAccessToModifyThisPagesConference(pageToDelete, crsLoggedInUser.getId());
 		
 		em.remove(pageToDelete);
 	}
 	
-	public void addBlockToPage(PageEntity pageToAddBlockTo, BlockEntity blockToAdd, UUID crsAppUserId) throws UnauthorizedException
+	public void addBlockToPage(PageEntity pageToAddBlockTo, BlockEntity blockToAdd, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageToAddBlockTo.getConferenceId());
 		
 		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
-		if(crsAppUserId == null || !crsAppUserId.equals(conferencePageBelongsTo.getContactUser()))
+		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferencePageBelongsTo.getContactUser()))
 		{
 			throw new UnauthorizedException();
 		}

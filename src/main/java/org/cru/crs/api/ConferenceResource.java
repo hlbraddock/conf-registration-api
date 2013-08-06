@@ -25,6 +25,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
@@ -58,9 +59,9 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getConferences()
 	{
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 		
-		return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences(appUserId))).build();
+		return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences(loggedInUser))).build();
 	}
 	
 	/**
@@ -94,7 +95,7 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createConference(Conference conference)throws URISyntaxException
 	{
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 		
 		/*if there is no id in the conference, then create one. the client has the ability, but not 
 		 * the obligation to create one*/
@@ -106,7 +107,7 @@ public class ConferenceResource
 		try
 		{
 			/*persist the new conference*/
-			conferenceService.createNewConference(conference.toJpaConferenceEntity(), appUserId);
+			conferenceService.createNewConference(conference.toJpaConferenceEntity(), loggedInUser);
 		}
 		catch(UnauthorizedException e)
 		{
@@ -137,7 +138,7 @@ public class ConferenceResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId)
 	{
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 		
 		/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
 		if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
@@ -150,17 +151,17 @@ public class ConferenceResource
 			if(conferenceId == null)
 			{
 				/* If a conference ID wasn't passed in, then create a new conference.*/
-				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(UUID.randomUUID()), appUserId);
+				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(UUID.randomUUID()), loggedInUser);
 			}
 			else if(conferenceService.fetchConferenceBy(conferenceId) == null)
 			{
 				/* If the conference id was passed in, but there's no conference associated with it, then create a new conference*/ 
-				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(conferenceId), appUserId);
+				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(conferenceId), loggedInUser);
 			}
 			else
 			{
 				/*there is an existing conference, so go update it*/
-				conferenceService.updateConference(conference.toJpaConferenceEntity().setId(conferenceId), appUserId);
+				conferenceService.updateConference(conference.toJpaConferenceEntity().setId(conferenceId), loggedInUser);
 			}
 		}
 		catch(UnauthorizedException e)
@@ -177,7 +178,7 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException
 	{
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 		final ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(conferenceId);
 		
 		/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
@@ -188,7 +189,7 @@ public class ConferenceResource
 		
 		try
 		{
-			conferenceService.addPageToConference(conferencePageBelongsTo, newPage.toJpaPageEntity(), appUserId);
+			conferenceService.addPageToConference(conferencePageBelongsTo, newPage.toJpaPageEntity(), loggedInUser);
 		} 
 		catch (UnauthorizedException e)
 		{
@@ -221,8 +222,8 @@ public class ConferenceResource
 
 		logObject(newRegistrationEntity, logger);
 
-		UUID appUserId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
-		newRegistrationEntity.setUserId(appUserId);
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
+		newRegistrationEntity.setUserId(loggedInUser.getId());
 		
 		registrationService.createNewRegistration(newRegistrationEntity);
 
@@ -240,7 +241,7 @@ public class ConferenceResource
 		logger.info(conferenceId);
 
 		if(!userService.isUserAuthorizedOnConference(conferenceService.fetchConferenceBy(conferenceId),
-														userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession())))
+														userService.buildCrsApplicationUserFromDataIn(request.getSession()).getId()))
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
@@ -261,9 +262,9 @@ public class ConferenceResource
 	{
 		logger.info(conferenceId);
 
-		UUID userId = userService.findCrsAppUserIdIdentityProviderIdIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
 
-		RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, userId);
+		RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
 
 		Registration registration = Registration.fromJpa(registrationEntity);
 
