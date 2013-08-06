@@ -31,9 +31,8 @@ public class ConferenceServiceTest
 	
 	private ConferenceService conferenceService;
 	
-	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1"), 
-												new ExternalIdentityAuthenticationProviderAndId(AuthenticationProviderType.RELAY, null));
-	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null);
+	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1"), null, AuthenticationProviderType.RELAY);
+	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null, null);
 		
 	@BeforeClass
 	public void setup()
