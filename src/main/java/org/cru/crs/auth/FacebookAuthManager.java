@@ -12,6 +12,7 @@ import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -30,14 +31,16 @@ import java.net.URL;
 @Path("/auth/facebook")
 public class FacebookAuthManager
 {
-	private String apiKey = CrsProperties.getInstance().getProperty("facebookAppId");
-
-	private String apiSecret = CrsProperties.getInstance().getProperty("facebookAppSecret");
+	@Inject
+	CrsProperties crsProperties;
 
 	@Path("/authorization")
 	@GET
 	public Response authorization(@Context HttpServletRequest httpServletRequest) throws URISyntaxException, MalformedURLException
 	{
+		String apiKey = crsProperties.getProperty("facebookAppId");
+		String apiSecret = crsProperties.getProperty("facebookAppSecret");
+
 		// get oauth service
 		OAuthService service = OauthServices.build(FacebookApi.class, getUrlWithService(httpServletRequest, "login").toString(), apiKey, apiSecret);
 
@@ -57,6 +60,9 @@ public class FacebookAuthManager
 
 		// get verifier for identity provider provided code
 		Verifier verifier = new Verifier(code);
+
+		String apiKey = crsProperties.getProperty("facebookAppId");
+		String apiSecret = crsProperties.getProperty("facebookAppSecret");
 
 		// get oauth service
 		OAuthService service = OauthServices.build(FacebookApi.class, getUrlWithService(httpServletRequest, "login").toString(), apiKey, apiSecret);
@@ -96,7 +102,7 @@ public class FacebookAuthManager
 		httpServletRequest.getSession().setAttribute("authCode", authCode);
 
 		// get auth code url from properties
-		String authCodeUrl = CrsProperties.getInstance().getProperty("authCodeUrl");
+		String authCodeUrl = crsProperties.getProperty("authCodeUrl");
 
 		// redirect to client managed auth code url with auth code
 		return Response.seeOther(new URI(authCodeUrl + "/" + authCode)).build();

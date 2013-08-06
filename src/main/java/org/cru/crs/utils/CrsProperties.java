@@ -2,6 +2,8 @@ package org.cru.crs.utils;
 
 import org.ccci.util.properties.PropertiesWithFallback;
 
+import javax.enterprise.inject.Produces;
+
 public class CrsProperties extends PropertiesWithFallback
 {
 	private static String propertiesFile = "/apps/apps-config/crs-conf-api-properties.xml";
@@ -9,7 +11,8 @@ public class CrsProperties extends PropertiesWithFallback
 
 	private static CrsProperties instance = null;
 
-	public static CrsProperties getInstance()
+	@Produces
+	public CrsProperties get()
 	{
 		if(instance == null)
 			instance = new CrsProperties();
