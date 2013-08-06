@@ -1,6 +1,7 @@
 package org.cru.crs.auth;
 
 import com.google.common.base.Strings;
+import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.JsonUtils;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
@@ -93,7 +94,7 @@ public class FacebookAuthManager
 		httpServletRequest.getSession().setAttribute("facebookUser", facebookUser);
 
 		// generate and store auth code
-		String authCode = generateSecureAuthCode();
+		String authCode = AuthCodeGenerator.generate();
 		httpServletRequest.getSession().setAttribute("authCode", authCode);
 
 		// TODO read from properties
@@ -101,12 +102,6 @@ public class FacebookAuthManager
 
 		// redirect to client managed url with auth code
 		return Response.seeOther(new URI(authCodeUrl + authCode)).build();
-	}
-
-	private String generateSecureAuthCode()
-	{
-		// TODO generate more securely
-		return UUID.randomUUID().toString();
 	}
 
 	private boolean isLoginError(String code, String error)
