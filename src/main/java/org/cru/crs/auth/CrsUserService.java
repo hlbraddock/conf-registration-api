@@ -5,44 +5,46 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
+import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.ExternalIdentityEntity;
 import org.cru.crs.service.IdentityService;
 
 import com.google.common.base.Preconditions;
 
 public class CrsUserService
 {
-	IdentityService externalIdentityService;
+	IdentityService authProviderIdentityService;
 	
 	@Inject
-	public CrsUserService(IdentityService externalIdentityService)
+	public CrsUserService(IdentityService authProviderIdentityService)
 	{
-		this.externalIdentityService = externalIdentityService;
+		this.authProviderIdentityService = authProviderIdentityService;
 	}
 	
-	public CrsApplicationUser buildCrsApplicationUserFromDataIn(HttpSession httpSession)
+	public CrsApplicationUser buildCrsApplicationUserBasedOnDataIn(HttpSession httpSession)
 	{
 		/*look in the session to see if there's an external identity id we know about*/
-		ExternalIdentityAuthenticationProviderAndId externalIdentityInfo = checkSessionForExternalIdFromKnownIdentityProviders(httpSession);
+		IdentityAuthenticationProviderAndId authProviderIdentityInfo = checkSessionForIdFromKnownIdentityProviders(httpSession);
 		
 		/*if not, then there's nothing further we can do*/
-		if(externalIdentityInfo == null) return null;
+		if(authProviderIdentityInfo == null) return null; //TODO: have this throw an exception
 		
 		/*we have an id, now go look for the row in our database to hopefully find an internal user*/
-		ExternalIdentityEntity externalIdentityEntity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.getAuthProviderId());
+		AuthenticationProviderIdentityEntity authProviderIdentityEntity = authProviderIdentityService.findAuthProviderIdentityBy(authProviderIdentityInfo.authProviderId);
 		
-		if(externalIdentityEntity == null)
+		if(authProviderIdentityEntity == null)
 		{
 			/*oops, this person has not previously logged in.  let's create a row for them so next time we'll
 			 * know who they are*/
-			externalIdentityService.createIdentityRecords(externalIdentityInfo);
+			authProviderIdentityService.createIdentityRecords(authProviderIdentityInfo.authProviderId,authProviderIdentityInfo.authProviderType);
 			/*and fetch the information out. it wasn't elegant enough to just return it*/
-			externalIdentityEntity = externalIdentityService.findExternalIdentityBy(externalIdentityInfo.getAuthProviderId());
+			authProviderIdentityEntity = authProviderIdentityService.findAuthProviderIdentityBy(authProviderIdentityInfo.authProviderId);
 		}
 		
 		/*finally return the CRS application id caller asked for*/
-		return new CrsApplicationUser(externalIdentityEntity.getCrsApplicationUserId(), externalIdentityInfo);
+		return new CrsApplicationUser(authProviderIdentityEntity.getCrsApplicationUserId(), 
+										authProviderIdentityInfo.authProviderId, 
+										authProviderIdentityInfo.authProviderType);
 	}
 
 	/**
@@ -67,16 +69,28 @@ public class CrsUserService
 	 * @param httpSession
 	 * @return
 	 */
-	private ExternalIdentityAuthenticationProviderAndId checkSessionForExternalIdFromKnownIdentityProviders(HttpSession httpSession) 
+	private IdentityAuthenticationProviderAndId checkSessionForIdFromKnownIdentityProviders(HttpSession httpSession) 
 	{
 		for(AuthenticationProviderType providerType : AuthenticationProviderType.values())
 		{
 			if(httpSession.getAttribute(providerType.getSessionIdentifierName()) != null)
 			{
-				return new ExternalIdentityAuthenticationProviderAndId(providerType, 
+				return new IdentityAuthenticationProviderAndId(providerType, 
 												httpSession.getAttribute(providerType.getSessionIdentifierName()).toString());
 			}
 		}
 		return null;
+	}
+	
+	private static class IdentityAuthenticationProviderAndId
+	{
+		AuthenticationProviderType authProviderType;
+		String authProviderId;
+		
+		public IdentityAuthenticationProviderAndId(AuthenticationProviderType authProviderType, String authProviderId)
+		{
+			this.authProviderType = authProviderType;
+			this.authProviderId = authProviderId;
+		}
 	}
 }

@@ -13,7 +13,6 @@ import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
-import org.cru.crs.auth.ExternalIdentityAuthenticationProviderAndId;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;

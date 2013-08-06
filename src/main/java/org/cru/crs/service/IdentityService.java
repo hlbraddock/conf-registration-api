@@ -6,8 +6,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
-import org.cru.crs.auth.ExternalIdentityAuthenticationProviderAndId;
-import org.cru.crs.model.ExternalIdentityEntity;
+import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.IdentityEntity;
 
 public class IdentityService
@@ -21,12 +21,12 @@ public class IdentityService
 		this.entityManager = entityManager;
 	}
 
-	public ExternalIdentityEntity findExternalIdentityBy(String externalIdentityId)
+	public AuthenticationProviderIdentityEntity findAuthProviderIdentityBy(String externalIdentityId)
 	{
 		try
 		{
 			return entityManager.createQuery("SELECT extId FROM ExternalIdentityEntity extId " +
-					"WHERE extId.idFromExternalIdentityProvider = :externalIdentityId", ExternalIdentityEntity.class)
+					"WHERE extId.idFromExternalIdentityProvider = :externalIdentityId", AuthenticationProviderIdentityEntity.class)
 					.setParameter("externalIdentityId", externalIdentityId)
 					.getSingleResult();
 		}
@@ -45,18 +45,18 @@ public class IdentityService
 	 * @param externalIdentityId
 	 * @param externalIdentityProviderName
 	 */
-	public void createIdentityRecords(ExternalIdentityAuthenticationProviderAndId externalAuthenticationInfo)
+	public void createIdentityRecords(String authProviderId, AuthenticationProviderType authProviderType)
 	{
 		IdentityEntity identityEntity = new IdentityEntity();
 		identityEntity.setId(UUID.randomUUID());
 		
-		ExternalIdentityEntity externalIdentityEntity = new ExternalIdentityEntity();
-		externalIdentityEntity.setId(UUID.randomUUID());
-		externalIdentityEntity.setCrsApplicationUserId(identityEntity.getId());
-		externalIdentityEntity.setIdFromExternalIdentityProvider(externalAuthenticationInfo.getAuthProviderId().toLowerCase());/*necessary for search to work*/
-		externalIdentityEntity.setExternalIdentityProviderName(externalAuthenticationInfo.getAuthProviderType().name());
+		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
+		authProviderIdentityEntity.setId(UUID.randomUUID());
+		authProviderIdentityEntity.setCrsApplicationUserId(identityEntity.getId());
+		authProviderIdentityEntity.setIdFromExternalIdentityProvider(authProviderId.toLowerCase());/*necessary for search to work*/
+		authProviderIdentityEntity.setExternalIdentityProviderName(authProviderType.name());
 		
 		entityManager.persist(identityEntity);
-		entityManager.persist(externalIdentityEntity);
+		entityManager.persist(authProviderIdentityEntity);
 	}
 }

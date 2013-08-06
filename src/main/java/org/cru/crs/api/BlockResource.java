@@ -54,7 +54,7 @@ public class BlockResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateBlock(Block block, @PathParam(value="blockId") UUID blockId)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
 		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(block.getPageId());
 		
 		/**
@@ -105,7 +105,7 @@ public class BlockResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteBlock(@PathParam(value="blockId") UUID blockId)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
 
 		if(blockId == null)
 		{

@@ -27,7 +27,10 @@ public class EmailAccountAuthManager
 	@GET
 	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "code") String code) throws URISyntaxException, MalformedURLException
 	{
-		httpServletRequest.getSession().setAttribute(AuthenticationProviderType.CRS.getSessionIdentifierName(), UUID.randomUUID());
+		if(httpServletRequest.getSession().getAttribute(AuthenticationProviderType.CRS.getSessionIdentifierName()) == null)
+		{
+			httpServletRequest.getSession().setAttribute(AuthenticationProviderType.CRS.getSessionIdentifierName(), UUID.randomUUID());			
+		}
 		
 		// generate and store auth code
 		String authCode = AuthCodeGenerator.generate();

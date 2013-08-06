@@ -63,7 +63,7 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePage(Page page, @PathParam(value="pageId") UUID pageId)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
 		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
 
 		/**
@@ -121,7 +121,7 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deletePage(@PathParam(value="pageId") UUID pageId)
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
 		
 		if(pageId == null)
 		{
@@ -145,7 +145,7 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createBlock(Block newBlock, @PathParam(value="pageId") UUID pageId) throws URISyntaxException
 	{
-		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserFromDataIn(request.getSession());
+		CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession());
 		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(pageId);
 		
 		/*if the page id, specified in the incoming block doesn't map to a page,
