@@ -31,8 +31,8 @@ import java.net.URL;
 @Path("/auth/facebook")
 public class FacebookAuthManager
 {
-	@Inject
-	CrsProperties crsProperties;
+//	@Inject
+	CrsProperties crsProperties = CrsProperties.get();
 
 	@Path("/authorization")
 	@GET

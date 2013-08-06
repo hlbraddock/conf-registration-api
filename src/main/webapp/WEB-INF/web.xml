@@ -25,26 +25,7 @@
 		<param-name>resteasy.scan</param-name>
 		<param-value>true</param-value>
 	</context-param>
-	
-	<servlet>
-		<servlet-name>CrsLoginServlet</servlet-name>
-		<servlet-class>org.cru.crs.servlet.CrsLoginServlet</servlet-class>
-		<init-param>
-			<description>Defines the service to specify if redirect to Relay is needed</description>
-			<param-name>redirectServiceUrl</param-name>
-			<param-value>http://localhost:8080/login/relay</param-value>
-		</init-param>
-		<init-param>
-			<description>Defines URI the user is redirected to after verifying session info</description>
-			<param-name>destinationUri</param-name>
-			<param-value>/crs-http-json-api/rest/conferences</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>CrsLoginServlet</servlet-name>
-		<url-pattern>/login/relay</url-pattern>
-	</servlet-mapping>
-	
+		
 	<filter>
 		<filter-name>CorsFilter</filter-name>
 		<filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
@@ -77,6 +58,6 @@
 	
 	<filter-mapping>
 		<filter-name>CasFilter</filter-name>
-		<url-pattern>/login/relay/*</url-pattern>
+		<url-pattern>/rest/auth/relay/login/*</url-pattern>
 	</filter-mapping>
 </web-app>

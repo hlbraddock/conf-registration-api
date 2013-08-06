@@ -11,8 +11,8 @@ public class CrsProperties extends PropertiesWithFallback
 
 	private static CrsProperties instance = null;
 
-	@Produces
-	public CrsProperties get()
+//	@Produces
+	public static CrsProperties get()
 	{
 		if(instance == null)
 			instance = new CrsProperties();
