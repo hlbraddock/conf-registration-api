@@ -13,6 +13,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.FacebookUser;
 import org.cru.crs.auth.OauthServices;
 import org.cru.crs.utils.AuthCodeGenerator;
@@ -98,7 +99,7 @@ public class FacebookAuthManager
 		FacebookUser facebookUser = FacebookUser.fromJsonNode(JsonUtils.jsonNodeFromString(response.getBody()));
 
 		// add the facebook user to the session
-		httpServletRequest.getSession().setAttribute("facebookUser", facebookUser);
+		httpServletRequest.getSession().setAttribute(AuthenticationProviderType.FACEBOOK.getSessionIdentifierName(), facebookUser);
 
 		// generate and store auth code
 		String authCode = AuthCodeGenerator.generate();

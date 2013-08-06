@@ -13,6 +13,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 
@@ -26,7 +27,7 @@ public class EmailAccountAuthManager
 	@GET
 	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "code") String code) throws URISyntaxException, MalformedURLException
 	{
-		httpServletRequest.getSession().setAttribute("emailAccount", UUID.randomUUID());
+		httpServletRequest.getSession().setAttribute(AuthenticationProviderType.CRS.getSessionIdentifierName(), UUID.randomUUID());
 		
 		// generate and store auth code
 		String authCode = AuthCodeGenerator.generate();

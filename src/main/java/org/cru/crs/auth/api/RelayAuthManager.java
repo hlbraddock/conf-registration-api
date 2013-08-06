@@ -14,6 +14,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 
@@ -38,7 +39,7 @@ public class RelayAuthManager
 
 		if(casReceipt == null) Response.status(Status.SEE_OTHER).build();
 		/*with attributes, fetch GUID and store in session*/
-		session.setAttribute("relaySsoGuid", UUID.fromString((String)casReceipt.getAttributes().get("ssoGuid")));
+		session.setAttribute(AuthenticationProviderType.RELAY.getSessionIdentifierName(), UUID.fromString((String)casReceipt.getAttributes().get("ssoGuid")));
 
 		String authCode = AuthCodeGenerator.generate();
 		httpServletRequest.getSession().setAttribute("authCode", authCode);
