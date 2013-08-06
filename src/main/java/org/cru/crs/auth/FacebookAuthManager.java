@@ -2,6 +2,7 @@ package org.cru.crs.auth;
 
 import com.google.common.base.Strings;
 import org.cru.crs.utils.AuthCodeGenerator;
+import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.JsonUtils;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
@@ -21,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.UUID;
 
 /**
  * User: Lee_Braddock
@@ -30,11 +30,9 @@ import java.util.UUID;
 @Path("/auth/facebook")
 public class FacebookAuthManager
 {
-	// TODO read from properties
-	private String apiKey = "";
+	private String apiKey = CrsProperties.getInstance().getProperty("facebookAppId");
 
-	// TODO read from properties
-	private String apiSecret = "";
+	private String apiSecret = CrsProperties.getInstance().getProperty("facebookAppSecret");
 
 	@Path("/authorization")
 	@GET
@@ -97,11 +95,11 @@ public class FacebookAuthManager
 		String authCode = AuthCodeGenerator.generate();
 		httpServletRequest.getSession().setAttribute("authCode", authCode);
 
-		// TODO read from properties
-		String authCodeUrl = "http://localhost:8080/crs-http-json-api/#/auth/";
+		// get auth code url from properties
+		String authCodeUrl = CrsProperties.getInstance().getProperty("authCodeUrl");
 
-		// redirect to client managed url with auth code
-		return Response.seeOther(new URI(authCodeUrl + authCode)).build();
+		// redirect to client managed auth code url with auth code
+		return Response.seeOther(new URI(authCodeUrl + "/" + authCode)).build();
 	}
 
 	private boolean isLoginError(String code, String error)
