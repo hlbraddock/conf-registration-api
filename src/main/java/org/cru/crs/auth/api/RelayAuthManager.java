@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.util.UUID;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
@@ -26,8 +27,8 @@ import edu.yale.its.tp.cas.client.filter.CASFilter;
 public class RelayAuthManager
 {
 
-//	@Inject
-	CrsProperties crsProperties = CrsProperties.get();
+	@Inject
+	CrsProperties crsProperties;
 	
 	@Path("/login")
 	@GET

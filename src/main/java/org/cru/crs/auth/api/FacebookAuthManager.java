@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -35,8 +36,8 @@ import com.google.common.base.Strings;
 @Path("/auth/facebook")
 public class FacebookAuthManager
 {
-//	@Inject
-	CrsProperties crsProperties = CrsProperties.get();
+	@Inject
+	CrsProperties crsProperties;
 
 	@Path("/authorization")
 	@GET

@@ -24,7 +24,8 @@ import org.cru.crs.utils.CrsProperties;
 @Path("/auth/email")
 public class EmailAccountAuthManager
 {
-	CrsProperties crsProperties = CrsProperties.get();
+	@Inject
+	CrsProperties crsProperties;
 
 	@Inject IdentityService authenticationProviderService;
 	
