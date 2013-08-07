@@ -34,6 +34,9 @@ public class BlockEntity implements java.io.Serializable
 	@Column(name = "ADMIN_ONLY")
 	private boolean adminOnly;
 	
+	@Column(name = "REQUIRED")
+	private boolean required;
+	
 	@Column(name = "CONTENT")
 	@Type(type="org.cru.crs.utils.JsonUserType")
 	private JsonNode content;
@@ -103,7 +106,6 @@ public class BlockEntity implements java.io.Serializable
 		this.title = title;
 	}
 	
-	
 	public int getPosition()
 	{
 		return position;
@@ -112,5 +114,15 @@ public class BlockEntity implements java.io.Serializable
 	public void setPosition(int position)
 	{
 		this.position = position;
+	}
+
+	public boolean isRequired()
+	{
+		return required;
+	}
+
+	public void setRequired(boolean required)
+	{
+		this.required = required;
 	}
 }

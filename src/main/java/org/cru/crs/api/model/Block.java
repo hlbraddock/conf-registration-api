@@ -15,6 +15,7 @@ public class Block implements java.io.Serializable
 	private UUID pageId;
 	private String title;
 	private String type;
+	private boolean required;
 	private JsonNode content;
 	
 	public static Block fromJpa(BlockEntity jpaBlock)
@@ -26,7 +27,7 @@ public class Block implements java.io.Serializable
 		block.type = jpaBlock.getBlockType();
 		block.content = jpaBlock.getContent();
 		block.pageId = jpaBlock.getPageId();
-		
+		block.required = jpaBlock.isRequired();
 		return block;
 	}
 	
@@ -53,6 +54,7 @@ public class Block implements java.io.Serializable
 		jpaBlock.setBlockType(type);
 		jpaBlock.setContent(content);
 		jpaBlock.setTitle(title);
+		jpaBlock.setRequired(required);
 		
 		return jpaBlock;
 	}
@@ -99,5 +101,15 @@ public class Block implements java.io.Serializable
 	public void setPageId(UUID pageId)
 	{
 		this.pageId = pageId;
+	}
+
+	public boolean isRequired()
+	{
+		return required;
+	}
+
+	public void setRequired(boolean required)
+	{
+		this.required = required;
 	}
 }
