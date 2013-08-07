@@ -25,11 +25,17 @@ public class BlockEntity implements java.io.Serializable
 	@Type(type="pg-uuid")
 	private UUID pageId;
 	
+	@Column(insertable = false, updatable = false)
+	private int position;
+	
 	@Column(name = "BLOCK_TYPE")
 	private String blockType;
 	
 	@Column(name = "ADMIN_ONLY")
 	private boolean adminOnly;
+	
+	@Column(name = "REQUIRED")
+	private boolean required;
 	
 	@Column(name = "CONTENT")
 	@Type(type="org.cru.crs.utils.JsonUserType")
@@ -96,5 +102,25 @@ public class BlockEntity implements java.io.Serializable
 	public void setTitle(String title)
 	{
 		this.title = title;
+	}
+	
+	public int getPosition()
+	{
+		return position;
+	}
+
+	public void setPosition(int position)
+	{
+		this.position = position;
+	}
+
+	public boolean isRequired()
+	{
+		return required;
+	}
+
+	public void setRequired(boolean required)
+	{
+		this.required = required;
 	}
 }
