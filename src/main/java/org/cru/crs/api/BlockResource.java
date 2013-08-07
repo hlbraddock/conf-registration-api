@@ -59,7 +59,7 @@ public class BlockResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(),authCode);
+			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(),authCode);
 
 			PageEntity pageBlockBelongsTo = pageService.fetchPageBy(block.getPageId());
 
@@ -112,7 +112,7 @@ public class BlockResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
 			if(blockId == null)
 			{

@@ -62,7 +62,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
 			return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences(loggedInUser))).build();
 		}
@@ -106,7 +106,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
 			/*if there is no id in the conference, then create one. the client has the ability, but not 
 			 * the obligation to create one*/
@@ -152,7 +152,7 @@ public class ConferenceResource
 
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
 			/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
 			if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
@@ -199,7 +199,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 			final ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(conferenceId);
 
 			/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
@@ -245,20 +245,20 @@ public class ConferenceResource
 
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 			newRegistrationEntity.setUserId(loggedInUser.getId());
+			
+			registrationService.createNewRegistration(newRegistrationEntity);
+
+			return Response.status(Status.CREATED)
+					.location(new URI("/pages/" + newRegistration.getId()))
+					.entity(newRegistration)
+					.build();
 		}
 		catch(UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-
-		registrationService.createNewRegistration(newRegistrationEntity);
-
-		return Response.status(Status.CREATED)
-				.location(new URI("/pages/" + newRegistration.getId()))
-				.entity(newRegistration)
-				.build();
 	}
 
 	@GET
@@ -271,14 +271,14 @@ public class ConferenceResource
 
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 			Set<RegistrationEntity> registrationEntitySet = registrationService.fetchAllRegistrations(conferenceId, loggedInUser);
 
 			Set<Registration> registrationSet = Registration.fromJpa(registrationEntitySet);
 
 			logObject(registrationSet, logger);
+			
 			return Response.ok(registrationSet).build();
-
 		}
 		catch(UnauthorizedException e)
 		{
@@ -295,7 +295,7 @@ public class ConferenceResource
 		logger.info(conferenceId);
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.buildCrsApplicationUserBasedOnDataIn(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
 			RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
 
