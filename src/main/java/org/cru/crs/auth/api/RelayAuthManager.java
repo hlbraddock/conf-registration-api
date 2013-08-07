@@ -12,7 +12,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
@@ -42,8 +41,7 @@ public class RelayAuthManager
 		
 		CASReceipt casReceipt = (CASReceipt)session.getAttribute(CASFilter.CAS_FILTER_RECEIPT);
 
-		if(casReceipt == null) Response.status(Status.SEE_OTHER).build();
-		
+		/*we can assume this is not null, the CAS filter would redirect to the CAS server for login otherwise*/
 		String ssoGuidString = casReceipt.getAttributes().get("ssoGuid").toString().toLowerCase();
 		
 		persistIdentityAndAuthProviderRecordsIfNecessary(ssoGuidString);
