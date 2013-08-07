@@ -15,8 +15,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.FacebookUser;
 import org.cru.crs.auth.OauthServices;
+import org.cru.crs.model.AuthenticationProviderIdentityEntity;
+import org.cru.crs.service.IdentityService;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.JsonUtils;
@@ -39,6 +42,8 @@ public class FacebookAuthManager
 	@Inject
 	CrsProperties crsProperties;
 
+	@Inject IdentityService authenticationProviderService;
+	
 	@Path("/authorization")
 	@GET
 	public Response authorization(@Context HttpServletRequest httpServletRequest) throws URISyntaxException, MalformedURLException
@@ -98,10 +103,10 @@ public class FacebookAuthManager
 
 		// transform the facebook response into facebook user
 		FacebookUser facebookUser = FacebookUser.fromJsonNode(JsonUtils.jsonNodeFromString(response.getBody()));
-
-		// add the facebook user to the session
-		httpServletRequest.getSession().setAttribute(AuthenticationProviderType.FACEBOOK.getSessionIdentifierName(), facebookUser);
-
+		
+		//Create a CRS user object and stick it in the session
+		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(facebookUser.getId()));
+		
 		// generate and store auth code
 		String authCode = AuthCodeGenerator.generate();
 		httpServletRequest.getSession().setAttribute("authCode", authCode);
@@ -126,5 +131,12 @@ public class FacebookAuthManager
 		String requestUrl = servletRequest.getRequestURL().toString();
 
 		return new URL(requestUrl.substring(0, requestUrl.lastIndexOf("/")) + "/" + serviceName);
+	}
+	
+	private CrsApplicationUser createCrsApplicationUser(String facebookId)
+	{
+		AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderId(facebookId);
+		
+		return new CrsApplicationUser(authProviderEntity.getCrsApplicationUserId(), facebookId, AuthenticationProviderType.FACEBOOK);
 	}
 }

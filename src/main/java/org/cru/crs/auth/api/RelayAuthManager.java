@@ -3,7 +3,6 @@ package org.cru.crs.auth.api;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -16,6 +15,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.auth.CrsApplicationUser;
+import org.cru.crs.model.AuthenticationProviderIdentityEntity;
+import org.cru.crs.service.IdentityService;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 
@@ -30,6 +32,8 @@ public class RelayAuthManager
 	@Inject
 	CrsProperties crsProperties;
 	
+	@Inject IdentityService authenticationProviderService;
+	
 	@Path("/login")
 	@GET
 	public Response login(@Context HttpServletRequest httpServletRequest) throws URISyntaxException, MalformedURLException
@@ -39,8 +43,13 @@ public class RelayAuthManager
 		CASReceipt casReceipt = (CASReceipt)session.getAttribute(CASFilter.CAS_FILTER_RECEIPT);
 
 		if(casReceipt == null) Response.status(Status.SEE_OTHER).build();
+		
+		String ssoGuidString = casReceipt.getAttributes().get("ssoGuid").toString().toLowerCase();
+		
+		persistIdentityAndAuthProviderRecordsIfNecessary(ssoGuidString);
+		
 		/*with attributes, fetch GUID and store in session*/
-		session.setAttribute(AuthenticationProviderType.RELAY.getSessionIdentifierName(), UUID.fromString((String)casReceipt.getAttributes().get("ssoGuid")));
+		session.setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(ssoGuidString));
 
 		String authCode = AuthCodeGenerator.generate();
 		httpServletRequest.getSession().setAttribute("authCode", authCode);
@@ -52,4 +61,18 @@ public class RelayAuthManager
 		return Response.seeOther(new URI(authCodeUrl + "/" + authCode)).build();
 	}
 
+	private CrsApplicationUser createCrsApplicationUser(String ssoGuidString)
+	{
+		AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderId(ssoGuidString);
+		
+		return new CrsApplicationUser(authProviderEntity.getCrsApplicationUserId(), ssoGuidString, AuthenticationProviderType.RELAY);
+	}
+
+	private void persistIdentityAndAuthProviderRecordsIfNecessary(String ssoGuid)
+	{
+		if(authenticationProviderService.findAuthProviderIdentityByAuthProviderId(ssoGuid) == null)
+		{
+			authenticationProviderService.createIdentityAndAuthProviderRecords(ssoGuid, AuthenticationProviderType.RELAY);
+		}
+	}
 }
