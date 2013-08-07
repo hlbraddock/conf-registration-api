@@ -37,10 +37,7 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	
 	@Column(name = "AUTH_PROVIDER_NAME")
 	private String authenticationProviderName;
-	
-	@Column(name = "EMAIL_AUTH_ACCESS_CODE")
-	private String emailAuthAccessCode;
-	
+
 	public UUID getId()
 	{
 		return id;
@@ -79,15 +76,5 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	public void setAuthenticationProviderName(String authenticationProviderName)
 	{
 		this.authenticationProviderName = authenticationProviderName;
-	}
-
-	public String getEmailAuthAccessCode()
-	{
-		return emailAuthAccessCode;
-	}
-
-	public void setEmailAuthAccessCode(String emailAuthAccessCode)
-	{
-		this.emailAuthAccessCode = emailAuthAccessCode;
 	}
 }

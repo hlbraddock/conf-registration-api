@@ -39,31 +39,13 @@ public class IdentityService
 		}
 	}
 	
-	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByEmailCode(String emailCode)
-	{
-		try
-		{
-			return entityManager.createQuery("SELECT ape FROM AuthenticationProviderIdentityEntity ape " +
-					"WHERE ape.emailAuthAccessCode = :emailCode", AuthenticationProviderIdentityEntity.class)
-					.setParameter("emailCode", emailCode)
-					.getSingleResult();
-		}
-		catch(NoResultException nre)
-		{
-			/* silly JPA, this is no reason to throw an exception and make calling code handle it. it just means there is no
-			 * record matching my criteria. it's the same as asking a yes/no question and throwing an exception when the answer
-			 * is 'no'.  okay, i'll get off my soapbox now, but really.... */
-			return null;
-		}
-	}
-	
 	/**
 	 * Creates a new internal CRS App identity record along with a row for the authentication provider identity.
 	 * The two rows will be associated by a foreign key relationship
 	 * @param externalIdentityId
 	 * @param externalIdentityProviderName
 	 */
-	public void createIdentityRecords(String authProviderId, AuthenticationProviderType authProviderType)
+	public void createIdentityAndAuthProviderRecords(String authProviderId, AuthenticationProviderType authProviderType)
 	{
 		IdentityEntity identityEntity = new IdentityEntity();
 		identityEntity.setId(UUID.randomUUID());
@@ -71,10 +53,21 @@ public class IdentityService
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
 		authProviderIdentityEntity.setCrsApplicationUserId(identityEntity.getId());
-		authProviderIdentityEntity.setAuthenticationProviderId(authProviderId.toLowerCase());/*necessary for search to work*/
+		authProviderIdentityEntity.setAuthenticationProviderId(authProviderId);
 		authProviderIdentityEntity.setAuthenticationProviderName(authProviderType.name());
 		
 		entityManager.persist(identityEntity);
 		entityManager.persist(authProviderIdentityEntity);
+	}
+	
+	/**
+	 * This method is used when changing a "No-Auth" provider type to an "Email-Auth" provider type
+	 * @param authProviderId
+	 * @param newAuthProviderType
+	 */
+	public void updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
+	{
+		AuthenticationProviderIdentityEntity authProviderEntity = findAuthProviderIdentityByAuthProviderId(authProviderId);
+		authProviderEntity.setAuthenticationProviderName(newAuthProviderType.name());
 	}
 }

@@ -39,6 +39,6 @@ psql -f files/cru_crs_authorizations.sql -U crsuser -d crsdb
 echo 'Success!'
 
 printf '\n'
-echo 'Creating and populating table CRU_CRS_EXTERNAL_IDENTITIES'
-psql -f files/cru_crs_external_identities.sql -U crsuser -d crsdb
+echo 'Creating and populating table CRU_CRS_AUTH_PROVIDER_IDENTITIES'
+psql -f files/cru_crs_auth_provider_identities.sql -U crsuser -d crsdb
 echo 'Success!'

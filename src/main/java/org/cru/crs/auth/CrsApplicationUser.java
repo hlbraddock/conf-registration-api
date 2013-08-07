@@ -2,10 +2,13 @@ package org.cru.crs.auth;
 
 import java.util.UUID;
 
+import org.cru.crs.model.AuthenticationProviderIdentityEntity;
+
 public class CrsApplicationUser implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
+	public static final String SESSION_OBJECT_NAME = "CrsUser";
 	/**
 	 * The User ID for the CRS application, assigned by CRS.  This user ID is used to identify
 	 * conferences and registrations belonging to the user who is logged in. */
