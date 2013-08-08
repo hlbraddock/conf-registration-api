@@ -1,10 +1,8 @@
 package org.cru.crs.api.model;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.model.AnswerEntity;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -26,7 +24,7 @@ public class Answer implements java.io.Serializable
 		answer.id = jpaAnswer.getId();
 		answer.registrationId = jpaAnswer.getRegistrationId();
 		answer.blockId = jpaAnswer.getBlockId();
-		answer.value = jsonNodeFromString(jpaAnswer.getAnswer());
+		answer.value = jpaAnswer.getAnswer();
 
 		return answer;
 	}
@@ -52,7 +50,7 @@ public class Answer implements java.io.Serializable
 		jpaAnswer.setId(id);
 		jpaAnswer.setRegistrationId(registrationId);
         jpaAnswer.setBlockId(blockId);
-		jpaAnswer.setAnswer(value.toString());
+		jpaAnswer.setAnswer(value);
 
 		return jpaAnswer;
 	}
@@ -96,18 +94,5 @@ public class Answer implements java.io.Serializable
 	public void setValue(JsonNode value)
 	{
 		this.value = value;
-	}
-
-	private static JsonNode jsonNodeFromString(String jsonString)
-	{
-		try
-		{
-			return (new ObjectMapper()).readTree(jsonString);
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-
-		return null;
 	}
 }
