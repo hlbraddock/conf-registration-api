@@ -1,5 +1,7 @@
 package org.cru.crs.service;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
@@ -11,6 +13,7 @@ import org.testng.annotations.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import java.io.IOException;
 import java.util.UUID;
 
 @Test(groups="db-integration-tests")
@@ -27,7 +30,7 @@ public class RegistrationServiceTest
 	private UUID originalUserUUID = UUID.fromString("1F6250CA-6D25-2BF4-4E56-F368B2FB8F8A");
 	private UUID originalConferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-    private String originalAnswerValue = "{ \"Imya\": \"Alexander Solzhenitsyn\"}";
+    private JsonNode originalAnswerValue = jsonNodeFromString("{ \"Name\": \"Alexander Solzhenitsyn\"}");
 
     @BeforeMethod
 	public void setup()
@@ -149,4 +152,17 @@ public class RegistrationServiceTest
 
         em.remove(foundAnswer);
     }
+
+	private static JsonNode jsonNodeFromString(String jsonString)
+	{
+		try
+		{
+			return (new ObjectMapper()).readTree(jsonString);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		return null;
+	}
 }
