@@ -349,7 +349,7 @@ public class ConferenceResourceFunctionalTest
 	{
 		Page fakePage = new Page();
 		
-		fakePage.setName("Ministry Prefs");
+		fakePage.setTitle("Ministry Prefs");
 		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
 		fakePage.setPosition(1);
 		fakePage.setBlocks(null);

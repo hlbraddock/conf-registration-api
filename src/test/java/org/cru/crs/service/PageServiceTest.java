@@ -43,7 +43,7 @@ public class PageServiceTest
 		PageEntity page = pageService.fetchPageBy(UUID.fromString("7a52af36-2f3c-5e45-9f76-0af10ff50bb8"));
 
 		Assert.assertNotNull(page);
-		Assert.assertEquals(page.getName(), "About you");
+		Assert.assertEquals(page.getTitle(), "About you");
 		Assert.assertEquals(page.getPosition(), 0);
 		Assert.assertEquals(page.getConferenceId(), UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 	}
@@ -53,18 +53,18 @@ public class PageServiceTest
 	{
 		PageEntity page = pageService.fetchPageBy(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
 
-		Assert.assertEquals(page.getName(), "Hobbies and activities");
+		Assert.assertEquals(page.getTitle(), "Hobbies and activities");
 
-		page.setName("Fun stuff");
+		page.setTitle("Fun stuff");
 
 		pageService.updatePage(page);
 
 		PageEntity updatedPage = em.find(PageEntity.class, UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
 
 		Assert.assertEquals(updatedPage.getId(), UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
-		Assert.assertEquals(updatedPage.getName(), "Fun stuff");
+		Assert.assertEquals(updatedPage.getTitle(), "Fun stuff");
 
-		updatedPage.setName("Hobbies and activities");
+		updatedPage.setTitle("Hobbies and activities");
 		em.merge(updatedPage);
 	}
 
@@ -74,7 +74,7 @@ public class PageServiceTest
 		PageEntity page = new PageEntity();
 
 		page.setId(UUID.randomUUID());
-		page.setName("New Page");
+		page.setTitle("New Page");
 		page.setPosition(3);
 		page.setConferenceId(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 		

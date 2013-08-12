@@ -82,9 +82,9 @@ public class ConferenceServiceTest
 		Assert.assertFalse(conference.getPages().isEmpty());
 		Assert.assertEquals(conference.getPages().size(), 3);
 
-		Assert.assertEquals(conference.getPages().get(0).getName(), "About you");
-		Assert.assertEquals(conference.getPages().get(1).getName(), "Ministry preferences");
-		Assert.assertEquals(conference.getPages().get(2).getName(), "Hobbies and activities");
+		Assert.assertEquals(conference.getPages().get(0).getTitle(), "About you");
+		Assert.assertEquals(conference.getPages().get(1).getTitle(), "Ministry preferences");
+		Assert.assertEquals(conference.getPages().get(2).getTitle(), "Hobbies and activities");
 	}
 	
 	@Test(groups="db-integration-tests")
@@ -94,7 +94,7 @@ public class ConferenceServiceTest
 		
 		Assert.assertNotNull(conference);
 
-		Assert.assertEquals(conference.getPages().get(0).getName(), "About you");
+		Assert.assertEquals(conference.getPages().get(0).getTitle(), "About you");
 	
 		Assert.assertNotNull(conference.getPages().get(0).getBlocks().get(0).getBlockType(), "Foo");
 	}
