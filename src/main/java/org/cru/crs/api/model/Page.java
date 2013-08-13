@@ -14,7 +14,7 @@ public class Page implements java.io.Serializable
 	private UUID id;
 	private UUID conferenceId;
 	
-	private String name;
+	private String title;
 	private int position;
 	private List<Block> blocks;
 	
@@ -24,7 +24,7 @@ public class Page implements java.io.Serializable
 		
 		page.id = jpaPage.getId();
 		page.conferenceId = jpaPage.getConferenceId();
-		page.name = jpaPage.getName();
+		page.title = jpaPage.getTitle();
 		page.position = jpaPage.getPosition();
 		page.blocks = Block.fromJpa(jpaPage.getBlocks());
 		
@@ -51,7 +51,7 @@ public class Page implements java.io.Serializable
 		
 		jpaPage.setId(id);
 		jpaPage.setConferenceId(conferenceId);
-		jpaPage.setName(name);
+		jpaPage.setTitle(title);
 		jpaPage.setPosition(position);
 		jpaPage.setBlocks(new ArrayList<BlockEntity>());
 		
@@ -76,14 +76,14 @@ public class Page implements java.io.Serializable
 		return this;
 	}
 
-	public String getName()
+	public String getTitle()
 	{
-		return name;
+		return title;
 	}
 
-	public void setName(String name)
+	public void setTitle(String title)
 	{
-		this.name = name;
+		this.title = title;
 	}
 
 	public int getPosition()

@@ -86,17 +86,17 @@ public class ConferenceDataTransferTest
 		
 		page1.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
 		page1.setConferenceId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
-		page1.setName("About you");
+		page1.setTitle("About you");
 		page1.setPosition(0);
 		
 		page2.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe2222"));
 		page2.setConferenceId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
-		page2.setName("About me");
+		page2.setTitle("About me");
 		page2.setPosition(1);
 
 		page3.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe3333"));
 		page3.setConferenceId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
-		page3.setName("About your cat");
+		page3.setTitle("About your cat");
 		page3.setPosition(2);
 
 		List<PageEntity> pages = new ArrayList<PageEntity>();
@@ -132,7 +132,7 @@ public class ConferenceDataTransferTest
 		Assert.assertEquals(webRegistrationPages.size(), 3);
 		
 		Assert.assertEquals(webRegistrationPages.get(0).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1111"));
-		Assert.assertEquals(webRegistrationPages.get(0).getName(), "About you");
+		Assert.assertEquals(webRegistrationPages.get(0).getTitle(), "About you");
 		Assert.assertEquals(webRegistrationPages.get(0).getPosition(), 0);
 		Assert.assertEquals(webRegistrationPages.get(0).getConferenceId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
 		
@@ -146,12 +146,12 @@ public class ConferenceDataTransferTest
 		Assert.assertEquals(webRegistrationPages.get(0).getBlocks().get(1).getContent().get("Cats name").getTextValue(), "Reese");
 		
 		Assert.assertEquals(webRegistrationPages.get(1).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe2222"));
-		Assert.assertEquals(webRegistrationPages.get(1).getName(), "About me");
+		Assert.assertEquals(webRegistrationPages.get(1).getTitle(), "About me");
 		Assert.assertEquals(webRegistrationPages.get(1).getPosition(), 1);
 		Assert.assertEquals(webRegistrationPages.get(1).getConferenceId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
 
 		Assert.assertEquals(webRegistrationPages.get(2).getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe3333"));
-		Assert.assertEquals(webRegistrationPages.get(2).getName(), "About your cat");
+		Assert.assertEquals(webRegistrationPages.get(2).getTitle(), "About your cat");
 		Assert.assertEquals(webRegistrationPages.get(2).getPosition(), 2);
 		Assert.assertEquals(webRegistrationPages.get(2).getConferenceId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffecccc"));
 

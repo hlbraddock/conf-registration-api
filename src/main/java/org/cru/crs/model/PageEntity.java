@@ -26,8 +26,8 @@ public class PageEntity implements java.io.Serializable
 	@Type(type="pg-uuid")
 	private UUID id;
 	
-	@Column(name = "NAME")
-	private String name;
+	@Column(name = "TITLE")
+	private String title;
 	
 	@Column(name = "CONFERENCE_ID", insertable = false, updatable = false)
 	@Type(type="pg-uuid")
@@ -52,14 +52,14 @@ public class PageEntity implements java.io.Serializable
 		return this;
 	}
 
-	public String getName()
+	public String getTitle()
 	{
-		return name;
+		return title;
 	}
 
-	public void setName(String name)
+	public void setTitle(String title)
 	{
-		this.name = name;
+		this.title = title;
 	}
 
 	public UUID getConferenceId()

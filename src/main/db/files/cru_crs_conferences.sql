@@ -1,3 +1,4 @@
+
 DROP TABLE cru_crs_conferences;
 
 CREATE TABLE cru_crs_conferences (

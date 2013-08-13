@@ -53,7 +53,7 @@ public class PageResourceFunctionalTest
 		
 		Page page = response.getEntity();
 		
-		Assert.assertEquals(page.getName(),"Ministry preferences");
+		Assert.assertEquals(page.getTitle(),"Ministry preferences");
 		Assert.assertEquals(page.getPosition(), 1);
 		Assert.assertEquals(page.getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 	}
@@ -93,11 +93,11 @@ public class PageResourceFunctionalTest
 			
 			PageEntity page = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 
-			Assert.assertEquals(page.getName(), "Ministry preferences");
+			Assert.assertEquals(page.getTitle(), "Ministry preferences");
 
 			Page webModelPage = Page.fromJpa(page);
 
-			webModelPage.setName("Ministry Prefs");
+			webModelPage.setTitle("Ministry Prefs");
 
 			@SuppressWarnings("rawtypes")
 			ClientResponse response = pageClient.updatePage(webModelPage, webModelPage.getId());			
@@ -114,7 +114,7 @@ public class PageResourceFunctionalTest
 			PageEntity updatedPage = postCheckEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 			
 			//this entity is still managed, so we should get the new value;
-			Assert.assertEquals(updatedPage.getName(), "Ministry Prefs");
+			Assert.assertEquals(updatedPage.getTitle(), "Ministry Prefs");
 			
 			postCheckEm.close();
 		}
@@ -124,7 +124,7 @@ public class PageResourceFunctionalTest
 			PageEntity pageToRevert = cleanupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 			
 			//updatedPage is still managed, so setting the title back and flushing reverts the change
-			pageToRevert.setName("Ministry preferences");
+			pageToRevert.setTitle("Ministry preferences");
 			cleanupEm.getTransaction().begin();
 			cleanupEm.flush();
 			cleanupEm.getTransaction().commit();
@@ -161,7 +161,7 @@ public class PageResourceFunctionalTest
 			
 			//check the new entity for proper values
 			Assert.assertEquals(newlyCreatedPage.getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
-			Assert.assertEquals(newlyCreatedPage.getName(), "Ministry Prefs");
+			Assert.assertEquals(newlyCreatedPage.getTitle(), "Ministry Prefs");
 		}
 		finally
 		{
@@ -285,7 +285,7 @@ public class PageResourceFunctionalTest
 	{
 		PageEntity fakePage = new PageEntity();
 		
-		fakePage.setName("Ministry Prefs");
+		fakePage.setTitle("Ministry Prefs");
 		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
 		fakePage.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
 		fakePage.setPosition(7);

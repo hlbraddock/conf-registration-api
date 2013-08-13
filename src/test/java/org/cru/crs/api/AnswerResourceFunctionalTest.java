@@ -29,7 +29,7 @@ public class AnswerResourceFunctionalTest
 
 	UUID answerUUID = UUID.fromString("441AD805-7AA6-4B20-8315-8F1390DC4A9E");
 	UUID blockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
-	JsonNode answerValue = jsonNodeFromString("{\"Imya\":\"Alexander Solzhenitsyn\"}");
+	JsonNode answerValue = jsonNodeFromString("{\"Name\":\"Alexander Solzhenitsyn\"}");
 
 	@BeforeMethod
 	public void createClient()

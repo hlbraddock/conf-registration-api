@@ -1,5 +1,6 @@
 package org.cru.crs.model;
 
+import org.codehaus.jackson.JsonNode;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -28,7 +29,8 @@ public class AnswerEntity implements java.io.Serializable
 	private UUID blockId;
 
 	@Column(name = "ANSWER")
-	private String answer;
+	@Type(type="org.cru.crs.utils.JsonUserType")
+	private JsonNode answer;
 
 	public UUID getId()
 	{
@@ -60,12 +62,12 @@ public class AnswerEntity implements java.io.Serializable
 		this.blockId = blockId;
 	}
 
-	public String getAnswer()
+	public JsonNode getAnswer()
 	{
 		return answer;
 	}
 
-	public void setAnswer(String answer)
+	public void setAnswer(JsonNode answer)
 	{
 		this.answer = answer;
 	}

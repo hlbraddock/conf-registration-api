@@ -80,7 +80,7 @@ public class JsonUserType implements UserType
 	@Override
 	public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner) throws HibernateException,SQLException
 	{
-		if(rs.wasNull())
+		if(rs.wasNull() || rs.getString(names[0]) == null)
 		{
 			return null;
 		}

@@ -1,11 +1,14 @@
 package org.cru.crs.service;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.model.AnswerEntity;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -22,7 +25,7 @@ public class AnswerServiceTest
 	private AnswerService answerService;
 
     private UUID originalAnswerUUID = UUID.fromString("441AD805-7AA6-4B20-8315-8F1390DC4A9E");
-	private String originalAnswerValue = "{ \"Imya\": \"Alexander Solzhenitsyn\"}";
+	private JsonNode originalAnswerValue = jsonNodeFromString("{ \"Name\": \"Alexander Solzhenitsyn\"}");
 
     @BeforeClass
 	public void setup()
@@ -54,7 +57,7 @@ public class AnswerServiceTest
 	{
 		AnswerEntity answer = answerService.getAnswerBy(originalAnswerUUID);
 
-		String updatedAnswerValue = "updated answer";
+		JsonNode updatedAnswerValue = jsonNodeFromString("{ \"Name\": \"Alexis \"}");
 
 		answer.setAnswer(updatedAnswerValue);
 
@@ -82,5 +85,18 @@ public class AnswerServiceTest
 		answerService.deleteAnswer(answer);
 		
 		Assert.assertNull(em.find(AnswerEntity.class, answer.getId()));
+	}
+
+	private static JsonNode jsonNodeFromString(String jsonString)
+	{
+		try
+		{
+			return (new ObjectMapper()).readTree(jsonString);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 }
