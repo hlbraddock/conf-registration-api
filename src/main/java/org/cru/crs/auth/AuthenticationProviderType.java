@@ -4,8 +4,9 @@ public enum AuthenticationProviderType
 {
 	RELAY("relaySsoGuid"),
 	FACEBOOK("facebookUser"),
-	EMAIL_ACCOUNT("crsAppUserId");
-	
+    EMAIL_ACCOUNT("crsAppUserId"),
+    NONE("noAuthId");
+
 	AuthenticationProviderType(String sessionIdentifierName)
 	{
 		this.sessionIdentifierName = sessionIdentifierName;
