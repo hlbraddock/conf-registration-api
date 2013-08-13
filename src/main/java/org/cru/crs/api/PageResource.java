@@ -64,7 +64,7 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePage(Page page, 
 			@PathParam(value="pageId") UUID pageId,
-			@HeaderParam(value="Authentication") String authCode)
+			@HeaderParam(value="Authorization") String authCode)
 	{
 		try
 		{
@@ -122,7 +122,7 @@ public class PageResource
 	 */
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deletePage(@PathParam(value="pageId") UUID pageId, @HeaderParam(value="Authentication") String authCode)
+	public Response deletePage(@PathParam(value="pageId") UUID pageId, @HeaderParam(value="Authorization") String authCode)
 	{
 		try
 		{
@@ -148,7 +148,7 @@ public class PageResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createBlock(Block newBlock, 
 			@PathParam(value="pageId") UUID pageId,
-			@HeaderParam(value="Authentication") String authCode) throws URISyntaxException
+			@HeaderParam(value="Authorization") String authCode) throws URISyntaxException
 	{
 		try
 		{

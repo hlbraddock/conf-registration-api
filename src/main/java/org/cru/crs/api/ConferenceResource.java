@@ -58,7 +58,7 @@ public class ConferenceResource
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getConferences(@HeaderParam(value="Authentication") String authCode)
+	public Response getConferences(@HeaderParam(value="Authorization") String authCode)
 	{
 		try
 		{
@@ -102,7 +102,7 @@ public class ConferenceResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createConference(Conference conference, 
-			@HeaderParam(value="Authentication") String authCode)throws URISyntaxException
+			@HeaderParam(value="Authorization") String authCode)throws URISyntaxException
 	{
 		try
 		{
@@ -147,7 +147,7 @@ public class ConferenceResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateConference(Conference conference, 
 			@PathParam(value = "conferenceId") UUID conferenceId,
-			@HeaderParam(value="Authentication") String authCode)
+			@HeaderParam(value="Authorization") String authCode)
 	{
 
 		try
@@ -195,7 +195,7 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createPage(Page newPage, 
 			@PathParam(value = "conferenceId") UUID conferenceId,
-			@HeaderParam(value = "Authentication") String authCode) throws URISyntaxException
+			@HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
 		try
 		{
@@ -227,7 +227,7 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createRegistration(Registration newRegistration, 
 			@PathParam(value = "conferenceId") UUID conferenceId,
-			@HeaderParam(value = "authCode") String authCode) throws URISyntaxException
+			@HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
 		if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
 
@@ -265,7 +265,7 @@ public class ConferenceResource
 	@Path("/{conferenceId}/registrations")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId,
-			@HeaderParam(value = "Authentication") String authCode) throws URISyntaxException
+			@HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
 		logger.info(conferenceId);
 
@@ -290,7 +290,7 @@ public class ConferenceResource
 	@Path("/{conferenceId}/registrations/current")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId,
-			@HeaderParam(value = "authCode") String authCode) throws URISyntaxException
+			@HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
 		logger.info(conferenceId);
 		try
@@ -299,6 +299,8 @@ public class ConferenceResource
 
 			RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
 
+			if(registrationEntity == null) return Response.status(Status.NOT_FOUND).build();
+			
 			Registration registration = Registration.fromJpa(registrationEntity);
 
 			logObject(registration, logger);

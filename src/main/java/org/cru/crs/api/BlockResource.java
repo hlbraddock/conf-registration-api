@@ -55,7 +55,7 @@ public class BlockResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateBlock(Block block, 
 			@PathParam(value="blockId") UUID blockId,
-			@HeaderParam(value="authCode") String authCode)
+			@HeaderParam(value="Authorization") String authCode)
 	{
 		try
 		{
@@ -108,7 +108,7 @@ public class BlockResource
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteBlock(@PathParam(value="blockId") UUID blockId,
-			@HeaderParam(value="authCode") String authCode)
+			@HeaderParam(value="Authorization") String authCode)
 	{
 		try
 		{
