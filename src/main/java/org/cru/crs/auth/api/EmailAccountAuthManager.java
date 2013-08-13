@@ -1,34 +1,23 @@
 package org.cru.crs.auth.api;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.auth.CrsApplicationUser;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.CrsApplicationUser;
-import org.cru.crs.model.AuthenticationProviderIdentityEntity;
-import org.cru.crs.service.IdentityService;
-import org.cru.crs.utils.AuthCodeGenerator;
-import org.cru.crs.utils.CrsProperties;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Stateless
 @Path("/auth/email")
-public class EmailAccountAuthManager
+public class EmailAccountAuthManager extends AbstractAuthManager
 {
-	@Inject
-	CrsProperties crsProperties;
-
-	@Inject IdentityService authenticationProviderService;
-	
 	@Path("/login")
 	@GET
 	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "code") String code) throws URISyntaxException, MalformedURLException
@@ -38,23 +27,11 @@ public class EmailAccountAuthManager
 		 */
 		authenticationProviderService.updateAuthProviderType(code, AuthenticationProviderType.EMAIL_ACCOUNT);
 
-		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(code));
-		
-		// generate and store auth code
-		String authCode = AuthCodeGenerator.generate();
-		httpServletRequest.getSession().setAttribute("authCode", authCode);
+		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(code, AuthenticationProviderType.EMAIL_ACCOUNT));
 
-		// get auth code url from properties
-		String authCodeUrl = crsProperties.getProperty("authCodeUrl");
+        String authCode = generateAndStoreAuthCodeInSession(httpServletRequest);
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(authCodeUrl + "/" + authCode)).build();
-	}
-	
-	private CrsApplicationUser createCrsApplicationUser(String emailCode)
-	{
-		AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderId(emailCode);
-		
-		return new CrsApplicationUser(authProviderEntity.getCrsApplicationUserId(), emailCode, AuthenticationProviderType.EMAIL_ACCOUNT);
+		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
 	}
 }

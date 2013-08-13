@@ -1,27 +1,10 @@
 package org.cru.crs.auth.api;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-
+import com.google.common.base.Strings;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.FacebookUser;
 import org.cru.crs.auth.OauthServices;
-import org.cru.crs.model.AuthenticationProviderIdentityEntity;
-import org.cru.crs.service.IdentityService;
-import org.cru.crs.utils.AuthCodeGenerator;
-import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.JsonUtils;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
@@ -30,20 +13,25 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import com.google.common.base.Strings;
+import javax.ejb.Stateless;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * User: Lee_Braddock
  */
 @Stateless
 @Path("/auth/facebook")
-public class FacebookAuthManager
+public class FacebookAuthManager extends AbstractAuthManager
 {
-	@Inject
-	CrsProperties crsProperties;
-
-	@Inject IdentityService authenticationProviderService;
-	
 	@Path("/authorization")
 	@GET
 	public Response authorization(@Context HttpServletRequest httpServletRequest) throws URISyntaxException, MalformedURLException
@@ -103,19 +91,14 @@ public class FacebookAuthManager
 
 		// transform the facebook response into facebook user
 		FacebookUser facebookUser = FacebookUser.fromJsonNode(JsonUtils.jsonNodeFromString(response.getBody()));
-		
-		//Create a CRS user object and stick it in the session
-		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(facebookUser.getId()));
-		
-		// generate and store auth code
-		String authCode = AuthCodeGenerator.generate();
-		httpServletRequest.getSession().setAttribute("authCode", authCode);
 
-		// get auth code url from properties
-		String authCodeUrl = crsProperties.getProperty("authCodeUrl");
+        //Create a CRS user object and stick it in the session
+		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(facebookUser.getId(), AuthenticationProviderType.FACEBOOK));
+
+        String authCode = generateAndStoreAuthCodeInSession(httpServletRequest);
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(authCodeUrl + "/" + authCode)).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
 	}
 
 	private boolean isLoginError(String code, String error)
@@ -131,12 +114,5 @@ public class FacebookAuthManager
 		String requestUrl = servletRequest.getRequestURL().toString();
 
 		return new URL(requestUrl.substring(0, requestUrl.lastIndexOf("/")) + "/" + serviceName);
-	}
-	
-	private CrsApplicationUser createCrsApplicationUser(String facebookId)
-	{
-		AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderId(facebookId);
-		
-		return new CrsApplicationUser(authProviderEntity.getCrsApplicationUserId(), facebookId, AuthenticationProviderType.FACEBOOK);
 	}
 }
