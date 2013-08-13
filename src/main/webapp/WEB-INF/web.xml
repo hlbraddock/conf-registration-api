@@ -28,6 +28,15 @@
 	<filter>
 		<filter-name>CorsFilter</filter-name>
 		<filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
+		
+		<init-param>
+			<param-name>cors.supportedMethods</param-name>
+			<param-value>GET,POST,HEAD,DELETE,PUT,OPTIONS</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cors.supportedHeaders</param-name>
+			<param-value>Accept,Origin,Content-Type</param-value>
+		</init-param>
 	</filter>
 	<filter-mapping>
 		<filter-name>CorsFilter</filter-name>
