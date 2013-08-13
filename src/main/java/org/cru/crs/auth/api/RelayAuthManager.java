@@ -5,7 +5,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
@@ -15,24 +14,15 @@ import javax.ws.rs.core.Response;
 
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
-import org.cru.crs.model.AuthenticationProviderIdentityEntity;
-import org.cru.crs.service.IdentityService;
-import org.cru.crs.utils.AuthCodeGenerator;
-import org.cru.crs.utils.CrsProperties;
 
 import edu.yale.its.tp.cas.client.CASReceipt;
 import edu.yale.its.tp.cas.client.filter.CASFilter;
+import org.cru.crs.utils.AuthCodeGenerator;
 
 @Stateless
 @Path("/auth/relay")
-public class RelayAuthManager
+public class RelayAuthManager extends AbstractAuthManager
 {
-
-	@Inject
-	CrsProperties crsProperties;
-	
-	@Inject IdentityService authenticationProviderService;
-	
 	@Path("/login")
 	@GET
 	public Response login(@Context HttpServletRequest httpServletRequest) throws URISyntaxException, MalformedURLException
@@ -44,33 +34,14 @@ public class RelayAuthManager
 		/*we can assume this is not null, the CAS filter would redirect to the CAS server for login otherwise*/
 		String ssoGuidString = casReceipt.getAttributes().get("ssoGuid").toString().toLowerCase();
 		
-		persistIdentityAndAuthProviderRecordsIfNecessary(ssoGuidString);
+		persistIdentityAndAuthProviderRecordsIfNecessary(ssoGuidString, AuthenticationProviderType.RELAY);
 		
 		/*with attributes, fetch GUID and store in session*/
-		session.setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(ssoGuidString));
+		session.setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(ssoGuidString, AuthenticationProviderType.RELAY));
 
-		String authCode = AuthCodeGenerator.generate();
-		httpServletRequest.getSession().setAttribute("authCode", authCode);
-
-		// get auth code url from properties
-		String authCodeUrl = crsProperties.getProperty("authCodeUrl");
+        String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(authCodeUrl + "/" + authCode)).build();
-	}
-
-	private CrsApplicationUser createCrsApplicationUser(String ssoGuidString)
-	{
-		AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderId(ssoGuidString);
-		
-		return new CrsApplicationUser(authProviderEntity.getCrsApplicationUserId(), ssoGuidString, AuthenticationProviderType.RELAY);
-	}
-
-	private void persistIdentityAndAuthProviderRecordsIfNecessary(String ssoGuid)
-	{
-		if(authenticationProviderService.findAuthProviderIdentityByAuthProviderId(ssoGuid) == null)
-		{
-			authenticationProviderService.createIdentityAndAuthProviderRecords(ssoGuid, AuthenticationProviderType.RELAY);
-		}
+		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
 	}
 }
