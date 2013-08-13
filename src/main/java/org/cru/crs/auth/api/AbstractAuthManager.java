@@ -4,7 +4,6 @@ import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.service.IdentityService;
-import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 
 import javax.inject.Inject;
@@ -17,10 +16,8 @@ public abstract class AbstractAuthManager
 
     @Inject IdentityService authenticationProviderService;
 
-    protected String generateAndStoreAuthCodeInSession(HttpServletRequest httpServletRequest)
+    protected String storeAuthCode(HttpServletRequest httpServletRequest, String authCode)
     {
-        String authCode = AuthCodeGenerator.generate();
-
         httpServletRequest.getSession().setAttribute("authCode", authCode);
 
         return authCode;

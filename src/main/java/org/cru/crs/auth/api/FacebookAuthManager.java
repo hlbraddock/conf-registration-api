@@ -5,6 +5,7 @@ import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.FacebookUser;
 import org.cru.crs.auth.OauthServices;
+import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.JsonUtils;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
@@ -97,7 +98,7 @@ public class FacebookAuthManager extends AbstractAuthManager
         //Create a CRS user object and stick it in the session
 		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(facebookUser.getId(), AuthenticationProviderType.FACEBOOK));
 
-        String authCode = generateAndStoreAuthCodeInSession(httpServletRequest);
+        String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 
 		// redirect to client managed auth code url with auth code
 		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();

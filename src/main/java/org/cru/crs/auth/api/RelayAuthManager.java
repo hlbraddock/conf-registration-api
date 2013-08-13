@@ -17,6 +17,7 @@ import org.cru.crs.auth.CrsApplicationUser;
 
 import edu.yale.its.tp.cas.client.CASReceipt;
 import edu.yale.its.tp.cas.client.filter.CASFilter;
+import org.cru.crs.utils.AuthCodeGenerator;
 
 @Stateless
 @Path("/auth/relay")
@@ -38,7 +39,7 @@ public class RelayAuthManager extends AbstractAuthManager
 		/*with attributes, fetch GUID and store in session*/
 		session.setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(ssoGuidString, AuthenticationProviderType.RELAY));
 
-        String authCode = generateAndStoreAuthCodeInSession(httpServletRequest);
+        String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 
 		// redirect to client managed auth code url with auth code
 		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();

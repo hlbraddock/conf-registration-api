@@ -2,6 +2,7 @@ package org.cru.crs.auth.api;
 
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
+import org.cru.crs.utils.AuthCodeGenerator;
 
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +30,7 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 
 		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(code, AuthenticationProviderType.EMAIL_ACCOUNT));
 
-        String authCode = generateAndStoreAuthCodeInSession(httpServletRequest);
+        String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 
 		// redirect to client managed auth code url with auth code
 		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
