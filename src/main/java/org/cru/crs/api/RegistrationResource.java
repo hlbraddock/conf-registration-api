@@ -3,6 +3,9 @@ package org.cru.crs.api;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.auth.CrsApplicationUser;
+import org.cru.crs.auth.CrsUserService;
+import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
@@ -12,14 +15,9 @@ import org.jboss.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -32,131 +30,171 @@ import java.util.UUID;
 @Path("/registrations/{registrationId}")
 public class RegistrationResource
 {
-	@Inject	RegistrationService registrationService;
+	@Inject RegistrationService registrationService;
 	@Inject ConferenceService conferenceService;
+	@Inject CrsUserService userService;
+
+	@Context HttpServletRequest request;
 
 	private Logger logger = Logger.getLogger(RegistrationResource.class);
 
 	@GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getRegistration(@PathParam(value="registrationId") UUID registrationId)
-    {
-        RegistrationEntity requestedRegistration = registrationService.getRegistrationBy(registrationId);
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authentication") String authCode)
+	{
+		try
+		{
+			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
-		if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
+			RegistrationEntity requestedRegistration = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
-		logger.info("get registration entity");
-		logObject(Registration.fromJpa(requestedRegistration), logger);
+			if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
 
-		Registration registration = Registration.fromJpa(requestedRegistration);
+			logger.info("get registration entity");
+			logObject(Registration.fromJpa(requestedRegistration), logger);
 
-		logger.info("get registration");
-        logObject(registration, logger);
+			Registration registration = Registration.fromJpa(requestedRegistration);
 
-        return Response.ok(registration).build();
-    }
+			logger.info("get registration");
+			logObject(registration, logger);
 
-    @PUT
+			return Response.ok(registration).build();
+		}
+		catch(UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+	}
+
+	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-    public Response updateRegistration(Registration registration, @PathParam(value="registrationId") UUID registrationId)  throws URISyntaxException
-    {
-		if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
-			return Response.status(Status.BAD_REQUEST).build();
-
-		if(registration.getId() == null || registrationId == null)
-			return Response.status(Status.BAD_REQUEST).build();
-
-		logger.info("update registration");
-		logObject(registration, logger);
-
-		ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(registration.getConferenceId());
-
-		if(conferenceEntity == null)
-			return Response.status(Status.BAD_REQUEST).build();
-
-        RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId);
-
-		// create the entity if none exists
-        if(currentRegistrationEntity == null)
+	public Response updateRegistration(Registration registration, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authentication") String authCode) throws URISyntaxException
+	{
+		try
 		{
+			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+
+			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
+				return Response.status(Status.BAD_REQUEST).build();
+
+			if(registration.getId() == null || registrationId == null)
+				return Response.status(Status.BAD_REQUEST).build();
+
+			logger.info("update registration");
+			logObject(registration, logger);
+
+			ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(registration.getConferenceId());
+
+			if(conferenceEntity == null)
+				return Response.status(Status.BAD_REQUEST).build();
+
+			RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
+
+			// create the entity if none exists
+			if(currentRegistrationEntity == null)
+			{
+				RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
+
+				logger.info("update registration creating");
+				logObject(registrationEntity, logger);
+
+				registrationService.createNewRegistration(registrationEntity, crsLoggedInUser);
+
+				return Response.status(Status.CREATED)
+						.location(new URI("/registrations/" + registration.getId()))
+						.entity(registration)
+						.build();
+			}
+
+			logger.info("update current registration entity");
+			logObject(Registration.fromJpa(currentRegistrationEntity), logger);
+
 			RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
-			logger.info("update registration creating");
-			logObject(registrationEntity, logger);
+			logger.info("update registration entity");
+			logObject(Registration.fromJpa(registrationEntity), logger);
 
-			registrationService.createNewRegistration(registrationEntity);
+			registrationService.updateRegistration(registrationEntity, crsLoggedInUser);
 
-			return Response.status(Status.CREATED)
-					.location(new URI("/registrations/" + registration.getId()))
-					.entity(registration)
-					.build();
+			return Response.noContent().build();
 		}
+		catch(UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+	}
 
-		logger.info("update current registration entity");
-		logObject(Registration.fromJpa(currentRegistrationEntity), logger);
+	@DELETE
+	public Response deleteRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authentication") String authCode)
+	{
+		try
+		{
+			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
-		RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
-		logger.info("update registration entity");
-		logObject(Registration.fromJpa(registrationEntity), logger);
+			if(registrationEntity == null)
+				return Response.status(Status.BAD_REQUEST).build();
 
-		registrationService.updateRegistration(registrationEntity);
+			logger.info("delete registration entity");
+			logObject(Registration.fromJpa(registrationEntity), logger);
 
-        return Response.noContent().build();
-    }
+			registrationService.deleteRegistration(registrationEntity, crsLoggedInUser);
 
-    @DELETE
-    public Response deleteRegistration(@PathParam(value="registrationId") UUID registrationId)
-    {
-        RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
+			return Response.noContent().build();
+		}
+		catch(UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+	}
 
-        if(registrationEntity == null)
-            return Response.status(Status.BAD_REQUEST).build();
-
-		logger.info("delete registration entity");
-		logObject(Registration.fromJpa(registrationEntity), logger);
-
-		registrationService.deleteRegistration(registrationEntity);
-
-		return Response.noContent().build();
-    }
-
-    @POST
-    @Path("/answers")
+	@POST
+	@Path("/answers")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-    public Response createAnswer(Answer newAnswer, @PathParam(value="registrationId") UUID registrationId) throws URISyntaxException
-    {
-		if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
-			return Response.status(Status.BAD_REQUEST).build();
+	public Response createAnswer(Answer newAnswer, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authentication") String authCode) throws URISyntaxException
+	{
+		try
+		{
+			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
-		if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
+			if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
+				return Response.status(Status.BAD_REQUEST).build();
 
-		logger.info("create answer");
-		logObject(newAnswer, logger);
+			if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
 
-		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
+			logger.info("create answer");
+			logObject(newAnswer, logger);
 
-		if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
-		logger.info("create answer with registration entity");
-		logObject(Registration.fromJpa(registrationEntity), logger);
+			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
-		registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
+			logger.info("create answer with registration entity");
+			logObject(Registration.fromJpa(registrationEntity), logger);
 
-		return Response.status(Status.CREATED).entity(newAnswer).header("location", new URI("/answers/" + newAnswer.getId())).build();
-    }
+			registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
 
-    private void logObject(Object object, Logger logger)
-    {
+			return Response.status(Status.CREATED).entity(newAnswer).header("location", new URI("/answers/" + newAnswer.getId())).build();
+		}
+		catch(UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+	}
+
+	private void logObject(Object object, Logger logger)
+	{
 		if(object == null)
 			return;
 
 		try
 		{
 			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
-		} catch (IOException e)
+		}
+		catch(IOException e)
 		{
 			e.printStackTrace();
 		}

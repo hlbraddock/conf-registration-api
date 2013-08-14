@@ -229,26 +229,30 @@ public class ConferenceResource
 			@PathParam(value = "conferenceId") UUID conferenceId,
 			@HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
-		if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
-
-		logger.info(conferenceId);
-
-		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
-
-		logObject(conference, logger);
-
-		if(conference == null) return Response.status(Status.BAD_REQUEST).build();
-
-		RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity(conference);
-
-		logObject(newRegistrationEntity, logger);
-
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
-			newRegistrationEntity.setUserId(loggedInUser.getId());
-			
-			registrationService.createNewRegistration(newRegistrationEntity);
+			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+
+			logger.info(crsLoggedInUser);
+
+			if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
+
+            logger.info(conferenceId);
+
+            ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+
+            logObject(conference, logger);
+
+            if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+
+            RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity(conference);
+
+            logObject(newRegistrationEntity, logger);
+
+            newRegistrationEntity.setUserId(crsLoggedInUser.getId());
+
+			// TODO need to make sure user had not already registered for this conference
+			registrationService.createNewRegistration(newRegistrationEntity, crsLoggedInUser);
 
 			return Response.status(Status.CREATED)
 					.location(new URI("/pages/" + newRegistration.getId()))
@@ -267,12 +271,15 @@ public class ConferenceResource
 	public Response getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId,
 			@HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
-		logger.info(conferenceId);
-
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
-			Set<RegistrationEntity> registrationEntitySet = registrationService.fetchAllRegistrations(conferenceId, loggedInUser);
+			logger.info(conferenceId);
+
+			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+
+			logger.info(crsLoggedInUser);
+
+			Set<RegistrationEntity> registrationEntitySet = registrationService.fetchAllRegistrations(conferenceId, crsLoggedInUser);
 
 			Set<Registration> registrationSet = Registration.fromJpa(registrationEntitySet);
 
@@ -292,12 +299,15 @@ public class ConferenceResource
 	public Response getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId,
 			@HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
-		logger.info(conferenceId);
 		try
 		{
+			logger.info(conferenceId);
+
 			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
-			RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
+			logger.info(loggedInUser);
+
+			RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId(), loggedInUser);
 
 			if(registrationEntity == null) return Response.status(Status.NOT_FOUND).build();
 			

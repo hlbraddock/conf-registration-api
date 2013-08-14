@@ -1,16 +1,18 @@
 package org.cru.crs.service;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import org.cru.crs.auth.CrsApplicationUser;
+import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.authz.OperationType;
+import org.cru.crs.authz.RegistrationEntityAuthorization;
+import org.cru.crs.model.RegistrationEntity;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-
-import org.cru.crs.auth.CrsApplicationUser;
-import org.cru.crs.model.RegistrationEntity;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * User: lee.braddock
@@ -25,23 +27,30 @@ public class RegistrationService {
         this.em = em;
     }
 
-	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId, CrsApplicationUser loggedInUser)
+	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
-		//TODO: this needs to verify user has access to get registrations!
 		TypedQuery<RegistrationEntity> query = em.createQuery("SELECT registration " +
 																"FROM RegistrationEntity registration " +
 																"WHERE registration.conference.id = :conference_id", RegistrationEntity.class);
 
 		query.setParameter("conference_id", conferenceId);
 
-		return new HashSet<RegistrationEntity>(query.getResultList());
+		HashSet<RegistrationEntity> registrationEntities = new HashSet<RegistrationEntity>(query.getResultList());
+
+		// if authorized as admin for any one registration then authorized for all
+		if(getAnyOne(registrationEntities) != null)
+			RegistrationEntityAuthorization.authorize(getAnyOne(registrationEntities), crsApplicationUser, OperationType.ADMIN);
+
+		return registrationEntities;
 	}
 
-	public RegistrationEntity getRegistrationByConferenceIdUserId(UUID conferenceId, UUID userId)
+	public RegistrationEntity getRegistrationByConferenceIdUserId(UUID conferenceId, UUID userId, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
+		RegistrationEntity registrationEntity;
+
 		try
 		{
-			return em.createQuery("SELECT registration FROM RegistrationEntity registration" +
+			registrationEntity = em.createQuery("SELECT registration FROM RegistrationEntity registration" +
 								" WHERE registration.userId = :user_id " +
 									" AND registration.conference.id = :conference_id", RegistrationEntity.class)
 						.setParameter("conference_id", conferenceId)
@@ -52,25 +61,47 @@ public class RegistrationService {
 		{
 			return null;
 		}
+
+		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.READ);
+
+		return registrationEntity;
 	}
 
-	public RegistrationEntity getRegistrationBy(UUID registrationId)
-    {
-        return em.find(RegistrationEntity.class, registrationId);
+	public RegistrationEntity getRegistrationBy(UUID registrationId, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	{
+        RegistrationEntity registrationEntity = em.find(RegistrationEntity.class, registrationId);
+
+		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.READ);
+
+		return registrationEntity;
     }
 
-    public void createNewRegistration(RegistrationEntity newRegistration)
-    {
-        em.persist(newRegistration);
+    public void createNewRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	{
+		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.CREATE);
+
+		em.persist(registrationEntity);
     }
 
-    public void updateRegistration(RegistrationEntity registrationToUpdate)
-    {
-        em.merge(registrationToUpdate);
+    public void updateRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	{
+		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.UPDATE);
+
+		em.merge(registrationEntity);
     }
 
-    public void deleteRegistration(RegistrationEntity registrationToDelete)
-    {
-        em.remove(registrationToDelete);
+    public void deleteRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	{
+		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.DELETE);
+
+		em.remove(registrationEntity);
     }
+
+	private <T> T getAnyOne(Set<T> elements)
+	{
+		for(T t : elements)
+			return t;
+
+		return null;
+	}
 }
