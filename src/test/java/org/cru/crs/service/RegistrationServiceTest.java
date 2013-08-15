@@ -87,6 +87,35 @@ public class RegistrationServiceTest
 	{
 		RegistrationEntity registration = new RegistrationEntity();
 
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(originalConferenceUUID);
+
+		String someUserAuthProviderId = "ABC4C1B2-0CC1-89F7-9F4B-6BC3E0DB5789";
+
+		UUID someUserUUID = UUID.fromString("CACE5EBF-9DAB-3F7C-210D-E2732C89FD2C");
+
+		registration.setId(UUID.randomUUID());
+		registration.setConference(conference);
+		registration.setUserId(someUserUUID);
+
+		CrsApplicationUser someCrsApplicationUser = new CrsApplicationUser(someUserUUID, someUserAuthProviderId, AuthenticationProviderType.FACEBOOK);
+
+		registrationService.createNewRegistration(registration, someCrsApplicationUser);
+
+		RegistrationEntity foundRegistration = em.find(RegistrationEntity.class, registration.getId());
+
+		Assert.assertNotNull(foundRegistration);
+		Assert.assertEquals(foundRegistration.getId(), registration.getId());
+		Assert.assertEquals(foundRegistration.getUserId(), registration.getUserId());
+		Assert.assertEquals(foundRegistration.getConference().getId(), registration.getConference().getId());
+
+		em.remove(foundRegistration);
+	}
+
+	@Test(groups="db-integration-tests", expectedExceptions = UnauthorizedException.class)
+	public void testCreateMultipleNewRegistration() throws UnauthorizedException
+	{
+		RegistrationEntity registration = new RegistrationEntity();
+
         ConferenceEntity conference = conferenceService.fetchConferenceBy(originalConferenceUUID);
 
         registration.setId(UUID.randomUUID());

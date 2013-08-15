@@ -2,8 +2,9 @@ package org.cru.crs.service;
 
 import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
-import org.cru.crs.authz.OperationType;
 import org.cru.crs.authz.AuthorizationService;
+import org.cru.crs.authz.OperationType;
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 
 import javax.inject.Inject;
@@ -81,12 +82,22 @@ public class RegistrationService {
 
     public void createNewRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
+		if(isUserRegisteredForConference(crsApplicationUser, registrationEntity.getConference()))
+		{
+			throw new UnauthorizedException();
+		}
+
 		authorizationService.authorize(registrationEntity, OperationType.CREATE, crsApplicationUser);
 
 		em.persist(registrationEntity);
     }
 
-    public void updateRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	private boolean isUserRegisteredForConference(CrsApplicationUser crsApplicationUser, ConferenceEntity conferenceEntity) throws UnauthorizedException
+	{
+		return (getRegistrationByConferenceIdUserId(conferenceEntity.getId(), crsApplicationUser.getId(), crsApplicationUser) != null);
+	}
+
+	public void updateRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
 		authorizationService.authorize(registrationEntity, OperationType.UPDATE, crsApplicationUser);
 
