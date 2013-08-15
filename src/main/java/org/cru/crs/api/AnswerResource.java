@@ -65,7 +65,7 @@ public class AnswerResource
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response updateAnswer(Answer answer, @PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authentication") String authCode) throws URISyntaxException
+	public Response updateAnswer(Answer answer, @PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
 		try
 		{

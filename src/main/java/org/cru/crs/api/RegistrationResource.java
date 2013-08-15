@@ -40,7 +40,7 @@ public class RegistrationResource
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authentication") String authCode)
+	public Response getRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode)
 	{
 		try
 		{
@@ -69,7 +69,7 @@ public class RegistrationResource
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response updateRegistration(Registration registration, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authentication") String authCode) throws URISyntaxException
+	public Response updateRegistration(Registration registration, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
 		try
 		{
@@ -126,7 +126,7 @@ public class RegistrationResource
 	}
 
 	@DELETE
-	public Response deleteRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authentication") String authCode)
+	public Response deleteRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode)
 	{
 		try
 		{
@@ -154,7 +154,7 @@ public class RegistrationResource
 	@Path("/answers")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createAnswer(Answer newAnswer, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authentication") String authCode) throws URISyntaxException
+	public Response createAnswer(Answer newAnswer, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
 		try
 		{
