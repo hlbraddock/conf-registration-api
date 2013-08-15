@@ -6,16 +6,16 @@ import org.cru.crs.model.RegistrationEntity;
 
 import java.util.UUID;
 
-public class RegistrationAuthorization
+public class AuthorizationService
 {
-	public static void authorize(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser, OperationType operationType) throws UnauthorizedException
+	public void authorize(RegistrationEntity registrationEntity, OperationType operationType, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
 		if(crsApplicationUser == null)
 		{
 			throw new UnauthorizedException();
 		}
 
-		if(OperationType.CRUDSet.contains(operationType))
+		if(OperationType.CRUDSet.contains(operationType) && !operationType.equals(OperationType.DELETE))
 		{
 			if(!isOwnedBy(registrationEntity, crsApplicationUser.getId()) && !isAdministeredBy(registrationEntity, crsApplicationUser.getId()))
 			{
@@ -23,7 +23,7 @@ public class RegistrationAuthorization
 			}
 		}
 
-		if(operationType.equals(OperationType.ADMIN))
+		if(operationType.equals(OperationType.ADMIN) || operationType.equals(OperationType.DELETE))
 		{
 			if(!isAdministeredBy(registrationEntity, crsApplicationUser.getId()))
 			{
@@ -32,12 +32,12 @@ public class RegistrationAuthorization
 		}
 	}
 
-	public static boolean isOwnedBy(RegistrationEntity registrationEntity, UUID uuid)
+	private boolean isOwnedBy(RegistrationEntity registrationEntity, UUID uuid)
 	{
 		return registrationEntity.getUserId().equals(uuid);
 	}
 
-	public static boolean isAdministeredBy(RegistrationEntity registrationEntity, UUID uuid)
+	private boolean isAdministeredBy(RegistrationEntity registrationEntity, UUID uuid)
 	{
 		return registrationEntity.getConference().getContactUser().equals(uuid);
 	}

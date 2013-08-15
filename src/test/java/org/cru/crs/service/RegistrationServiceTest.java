@@ -5,6 +5,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.authz.AuthorizationService;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
@@ -47,7 +48,7 @@ public class RegistrationServiceTest
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
 
-        registrationService = new RegistrationService(em);
+        registrationService = new RegistrationService(em, new AuthorizationService());
         conferenceService = new ConferenceService(em);
 
 		crsApplicationUser = new CrsApplicationUser(originalUserUUID, originalUserAuthProviderId, AuthenticationProviderType.FACEBOOK);
@@ -137,7 +138,7 @@ public class RegistrationServiceTest
 
 		em.persist(registration);
 
-		registrationService.deleteRegistration(registration, crsApplicationUser);
+		registrationService.deleteRegistration(registration, adminCrsApplicationUser);
 
 		Assert.assertNull(em.find(RegistrationEntity.class, registration.getId()));
 	}

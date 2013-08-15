@@ -6,6 +6,8 @@ import org.cru.crs.api.model.Registration;
 import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.authz.OperationType;
+import org.cru.crs.authz.AuthorizationService;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
@@ -36,6 +38,7 @@ public class AnswerResource
 	@Inject AnswerService answerService;
 	@Inject RegistrationService registrationService;
 	@Inject CrsUserService userService;
+	@Inject AuthorizationService authorizationService;
 
 	@Context HttpServletRequest request;
 
@@ -43,23 +46,40 @@ public class AnswerResource
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAnswer(@PathParam(value = "answerId") UUID answerId)
+	public Response getAnswer(@PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode)
 	{
-		logger.info("get answer by id " + answerId);
+		try
+		{
+			logger.info("get answer by id " + answerId);
 
-		AnswerEntity requestedAnswer = answerService.getAnswerBy(answerId);
+			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
-		if(requestedAnswer == null) return Response.status(Status.NOT_FOUND).build();
+			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
-		logger.info("get answer entity");
-		logObject(requestedAnswer, logger);
+			if(answerEntity == null) return Response.status(Status.NOT_FOUND).build();
 
-		Answer answer = Answer.fromJpa(requestedAnswer);
+			logger.info("get answer entity");
 
-		logger.info("get answer");
-		logObject(answer, logger);
+			logObject(answerEntity, logger);
 
-		return Response.ok(answer).build();
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId(), crsLoggedInUser);
+
+			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
+
+			authorizationService.authorize(registrationEntity, OperationType.READ, crsLoggedInUser);
+
+			Answer answer = Answer.fromJpa(answerEntity);
+
+			logger.info("get answer");
+
+			logObject(answer, logger);
+
+			return Response.ok(answer).build();
+		}
+		catch(UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
 	}
 
 	@PUT
@@ -78,6 +98,7 @@ public class AnswerResource
 				return Response.status(Status.BAD_REQUEST).build();
 
 			logger.info("update answer");
+
 			logObject(answer, logger);
 
 			AnswerEntity currentAnswerEntity = answerService.getAnswerBy(answerId);
@@ -89,7 +110,10 @@ public class AnswerResource
 
 				if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
+				authorizationService.authorize(registrationEntity, OperationType.CREATE, crsLoggedInUser);
+
 				logger.info("create answer with registration entity");
+
 				logObject(Registration.fromJpa(registrationEntity), logger);
 
 				registrationEntity.getAnswers().add(answer.toJpaAnswerEntity());
@@ -98,7 +122,15 @@ public class AnswerResource
 			}
 
 			logger.info("update current answer entity");
+
 			logObject(currentAnswerEntity, logger);
+
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(currentAnswerEntity.getRegistrationId(), crsLoggedInUser);
+
+			if(registrationEntity == null)
+				return Response.status(Status.BAD_REQUEST).build();
+
+			authorizationService.authorize(registrationEntity, OperationType.UPDATE, crsLoggedInUser);
 
 			answerService.updateAnswer(answer.toJpaAnswerEntity());
 
@@ -111,19 +143,36 @@ public class AnswerResource
 	}
 
 	@DELETE
-	public Response deleteAnswer(@PathParam(value = "answerId") UUID answerId)
+	public Response deleteAnswer(@PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode)
 	{
-		AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
+		try
+		{
+			logger.info("delete answer entity");
 
-		if(answerEntity == null)
-			return Response.status(Status.BAD_REQUEST).build();
+			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
 
-		logger.info("delete answer entity");
-		logObject(answerEntity, logger);
+			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
-		answerService.deleteAnswer(answerEntity);
+			if(answerEntity == null)
+				return Response.status(Status.BAD_REQUEST).build();
 
-		return Response.noContent().build();
+			logObject(answerEntity, logger);
+
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId(), crsLoggedInUser);
+
+			if(registrationEntity == null)
+				return Response.status(Status.BAD_REQUEST).build();
+
+			authorizationService.authorize(registrationEntity, OperationType.DELETE, crsLoggedInUser);
+
+			answerService.deleteAnswer(answerEntity);
+
+			return Response.noContent().build();
+		}
+		catch(UnauthorizedException e)
+		{
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
 	}
 
 	private void logObject(Object object, Logger logger)
