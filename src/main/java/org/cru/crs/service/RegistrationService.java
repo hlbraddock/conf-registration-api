@@ -3,7 +3,7 @@ package org.cru.crs.service;
 import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.authz.OperationType;
-import org.cru.crs.authz.RegistrationEntityAuthorization;
+import org.cru.crs.authz.RegistrationAuthorization;
 import org.cru.crs.model.RegistrationEntity;
 
 import javax.inject.Inject;
@@ -39,7 +39,7 @@ public class RegistrationService {
 
 		// if authorized as admin for any one registration then authorized for all
 		if(getAnyOne(registrationEntities) != null)
-			RegistrationEntityAuthorization.authorize(getAnyOne(registrationEntities), crsApplicationUser, OperationType.ADMIN);
+			RegistrationAuthorization.authorize(getAnyOne(registrationEntities), crsApplicationUser, OperationType.ADMIN);
 
 		return registrationEntities;
 	}
@@ -62,7 +62,7 @@ public class RegistrationService {
 			return null;
 		}
 
-		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.READ);
+		RegistrationAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.READ);
 
 		return registrationEntity;
 	}
@@ -71,28 +71,28 @@ public class RegistrationService {
 	{
         RegistrationEntity registrationEntity = em.find(RegistrationEntity.class, registrationId);
 
-		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.READ);
+		RegistrationAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.READ);
 
 		return registrationEntity;
     }
 
     public void createNewRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
-		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.CREATE);
+		RegistrationAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.CREATE);
 
 		em.persist(registrationEntity);
     }
 
     public void updateRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
-		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.UPDATE);
+		RegistrationAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.UPDATE);
 
 		em.merge(registrationEntity);
     }
 
     public void deleteRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
-		RegistrationEntityAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.DELETE);
+		RegistrationAuthorization.authorize(registrationEntity, crsApplicationUser, OperationType.DELETE);
 
 		em.remove(registrationEntity);
     }

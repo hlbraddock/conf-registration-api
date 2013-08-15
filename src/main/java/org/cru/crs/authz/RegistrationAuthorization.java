@@ -6,7 +6,7 @@ import org.cru.crs.model.RegistrationEntity;
 
 import java.util.UUID;
 
-public class RegistrationEntityAuthorization
+public class RegistrationAuthorization
 {
 	public static void authorize(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser, OperationType operationType) throws UnauthorizedException
 	{
