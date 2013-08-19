@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.cru:cas-client:0.1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/cru/cas-client/0.1-SNAPSHOT/cas-client-0.1-20130730.174858-1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/cru/cas-client/0.1-SNAPSHOT/cas-client-0.1-20130730.174858-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/cru/cas-client/0.1-SNAPSHOT/cas-client-0.1-20130730.174858-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

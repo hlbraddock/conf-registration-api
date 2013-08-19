@@ -1,3 +1,4 @@
+
 DROP TABLE cru_crs_conferences;
 
 CREATE TABLE cru_crs_conferences (
@@ -10,7 +11,6 @@ CREATE TABLE cru_crs_conferences (
   total_slots integer default NULL,
   contact_user uuid
 );
-
 
 INSERT INTO cru_crs_conferences (id,name,event_start_time,event_end_time,registration_start_time,registration_end_time,total_slots, contact_user) VALUES ('42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309','Northern Michigan Fall Extravaganza','24-Aug-2013 10:32:08','02-Oct-2013 02:43:14','10-Apr-2013 21:58:35','22-May-2013 18:53:08','80','f8f8c217-f918-4503-b3b3-85016f9883c1');
 INSERT INTO cru_crs_conferences (id,name,event_start_time,event_end_time,registration_start_time,registration_end_time,total_slots, contact_user) VALUES ('1951613E-A253-1AF8-6BC4-C9F1D0B3FA60','Miami University Fall Retreat','09-Aug-2013 01:22:28','25-Sep-2013 03:53:34','08-Mar-2013 00:51:50','12-May-2013 10:17:08','197','f8f8c217-f918-4503-b3b3-85016f9883c1');

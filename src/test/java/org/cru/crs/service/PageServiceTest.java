@@ -6,6 +6,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.cru.crs.api.model.Page;
+import org.cru.crs.auth.CrsApplicationUser;
+import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -21,13 +25,16 @@ public class PageServiceTest
 
 	private PageService pageService;
 
+	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1"), null, null);
+	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null, null);
+	
 	@BeforeClass
 	public void setup()
 	{
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
-		
-		pageService = new PageService(em);
+
+		pageService = new PageService(em, new ConferenceService(em));
 	}
 
 	@AfterClass
@@ -49,15 +56,16 @@ public class PageServiceTest
 	}
 
 	@Test(groups="db-integration-tests")
-	public void testUpdatePage()
+	public void testUpdatePage() throws UnauthorizedException
 	{
 		PageEntity page = pageService.fetchPageBy(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
 
 		Assert.assertEquals(page.getTitle(), "Hobbies and activities");
 
+		Page webPage = Page.fromJpa(page);
 		page.setTitle("Fun stuff");
 
-		pageService.updatePage(page);
+		pageService.updatePage(webPage.toJpaPageEntity(), testAppUser);
 
 		PageEntity updatedPage = em.find(PageEntity.class, UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
 
@@ -67,21 +75,83 @@ public class PageServiceTest
 		updatedPage.setTitle("Hobbies and activities");
 		em.merge(updatedPage);
 	}
+	
+	public void testUpdatePageNotAuthorized() throws UnauthorizedException
+	{
+		PageEntity page = pageService.fetchPageBy(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
+
+		Assert.assertEquals(page.getTitle(), "Hobbies and activities");
+
+		Page webPage = Page.fromJpa(page);
+		webPage.setTitle("Fun stuff");
+
+		try
+		{
+			em.getTransaction().begin();
+			pageService.updatePage(webPage.toJpaPageEntity(), testAppUserNotAuthorized);
+			Assert.fail("Should have thrown an UnauthorizedException");
+		}
+		catch(UnauthorizedException e)
+		{
+			/*do nothing*/
+		}
+		finally
+		{
+			em.getTransaction().rollback();
+		}
+		
+	}
 
 	@Test(groups="db-integration-tests")
-	public void testDeletePage()
+	public void testDeletePage() throws UnauthorizedException
 	{
+		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+
 		PageEntity page = new PageEntity();
 
 		page.setId(UUID.randomUUID());
 		page.setTitle("New Page");
 		page.setPosition(3);
 		page.setConferenceId(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
-		
-		em.persist(page);
-		
-		pageService.deletePage(page);
-		
-		Assert.assertNull(em.find(PageEntity.class, page.getId()));
+
+		setupEm.getTransaction().begin();
+
+		ConferenceEntity conferenceToAddPageTo = setupEm.find(ConferenceEntity.class, UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+
+		conferenceToAddPageTo.getPages().add(page);
+
+		setupEm.flush();
+		setupEm.getTransaction().commit();
+
+		Assert.assertNotNull(em.find(PageEntity.class, page.getId()));
+
+		em.getTransaction().begin();
+
+		pageService.deletePage(page.getId(), testAppUser);
+
+		em.flush();
+		em.getTransaction().commit();
+
+		EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		Assert.assertNull(cleanupEm.find(PageEntity.class, page.getId()));
+	}
+
+	@Test(groups="db-integration-tests")
+	public void testDeletePageNotAuthorized() throws UnauthorizedException
+	{
+		try
+		{
+			em.getTransaction().begin();
+			pageService.deletePage(UUID.fromString("bf37618e-4f86-2df5-8ae9-0ed3be0ed248"),testAppUserNotAuthorized);
+			Assert.fail("Should have thrown an UnauthorizedException");
+		}
+		catch(UnauthorizedException e)
+		{
+			/*do nothing*/
+		}
+		finally
+		{
+			em.getTransaction().rollback();
+		}
 	}
 }

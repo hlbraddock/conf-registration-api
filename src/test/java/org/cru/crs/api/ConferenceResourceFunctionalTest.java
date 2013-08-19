@@ -48,11 +48,12 @@ public class ConferenceResourceFunctionalTest
 	/**
 	 * Test: find all the conferences in the system
 	 * 
-	 * Expected outcome: 10 conferences found
+	 * Expected outcome: 0 conferences found
 	 * 
 	 * Input: none
 	 * 
-	 * Expected return: 200 - OK and array of 10 json-i-fied conferences
+	 * Expected return: 200 - OK and empty array of json-i-fied conferences, b/c this list is now limited
+	 * by the authenicated user in the session
 	 */
 	@Test(groups="functional-tests")
 	public void fetchAllTheConferences()
@@ -63,7 +64,7 @@ public class ConferenceResourceFunctionalTest
 		List<Conference> conferences = response.getEntity();
 		
 		Assert.assertNotNull(conferences);
-		Assert.assertEquals(conferences.size(), 10);
+		Assert.assertEquals(conferences.size(), 0);
 	}
 	
 	/**

@@ -25,9 +25,9 @@ public class BlockEntity implements java.io.Serializable
 	@Type(type="pg-uuid")
 	private UUID pageId;
 	
-	@Column(insertable = false, updatable = false)
+	@Column(name = "POSITION", insertable = false, updatable = false)
 	private int position;
-	
+
 	@Column(name = "BLOCK_TYPE")
 	private String blockType;
 	
@@ -49,9 +49,10 @@ public class BlockEntity implements java.io.Serializable
 		return id;
 	}
 
-	public void setId(UUID id)
+	public BlockEntity setId(UUID id)
 	{
 		this.id = id;
+		return this;
 	}
 
 	public UUID getPageId()
@@ -59,9 +60,10 @@ public class BlockEntity implements java.io.Serializable
 		return pageId;
 	}
 
-	public void setPageId(UUID pageId)
+	public BlockEntity setPageId(UUID pageId)
 	{
 		this.pageId = pageId;
+		return this;
 	}
 
 	public String getBlockType()

@@ -1,22 +1,19 @@
 package org.cru.crs.api;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
-import org.cru.crs.api.model.Registration;
 import org.cru.crs.utils.Environment;
-import org.jboss.logging.Logger;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.util.UUID;
 
 @Test(groups="functional-tests")
 public class AnswerResourceFunctionalTest
