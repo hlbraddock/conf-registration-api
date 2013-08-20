@@ -1,44 +1,17 @@
-printf '\n'
-echo 'Creating and populating table CRU_CRS_CONFERENCES'
-psql -f files/cru_crs_conferences.sql -U crsuser -d crsdb
-echo 'Success!'
+!/bin/sh
 
-printf '\n'
-echo 'Creating and populating table CRU_CRS_BLOCKS'
-psql -f files/cru_crs_blocks.sql -U crsuser -d crsdb
-echo 'Success!'
+DIR=files
+CREATE_SCRIPTS="cru_crs_users.sql cru_crs_identities.sql cru_crs_auth_provider_identities.sql cru_crs_conferences.sql cru_crs_registrations.sql cru_crs_pages.sql cru_crs_blocks.sql cru_crs_answers.sql cru_crs_authorizations.sql"
+USER=crsuser
+DB=crsdb
 
-printf '\n'
-echo 'Creating and populating table CRU_CRS_PAGES'
-psql -f files/cru_crs_pages.sql -U crsuser -d crsdb
-echo 'Success!'
+echo
 
-printf '\n'
-echo 'Creating and populating table CRU_CRS_USERS'
-psql -f files/cru_crs_users.sql -U crsuser -d crsdb
-echo 'Success!'
+for createScript in $CREATE_SCRIPTS
+do
+    echo "Running sql script ${createScript}"
+    psql -f $DIR/$createScript -U $USER -d $DB > /dev/null
+    echo "${createScript} complete"
+    echo
+done
 
-printf '\n'
-echo 'Creating and populating table CRU_CRS_IDENTITIES'
-psql -f files/cru_crs_identities.sql -U crsuser -d crsdb
-echo 'Success!'
-
-printf '\n'
-echo 'Creating and populating table CRU_CRS_REGISTRATIONS'
-psql -f files/cru_crs_registrations.sql -U crsuser -d crsdb
-echo 'Success!'
-
-printf '\n'
-echo 'Creating and populating table CRU_CRS_ANSWERS'
-psql -f files/cru_crs_answers.sql -U crsuser -d crsdb
-echo 'Success!'
-
-printf '\n'
-echo 'Creating and populating table CRU_CRS_AUTHORIZATIONS'
-psql -f files/cru_crs_authorizations.sql -U crsuser -d crsdb
-echo 'Success!'
-
-printf '\n'
-echo 'Creating and populating table CRU_CRS_AUTH_PROVIDER_IDENTITIES'
-psql -f files/cru_crs_auth_provider_identities.sql -U crsuser -d crsdb
-echo 'Success!'

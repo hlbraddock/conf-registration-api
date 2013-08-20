@@ -1,4 +1,4 @@
-DROP TABLE cru_crs_users;
+DROP TABLE cru_crs_users CASCADE ;
 
 CREATE TABLE cru_crs_users (
   id uuid NOT NULL PRIMARY KEY,
@@ -116,4 +116,6 @@ INSERT INTO cru_crs_users (id,first_name,last_name,birth_date,contact_email,home
 INSERT INTO cru_crs_users (id,first_name,last_name,birth_date,contact_email,home_address_line_1,home_address_city,home_address_state,home_address_postal,home_address_country) VALUES ('CE311D2D-355D-6BC6-F643-EEEDA73D0A0C','Laurel','Dudley','2014-05-27 14:05:59','nisi.nibh.lacinia@Nullam.ca','1929 Lacinia Road','Alva','Stirlingshire','','Sierra Leone');
 INSERT INTO cru_crs_users (id,first_name,last_name,birth_date,contact_email,home_address_line_1,home_address_city,home_address_state,home_address_postal,home_address_country) VALUES ('30F093E5-5FEA-6CD3-6D60-4DC948B5B14F','Bradley','Daugherty','2012-08-04 22:23:53','ante.ipsum.primis@risusQuisque.edu','4457 Fermentum Av.','Anklam','MV','','Faroe Islands');
 INSERT INTO cru_crs_users (id,first_name,last_name,birth_date,contact_email,home_address_line_1,home_address_city,home_address_state,home_address_postal,home_address_country) VALUES ('F7B42C81-EC1A-3FAF-D962-5BA7D8943843','Adara','Alvarado','2012-08-10 00:20:48','dictum.Phasellus@orciPhasellusdapibus.com','438-697 Tincidunt. Av.','Canberra','Australian Capital Territories','','Guyana');
+INSERT INTO cru_crs_users (id,first_name,last_name,birth_date,contact_email,home_address_line_1,home_address_city,home_address_state,home_address_postal,home_address_country) VALUES ('f8f8c217-f918-4503-b3b3-85016f988343','Tate','Francis','2013-09-30 17:30:20','tate.romero@cru.org','P.O. Box 826, 5640 Diam Road','Venice','Venice','','Italy');
+INSERT INTO cru_crs_users (id,first_name,last_name,birth_date,contact_email,home_address_line_1,home_address_city,home_address_state,home_address_postal,home_address_country) VALUES ('f8f8c217-f918-4503-b3b3-85016f9883c1','Sue','Francis','2013-09-30 17:30:20','sue.romero@cru.org','P.O. Box 826, 5640 Diam Road','Venice','Venice','','Italy');
 

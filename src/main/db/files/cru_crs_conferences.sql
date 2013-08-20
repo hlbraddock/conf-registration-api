@@ -1,5 +1,4 @@
-
-DROP TABLE cru_crs_conferences;
+DROP TABLE cru_crs_conferences CASCADE;
 
 CREATE TABLE cru_crs_conferences (
   id uuid NOT NULL PRIMARY KEY,
@@ -9,7 +8,7 @@ CREATE TABLE cru_crs_conferences (
   registration_start_time timestamp with time zone,
   registration_end_time timestamp with time zone,
   total_slots integer default NULL,
-  contact_user uuid
+  contact_user uuid references cru_crs_users(id)
 );
 
 INSERT INTO cru_crs_conferences (id,name,event_start_time,event_end_time,registration_start_time,registration_end_time,total_slots, contact_user) VALUES ('42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309','Northern Michigan Fall Extravaganza','24-Aug-2013 10:32:08','02-Oct-2013 02:43:14','10-Apr-2013 21:58:35','22-May-2013 18:53:08','80','f8f8c217-f918-4503-b3b3-85016f9883c1');

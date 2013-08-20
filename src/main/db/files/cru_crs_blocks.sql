@@ -1,8 +1,8 @@
-DROP TABLE cru_crs_blocks;
+DROP TABLE cru_crs_blocks CASCADE;
 
 CREATE TABLE cru_crs_blocks (
   id uuid NOT NULL PRIMARY KEY,
-  page_id uuid,
+  page_id uuid references cru_crs_pages(id),
   block_type text,
   admin_only boolean,
   required boolean,

@@ -1,9 +1,8 @@
-DROP TABLE cru_crs_external_identities;
-DROP TABLE cru_crs_auth_provider_identities;
+DROP TABLE cru_crs_auth_provider_identities CASCADE;
 
 CREATE TABLE cru_crs_auth_provider_identities(
 	id uuid NOT NULL PRIMARY KEY,
-	crs_app_id uuid, /*REFERENCES, cru_crs_identities(id),*/
+	crs_app_id uuid references cru_crs_identities(id),
 	auth_provider_id text NOT NULL,
 	auth_provider_name text NOT NULL
 );
