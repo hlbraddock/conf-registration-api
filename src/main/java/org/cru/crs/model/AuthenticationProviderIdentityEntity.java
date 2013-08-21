@@ -5,6 +5,8 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -23,11 +25,11 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	@Column(name = "ID")
 	@Type(type="pg-uuid")
 	private UUID id;
-	
-	@Column(name = "CRS_APP_ID")
-	@Type(type="pg-uuid")
-	private UUID crsApplicationUserId;
 
+	@ManyToOne()
+	@JoinColumn(name = "CRS_APP_ID", nullable = false, updatable = false)
+	private UserEntity crsUser;
+	
 	/**
 	 * This field cannot be a UUID, because not all providers store ID's that way.
 	 * Facebook is a prime example of one that does not.. they just use numeric strings
@@ -48,16 +50,6 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 		this.id = id;
 	}
 
-	public UUID getCrsApplicationUserId()
-	{
-		return crsApplicationUserId;
-	}
-
-	public void setCrsApplicationUserId(UUID crsApplicationUserId)
-	{
-		this.crsApplicationUserId = crsApplicationUserId;
-	}
-
 	public String getAuthenticationProviderId()
 	{
 		return authenticationProviderId;
@@ -76,5 +68,15 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	public void setAuthenticationProviderName(String authenticationProviderName)
 	{
 		this.authenticationProviderName = authenticationProviderName;
+	}
+
+	public UserEntity getCrsUser()
+	{
+		return crsUser;
+	}
+
+	public void setCrsUser(UserEntity crsUser) 
+	{
+		this.crsUser = crsUser;
 	}
 }

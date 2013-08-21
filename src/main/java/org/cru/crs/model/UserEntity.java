@@ -10,8 +10,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name = "CRU_CRS_IDENTITIES")
-public class IdentityEntity implements java.io.Serializable
+@Table(name = "CRU_CRS_USERS")
+public class UserEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
@@ -25,9 +25,9 @@ public class IdentityEntity implements java.io.Serializable
 		return id;
 	}
 
-	public void setId(UUID id)
+	public UserEntity setId(UUID id)
 	{
 		this.id = id;
+		return this;
 	}
-
 }

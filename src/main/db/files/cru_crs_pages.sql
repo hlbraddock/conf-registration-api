@@ -13,9 +13,9 @@ INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('7DAE078F-A1
 INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('53CCCC6E-0837-A125-93AA-915F-32D1D2E2','1951613E-A253-1AF8-6BC4-C9F1-D0B3FA60',0,'Personal details');
 INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('BF37618E-4F86-2DF5-8AE9-0ED3-BE0ED248','1951613E-A253-1AF8-6BC4-C9F1-D0B3FA60',1,'Cat stories');
 INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('707986E8-F4AD-4F6F-E0FD-D28C-2695B163','D5878EBA-9B3F-7F33-8355-3193-BF4FB698',0,'Epic poetry');
-INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('ECB5B34F-D24D-83C8-2954-2179-AC4C38F2','1CFA829F-2C3A-F803-A966-9A65-10EE2F33',0,'Lorem ipsum dolor');
-INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('A70ECFCE-4967-6EAF-4E15-5A02-FD57D7C7','1CFA829F-2C3A-F803-A966-9A65-10EE2F33',1,'Lorem ipsum dolor sit amet, consectetuer');
-INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('D6BD291C-F82E-3221-387E-89E6-F5372B60','1CFA829F-2C3A-F803-A966-9A65-10EE2F33',2,'Lorem ipsum');
+INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('ECB5B34F-D24D-83C8-2954-2179-AC4C38F2','D5878EBA-9B3F-7F33-8355-3193-BF4FB698',1,'Short Novels');
+INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('A70ECFCE-4967-6EAF-4E15-5A02-FD57D7C7','1CFA829F-2C3A-F803-A966-9A65-10EE2F33',0,'Lorem ipsum dolor sit amet, consectetuer');
+INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('D6BD291C-F82E-3221-387E-89E6-F5372B60','1CFA829F-2C3A-F803-A966-9A65-10EE2F33',1,'Lorem ipsum');
 INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('1D3AEFA7-28A4-AC82-36BD-42DA-64D1AD3B','67384634-F379-DE07-86DA-6B89-ABC6FAB5',0,'Lorem ipsum dolor sit amet,');
 INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('76970098-BD37-56BC-2814-6CBA-AD580137','67384634-F379-DE07-86DA-6B89-ABC6FAB5',1,'Lorem ipsum dolor sit');
 INSERT INTO cru_crs_pages (id,conference_id,position,title) VALUES ('CF7D8086-40CA-B8C4-A1A7-C519-A9ABD229','67384634-F379-DE07-86DA-6B89-ABC6FAB5',2,'Lorem ipsum');

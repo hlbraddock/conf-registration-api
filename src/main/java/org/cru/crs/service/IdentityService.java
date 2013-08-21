@@ -8,7 +8,7 @@ import javax.persistence.NoResultException;
 
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
-import org.cru.crs.model.IdentityEntity;
+import org.cru.crs.model.UserEntity;
 
 public class IdentityService
 {
@@ -47,16 +47,14 @@ public class IdentityService
 	 */
 	public void createIdentityAndAuthProviderRecords(String authProviderId, AuthenticationProviderType authProviderType)
 	{
-		IdentityEntity identityEntity = new IdentityEntity();
-		identityEntity.setId(UUID.randomUUID());
-		
+		UserEntity newUser = new UserEntity().setId(UUID.randomUUID());
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
-		authProviderIdentityEntity.setCrsApplicationUserId(identityEntity.getId());
+		authProviderIdentityEntity.setCrsUser(newUser);
 		authProviderIdentityEntity.setAuthenticationProviderId(authProviderId);
 		authProviderIdentityEntity.setAuthenticationProviderName(authProviderType.name());
 		
-		entityManager.persist(identityEntity);
+		entityManager.persist(newUser);
 		entityManager.persist(authProviderIdentityEntity);
 	}
 	
