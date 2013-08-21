@@ -35,6 +35,6 @@ public abstract class AbstractAuthManager
 	{
 		AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderId(id);
 		
-		return new CrsApplicationUser(authProviderEntity.getCrsApplicationUserId(), id, authenticationProviderType);
+		return new CrsApplicationUser(authProviderEntity.getCrsUser().getId(), id, authenticationProviderType);
 	}
 }
