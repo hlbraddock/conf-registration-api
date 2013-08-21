@@ -118,11 +118,14 @@ public class ConferenceResource
 			/*persist the new conference*/
 			conferenceService.createNewConference(conference.toJpaConferenceEntity(), loggedInUser);
 			
+			/*fetch the created conference so a nice pretty conference object can be returned to client*/
+			ConferenceEntity createdConference = conferenceService.fetchConferenceBy(conference.getId());
+			
 			/*return a response with status 201 - Created and a location header to fetch the conference.
 			 * a copy of the entity is also returned.*/
 			return Response.status(Status.CREATED)
 					.location(new URI("/conferences/" + conference.getId()))
-					.entity(conference).build();
+					.entity(Conference.fromJpaWithPages(createdConference)).build();
 		}
 		catch(UnauthorizedException e)
 		{
