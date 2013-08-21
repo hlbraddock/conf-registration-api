@@ -30,8 +30,10 @@ import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.PageService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
@@ -42,7 +44,8 @@ public class ConferenceResource
 {
 	@Inject ConferenceService conferenceService;
 	@Inject RegistrationService registrationService;
-
+	@Inject PageService pageService;
+	
 	@Context HttpServletRequest request;
 	@Inject CrsUserService userService;
 
@@ -118,11 +121,14 @@ public class ConferenceResource
 			/*persist the new conference*/
 			conferenceService.createNewConference(conference.toJpaConferenceEntity(), loggedInUser);
 			
+			/*fetch the created conference so a nice pretty conference object can be returned to client*/
+			ConferenceEntity createdConference = conferenceService.fetchConferenceBy(conference.getId());
+			
 			/*return a response with status 201 - Created and a location header to fetch the conference.
 			 * a copy of the entity is also returned.*/
 			return Response.status(Status.CREATED)
 					.location(new URI("/conferences/" + conference.getId()))
-					.entity(conference).build();
+					.entity(Conference.fromJpaWithPages(createdConference)).build();
 		}
 		catch(UnauthorizedException e)
 		{
@@ -209,10 +215,11 @@ public class ConferenceResource
 			}
 
 			conferenceService.addPageToConference(conferencePageBelongsTo, newPage.toJpaPageEntity(), loggedInUser);
+			final PageEntity createdPage = pageService.fetchPageBy(newPage.getId());
 			
 			return Response.status(Status.CREATED)
 					.location(new URI("/pages/" + newPage.getId()))
-					.entity(newPage)
+					.entity(Page.fromJpa(createdPage))
 					.build();
 		} 
 		catch (UnauthorizedException e)
