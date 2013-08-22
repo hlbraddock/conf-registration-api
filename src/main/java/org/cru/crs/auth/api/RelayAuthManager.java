@@ -33,11 +33,12 @@ public class RelayAuthManager extends AbstractAuthManager
 
 		/*we can assume this is not null, the CAS filter would redirect to the CAS server for login otherwise*/
 		String ssoGuidString = casReceipt.getAttributes().get("ssoGuid").toString().toLowerCase();
+		String ssoUsername = casReceipt.getAttributes().get("username").toString().toLowerCase();
 		
-		persistIdentityAndAuthProviderRecordsIfNecessary(ssoGuidString, AuthenticationProviderType.RELAY);
+		persistIdentityAndAuthProviderRecordsIfNecessary(ssoGuidString, AuthenticationProviderType.RELAY, ssoUsername);
 		
 		/*with attributes, fetch GUID and store in session*/
-		session.setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(ssoGuidString, AuthenticationProviderType.RELAY));
+		session.setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(ssoGuidString, AuthenticationProviderType.RELAY, ssoUsername));
 
         String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 

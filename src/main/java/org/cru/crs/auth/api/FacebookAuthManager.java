@@ -93,10 +93,15 @@ public class FacebookAuthManager extends AbstractAuthManager
 		// transform the facebook response into facebook user
 		FacebookUser facebookUser = FacebookUser.fromJsonNode(JsonUtils.jsonNodeFromString(response.getBody()));
 
-        persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser.getId(), AuthenticationProviderType.FACEBOOK);
+        persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser.getId(), 
+        													AuthenticationProviderType.FACEBOOK,
+        													facebookUser.getUsername());
 
         //Create a CRS user object and stick it in the session
-		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(facebookUser.getId(), AuthenticationProviderType.FACEBOOK));
+		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, 
+														createCrsApplicationUser(facebookUser.getId(), 
+																					AuthenticationProviderType.FACEBOOK,
+																					facebookUser.getUsername()));
 
         String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 

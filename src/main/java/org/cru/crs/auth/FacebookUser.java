@@ -11,7 +11,8 @@ public class FacebookUser
 	private String fullName;
 	private String firstName;
 	private String lastName;
-
+	private String username;
+	
 	public static FacebookUser fromJsonNode(JsonNode user)
 	{
 		FacebookUser facebookUser = new FacebookUser();
@@ -20,7 +21,8 @@ public class FacebookUser
 		facebookUser.setFullName(user.get("name").toString());
 		facebookUser.setFirstName(user.get("first_name").toString());
 		facebookUser.setLastName(user.get("last_name").toString());
-
+		facebookUser.setUsername(user.get("username").toString());
+		
 		return facebookUser;
 	}
 
@@ -68,5 +70,15 @@ public class FacebookUser
 	public void setLastName(String lastName)
 	{
 		this.lastName = lastName;
+	}
+
+	public String getUsername()
+	{
+		return username;
+	}
+
+	public void setUsername(String username)
+	{
+		this.username = username;
 	}
 }

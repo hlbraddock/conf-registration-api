@@ -28,7 +28,7 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 		 */
 		authenticationProviderService.updateAuthProviderType(code, AuthenticationProviderType.EMAIL_ACCOUNT);
 
-		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(code, AuthenticationProviderType.EMAIL_ACCOUNT));
+		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(code, AuthenticationProviderType.EMAIL_ACCOUNT, null));
 
         String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 
