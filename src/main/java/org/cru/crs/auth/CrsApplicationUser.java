@@ -2,31 +2,30 @@ package org.cru.crs.auth;
 
 import java.util.UUID;
 
-import org.cru.crs.model.AuthenticationProviderIdentityEntity;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class CrsApplicationUser implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
 	public static final String SESSION_OBJECT_NAME = "CrsUser";
+	
 	/**
 	 * The User ID for the CRS application, assigned by CRS.  This user ID is used to identify
 	 * conferences and registrations belonging to the user who is logged in. */
 	UUID id;
 	/**
-	 * The ID of the user in the authentication provider he/she used to identify him/herself.  For
-	 * example, this could be the Relay SSO GUID, Facebook ID, or email account ID (associated by CRS)
-	 */
-	String authProviderId;
-	/**
 	 * An easy way to identify the authentication provider the user used to identify him/herself*/
 	AuthenticationProviderType authProviderType;
+	/**
+	 * The Username for the user in either the external provider or the email address provided*/
+	String authProviderUsername;
 	
-	public CrsApplicationUser(UUID id, String authProviderId, AuthenticationProviderType authProviderType)
+	public CrsApplicationUser(UUID id, AuthenticationProviderType authProviderType, String authProviderUsername)
 	{
 		this.id = id;
-		this.authProviderId = authProviderId;
 		this.authProviderType = authProviderType;
+		this.authProviderUsername = authProviderUsername;
 	}
 	
 	/**
@@ -34,6 +33,7 @@ public class CrsApplicationUser implements java.io.Serializable
 	 * Facebook or Relay was used, then this method returns false.
 	 * @return
 	 */
+	@JsonIgnore
 	public boolean isCrsAuthenticatedOnly()
 	{
 		return authProviderType.equals(AuthenticationProviderType.EMAIL_ACCOUNT);
@@ -49,6 +49,15 @@ public class CrsApplicationUser implements java.io.Serializable
 	{
 		return id;
 	}
-	
+
+	public AuthenticationProviderType getAuthProviderType()
+	{
+		return authProviderType;
+	}
+
+	public String getAuthProviderUsername()
+	{
+		return authProviderUsername;
+	}
 	
 }

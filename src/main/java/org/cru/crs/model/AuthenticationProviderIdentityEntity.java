@@ -40,6 +40,9 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	@Column(name = "AUTH_PROVIDER_NAME")
 	private String authenticationProviderName;
 
+	@Column(name = "AUTH_PROVIDER_USERNAME")
+	private String authenticationProviderUsername;
+	
 	public UUID getId()
 	{
 		return id;
@@ -78,5 +81,15 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	public void setCrsUser(UserEntity crsUser) 
 	{
 		this.crsUser = crsUser;
+	}
+
+	public String getAuthenticationProviderUsername()
+	{
+		return authenticationProviderUsername;
+	}
+
+	public void setAuthenticationProviderUsername(String authenticationProviderUsername)
+	{
+		this.authenticationProviderUsername = authenticationProviderUsername;
 	}
 }

@@ -10,13 +10,13 @@ import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.UserEntity;
 
-public class IdentityService
+public class AuthenticationProviderService
 {
 
 	EntityManager entityManager;
 
 	@Inject
-	public IdentityService(EntityManager entityManager)
+	public AuthenticationProviderService(EntityManager entityManager)
 	{
 		this.entityManager = entityManager;
 	}
@@ -45,7 +45,7 @@ public class IdentityService
 	 * @param externalIdentityId
 	 * @param externalIdentityProviderName
 	 */
-	public void createIdentityAndAuthProviderRecords(String authProviderId, AuthenticationProviderType authProviderType)
+	public void createIdentityAndAuthProviderRecords(String authProviderId, AuthenticationProviderType authProviderType, String authProviderUsername)
 	{
 		UserEntity newUser = new UserEntity().setId(UUID.randomUUID());
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
@@ -53,6 +53,7 @@ public class IdentityService
 		authProviderIdentityEntity.setCrsUser(newUser);
 		authProviderIdentityEntity.setAuthenticationProviderId(authProviderId);
 		authProviderIdentityEntity.setAuthenticationProviderName(authProviderType.name());
+		authProviderIdentityEntity.setAuthenticationProviderUsername(authProviderUsername);
 		
 		entityManager.persist(newUser);
 		entityManager.persist(authProviderIdentityEntity);

@@ -25,9 +25,9 @@ public class NoAuthManager extends AbstractAuthManager
     {
         String noAuthId = UUID.randomUUID().toString();
 
-        authenticationProviderService.createIdentityAndAuthProviderRecords(noAuthId, AuthenticationProviderType.NONE);
+        authenticationProviderService.createIdentityAndAuthProviderRecords(noAuthId, AuthenticationProviderType.NONE, null);
 
-        httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(noAuthId, AuthenticationProviderType.NONE));
+        httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(noAuthId, AuthenticationProviderType.NONE, null));
 
         String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 
