@@ -7,6 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.cru.crs.api.model.Block;
+import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.BlockEntity;
@@ -25,7 +26,7 @@ public class BlockServiceTest
 
 	private BlockService blockService;
 
-	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1"), null, null);
+	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898"), AuthenticationProviderType.RELAY, "crs.testuser@crue.org");
 	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null, null);
 	
 	@BeforeClass
@@ -54,8 +55,8 @@ public class BlockServiceTest
 		Assert.assertEquals(block.getPosition(), 0);
 		Assert.assertEquals(block.getPageId(), UUID.fromString("7a52af36-2f3c-5e45-9f76-0af10ff50bb8"));
 		Assert.assertFalse(block.isAdminOnly());
-		Assert.assertEquals(block.getBlockType(), "text");
-		Assert.assertEquals(block.getTitle(), "Cats name");
+		Assert.assertEquals(block.getBlockType(), "paragraphContent");
+		Assert.assertEquals(block.getTitle(), "About the conference");
 	}
 
 	@Test(groups="db-integration-tests")
@@ -63,29 +64,37 @@ public class BlockServiceTest
 	{
 		BlockEntity block = blockService.fetchBlockBy(UUID.fromString("af60d878-4741-4f21-9d25-231db86e43ee"));
 
-		Assert.assertEquals(block.getTitle(), "Cats name");
+		Assert.assertEquals(block.getTitle(), "About the conference");
 
 		Block webBlock = Block.fromJpa(block);
 		webBlock.setTitle("Kittys name");
 
-		em.getTransaction().begin();
-		blockService.updateBlock(webBlock.toJpaBlockEntity(), testAppUser);
-		em.flush();
-		em.getTransaction().commit();
+		try
+		{
+			em.getTransaction().begin();
+			blockService.updateBlock(webBlock.toJpaBlockEntity(), testAppUser);
+			em.flush();
+			em.getTransaction().commit();
+		}
+		catch(Exception e)
+		{
+			em.getTransaction().rollback();
+			Assert.fail("failed updating the block", e);
+		}
 		
 		BlockEntity updatedBlock = em.find(BlockEntity.class, UUID.fromString("af60d878-4741-4f21-9d25-231db86e43ee"));
 
 		Assert.assertEquals(updatedBlock.getId(), UUID.fromString("af60d878-4741-4f21-9d25-231db86e43ee"));
 		Assert.assertEquals(updatedBlock.getTitle(), "Kittys name");
 
-		updatedBlock.setTitle("Cats name");
+		updatedBlock.setTitle("About the conference");
 	}
 	
 	public void testUpdatePageNotAuthorized() throws UnauthorizedException
 	{
 		BlockEntity block = blockService.fetchBlockBy(UUID.fromString("af60d878-4741-4f21-9d25-231db86e43ee"));
 
-		Assert.assertEquals(block.getTitle(), "Cats name");
+		Assert.assertEquals(block.getTitle(), "About the conference");
 
 		Block webBlock = Block.fromJpa(block);
 		webBlock.setTitle("Fun stuff");
@@ -108,7 +117,7 @@ public class BlockServiceTest
 	}
 
 	@Test(groups="db-integration-tests")
-	public void testDeletePage() throws UnauthorizedException
+	public void testDeleteBlock() throws UnauthorizedException
 	{
 		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
 
@@ -141,7 +150,7 @@ public class BlockServiceTest
 	}
 
 	@Test(groups="db-integration-tests")
-	public void testDeletePageNotAuthorized() throws UnauthorizedException
+	public void testDeleteBlockNotAuthorized() throws UnauthorizedException
 	{
 		try
 		{

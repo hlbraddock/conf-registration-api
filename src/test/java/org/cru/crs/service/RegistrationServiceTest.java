@@ -31,12 +31,10 @@ public class RegistrationServiceTest
     private ConferenceService conferenceService;
 
 	private UUID originalRegistrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
-	private UUID originalUserUUID = UUID.fromString("1F6250CA-6D25-2BF4-4E56-F368B2FB8F8A");
+	private UUID originalUserUUID = UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898");
 	private UUID originalConferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-	private String originalUserAuthProviderId = "ABC4C1B2-0CC1-89F7-9F4B-6BC3E0DB5123";
-
-	private UUID adminUserUUID = UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1");
+	private UUID adminUserUUID = UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898");
 
 	private CrsApplicationUser crsApplicationUser;
 	private CrsApplicationUser adminCrsApplicationUser;
