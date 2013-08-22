@@ -51,8 +51,8 @@ public class RegistrationServiceTest
         registrationService = new RegistrationService(em, new AuthorizationService());
         conferenceService = new ConferenceService(em);
 
-		crsApplicationUser = new CrsApplicationUser(originalUserUUID, originalUserAuthProviderId, AuthenticationProviderType.FACEBOOK);
-		adminCrsApplicationUser = new CrsApplicationUser(adminUserUUID, originalUserAuthProviderId, AuthenticationProviderType.FACEBOOK);
+		crsApplicationUser = new CrsApplicationUser(originalUserUUID, AuthenticationProviderType.FACEBOOK, null/*username will go here*/);
+		adminCrsApplicationUser = new CrsApplicationUser(adminUserUUID, AuthenticationProviderType.FACEBOOK, null/*username will go here*/);
 	}
 
 	@AfterMethod
@@ -97,7 +97,7 @@ public class RegistrationServiceTest
 		registration.setConference(conference);
 		registration.setUserId(someUserUUID);
 
-		CrsApplicationUser someCrsApplicationUser = new CrsApplicationUser(someUserUUID, someUserAuthProviderId, AuthenticationProviderType.FACEBOOK);
+		CrsApplicationUser someCrsApplicationUser = new CrsApplicationUser(someUserUUID, AuthenticationProviderType.FACEBOOK, null/*username will go here*/);
 
 		registrationService.createNewRegistration(registration, someCrsApplicationUser);
 
