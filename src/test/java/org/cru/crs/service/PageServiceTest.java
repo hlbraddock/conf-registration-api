@@ -7,6 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.cru.crs.api.model.Page;
+import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
@@ -25,7 +26,7 @@ public class PageServiceTest
 
 	private PageService pageService;
 
-	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1"), null, null);
+	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898"), AuthenticationProviderType.RELAY, "crs.testuser@crue.org");
 	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null, null);
 	
 	@BeforeClass
@@ -63,17 +64,32 @@ public class PageServiceTest
 		Assert.assertEquals(page.getTitle(), "Hobbies and activities");
 
 		Page webPage = Page.fromJpa(page);
-		page.setTitle("Fun stuff");
+		webPage.setTitle("Fun stuff");
 
-		pageService.updatePage(webPage.toJpaPageEntity(), testAppUser);
+		try
+		{
+			em.getTransaction().begin();
 
+			pageService.updatePage(webPage.toJpaPageEntity(), testAppUser);
+
+			em.getTransaction().commit();
+		}
+		catch(Exception e)
+		{
+			em.getTransaction().rollback();
+			Assert.fail("failed updating page", e);
+		}
+		
 		PageEntity updatedPage = em.find(PageEntity.class, UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
 
 		Assert.assertEquals(updatedPage.getId(), UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
 		Assert.assertEquals(updatedPage.getTitle(), "Fun stuff");
 
 		updatedPage.setTitle("Hobbies and activities");
+		
+		em.getTransaction().begin();
 		em.merge(updatedPage);
+		em.getTransaction().commit();
 	}
 	
 	public void testUpdatePageNotAuthorized() throws UnauthorizedException
@@ -114,24 +130,41 @@ public class PageServiceTest
 		page.setPosition(3);
 		page.setConferenceId(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 
-		setupEm.getTransaction().begin();
+		try
+		{
+			setupEm.getTransaction().begin();
 
-		ConferenceEntity conferenceToAddPageTo = setupEm.find(ConferenceEntity.class, UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+			ConferenceEntity conferenceToAddPageTo = setupEm.find(ConferenceEntity.class, UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
 
-		conferenceToAddPageTo.getPages().add(page);
+			conferenceToAddPageTo.getPages().add(page);
 
-		setupEm.flush();
-		setupEm.getTransaction().commit();
+			setupEm.flush();
+			setupEm.getTransaction().commit();
+		}
+		catch(Exception e)
+		{
+			setupEm.getTransaction().rollback();
+			setupEm.close();
+			Assert.fail("failed setting up page to delete", e);
+		}
 
 		Assert.assertNotNull(em.find(PageEntity.class, page.getId()));
 
-		em.getTransaction().begin();
+		try
+		{
+			em.getTransaction().begin();
 
-		pageService.deletePage(page.getId(), testAppUser);
+			pageService.deletePage(page.getId(), testAppUser);
 
-		em.flush();
-		em.getTransaction().commit();
-
+			em.flush();
+			em.getTransaction().commit();
+		}
+		catch(Exception e)
+		{
+			em.getTransaction().rollback();
+			Assert.fail("failed deleting the page", e);
+		}
+		
 		EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
 		Assert.assertNull(cleanupEm.find(PageEntity.class, page.getId()));
 	}
