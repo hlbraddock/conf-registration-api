@@ -31,7 +31,7 @@ public class ConferenceServiceTest
 	
 	private ConferenceService conferenceService;
 	
-	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1"), AuthenticationProviderType.RELAY, null/*username will go here*/);
+	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898"), AuthenticationProviderType.RELAY, "crs.testuser@crue.org");
 	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null, null);
 		
 	@BeforeClass
@@ -57,7 +57,7 @@ public class ConferenceServiceTest
 		
 		Assert.assertNotNull(allConferences);
 		Assert.assertFalse(allConferences.isEmpty());
-		Assert.assertEquals(allConferences.size(),3);
+		Assert.assertEquals(allConferences.size(),2);
 		
 		for(ConferenceEntity conference : allConferences)
 		{
@@ -94,7 +94,7 @@ public class ConferenceServiceTest
 		Assert.assertEquals(conference.getPages().size(), 3);
 
 		Assert.assertEquals(conference.getPages().get(0).getTitle(), "About you");
-		Assert.assertEquals(conference.getPages().get(1).getTitle(), "Ministry preferences");
+		Assert.assertEquals(conference.getPages().get(1).getTitle(), "About your cat");
 		Assert.assertEquals(conference.getPages().get(2).getTitle(), "Hobbies and activities");
 	}
 	
@@ -107,24 +107,24 @@ public class ConferenceServiceTest
 
 		Assert.assertEquals(conference.getPages().get(0).getTitle(), "About you");
 	
-		Assert.assertNotNull(conference.getPages().get(0).getBlocks().get(0).getBlockType(), "Foo");
+		Assert.assertNotNull(conference.getPages().get(0).getBlocks().get(0).getBlockType(), "paragraphContent");
 	}
 	
 	@Test(groups="db-integration-tests")
 	public void testUpdateConference() throws UnauthorizedException
 	{
-		ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("1cfa829f-2c3a-f803-a966-9a6510ee2f33"));
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
 		
-		Assert.assertEquals(conference.getName(), "NC State Wolfpack Camp");
+		Assert.assertEquals(conference.getName(), "Miami University Fall Retreat");
 		
-		conference.setName("NCSU Wolfpack Camp");
+		conference.setName("Miami U Fall Retreat");
 		
 		conferenceService.updateConference(conference, testAppUser);
 		
-		ConferenceEntity updatedConference = conferenceService.fetchConferenceBy(UUID.fromString("1cfa829f-2c3a-f803-a966-9a6510ee2f33"));
-		Assert.assertEquals(updatedConference.getName(), "NCSU Wolfpack Camp");
+		ConferenceEntity updatedConference = conferenceService.fetchConferenceBy(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
+		Assert.assertEquals(updatedConference.getName(), "Miami U Fall Retreat");
 		
-		updatedConference.setName("NC State Wolfpack Camp");
+		updatedConference.setName("Miami University Fall Retreat");
 		conferenceService.updateConference(updatedConference, testAppUser);
 	}
 	
