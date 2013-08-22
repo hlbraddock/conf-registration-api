@@ -2,6 +2,8 @@ package org.cru.crs.auth;
 
 import java.util.UUID;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 public class CrsApplicationUser implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -31,6 +33,7 @@ public class CrsApplicationUser implements java.io.Serializable
 	 * Facebook or Relay was used, then this method returns false.
 	 * @return
 	 */
+	@JsonIgnore
 	public boolean isCrsAuthenticatedOnly()
 	{
 		return authProviderType.equals(AuthenticationProviderType.EMAIL_ACCOUNT);
