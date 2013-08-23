@@ -1,7 +1,7 @@
 package org.cru.crs.service;
 
-import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.authz.AuthorizationService;
 import org.cru.crs.authz.OperationType;
 import org.cru.crs.model.ConferenceEntity;

@@ -1,9 +1,8 @@
 package org.cru.crs.auth.api;
 
-import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.CrsApplicationUser;
-import org.cru.crs.model.AuthenticationProviderIdentityEntity;
-import org.cru.crs.utils.AuthCodeGenerator;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
@@ -12,9 +11,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
+
+import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.auth.model.EmailAccountUser;
+import org.cru.crs.model.AuthenticationProviderIdentityEntity;
+import org.cru.crs.utils.AuthCodeGenerator;
 
 @Stateless
 @Path("/auth/email")
@@ -29,7 +31,7 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 		 */
 		AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity = authenticationProviderService.updateAuthProviderType(authId, AuthenticationProviderType.EMAIL_ACCOUNT);
 
-		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(authId, AuthenticationProviderType.EMAIL_ACCOUNT, authenticationProviderIdentityEntity.getAuthenticationProviderUsername());
+		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(EmailAccountUser.fromAuthIdAndEmail(authId, authenticationProviderIdentityEntity.getUsername()));
 
 		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, crsApplicationUser);
 

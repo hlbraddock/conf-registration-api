@@ -1,10 +1,21 @@
 package org.cru.crs.auth.api;
 
-import com.google.common.base.Strings;
-import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.CrsApplicationUser;
-import org.cru.crs.auth.FacebookUser;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import javax.ejb.Stateless;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+
 import org.cru.crs.auth.OauthServices;
+import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.auth.model.FacebookUser;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.JsonUtils;
 import org.scribe.builder.api.FacebookApi;
@@ -14,17 +25,7 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import javax.ejb.Stateless;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import com.google.common.base.Strings;
 
 /**
  * User: Lee_Braddock
@@ -93,15 +94,10 @@ public class FacebookAuthManager extends AbstractAuthManager
 		// transform the facebook response into facebook user
 		FacebookUser facebookUser = FacebookUser.fromJsonNode(JsonUtils.jsonNodeFromString(response.getBody()));
 
-        persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser.getId(), 
-        													AuthenticationProviderType.FACEBOOK,
-        													facebookUser.getUsername());
+        persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser);
 
         //Create a CRS user object and stick it in the session
-		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, 
-														createCrsApplicationUser(facebookUser.getId(), 
-																					AuthenticationProviderType.FACEBOOK,
-																					facebookUser.getUsername()));
+		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(facebookUser));
 
         String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 

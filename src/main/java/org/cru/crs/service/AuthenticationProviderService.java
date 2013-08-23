@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
 import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.UserEntity;
 
@@ -21,13 +22,13 @@ public class AuthenticationProviderService
 		this.entityManager = entityManager;
 	}
 
-	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderId(String authenticationProviderId)
+	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderId(String userAuthProviderId)
 	{
 		try
 		{
 			return entityManager.createQuery("SELECT ape FROM AuthenticationProviderIdentityEntity ape " +
-					"WHERE ape.authenticationProviderId = :authenticationProviderId", AuthenticationProviderIdentityEntity.class)
-					.setParameter("authenticationProviderId", authenticationProviderId)
+					"WHERE ape.userAuthProviderId = :userAuthProviderId", AuthenticationProviderIdentityEntity.class)
+					.setParameter("userAuthProviderId", userAuthProviderId)
 					.getSingleResult();
 		}
 		catch(NoResultException nre)
@@ -61,15 +62,17 @@ public class AuthenticationProviderService
 	 * @param externalIdentityId
 	 * @param externalIdentityProviderName
 	 */
-	public void createIdentityAndAuthProviderRecords(String authProviderId, AuthenticationProviderType authProviderType, String authProviderUsername)
+	public void createIdentityAndAuthProviderRecords(AuthenticationProviderUser user)
 	{
 		UserEntity newUser = new UserEntity().setId(UUID.randomUUID());
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
 		authProviderIdentityEntity.setCrsUser(newUser);
-		authProviderIdentityEntity.setAuthenticationProviderId(authProviderId);
-		authProviderIdentityEntity.setAuthenticationProviderName(authProviderType.name());
-		authProviderIdentityEntity.setAuthenticationProviderUsername(authProviderUsername);
+		authProviderIdentityEntity.setUserAuthProviderId(user.getId());
+		authProviderIdentityEntity.setAuthenticationProviderName(user.getAuthentcationProviderType().name());
+		authProviderIdentityEntity.setUsername(user.getUsername());
+		authProviderIdentityEntity.setFirstName(user.getFirstName());
+		authProviderIdentityEntity.setLastName(user.getLastName());
 		
 		entityManager.persist(newUser);
 		entityManager.persist(authProviderIdentityEntity);
