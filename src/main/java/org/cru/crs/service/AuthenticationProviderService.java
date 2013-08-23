@@ -38,7 +38,23 @@ public class AuthenticationProviderService
 			return null;
 		}
 	}
-	
+
+	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderUsernameAndType(String authenticationProviderUsername, AuthenticationProviderType authenticationProviderType)
+	{
+		try
+		{
+			return entityManager.createQuery("SELECT ape FROM AuthenticationProviderIdentityEntity ape " +
+					"WHERE ape.authenticationProviderUsername = :authenticationProviderUsername and ape.authenticationProviderName = :authenticationProviderName", AuthenticationProviderIdentityEntity.class)
+					.setParameter("authenticationProviderUsername", authenticationProviderUsername)
+					.setParameter("authenticationProviderName", authenticationProviderType.name())
+					.getSingleResult();
+		}
+		catch(NoResultException nre)
+		{
+			return null;
+		}
+	}
+
 	/**
 	 * Creates a new internal CRS App identity record along with a row for the authentication provider identity.
 	 * The two rows will be associated by a foreign key relationship
