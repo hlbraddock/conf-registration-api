@@ -2,7 +2,7 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 
-    <entry key="authCodeUrl">http://localhost:8080/crs-http-json-api/#/auth</entry>
+    <entry key="authCodeUrl">http://localhost:9000/#/auth</entry>
 
     <entry key="facebookAppId">1231234</entry>
     <entry key="facebookAppSecret">1231234</entry>
