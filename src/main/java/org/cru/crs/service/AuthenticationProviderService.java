@@ -40,13 +40,13 @@ public class AuthenticationProviderService
 		}
 	}
 
-	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderUsernameAndType(String authenticationProviderUsername, AuthenticationProviderType authenticationProviderType)
+	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderUsernameAndType(String username, AuthenticationProviderType authenticationProviderType)
 	{
 		try
 		{
 			return entityManager.createQuery("SELECT ape FROM AuthenticationProviderIdentityEntity ape " +
-					"WHERE ape.authenticationProviderUsername = :authenticationProviderUsername and ape.authenticationProviderName = :authenticationProviderName", AuthenticationProviderIdentityEntity.class)
-					.setParameter("authenticationProviderUsername", authenticationProviderUsername)
+					"WHERE ape.username = :username and ape.authenticationProviderName = :authenticationProviderName", AuthenticationProviderIdentityEntity.class)
+					.setParameter("username", username)
 					.setParameter("authenticationProviderName", authenticationProviderType.name())
 					.getSingleResult();
 		}
