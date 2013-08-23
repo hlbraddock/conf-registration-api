@@ -9,9 +9,11 @@ import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.BasicNoAuthUser;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.utils.AuthCodeGenerator;
@@ -20,19 +22,28 @@ import org.cru.crs.utils.AuthCodeGenerator;
 @Path("/auth/none")
 public class NoAuthManager extends AbstractAuthManager
 {
-    @Path("/login")
-    @GET
-    public Response login(@Context HttpServletRequest httpServletRequest) throws URISyntaxException, MalformedURLException
-    {
-        BasicNoAuthUser noAuthUser = BasicNoAuthUser.fromCode(UUID.randomUUID().toString());
+
+	@Path("/login")
+	@GET
+	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "email") String email) throws URISyntaxException, MalformedURLException
+	{
+		String noAuthId = UUID.randomUUID().toString();
+
+		// deny repeat usage of email no authentication login
+		if(authenticationProviderService.findAuthProviderIdentityByAuthProviderUsernameAndType(email, AuthenticationProviderType.NONE) != null)
+		{
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
 		
-        authenticationProviderService.createIdentityAndAuthProviderRecords(noAuthUser);
+		authenticationProviderService.createIdentityAndAuthProviderRecords(BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email));
 
-        httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(noAuthUser));
+		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email));
 
-        String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
+		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, crsApplicationUser);
 
-        // redirect to client managed auth code url with auth code
-        return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
-    }
+		String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
+
+		// redirect to client managed auth code url with auth code
+		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
+	}
 }

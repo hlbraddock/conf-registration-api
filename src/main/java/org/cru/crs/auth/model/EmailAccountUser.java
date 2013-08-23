@@ -4,11 +4,12 @@ import org.cru.crs.auth.AuthenticationProviderType;
 
 public class EmailAccountUser extends AuthenticationProviderUser
 {
-	public static EmailAccountUser fromCode(String code)
+	public static EmailAccountUser fromAuthIdAndEmail(String authId, String emailAddress)
 	{
 		EmailAccountUser user = new EmailAccountUser();
 		
-		user.id = code;
+		user.id = authId;
+		user.username = emailAddress;
 		user.authentcationProviderType = AuthenticationProviderType.EMAIL_ACCOUNT;
 		
 		return user;

@@ -5,11 +5,12 @@ import org.cru.crs.auth.AuthenticationProviderType;
 public class BasicNoAuthUser extends AuthenticationProviderUser
 {
 
-	public static BasicNoAuthUser fromCode(String code)
+	public static BasicNoAuthUser fromAuthIdAndEmail(String authId, String emailAddress)
 	{
 		BasicNoAuthUser user = new BasicNoAuthUser();
 		
-		user.id = code;
+		user.id = authId;
+		user.username = emailAddress;
 		user.authentcationProviderType = AuthenticationProviderType.NONE;
 		
 		return user;
