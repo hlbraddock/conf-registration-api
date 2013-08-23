@@ -17,10 +17,6 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 {
 	private static final long serialVersionUID = 1L;
 	
-	/**
-	 * This is the ID used to maintain the join between these Auth Provider IDs and the CRS User ID
-	 * This row is not used for much else...
-	 */
 	@Id
 	@Column(name = "ID")
 	@Type(type="pg-uuid")
