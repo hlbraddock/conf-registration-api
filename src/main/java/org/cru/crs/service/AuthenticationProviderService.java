@@ -80,9 +80,11 @@ public class AuthenticationProviderService
 	 * @param authProviderId
 	 * @param newAuthProviderType
 	 */
-	public void updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
+	public AuthenticationProviderIdentityEntity updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
 	{
 		AuthenticationProviderIdentityEntity authProviderEntity = findAuthProviderIdentityByAuthProviderId(authProviderId);
 		authProviderEntity.setAuthenticationProviderName(newAuthProviderType.name());
+
+		return authProviderEntity;
 	}
 }

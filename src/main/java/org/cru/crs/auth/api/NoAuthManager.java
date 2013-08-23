@@ -20,11 +20,11 @@ import java.util.UUID;
 @Path("/auth/none")
 public class NoAuthManager extends AbstractAuthManager
 {
-    @Path("/login")
-    @GET
-    public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "email") String email) throws URISyntaxException, MalformedURLException
-    {
-        String noAuthId = UUID.randomUUID().toString();
+	@Path("/login")
+	@GET
+	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "email") String email) throws URISyntaxException, MalformedURLException
+	{
+		String noAuthId = UUID.randomUUID().toString();
 
 		// deny repeat usage of email no authentication login
 		if(authenticationProviderService.findAuthProviderIdentityByAuthProviderUsernameAndType(email, AuthenticationProviderType.NONE) != null)
@@ -32,11 +32,13 @@ public class NoAuthManager extends AbstractAuthManager
 
 		authenticationProviderService.createIdentityAndAuthProviderRecords(noAuthId, AuthenticationProviderType.NONE, email);
 
-        httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(noAuthId, AuthenticationProviderType.NONE, null));
+		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(noAuthId, AuthenticationProviderType.NONE, email);
 
-        String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
+		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, crsApplicationUser);
 
-        // redirect to client managed auth code url with auth code
-        return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
-    }
+		String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
+
+		// redirect to client managed auth code url with auth code
+		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
+	}
 }
