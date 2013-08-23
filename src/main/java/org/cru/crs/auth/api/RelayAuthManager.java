@@ -12,12 +12,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.CrsApplicationUser;
+import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.auth.model.RelayUser;
+import org.cru.crs.utils.AuthCodeGenerator;
 
 import edu.yale.its.tp.cas.client.CASReceipt;
 import edu.yale.its.tp.cas.client.filter.CASFilter;
-import org.cru.crs.utils.AuthCodeGenerator;
 
 @Stateless
 @Path("/auth/relay")
@@ -29,16 +29,12 @@ public class RelayAuthManager extends AbstractAuthManager
 	{
 		HttpSession session = httpServletRequest.getSession();
 		
-		CASReceipt casReceipt = (CASReceipt)session.getAttribute(CASFilter.CAS_FILTER_RECEIPT);
-
-		/*we can assume this is not null, the CAS filter would redirect to the CAS server for login otherwise*/
-		String ssoGuidString = casReceipt.getAttributes().get("ssoGuid").toString().toLowerCase();
-		String ssoUsername = casReceipt.getAttributes().get("username").toString().toLowerCase();
+		RelayUser relayUser = RelayUser.fromCasReceipt((CASReceipt)session.getAttribute(CASFilter.CAS_FILTER_RECEIPT));
 		
-		persistIdentityAndAuthProviderRecordsIfNecessary(ssoGuidString, AuthenticationProviderType.RELAY, ssoUsername);
+		persistIdentityAndAuthProviderRecordsIfNecessary(relayUser);
 		
 		/*with attributes, fetch GUID and store in session*/
-		session.setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(ssoGuidString, AuthenticationProviderType.RELAY, ssoUsername));
+		session.setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(relayUser));
 
         String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 

@@ -8,8 +8,8 @@ import javax.persistence.Persistence;
 
 import org.cru.crs.api.model.Block;
 import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.testng.Assert;

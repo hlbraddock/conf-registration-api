@@ -17,31 +17,33 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 {
 	private static final long serialVersionUID = 1L;
 	
-	/**
-	 * This is the ID used to maintain the join between these Auth Provider IDs and the CRS User ID
-	 * This row is not used for much else...
-	 */
 	@Id
 	@Column(name = "ID")
 	@Type(type="pg-uuid")
 	private UUID id;
 
 	@ManyToOne()
-	@JoinColumn(name = "CRS_APP_ID", nullable = false, updatable = false)
+	@JoinColumn(name = "CRS_ID", nullable = false, updatable = false)
 	private UserEntity crsUser;
 	
 	/**
 	 * This field cannot be a UUID, because not all providers store ID's that way.
 	 * Facebook is a prime example of one that does not.. they just use numeric strings
 	 */
-	@Column(name = "AUTH_PROVIDER_ID")
-	private String authenticationProviderId;
+	@Column(name = "USER_AUTH_PROVIDER_ID")
+	private String userAuthProviderId;
 	
 	@Column(name = "AUTH_PROVIDER_NAME")
 	private String authenticationProviderName;
 
-	@Column(name = "AUTH_PROVIDER_USERNAME")
-	private String authenticationProviderUsername;
+	@Column(name = "USERNAME")
+	private String username;
+	
+	@Column(name = "FIRST_NAME")
+	private String firstName;
+	
+	@Column(name = "LAST_NAME")
+	private String lastName;
 	
 	public UUID getId()
 	{
@@ -53,14 +55,14 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 		this.id = id;
 	}
 
-	public String getAuthenticationProviderId()
+	public String getUserAuthProviderId()
 	{
-		return authenticationProviderId;
+		return userAuthProviderId;
 	}
 
-	public void setAuthenticationProviderId(String authenticationProviderId)
+	public void setUserAuthProviderId(String userAuthProviderId)
 	{
-		this.authenticationProviderId = authenticationProviderId;
+		this.userAuthProviderId = userAuthProviderId;
 	}
 
 	public String getAuthenticationProviderName()
@@ -83,13 +85,33 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 		this.crsUser = crsUser;
 	}
 
-	public String getAuthenticationProviderUsername()
+	public String getUsername()
 	{
-		return authenticationProviderUsername;
+		return username;
 	}
 
-	public void setAuthenticationProviderUsername(String authenticationProviderUsername)
+	public void setUsername(String username)
 	{
-		this.authenticationProviderUsername = authenticationProviderUsername;
+		this.username = username;
+	}
+
+	public String getFirstName()
+	{
+		return firstName;
+	}
+
+	public void setFirstName(String firstName)
+	{
+		this.firstName = firstName;
+	}
+
+	public String getLastName()
+	{
+		return lastName;
+	}
+
+	public void setLastName(String lastName)
+	{
+		this.lastName = lastName;
 	}
 }

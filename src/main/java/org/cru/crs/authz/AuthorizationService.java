@@ -1,7 +1,7 @@
 package org.cru.crs.authz;
 
-import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.RegistrationEntity;
 
 import java.util.UUID;
