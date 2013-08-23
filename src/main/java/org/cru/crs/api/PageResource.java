@@ -23,9 +23,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Page;
-import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;

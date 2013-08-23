@@ -11,9 +11,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.cru.crs.auth.CrsApplicationUser;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.auth.model.CrsApplicationUser;
 
 @Path("/profile")
 public class ProfileResource

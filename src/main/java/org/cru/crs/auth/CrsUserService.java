@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 
 import com.google.common.base.Preconditions;

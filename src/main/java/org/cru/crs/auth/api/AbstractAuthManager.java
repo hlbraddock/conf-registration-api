@@ -1,13 +1,13 @@
 package org.cru.crs.auth.api;
 
-import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.CrsApplicationUser;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
+import org.cru.crs.auth.model.AuthenticationProviderUser;
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.utils.CrsProperties;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 public abstract class AbstractAuthManager
 {
@@ -23,20 +23,18 @@ public abstract class AbstractAuthManager
         return authCode;
     }
 
-    protected void persistIdentityAndAuthProviderRecordsIfNecessary(String id, 
-    																	AuthenticationProviderType authenticationProviderType, 
-    																	String authProviderUsername)
+    protected void persistIdentityAndAuthProviderRecordsIfNecessary(AuthenticationProviderUser user)
     {
-        if(authenticationProviderService.findAuthProviderIdentityByAuthProviderId(id) == null)
+        if(authenticationProviderService.findAuthProviderIdentityByAuthProviderId(user.getId()) == null)
         {
-            authenticationProviderService.createIdentityAndAuthProviderRecords(id, authenticationProviderType, authProviderUsername);
+            authenticationProviderService.createIdentityAndAuthProviderRecords(user.getId(), user.getAuthentcationProviderType(), user.getUsername());
         }
     }
 
-    protected CrsApplicationUser createCrsApplicationUser(String id, AuthenticationProviderType authenticationProviderType, String authProviderUsername)
+    protected CrsApplicationUser createCrsApplicationUser(AuthenticationProviderUser user)
 	{
-		AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderId(id);
+		AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderId(user.getId());
 		
-		return new CrsApplicationUser(authProviderEntity.getCrsUser().getId(), authenticationProviderType, authProviderUsername);
+		return new CrsApplicationUser(authProviderEntity.getCrsUser().getId(), user.getAuthentcationProviderType(), user.getUsername());
 	}
 }

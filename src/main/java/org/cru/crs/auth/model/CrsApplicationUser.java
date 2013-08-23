@@ -1,8 +1,9 @@
-package org.cru.crs.auth;
+package org.cru.crs.auth.model;
 
 import java.util.UUID;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.cru.crs.auth.AuthenticationProviderType;
 
 public class CrsApplicationUser implements java.io.Serializable
 {
