@@ -22,14 +22,14 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 {
 	@Path("/login")
 	@GET
-	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "code") String code) throws URISyntaxException, MalformedURLException
+	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "authId") String authId) throws URISyntaxException, MalformedURLException
 	{	
 		/**The "No-auth" provider should have already saved a row with this code as the auth_id and type "No-auth".
 		 * Now that the user is logging back in via email address, we should update the type to "Email-Account".
 		 */
-		AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity = authenticationProviderService.updateAuthProviderType(code, AuthenticationProviderType.EMAIL_ACCOUNT);
+		AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity = authenticationProviderService.updateAuthProviderType(authId, AuthenticationProviderType.EMAIL_ACCOUNT);
 
-		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(code, AuthenticationProviderType.EMAIL_ACCOUNT, authenticationProviderIdentityEntity.getAuthenticationProviderUsername());
+		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(authId, AuthenticationProviderType.EMAIL_ACCOUNT, authenticationProviderIdentityEntity.getAuthenticationProviderUsername());
 
 		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, crsApplicationUser);
 
