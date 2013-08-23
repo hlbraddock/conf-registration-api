@@ -22,13 +22,13 @@ public class AuthenticationProviderService
 		this.entityManager = entityManager;
 	}
 
-	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderId(String authenticationProviderId)
+	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderId(String userAuthProviderId)
 	{
 		try
 		{
 			return entityManager.createQuery("SELECT ape FROM AuthenticationProviderIdentityEntity ape " +
-					"WHERE ape.authenticationProviderId = :authenticationProviderId", AuthenticationProviderIdentityEntity.class)
-					.setParameter("authenticationProviderId", authenticationProviderId)
+					"WHERE ape.userAuthProviderId = :userAuthProviderId", AuthenticationProviderIdentityEntity.class)
+					.setParameter("userAuthProviderId", userAuthProviderId)
 					.getSingleResult();
 		}
 		catch(NoResultException nre)
