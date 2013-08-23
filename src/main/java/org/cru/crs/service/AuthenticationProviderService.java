@@ -51,9 +51,9 @@ public class AuthenticationProviderService
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
 		authProviderIdentityEntity.setCrsUser(newUser);
-		authProviderIdentityEntity.setAuthenticationProviderId(authProviderId);
+		authProviderIdentityEntity.setUserAuthProviderId(authProviderId);
 		authProviderIdentityEntity.setAuthenticationProviderName(authProviderType.name());
-		authProviderIdentityEntity.setAuthenticationProviderUsername(authProviderUsername);
+		authProviderIdentityEntity.setUsername(authProviderUsername);
 		
 		entityManager.persist(newUser);
 		entityManager.persist(authProviderIdentityEntity);
