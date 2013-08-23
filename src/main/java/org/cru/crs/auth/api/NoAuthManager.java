@@ -1,7 +1,8 @@
 package org.cru.crs.auth.api;
 
 import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.CrsApplicationUser;
+import org.cru.crs.auth.model.BasicNoAuthUser;
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.utils.AuthCodeGenerator;
 
 import javax.ejb.Stateless;
@@ -27,7 +28,7 @@ public class NoAuthManager extends AbstractAuthManager
 
         authenticationProviderService.createIdentityAndAuthProviderRecords(noAuthId, AuthenticationProviderType.NONE, null);
 
-        httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(noAuthId, AuthenticationProviderType.NONE, null));
+        httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, createCrsApplicationUser(BasicNoAuthUser.fromCode(noAuthId)));
 
         String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 
