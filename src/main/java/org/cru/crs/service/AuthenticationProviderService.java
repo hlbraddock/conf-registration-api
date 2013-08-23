@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
 import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.UserEntity;
 
@@ -45,15 +46,17 @@ public class AuthenticationProviderService
 	 * @param externalIdentityId
 	 * @param externalIdentityProviderName
 	 */
-	public void createIdentityAndAuthProviderRecords(String authProviderId, AuthenticationProviderType authProviderType, String authProviderUsername)
+	public void createIdentityAndAuthProviderRecords(AuthenticationProviderUser user)
 	{
 		UserEntity newUser = new UserEntity().setId(UUID.randomUUID());
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
 		authProviderIdentityEntity.setCrsUser(newUser);
-		authProviderIdentityEntity.setUserAuthProviderId(authProviderId);
-		authProviderIdentityEntity.setAuthenticationProviderName(authProviderType.name());
-		authProviderIdentityEntity.setUsername(authProviderUsername);
+		authProviderIdentityEntity.setUserAuthProviderId(user.getId());
+		authProviderIdentityEntity.setAuthenticationProviderName(user.getAuthentcationProviderType().name());
+		authProviderIdentityEntity.setUsername(user.getUsername());
+		authProviderIdentityEntity.setFirstName(user.getFirstName());
+		authProviderIdentityEntity.setLastName(user.getLastName());
 		
 		entityManager.persist(newUser);
 		entityManager.persist(authProviderIdentityEntity);
