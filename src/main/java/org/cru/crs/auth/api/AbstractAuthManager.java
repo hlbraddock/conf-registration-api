@@ -27,7 +27,7 @@ public abstract class AbstractAuthManager
     {
         if(authenticationProviderService.findAuthProviderIdentityByAuthProviderId(user.getId()) == null)
         {
-            authenticationProviderService.createIdentityAndAuthProviderRecords(user.getId(), user.getAuthentcationProviderType(), user.getUsername());
+            authenticationProviderService.createIdentityAndAuthProviderRecords(user);
         }
     }
 
