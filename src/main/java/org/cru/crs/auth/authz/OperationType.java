@@ -1,4 +1,4 @@
-package org.cru.crs.authz;
+package org.cru.crs.auth.authz;
 
 import java.util.Arrays;
 import java.util.HashSet;

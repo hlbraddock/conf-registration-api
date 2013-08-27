@@ -5,7 +5,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.authz.AuthorizationService;
+import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;

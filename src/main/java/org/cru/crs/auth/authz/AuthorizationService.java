@@ -1,4 +1,4 @@
-package org.cru.crs.authz;
+package org.cru.crs.auth.authz;
 
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
