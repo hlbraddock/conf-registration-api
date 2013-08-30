@@ -3,7 +3,6 @@ package org.cru.crs.auth.api;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -19,7 +18,6 @@ import org.cru.crs.auth.model.BasicNoAuthUser;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.MailService;
-import org.jboss.logging.Logger;
 
 @Stateless
 @Path("/auth/none")
@@ -32,15 +30,17 @@ public class NoAuthManager extends AbstractAuthManager
 	@GET
 	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "email") String email) throws URISyntaxException, MalformedURLException
 	{
-		String noAuthId = UUID.randomUUID().toString();
+		String noAuthId = AuthCodeGenerator.generate();
 
 		// deny repeat usage of email no authentication login
 		if(!crsProperties.getProperty("mode").equals("debug"))
+		{
 			if(authenticationProviderService.findAuthProviderIdentityByAuthProviderUsernameAndType(email, AuthenticationProviderType.NONE) != null)
 			{
 				// TODO need a more user friendly response
 				return Response.status(Response.Status.UNAUTHORIZED).build();
 			}
+		}
 
 		authenticationProviderService.createIdentityAndAuthProviderRecords(BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email));
 
