@@ -17,7 +17,7 @@
     <entry key="crsEmail">donotreply@cru.org</entry>
 
     <!-- used for debug purposes -->
-    <entry key="mode">debug</entry>
+    <entry key="mode"></entry>
 
 </properties>
 
