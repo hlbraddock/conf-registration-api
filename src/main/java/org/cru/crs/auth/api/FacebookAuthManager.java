@@ -102,7 +102,7 @@ public class FacebookAuthManager extends AbstractAuthManager
         String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + authCode)).build();
 	}
 
 	private boolean isLoginError(String code, String error)
