@@ -31,6 +31,12 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 		 */
 		AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity = authenticationProviderService.updateAuthProviderType(authId, AuthenticationProviderType.EMAIL_ACCOUNT);
 
+		if(authenticationProviderIdentityEntity == null)
+		{
+			// TODO need a more user friendly response
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+
 		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(EmailAccountUser.fromAuthIdAndEmail(authId, authenticationProviderIdentityEntity.getUsername()));
 
 		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, crsApplicationUser);
@@ -38,6 +44,6 @@ public class EmailAccountAuthManager extends AbstractAuthManager
         String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(crsProperties.getProperty("authCodeUrl") + "/" + authCode)).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + authCode)).build();
 	}
 }

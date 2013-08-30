@@ -86,7 +86,9 @@ public class AuthenticationProviderService
 	public AuthenticationProviderIdentityEntity updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
 	{
 		AuthenticationProviderIdentityEntity authProviderEntity = findAuthProviderIdentityByAuthProviderId(authProviderId);
-		authProviderEntity.setAuthenticationProviderName(newAuthProviderType.name());
+
+		if(authProviderEntity != null)
+			authProviderEntity.setAuthenticationProviderName(newAuthProviderType.name());
 
 		return authProviderEntity;
 	}
