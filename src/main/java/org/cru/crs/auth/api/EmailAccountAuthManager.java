@@ -31,6 +31,12 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 		 */
 		AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity = authenticationProviderService.updateAuthProviderType(authId, AuthenticationProviderType.EMAIL_ACCOUNT);
 
+		if(authenticationProviderIdentityEntity == null)
+		{
+			// TODO need a more user friendly response
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+
 		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(EmailAccountUser.fromAuthIdAndEmail(authId, authenticationProviderIdentityEntity.getUsername()));
 
 		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, crsApplicationUser);
