@@ -10,7 +10,7 @@ public class FacebookUser extends AuthenticationProviderUser
 {
 	private String fullName;
 	
-	public static FacebookUser fromJsonNode(JsonNode user)
+	public static FacebookUser fromJsonNode(JsonNode user, String accessToken)
 	{
 		FacebookUser facebookUser = new FacebookUser();
 
@@ -19,7 +19,8 @@ public class FacebookUser extends AuthenticationProviderUser
 		facebookUser.firstName = user.get("first_name").toString();
 		facebookUser.lastName = user.get("last_name").toString();
 		facebookUser.username = user.get("username").toString();
-		facebookUser.authentcationProviderType = AuthenticationProviderType.FACEBOOK;
+		facebookUser.accessToken = accessToken;
+		facebookUser.authenticationProviderType = AuthenticationProviderType.FACEBOOK;
 		
 		return facebookUser;
 	}

@@ -15,7 +15,7 @@ public class RelayUser extends AuthenticationProviderUser
 		relayUser.username = casReceipt.getAttributes().get("username").toString().toLowerCase();
 		relayUser.firstName = casReceipt.getAttributes().get("firstName").toString().toLowerCase();
 		relayUser.lastName = casReceipt.getAttributes().get("lastName").toString().toLowerCase();
-		relayUser.authentcationProviderType = AuthenticationProviderType.RELAY;
+		relayUser.authenticationProviderType = AuthenticationProviderType.RELAY;
 		
 		return relayUser;
 	}

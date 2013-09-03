@@ -92,7 +92,7 @@ public class FacebookAuthManager extends AbstractAuthManager
 			return Response.status(response.getCode()).build();
 
 		// transform the facebook response into facebook user
-		FacebookUser facebookUser = FacebookUser.fromJsonNode(JsonUtils.jsonNodeFromString(response.getBody()));
+		FacebookUser facebookUser = FacebookUser.fromJsonNode(JsonUtils.jsonNodeFromString(response.getBody()), accessToken.getToken());
 
         persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser);
 

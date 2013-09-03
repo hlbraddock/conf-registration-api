@@ -32,7 +32,10 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	 */
 	@Column(name = "USER_AUTH_PROVIDER_ID")
 	private String userAuthProviderId;
-	
+
+	@Column(name = "AUTH_PROVIDER_USER_ACCESS_TOKEN")
+	private String authProviderUserAccessToken;
+
 	@Column(name = "AUTH_PROVIDER_NAME")
 	private String authenticationProviderName;
 
@@ -63,6 +66,16 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	public void setUserAuthProviderId(String userAuthProviderId)
 	{
 		this.userAuthProviderId = userAuthProviderId;
+	}
+
+	public String getAuthProviderUserAccessToken()
+	{
+		return authProviderUserAccessToken;
+	}
+
+	public void setAuthProviderUserAccessToken(String userAuthProviderUserAccessToken)
+	{
+		this.authProviderUserAccessToken = userAuthProviderUserAccessToken;
 	}
 
 	public String getAuthenticationProviderName()

@@ -8,7 +8,8 @@ public abstract class AuthenticationProviderUser
 	protected String firstName;
 	protected String lastName;
 	protected String username;
-	protected AuthenticationProviderType authentcationProviderType;
+	protected String accessToken;
+	protected AuthenticationProviderType authenticationProviderType;
 	
 	public String getId()
 	{
@@ -26,8 +27,12 @@ public abstract class AuthenticationProviderUser
 	{
 		return username;
 	}
-	public AuthenticationProviderType getAuthentcationProviderType()
+	public AuthenticationProviderType getAuthenticationProviderType()
 	{
-		return authentcationProviderType;
+		return authenticationProviderType;
+	}
+	public String getAccessToken()
+	{
+		return accessToken;
 	}
 }
