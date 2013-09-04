@@ -35,7 +35,7 @@ public class ConferenceEntity implements java.io.Serializable
 	@Column(name = "NAME")
 	private String name;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval=true)
     @JoinColumn(name = "CONFERENCE_ID", nullable = false)
     @OrderColumn(name = "POSITION", nullable = false)
 	private List<PageEntity> pages;
