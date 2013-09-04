@@ -11,7 +11,7 @@ public class BasicNoAuthUser extends AuthenticationProviderUser
 		
 		user.id = authId;
 		user.username = emailAddress;
-		user.authentcationProviderType = AuthenticationProviderType.NONE;
+		user.authenticationProviderType = AuthenticationProviderType.NONE;
 		
 		return user;
 	}

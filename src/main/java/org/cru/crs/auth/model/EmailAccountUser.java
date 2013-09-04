@@ -10,7 +10,7 @@ public class EmailAccountUser extends AuthenticationProviderUser
 		
 		user.id = authId;
 		user.username = emailAddress;
-		user.authentcationProviderType = AuthenticationProviderType.EMAIL_ACCOUNT;
+		user.authenticationProviderType = AuthenticationProviderType.EMAIL_ACCOUNT;
 		
 		return user;
 	}

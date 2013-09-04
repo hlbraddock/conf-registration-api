@@ -59,17 +59,17 @@ public class AuthenticationProviderService
 	/**
 	 * Creates a new internal CRS App identity record along with a row for the authentication provider identity.
 	 * The two rows will be associated by a foreign key relationship
-	 * @param externalIdentityId
-	 * @param externalIdentityProviderName
 	 */
 	public void createIdentityAndAuthProviderRecords(AuthenticationProviderUser user)
 	{
 		UserEntity newUser = new UserEntity().setId(UUID.randomUUID());
+
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
 		authProviderIdentityEntity.setCrsUser(newUser);
 		authProviderIdentityEntity.setUserAuthProviderId(user.getId());
-		authProviderIdentityEntity.setAuthenticationProviderName(user.getAuthentcationProviderType().name());
+		authProviderIdentityEntity.setAuthProviderUserAccessToken(user.getAccessToken());
+		authProviderIdentityEntity.setAuthenticationProviderName(user.getAuthenticationProviderType().name());
 		authProviderIdentityEntity.setUsername(user.getUsername());
 		authProviderIdentityEntity.setFirstName(user.getFirstName());
 		authProviderIdentityEntity.setLastName(user.getLastName());

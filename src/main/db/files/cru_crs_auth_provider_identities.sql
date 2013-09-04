@@ -5,6 +5,7 @@ CREATE TABLE cru_crs_auth_provider_identities(
 	crs_id uuid references cru_crs_users(id),
 	auth_provider_name text NOT NULL,
 	user_auth_provider_id text NOT NULL,
+	auth_provider_user_access_token text,
 	username text,
 	first_name text,
 	last_name text
