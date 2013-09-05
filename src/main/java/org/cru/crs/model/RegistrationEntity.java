@@ -34,7 +34,7 @@ public class RegistrationEntity implements java.io.Serializable
 	@Type(type = "pg-uuid")
 	private UUID userId;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
 	@JoinColumn(name = "REGISTRATION_ID", nullable = false)
 	private Set<AnswerEntity> answers;
 
