@@ -1,21 +1,22 @@
 package org.cru.crs.service;
 
-import java.util.UUID;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.cru.crs.api.model.Block;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.RegistrationEntity;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.util.UUID;
 
 @Test(groups="db-integration-tests")
 public class BlockServiceTest
@@ -167,4 +168,60 @@ public class BlockServiceTest
 			em.getTransaction().rollback();
 		}
 	}
+
+    @Test(groups="db-integration-tests")
+    public void testDeleteBlocksWithAssociatedAnswers() throws UnauthorizedException
+    {
+        EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+
+
+        BlockEntity block = new BlockEntity();
+
+        block.setId(UUID.randomUUID());
+        block.setTitle("New Block");
+        block.setPageId(UUID.fromString("7a52af36-2f3c-5e45-9f76-0af10ff50bb8"));
+
+        AnswerEntity answer = new AnswerEntity();
+        answer.setId(UUID.randomUUID());
+        answer.setBlockId(block.getId());
+        answer.setRegistrationId(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
+
+        try
+        {
+            RegistrationEntity registration = setupEm.find(RegistrationEntity.class, UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
+
+            setupEm.getTransaction().begin();
+
+            PageEntity pageToAddBlockTo = setupEm.find(PageEntity.class, UUID.fromString("7a52af36-2f3c-5e45-9f76-0af10ff50bb8"));
+
+            pageToAddBlockTo.getBlocks().add(block);
+
+            setupEm.flush();
+
+            registration.getAnswers().add(answer);
+
+            setupEm.flush();
+
+            setupEm.getTransaction().commit();
+
+            BlockEntity retrievedBlock = em.find(BlockEntity.class, block.getId());
+
+            em.getTransaction().begin();
+            em.remove(retrievedBlock);
+
+            em.flush();
+
+            em.getTransaction().commit();
+
+            Assert.assertNull(em.find(BlockEntity.class, block.getId()));
+            Assert.assertNull(em.find(AnswerEntity.class, answer.getId()));
+        }
+        catch(Exception e)
+        {
+            setupEm.getTransaction().rollback();
+            setupEm.close();
+            em.getTransaction().rollback();
+            Assert.fail();
+        }
+    }
 }
