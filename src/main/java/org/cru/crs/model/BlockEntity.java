@@ -1,11 +1,10 @@
 package org.cru.crs.model;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.codehaus.jackson.JsonNode;
 import org.hibernate.annotations.Type;
@@ -43,6 +42,11 @@ public class BlockEntity implements java.io.Serializable
 	
 	@Column(name = "TITLE")
 	private String title;
+
+    @OneToMany(orphanRemoval=true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "BLOCK_ID")
+    private Set<AnswerEntity> answers = new HashSet<AnswerEntity>();
+
 
 	public UUID getId()
 	{
