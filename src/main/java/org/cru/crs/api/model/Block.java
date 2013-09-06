@@ -39,6 +39,7 @@ public class Block implements java.io.Serializable
 		
 		for(BlockEntity jpaBlock : jpaBlocks)
 		{
+            if(jpaBlock == null) continue;
 			webBlocks.add(fromJpa(jpaBlock));
 		}
 		

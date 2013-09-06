@@ -39,6 +39,7 @@ public class Page implements java.io.Serializable
 		
 		for(PageEntity jpaPage : jpaPages)
 		{
+            if(jpaPage == null) continue;
 			pages.add(fromJpa(jpaPage));
 		}
 		
