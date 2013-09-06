@@ -11,6 +11,7 @@ import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
+import org.cru.crs.service.BlockService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
@@ -37,6 +38,7 @@ public class AnswerResource
 {
 	@Inject AnswerService answerService;
 	@Inject RegistrationService registrationService;
+    @Inject BlockService blockService;
 	@Inject CrsUserService userService;
 	@Inject AuthorizationService authorizationService;
 
@@ -96,6 +98,14 @@ public class AnswerResource
 
 			if(answer.getId() == null || answerId == null)
 				return Response.status(Status.BAD_REQUEST).build();
+
+            /*if the block for which this answer is related to has been deleted, then return
+            an appropriate error client error message
+             */
+            if(blockService.fetchBlockBy(answer.getBlockId()) == null)
+            {
+                return Response.status(Status.GONE).build();
+            }
 
 			logger.info("update answer");
 
