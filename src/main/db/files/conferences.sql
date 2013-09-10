@@ -3,7 +3,6 @@ DROP TABLE conferences CASCADE;
 
 CREATE TABLE conferences (
   id uuid NOT NULL PRIMARY KEY,
-  conf_payment_details_id uuid REFERENCES cru_crs_conference_payment(id),
   name text,
   event_start_time timestamp with time zone,
   event_end_time timestamp with time zone,
