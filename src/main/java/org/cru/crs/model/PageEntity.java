@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name = "CRU_CRS_PAGES")
+@Table(name = "PAGES")
 public class PageEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;

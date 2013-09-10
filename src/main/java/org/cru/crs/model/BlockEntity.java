@@ -10,7 +10,7 @@ import org.codehaus.jackson.JsonNode;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name = "CRU_CRS_BLOCKS")
+@Table(name = "BLOCKS")
 public class BlockEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
