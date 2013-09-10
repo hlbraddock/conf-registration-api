@@ -3,14 +3,7 @@ package org.cru.crs.model;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
@@ -62,6 +55,10 @@ public class ConferenceEntity implements java.io.Serializable
 	@Column(name = "CONTACT_USER")
 	@Type(type="pg-uuid")
 	private UUID contactUser;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "CONFERENCE_COSTS_ID")
+    ConferenceCostsEntity conferenceCosts;
 
 	public UUID getId()
 	{
