@@ -1,6 +1,6 @@
-DROP TABLE cru_crs_authorizations CASCADE;
+DROP TABLE authorizations CASCADE;
 
-CREATE TABLE cru_crs_authorizations (
+CREATE TABLE authorizations (
   id uuid NOT NULL PRIMARY KEY,
   conference uuid references conferences(id),
   user_id uuid references users(id),

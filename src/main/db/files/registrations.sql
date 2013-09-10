@@ -1,6 +1,7 @@
 DROP TABLE cru_crs_registrations CASCADE;
+DROP TABLE registrations CASCADE;
 
-CREATE TABLE cru_crs_registrations (
+CREATE TABLE registrations (
   id uuid NOT NULL PRIMARY KEY,
   user_id uuid references users(id),
   conference_id uuid references conferences(id)

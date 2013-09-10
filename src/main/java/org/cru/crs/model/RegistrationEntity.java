@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "CRU_CRS_REGISTRATIONS")
+@Table(name = "REGISTRATIONS")
 public class RegistrationEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;

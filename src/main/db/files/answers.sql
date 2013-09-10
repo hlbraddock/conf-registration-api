@@ -3,7 +3,7 @@ DROP TABLE answers CASCADE;
 
 CREATE TABLE answers (
   id uuid NOT NULL PRIMARY KEY,
-  registration_id uuid references cru_crs_registrations(id),
+  registration_id uuid references registrations(id),
   block_id uuid references blocks(id),
   answer json
 );
