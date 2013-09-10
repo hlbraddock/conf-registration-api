@@ -1,7 +1,8 @@
 !/bin/sh
 
 DIR=files
-CREATE_SCRIPTS="cru_crs_users.sql cru_crs_auth_provider_identities.sql cru_crs_conferences.sql cru_crs_registrations.sql cru_crs_pages.sql cru_crs_blocks.sql cru_crs_answers.sql cru_crs_authorizations.sql"
+CREATE_SCRIPTS="cru_crs_users.sql cru_crs_auth_provider_identities.sql conferences.sql cru_crs_registrations.sql cru_crs_pages.sql cru_crs_blocks.sql cru_crs_answers.sql cru_crs_authorizations.sql"
+
 USER=crsuser
 DB=crsdb
 

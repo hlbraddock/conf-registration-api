@@ -3,7 +3,7 @@ DROP TABLE cru_crs_pages CASCADE;
 CREATE TABLE cru_crs_pages (
   id uuid NOT NULL PRIMARY KEY,
   title text,
-  conference_id uuid NOT NULL references cru_crs_conferences(id),
+  conference_id uuid NOT NULL references conferences(id),
   position integer
 );
 

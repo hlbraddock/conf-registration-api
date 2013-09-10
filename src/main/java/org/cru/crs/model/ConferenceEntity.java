@@ -22,7 +22,7 @@ import org.joda.time.DateTime;
  *
  */
 @Entity
-@Table(name = "CRU_CRS_CONFERENCES")
+@Table(name = "CONFERENCES")
 public class ConferenceEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
