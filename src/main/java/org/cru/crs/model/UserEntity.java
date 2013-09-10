@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name = "CRU_CRS_USERS")
+@Table(name = "USERS")
 public class UserEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;

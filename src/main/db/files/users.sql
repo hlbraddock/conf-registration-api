@@ -1,6 +1,7 @@
 DROP TABLE cru_crs_users CASCADE ;
+DROP TABLE users CASCADE ;
 
-CREATE TABLE cru_crs_users (
+CREATE TABLE users (
   id uuid NOT NULL PRIMARY KEY,
   first_name text,
   last_name text,
@@ -15,6 +16,6 @@ CREATE TABLE cru_crs_users (
   home_address_country text
 );
 
-INSERT INTO cru_crs_users(id) VALUES('f8f8c217-f918-4503-b3b3-85016f9883c1');
-INSERT INTO cru_crs_users(id) VALUES('f8f8c217-f918-4503-b3b3-85016f988343');
-INSERT INTO cru_crs_users(id) VALUES('dbc6a808-d7bc-4d92-967c-d82d9d312898');
+INSERT INTO users(id) VALUES('f8f8c217-f918-4503-b3b3-85016f9883c1');
+INSERT INTO users(id) VALUES('f8f8c217-f918-4503-b3b3-85016f988343');
+INSERT INTO users(id) VALUES('dbc6a808-d7bc-4d92-967c-d82d9d312898');

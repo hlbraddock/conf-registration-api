@@ -2,7 +2,7 @@ DROP TABLE cru_crs_auth_provider_identities CASCADE;
 
 CREATE TABLE cru_crs_auth_provider_identities(
 	id uuid NOT NULL PRIMARY KEY,
-	crs_id uuid references cru_crs_users(id),
+	crs_id uuid references users(id),
 	auth_provider_name text NOT NULL,
 	user_auth_provider_id text NOT NULL,
 	auth_provider_user_access_token text,
