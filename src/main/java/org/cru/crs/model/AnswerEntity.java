@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import java.util.UUID;
 
 @Entity
-@Table(name = "CRU_CRS_ANSWERS")
+@Table(name = "ANSWERS")
 public class AnswerEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
