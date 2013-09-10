@@ -58,6 +58,7 @@ public class BlockServiceTest
 		Assert.assertFalse(block.isAdminOnly());
 		Assert.assertEquals(block.getBlockType(), "paragraphContent");
 		Assert.assertEquals(block.getTitle(), "About the conference");
+        Assert.assertNotNull(block.getContent());
 	}
 
 	@Test(groups="db-integration-tests")
