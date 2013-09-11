@@ -4,6 +4,7 @@ DROP TABLE blocks CASCADE;
 CREATE TABLE blocks (
   id uuid NOT NULL PRIMARY KEY,
   page_id uuid references pages(id),
+  conference_costs_block_id uuid references conference_costs_blocks(id),
   block_type text,
   admin_only boolean,
   required boolean,
@@ -20,10 +21,10 @@ INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, titl
 INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('AF60D878-4741-4F21-9D25-231D-B86E43EC','0A00D62C-AF29-3723-F949-95A9-50A0B27C','paragraphContent',false, false, 0, 'We love pets','"Please tell us all about your kitteh."');
 INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('DDA45720-DE87-C419-933A-0187-12B152DC','0A00D62C-AF29-3723-F949-95A9-50A0B27C','nameQuestion',false, true, 1, 'Kittehs name','""');
 INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('F774EA5C-8E44-25DC-9169-2F14-1C57E3AC','0A00D62C-AF29-3723-F949-95A9-50A0B27C','checkboxQuestion',false, false, 2, 'Mah kitteh iz... (check all that apply)','{"choices" : ["Tabby","Tuxedo","Fat","Hunter/huntress","Lethargic","Calico","Aloof","Curious","Swimmer","Eight of nine lives spent"]}');
-INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('A229C854-6989-F658-7C29-B3DD-034F6FDC','0A00D62C-AF29-3723-F949-95A9-50A0B27C','textQuestion',false, false, 3, 'Preferred cat food brand (or cheezburgerz)','""');
+INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content, conference_costs_block_id) values('A229C854-6989-F658-7C29-B3DD-034F6FDC','0A00D62C-AF29-3723-F949-95A9-50A0B27C','textQuestion',false, false, 3, 'Preferred cat food brand (or cheezburgerz)','""','c173ed10-198d-11e3-8ffd-0800200c9a66');
 
 INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('AF60D878-4741-4F21-9D25-231D-B86E43EB','7DAE078F-A131-471E-BB70-5156-B62DDEA5','textQuestion',false, false, 0, 'Favorite TV show','""');
-INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('F774EA5C-8E44-25DC-9169-2F14-1C57E3AB','7DAE078F-A131-471E-BB70-5156-B62DDEA5','checkboxQuestion',false, false, 1, 'Sessions I will attend... (check all that apply)','{"choices" : ["Mens time","Womens time","Wilderness survival","Sword drills 101","What about my cat?"]}');
+INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content, conference_costs_block_id) values('F774EA5C-8E44-25DC-9169-2F14-1C57E3AB','7DAE078F-A131-471E-BB70-5156-B62DDEA5','checkboxQuestion',false, false, 1, 'Sessions I will attend... (check all that apply)','{"choices" : ["Mens time","Womens time","Wilderness survival","Sword drills 101","What about my cat?"]}','c4b54db0-1993-11e3-8ffd-0800200c9a66');
 INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('A229C854-6989-F658-7C29-B3DD-034F6FDB','7DAE078F-A131-471E-BB70-5156-B62DDEA5','textQuestion',false, false, 2, 'Favorite sport','""');
 
 INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('A229C444-6989-F658-7C29-B3DD-034F6FDB','707986E8-F4AD-4F6F-E0FD-D28C-2695B163','textQuestion',false, false, 0, 'Favorite poet','""');

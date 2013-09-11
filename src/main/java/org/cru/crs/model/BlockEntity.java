@@ -47,6 +47,10 @@ public class BlockEntity implements java.io.Serializable
     @JoinColumn(name = "BLOCK_ID")
     private Set<AnswerEntity> answers = new HashSet<AnswerEntity>();
 
+//    @Transient
+    @OneToOne(orphanRemoval = true)
+    @JoinColumn(name = "CONFERENCE_COSTS_BLOCK_ID")
+    ConferenceCostsBlockEntity conferenceCostsDetails;
 
 	public UUID getId()
 	{
@@ -129,4 +133,14 @@ public class BlockEntity implements java.io.Serializable
 	{
 		this.required = required;
 	}
+
+    public ConferenceCostsBlockEntity getConferenceCostsDetails()
+    {
+        return conferenceCostsDetails;
+    }
+
+    public void setConferenceCostsDetails(ConferenceCostsBlockEntity conferenceCostsDetails)
+    {
+        this.conferenceCostsDetails = conferenceCostsDetails;
+    }
 }
