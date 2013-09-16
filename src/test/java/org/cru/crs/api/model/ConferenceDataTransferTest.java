@@ -31,8 +31,13 @@ public class ConferenceDataTransferTest
 		conference.setRegistrationEndTime(DateTimeCreaterHelper.createDateTime(2013, 8, 30, 12, 0, 0));
 		conference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 8, 12, 17, 30, 10));
 		conference.setTotalSlots(150);
-		
-		ConferenceEntity jpaConference = conference.toJpaConferenceEntity();
+        conference.setLocationName("Farmville Camp");
+        conference.setLocationAddress("1234 Farmers St");
+        conference.setLocationCity("Farmville");
+		conference.setLocationState("TX");
+        conference.setLocationZipCode("23451");
+
+        ConferenceEntity jpaConference = conference.toJpaConferenceEntity();
 		
 		Assert.assertNotNull(jpaConference);
 		Assert.assertEquals(jpaConference.getContactUser(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
@@ -43,6 +48,11 @@ public class ConferenceDataTransferTest
 		Assert.assertEquals(jpaConference.getRegistrationEndTime(), DateTimeCreaterHelper.createDateTime(2013, 8, 30, 12, 0, 0));
 		Assert.assertEquals(jpaConference.getRegistrationStartTime(), DateTimeCreaterHelper.createDateTime(2013, 8, 12, 17, 30, 10));
 		Assert.assertEquals(jpaConference.getTotalSlots(), 150);
+        Assert.assertEquals(jpaConference.getLocationName(), "Farmville Camp");
+        Assert.assertEquals(jpaConference.getLocationAddress(), "1234 Farmers St");
+        Assert.assertEquals(jpaConference.getLocationCity(), "Farmville");
+        Assert.assertEquals(jpaConference.getLocationState(), "TX");
+        Assert.assertEquals(jpaConference.getLocationZipCode(), "23451");
 	}
 	
 	@Test(groups="unittest")
