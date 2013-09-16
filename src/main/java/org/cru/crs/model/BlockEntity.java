@@ -43,8 +43,7 @@ public class BlockEntity implements java.io.Serializable
 	@Column(name = "TITLE")
 	private String title;
 
-    @OneToMany(orphanRemoval=true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "BLOCK_ID")
+    @Transient
     private Set<AnswerEntity> answers = new HashSet<AnswerEntity>();
 
 
