@@ -30,7 +30,12 @@ public class Conference implements java.io.Serializable
 	private UUID contactUser;
 	private int totalSlots;
 	
-	
+	private String locationName;
+    private String locationAddress;
+    private String locationCity;
+    private String locationState;
+    private String locationZipCode;
+
 	public ConferenceEntity toJpaConferenceEntity()
 	{
 		ConferenceEntity jpaConference = new ConferenceEntity();
@@ -43,7 +48,13 @@ public class Conference implements java.io.Serializable
 		jpaConference.setRegistrationEndTime(registrationEndTime);
 		jpaConference.setTotalSlots(totalSlots);
 		jpaConference.setContactUser(contactUser);
-		
+
+        jpaConference.setLocationName(locationName);
+        jpaConference.setLocationAddress(locationAddress);
+        jpaConference.setLocationCity(locationCity);
+        jpaConference.setLocationState(locationState);
+        jpaConference.setLocationZipCode(locationZipCode);
+
 		jpaConference.setPages(new ArrayList<PageEntity>());
 		
 		if(registrationPages != null)
@@ -75,6 +86,13 @@ public class Conference implements java.io.Serializable
 		webConference.registrationEndTime = jpaConference.getRegistrationEndTime();
 		webConference.totalSlots = jpaConference.getTotalSlots();
 		webConference.contactUser = jpaConference.getContactUser();
+
+        webConference.locationName = jpaConference.getLocationName();
+        webConference.locationAddress = jpaConference.getLocationAddress();
+        webConference.locationCity = jpaConference.getLocationCity();
+        webConference.locationState = jpaConference.getLocationState();
+        webConference.locationZipCode = jpaConference.getLocationZipCode();
+
 		return webConference;
 	}
 
@@ -196,5 +214,54 @@ public class Conference implements java.io.Serializable
 	{
 		this.totalSlots = totalSlots;
 	}
-	
+
+    public String getLocationName()
+    {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName)
+    {
+        this.locationName = locationName;
+    }
+
+    public String getLocationAddress()
+    {
+        return locationAddress;
+    }
+
+    public void setLocationAddress(String locationAddress)
+    {
+        this.locationAddress = locationAddress;
+    }
+
+    public String getLocationCity()
+    {
+        return locationCity;
+    }
+
+    public void setLocationCity(String locationCity)
+    {
+        this.locationCity = locationCity;
+    }
+
+    public String getLocationState()
+    {
+        return locationState;
+    }
+
+    public void setLocationState(String locationState)
+    {
+        this.locationState = locationState;
+    }
+
+    public String getLocationZipCode()
+    {
+        return locationZipCode;
+    }
+
+    public void setLocationZipCode(String locationZipCode)
+    {
+        this.locationZipCode = locationZipCode;
+    }
 }
