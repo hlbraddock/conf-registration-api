@@ -17,7 +17,7 @@ import org.joda.time.DateTime;
 
 /**
  * Entity class which represents data about a Cru conference.
- * 
+ *
  * @author ryancarlson
  *
  */
@@ -26,12 +26,12 @@ import org.joda.time.DateTime;
 public class ConferenceEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@Column(name = "ID")
 	@Type(type="pg-uuid")
 	private UUID id;
-	
+
 	@Column(name = "NAME")
 	private String name;
 
@@ -43,27 +43,42 @@ public class ConferenceEntity implements java.io.Serializable
     @Column(name = "EVENT_START_TIME")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime eventStartTime;
-	
+
 	@Column(name = "EVENT_END_TIME")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime eventEndTime;
-	
+
 	@Column(name = "REGISTRATION_START_TIME")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime registrationStartTime;
-	
+
 	@Column(name = "REGISTRATION_END_TIME")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime registrationEndTime;
-	
+
 	@Column(name = "TOTAL_SLOTS")
 	private int totalSlots;
-	
+
 	@Column(name = "CONTACT_USER")
 	@Type(type="pg-uuid")
 	private UUID contactUser;
 
-	public UUID getId()
+    @Column(name = "LOCATION_NAME")
+    private String locationName;
+
+    @Column(name = "LOCATION_ADDRESS")
+    private String locationAddress;
+
+    @Column(name = "LOCATION_CITY")
+    private String locationCity;
+
+    @Column(name = "LOCATION_STATE")
+    private String locationState;
+
+    @Column(name = "LOCATION_ZIP_CODE")
+    private String locationZipCode;
+
+    public UUID getId()
 	{
 		return id;
 	}
@@ -153,4 +168,54 @@ public class ConferenceEntity implements java.io.Serializable
 	{
 		this.pages = pages;
 	}
+
+    public String getLocationName()
+    {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName)
+    {
+        this.locationName = locationName;
+    }
+
+    public String getLocationAddress()
+    {
+        return locationAddress;
+    }
+
+    public void setLocationAddress(String locationAddress)
+    {
+        this.locationAddress = locationAddress;
+    }
+
+    public String getLocationCity()
+    {
+        return locationCity;
+    }
+
+    public void setLocationCity(String locationCity)
+    {
+        this.locationCity = locationCity;
+    }
+
+    public String getLocationState()
+    {
+        return locationState;
+    }
+
+    public void setLocationState(String locationState)
+    {
+        this.locationState = locationState;
+    }
+
+    public String getLocationZipCode()
+    {
+        return locationZipCode;
+    }
+
+    public void setLocationZipCode(String locationZipCode)
+    {
+        this.locationZipCode = locationZipCode;
+    }
 }
