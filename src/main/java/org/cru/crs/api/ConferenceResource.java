@@ -191,21 +191,9 @@ public class ConferenceResource
 				logger.info("PUT: " + conference.getId());
                 logObject(conference, logger);
 
-                /**
-                 * So that blocks don't get deleting when moving them to a preceding page, update pages
-                 * one by one and flush to the database between moving them.  See Github issue 39 and PR 42 for context
-                 */
-                for(Page page : conference.getRegistrationPages())
-                {
-                    pageService.updatePage(page.toJpaPageEntity(), loggedInUser);
-                    em.flush();
-                }
-
 				/*there is an existing conference, so go update it*/
 				conferenceService.updateConference(conference.toJpaConferenceEntity().setId(conferenceId), 
 						loggedInUser);
-				
-				
 			}
 			
 			return Response.noContent().build();

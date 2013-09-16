@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.cru.crs.api.model.Page;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
@@ -52,7 +53,20 @@ public class ConferenceService
 		{
 			throw new UnauthorizedException();
 		}
-				
+
+        /*
+         * So that blocks don't get deleting when moving them to a preceding page, update pages
+         * one by one and flush to the database between moving them.  See Github issue 39 and PR 42 for context
+         */
+
+        //can't inject a PageService, because PageService injects this class.
+        PageService pageService = new PageService(em,this);
+        for(PageEntity page : conferenceToUpdate.getPages())
+        {
+            pageService.updatePage(page, crsLoggedInUser);
+            em.flush();
+        }
+
 		em.merge(conferenceToUpdate);
 	}
 	
