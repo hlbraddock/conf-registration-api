@@ -215,4 +215,14 @@ public class ConferenceEntity implements java.io.Serializable
     {
         this.locationZipCode = locationZipCode;
     }
+
+    public ConferenceCostsEntity getConferenceCosts()
+    {
+        return conferenceCosts;
+    }
+
+    public void setConferenceCosts(ConferenceCostsEntity conferenceCosts)
+    {
+        this.conferenceCosts = conferenceCosts;
+    }
 }
