@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -46,12 +47,14 @@ public class ConferenceResource
 	@Inject RegistrationService registrationService;
 	@Inject PageService pageService;
 	
+	@Inject EntityManager em;
+	
 	@Context HttpServletRequest request;
 	@Inject CrsUserService userService;
 
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
-	/**
+    /**
 	 * Desired design: Gets all the conferences for which the authenticated user has access to.
 	 * 
 	 * Current status: Returns all conferences in the system.  Need authentication built out to
@@ -90,7 +93,12 @@ public class ConferenceResource
 
 		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
 
-		return Response.ok(Conference.fromJpaWithPages(requestedConference)).build();
+        Conference conference = Conference.fromJpaWithPages(requestedConference);
+
+        logger.info("GET: " + conference.getId());
+        logObject(conference, logger);
+
+        return Response.ok(conference).build();
 	}
 
 	/**
@@ -180,11 +188,12 @@ public class ConferenceResource
 			}
 			else
 			{
+				logger.info("PUT: " + conference.getId());
+                logObject(conference, logger);
+
 				/*there is an existing conference, so go update it*/
 				conferenceService.updateConference(conference.toJpaConferenceEntity().setId(conferenceId), 
 						loggedInUser);
-				
-				
 			}
 			
 			return Response.noContent().build();

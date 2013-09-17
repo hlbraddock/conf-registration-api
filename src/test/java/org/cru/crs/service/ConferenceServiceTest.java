@@ -14,6 +14,7 @@ import org.cru.crs.api.model.Page;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.DateTimeCreaterHelper;
@@ -118,14 +119,18 @@ public class ConferenceServiceTest
 		Assert.assertEquals(conference.getName(), "Miami University Fall Retreat");
 		
 		conference.setName("Miami U Fall Retreat");
-		
+
+        em.getTransaction().begin();
 		conferenceService.updateConference(conference, testAppUser);
-		
+		em.getTransaction().commit();
+
 		ConferenceEntity updatedConference = conferenceService.fetchConferenceBy(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
 		Assert.assertEquals(updatedConference.getName(), "Miami U Fall Retreat");
 		
 		updatedConference.setName("Miami University Fall Retreat");
+        em.getTransaction().begin();
 		conferenceService.updateConference(updatedConference, testAppUser);
+        em.getTransaction().commit();
 	}
 	
 	@Test(groups="db-integration-tests")
@@ -277,9 +282,9 @@ public class ConferenceServiceTest
 	
 	/**
 	 * Test: create a new conference
-	 * 
+	 *
 	 * Expected outcome: no conference created, b/c no user id
-	 * @throws UnauthorizedException 
+	 * @throws UnauthorizedException
 	 */
 	@Test(groups="db-integration-tests")
 	public void createConferenceNotAuthorized() throws UnauthorizedException
@@ -301,7 +306,116 @@ public class ConferenceServiceTest
 			em.getTransaction().rollback();
 		}
 	}
-	
+
+    /**
+     * Test: move a block up one page higher in the conference
+     *
+     * Expected outcome: the block is deleted from page n and placed on page n-1
+     * @throws UnauthorizedException
+     */
+    @Test(groups="db-integration-tests")
+    public void updateConferenceMoveBlockUpOnePage() throws UnauthorizedException
+    {
+        ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+
+        BlockEntity blockToMove = conference.getPages().get(1).getBlocks().get(1);
+        conference.getPages().get(0).getBlocks().add(2,blockToMove);
+        conference.getPages().get(1).getBlocks().remove(1);
+
+        try
+        {
+            em.getTransaction().begin();
+            conferenceService.updateConference(conference, testAppUser);
+            em.flush();
+            em.getTransaction().commit();
+        }
+        catch(Exception e)
+        {
+            em.getTransaction().rollback();
+            Assert.fail("Hibernate wasn't happy. Database rebuild is needed to retry", e);
+        }
+
+        ConferenceEntity updatedConference = conferenceService.fetchConferenceBy(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+
+        Assert.assertEquals(updatedConference.getPages().get(0).getBlocks().get(2).getId(), UUID.fromString("dda45720-de87-c419-933a-018712b152dc"));
+        Assert.assertEquals(updatedConference.getPages().get(0).getBlocks().size(), 5);
+        Assert.assertEquals(updatedConference.getPages().get(1).getBlocks().size(), 3);
+
+        //now do the reverse to set the conference right.
+
+        BlockEntity blockToPutBack = conference.getPages().get(0).getBlocks().get(2);
+        conference.getPages().get(1).getBlocks().add(1,blockToPutBack);
+        conference.getPages().get(0).getBlocks().remove(2);
+
+        try
+        {
+            em.getTransaction().begin();
+            conferenceService.updateConference(conference, testAppUser);
+            em.flush();
+            em.getTransaction().commit();
+        }
+        catch(Exception e)
+        {
+            em.getTransaction().rollback();
+            Assert.fail("Hibernate wasn't happy. Database rebuild is needed to retry", e);
+        }
+    }
+
+    /**
+     * Test: move a block up one page higher in the conference
+     *
+     * Expected outcome: the block is deleted from page n and placed on page n+1
+     * @throws UnauthorizedException
+     */
+    @Test(groups="db-integration-tests")
+    public void updateConferenceMoveBlockDownOnePage() throws UnauthorizedException
+    {
+        ConferenceEntity conference = conferenceService.fetchConferenceBy(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+
+        BlockEntity blockToMove = conference.getPages().get(0).getBlocks().get(2);
+        conference.getPages().get(1).getBlocks().add(1,blockToMove);
+        conference.getPages().get(0).getBlocks().remove(2);
+
+        try
+        {
+            em.getTransaction().begin();
+            conferenceService.updateConference(conference, testAppUser);
+            em.flush();
+            em.getTransaction().commit();
+        }
+        catch(Exception e)
+        {
+            em.getTransaction().rollback();
+            Assert.fail("Hibernate wasn't happy. Database rebuild is needed to retry", e);
+        }
+
+        ConferenceEntity updatedConference = conferenceService.fetchConferenceBy(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+
+        Assert.assertEquals(updatedConference.getPages().get(1).getBlocks().get(1).getId(), UUID.fromString("f774ea5c-8e44-25dc-9169-2f141c57e3ae"));
+        Assert.assertEquals(updatedConference.getPages().get(0).getBlocks().size(), 3);
+        Assert.assertEquals(updatedConference.getPages().get(1).getBlocks().size(), 5);
+
+        //now do the reverse to set the conference right.
+
+        BlockEntity blockToPutBack = conference.getPages().get(1).getBlocks().get(1);
+        conference.getPages().get(0).getBlocks().add(2,blockToPutBack);
+        conference.getPages().get(1).getBlocks().remove(1);
+
+        try
+        {
+            em.getTransaction().begin();
+            conferenceService.updateConference(conference, testAppUser);
+            em.flush();
+            em.getTransaction().commit();
+        }
+        catch(Exception e)
+        {
+            em.getTransaction().rollback();
+            Assert.fail("Hibernate wasn't happy. Database rebuild is needed to retry", e);
+        }
+
+    }
+
 	private Conference createFakeConference()
 	{
 		Conference fakeConference = new Conference();
