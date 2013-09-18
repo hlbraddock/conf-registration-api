@@ -1,5 +1,6 @@
 package org.cru.crs.api.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,15 @@ public class Conference implements java.io.Serializable
     private String locationCity;
     private String locationState;
     private String locationZipCode;
+
+    private BigDecimal conferenceCost;
+    private boolean earlyRegistrationDiscount;
+    private BigDecimal earlyRegistrationAmount;
+    private DateTime earlyRegistrationCutoff;
+    private boolean acceptCreditCards;
+    private String authnetId;
+    private String authnetToken;
+
 
 	public ConferenceEntity toJpaConferenceEntity()
 	{
@@ -93,6 +103,16 @@ public class Conference implements java.io.Serializable
         webConference.locationState = jpaConference.getLocationState();
         webConference.locationZipCode = jpaConference.getLocationZipCode();
 
+        if(jpaConference.getConferenceCosts() != null)
+        {
+            webConference.authnetId = jpaConference.getConferenceCosts().getAuthnetId();
+            /*don't expose the authnet token back out to the Client!*/
+            webConference.acceptCreditCards = jpaConference.getConferenceCosts().isAcceptCreditCards();
+            webConference.conferenceCost = jpaConference.getConferenceCosts().getConferenceBaseCost();
+            webConference.earlyRegistrationAmount = jpaConference.getConferenceCosts().getEarlyRegistrationAmount();
+            webConference.earlyRegistrationCutoff = jpaConference.getConferenceCosts().getEarlyRegistrationCutoff();
+            webConference.earlyRegistrationDiscount = jpaConference.getConferenceCosts().isEarlyRegistrationDiscount();
+        }
 		return webConference;
 	}
 
@@ -263,5 +283,75 @@ public class Conference implements java.io.Serializable
     public void setLocationZipCode(String locationZipCode)
     {
         this.locationZipCode = locationZipCode;
+    }
+
+    public BigDecimal getConferenceCost()
+    {
+        return conferenceCost;
+    }
+
+    public void setConferenceCost(BigDecimal conferenceCost)
+    {
+        this.conferenceCost = conferenceCost;
+    }
+
+    public boolean isEarlyRegistrationDiscount()
+    {
+        return earlyRegistrationDiscount;
+    }
+
+    public void setEarlyRegistrationDiscount(boolean earlyRegistrationDiscount)
+    {
+        this.earlyRegistrationDiscount = earlyRegistrationDiscount;
+    }
+
+    public BigDecimal getEarlyRegistrationAmount()
+    {
+        return earlyRegistrationAmount;
+    }
+
+    public void setEarlyRegistrationAmount(BigDecimal earlyRegistrationAmount)
+    {
+        this.earlyRegistrationAmount = earlyRegistrationAmount;
+    }
+
+    public DateTime getEarlyRegistrationCutoff()
+    {
+        return earlyRegistrationCutoff;
+    }
+
+    public void setEarlyRegistrationCutoff(DateTime earlyRegistrationCutoff)
+    {
+        this.earlyRegistrationCutoff = earlyRegistrationCutoff;
+    }
+
+    public boolean isAcceptCreditCards()
+    {
+        return acceptCreditCards;
+    }
+
+    public void setAcceptCreditCards(boolean acceptCreditCards)
+    {
+        this.acceptCreditCards = acceptCreditCards;
+    }
+
+    public String getAuthnetId()
+    {
+        return authnetId;
+    }
+
+    public void setAuthnetId(String authnetId)
+    {
+        this.authnetId = authnetId;
+    }
+
+    public String getAuthnetToken()
+    {
+        return authnetToken;
+    }
+
+    public void setAuthnetToken(String authnetToken)
+    {
+        this.authnetToken = authnetToken;
     }
 }

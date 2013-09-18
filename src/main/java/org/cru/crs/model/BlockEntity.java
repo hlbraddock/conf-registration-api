@@ -46,6 +46,14 @@ public class BlockEntity implements java.io.Serializable
     @Transient
     private Set<AnswerEntity> answers = new HashSet<AnswerEntity>();
 
+    /* Not ready to properly deal with this code yet, but it's okay to put it in the baseline
+     * but disabled.  Some more design decisions need to be made about how to exactly implement
+     * questions which affect price.  But basic pricing related things need to go into master
+     */
+    @Transient
+    @OneToOne(orphanRemoval = true)
+    @JoinColumn(name = "CONFERENCE_COSTS_BLOCK_ID")
+    ConferenceCostsBlockEntity conferenceCostsDetails;
 
 	public UUID getId()
 	{
@@ -128,4 +136,14 @@ public class BlockEntity implements java.io.Serializable
 	{
 		this.required = required;
 	}
+
+    public ConferenceCostsBlockEntity getConferenceCostsDetails()
+    {
+        return conferenceCostsDetails;
+    }
+
+    public void setConferenceCostsDetails(ConferenceCostsBlockEntity conferenceCostsDetails)
+    {
+        this.conferenceCostsDetails = conferenceCostsDetails;
+    }
 }

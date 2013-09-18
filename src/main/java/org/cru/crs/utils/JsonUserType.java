@@ -80,19 +80,18 @@ public class JsonUserType implements UserType
 	@Override
 	public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner) throws HibernateException,SQLException
 	{
-		if(rs.wasNull() || rs.getString(names[0]) == null)
+        if(rs.getString(names[0]) == null)
 		{
-			return null;
+            return null;
 		}
 		else
 		{
-			String jsonString = rs.getString(names[0]);
 			ObjectMapper mapper = new ObjectMapper();
 			JsonFactory factory = mapper.getJsonFactory(); // since 2.1 use mapper.getFactory() instead
 
 			try
 			{
-				JsonParser parser = factory.createJsonParser(jsonString);
+				JsonParser parser = factory.createJsonParser(rs.getString(names[0]));
 				return mapper.readTree(parser);
 			}
 			catch(Throwable t)
