@@ -1,11 +1,13 @@
 package org.cru.crs.service;
 
-import java.util.UUID;
+import org.cru.crs.model.AnswerEntity;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-
-import org.cru.crs.model.AnswerEntity;
+import javax.persistence.TypedQuery;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * User: lee.braddock
@@ -30,8 +32,19 @@ public class AnswerService {
         em.merge(answerToUpdate);
     }
 
-    public void deleteAnswer(AnswerEntity answerToDelete)
-    {
-        em.remove(answerToDelete);
-    }
+	public void deleteAnswer(AnswerEntity answerToDelete)
+	{
+		em.remove(answerToDelete);
+	}
+
+	public Set<AnswerEntity> fetchAllAnswers(UUID blockId)
+	{
+		TypedQuery<AnswerEntity> query = em.createQuery("SELECT answer " +
+				"FROM AnswerEntity answer " +
+				"WHERE answer.blockId = :block_id", AnswerEntity.class);
+
+		query.setParameter("block_id", blockId);
+
+		return new HashSet<AnswerEntity>(query.getResultList());
+	}
 }
