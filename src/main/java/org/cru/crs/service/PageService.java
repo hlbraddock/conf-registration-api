@@ -31,12 +31,18 @@ public class PageService
 	{
 		return em.find(PageEntity.class, id);
 	}
-	
+
 	public void updatePage(PageEntity pageToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	{
+		updatePage(pageToUpdate, crsLoggedInUser, true);
+	}
+
+	public void updatePage(PageEntity pageToUpdate, CrsApplicationUser crsLoggedInUser, boolean withAnswerDeletion) throws UnauthorizedException
 	{
 		verifyUserIdHasAccessToModifyThisPagesConference(pageToUpdate, crsLoggedInUser.getId());
 
-		deleteAnswersOnPageUpdate(pageToUpdate);
+		if(withAnswerDeletion)
+			deleteAnswersOnPageUpdate(pageToUpdate);
 
 		em.merge(pageToUpdate);
 	}

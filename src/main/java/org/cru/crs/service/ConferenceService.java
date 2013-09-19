@@ -62,7 +62,7 @@ public class ConferenceService
         PageService pageService = new PageService(em,this, new AnswerService(em));
         for(PageEntity page : conferenceToUpdate.getPages())
         {
-            pageService.updatePage(page, crsLoggedInUser);
+            pageService.updatePage(page, crsLoggedInUser, false);
             em.flush();
         }
 
