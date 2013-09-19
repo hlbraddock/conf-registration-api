@@ -1,11 +1,14 @@
 package org.cru.crs.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import com.google.common.collect.Lists;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
@@ -45,6 +48,31 @@ public class PageService
 			deleteAnswersOnPageUpdate(pageToUpdate);
 
 		em.merge(pageToUpdate);
+	}
+
+	public void deleteAnswersOnPagesUpdate(List<PageEntity> currentPages, List<PageEntity> updatePages)
+	{
+		Set<BlockEntity> blocksInUpdatedPages = new HashSet<BlockEntity>();
+		for(PageEntity page : updatePages)
+		{
+			blocksInUpdatedPages.addAll(page.getBlocks());
+		}
+
+		Set<BlockEntity> blocksInCurrentPages = new HashSet<BlockEntity>();
+		for(PageEntity page : currentPages)
+		{
+			blocksInCurrentPages.addAll(page.getBlocks());
+		}
+
+		// get all current page blocks not found in update pages
+		List<BlockEntity> blocksToDelete =
+				CollectionUtils.firstNotFoundInSecond(Lists.newArrayList(blocksInCurrentPages), Lists.newArrayList(blocksInUpdatedPages));
+
+		// delete each (to be) deleted blocks associated answers (since we no longer rely on jpa to automatically do so)
+		for(BlockEntity blockEntity : blocksToDelete)
+		{
+			answerService.deleteAnswersByBlockId(blockEntity.getId());
+		}
 	}
 
 	private void deleteAnswersOnPageUpdate(PageEntity updatePage) throws UnauthorizedException
