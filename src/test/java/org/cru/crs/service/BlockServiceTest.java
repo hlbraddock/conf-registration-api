@@ -1,7 +1,5 @@
 package org.cru.crs.service;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.UnauthorizedException;
@@ -18,7 +16,6 @@ import org.testng.annotations.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import java.io.IOException;
 import java.util.UUID;
 
 @Test(groups="db-integration-tests")
@@ -29,6 +26,7 @@ public class BlockServiceTest
 	private EntityManager em;
 
 	private BlockService blockService;
+	private AnswerService answerService;
 
 	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898"), AuthenticationProviderType.RELAY, "crs.testuser@crue.org");
 	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null, null);
@@ -39,7 +37,8 @@ public class BlockServiceTest
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
 
-		blockService = new BlockService(em, new ConferenceService(em), new PageService(em, new ConferenceService(em)), new AnswerService(em));
+		answerService = new AnswerService(em);
+		blockService = new BlockService(em, new ConferenceService(em), new PageService(em, new ConferenceService(em), answerService), answerService);
 	}
 
 	@AfterClass
@@ -220,7 +219,7 @@ public class BlockServiceTest
 
 			blockService.deleteBlock(retrievedBlock);
 
-            em.flush();
+			em.flush();
 
             em.getTransaction().commit();
 
@@ -237,17 +236,4 @@ public class BlockServiceTest
             Assert.fail();
         }
     }
-
-	private static JsonNode jsonNodeFromString(String jsonString)
-	{
-		try
-		{
-			return (new ObjectMapper()).readTree(jsonString);
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-
-		return null;
-	}
 }

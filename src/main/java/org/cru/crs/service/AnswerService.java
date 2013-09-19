@@ -37,7 +37,13 @@ public class AnswerService {
 		em.remove(answerToDelete);
 	}
 
-	public Set<AnswerEntity> fetchAllAnswers(UUID blockId)
+	public void deleteAnswersByBlockId(UUID blockId)
+	{
+		for(AnswerEntity answerEntity : fetchAnswersByBlockId(blockId))
+			deleteAnswer(answerEntity);
+	}
+
+	private Set<AnswerEntity> fetchAnswersByBlockId(UUID blockId)
 	{
 		TypedQuery<AnswerEntity> query = em.createQuery("SELECT answer " +
 				"FROM AnswerEntity answer " +

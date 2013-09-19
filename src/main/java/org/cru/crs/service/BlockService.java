@@ -2,7 +2,6 @@ package org.cru.crs.service;
 
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
@@ -48,14 +47,11 @@ public class BlockService
 		deleteBlock(blockToDelete);
 	}
 
-	protected void deleteBlock(BlockEntity blockToDelete) throws UnauthorizedException
+	protected void deleteBlock(BlockEntity blockEntity) throws UnauthorizedException
 	{
-		for(AnswerEntity answerEntity : answerService.fetchAllAnswers(blockToDelete.getId()))
-		{
-			answerService.deleteAnswer(answerEntity);
-		}
+		answerService.deleteAnswersByBlockId(blockEntity.getId());
 
-		em.remove(blockToDelete);
+		em.remove(blockEntity);
 	}
 
 	private void verifyUserIdHasAccessToModifyThisBlocksConference(BlockEntity blockToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
