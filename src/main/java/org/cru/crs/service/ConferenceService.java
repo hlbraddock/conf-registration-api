@@ -14,11 +14,13 @@ import org.cru.crs.model.PageEntity;
 public class ConferenceService
 {
 	EntityManager em;
+	AnswerService answerService;
 
     @Inject
 	public ConferenceService(EntityManager em)
 	{
 		this.em = em;
+		this.answerService = new AnswerService(em);
 	}
 
 	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
@@ -60,7 +62,12 @@ public class ConferenceService
 
         //can't inject a PageService, because PageService injects this class.
         PageService pageService = new PageService(em,this, new AnswerService(em));
-        for(PageEntity page : conferenceToUpdate.getPages())
+
+		// delete answers on pages update
+		ConferenceEntity currentConference = fetchConferenceBy(conferenceToUpdate.getId());
+		pageService.deleteAnswersOnPagesUpdate(currentConference.getPages(), conferenceToUpdate.getPages());
+
+		for(PageEntity page : conferenceToUpdate.getPages())
         {
             pageService.updatePage(page, crsLoggedInUser, false);
             em.flush();
@@ -68,7 +75,7 @@ public class ConferenceService
 
 		em.merge(conferenceToUpdate);
 	}
-	
+
 	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
