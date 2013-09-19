@@ -6,7 +6,6 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import org.cru.crs.api.model.Page;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
@@ -60,7 +59,7 @@ public class ConferenceService
          */
 
         //can't inject a PageService, because PageService injects this class.
-        PageService pageService = new PageService(em,this);
+        PageService pageService = new PageService(em,this, new AnswerService(em));
         for(PageEntity page : conferenceToUpdate.getPages())
         {
             pageService.updatePage(page, crsLoggedInUser);

@@ -6,6 +6,7 @@ import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.utils.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -43,7 +44,7 @@ public class RegistrationService {
 
 		// if authorized as admin for any one registration then authorized for all
 		if(registrationEntities.size() > 0)
-			authorizationService.authorize(getAnyOne(registrationEntities), OperationType.ADMIN, crsApplicationUser);
+			authorizationService.authorize(CollectionUtils.getAnyOne(registrationEntities), OperationType.ADMIN, crsApplicationUser);
 
 		return registrationEntities;
 	}
@@ -110,12 +111,4 @@ public class RegistrationService {
 
 		em.remove(registrationEntity);
     }
-
-	private <T> T getAnyOne(Set<T> elements)
-	{
-		for(T t : elements)
-			return t;
-
-		return null;
-	}
 }
