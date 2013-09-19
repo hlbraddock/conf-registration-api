@@ -1,5 +1,7 @@
 package org.cru.crs.service;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.UnauthorizedException;
@@ -16,6 +18,7 @@ import org.testng.annotations.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import java.io.IOException;
 import java.util.UUID;
 
 @Test(groups="db-integration-tests")
@@ -36,7 +39,7 @@ public class BlockServiceTest
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
 
-		blockService = new BlockService(em, new ConferenceService(em), new PageService(em, new ConferenceService(em)));
+		blockService = new BlockService(em, new ConferenceService(em), new PageService(em, new ConferenceService(em)), new AnswerService(em));
 	}
 
 	@AfterClass
@@ -187,7 +190,12 @@ public class BlockServiceTest
         answer.setBlockId(block.getId());
         answer.setRegistrationId(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
 
-        try
+		AnswerEntity answer2 = new AnswerEntity();
+		answer2.setId(UUID.randomUUID());
+		answer2.setBlockId(block.getId());
+		answer2.setRegistrationId(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
+
+		try
         {
             RegistrationEntity registration = setupEm.find(RegistrationEntity.class, UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
 
@@ -199,7 +207,8 @@ public class BlockServiceTest
 
             setupEm.flush();
 
-            registration.getAnswers().add(answer);
+			registration.getAnswers().add(answer);
+			registration.getAnswers().add(answer2);
 
             setupEm.flush();
 
@@ -208,21 +217,37 @@ public class BlockServiceTest
             BlockEntity retrievedBlock = em.find(BlockEntity.class, block.getId());
 
             em.getTransaction().begin();
-            em.remove(retrievedBlock);
+
+			blockService.deleteBlock(retrievedBlock);
 
             em.flush();
 
             em.getTransaction().commit();
 
             Assert.assertNull(em.find(BlockEntity.class, block.getId()));
-            Assert.assertNull(em.find(AnswerEntity.class, answer.getId()));
+			Assert.assertNull(em.find(AnswerEntity.class, answer.getId()));
+			Assert.assertNull(em.find(AnswerEntity.class, answer2.getId()));
         }
         catch(Exception e)
         {
+
             setupEm.getTransaction().rollback();
             setupEm.close();
             em.getTransaction().rollback();
             Assert.fail();
         }
     }
+
+	private static JsonNode jsonNodeFromString(String jsonString)
+	{
+		try
+		{
+			return (new ObjectMapper()).readTree(jsonString);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		return null;
+	}
 }
