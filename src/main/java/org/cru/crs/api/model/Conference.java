@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
+import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.joda.time.DateTime;
@@ -37,6 +38,7 @@ public class Conference implements java.io.Serializable
     private String locationState;
     private String locationZipCode;
 
+	private UUID conferenceCostsId;
     private BigDecimal conferenceCost;
     private boolean earlyRegistrationDiscount;
     private BigDecimal earlyRegistrationAmount;
@@ -64,6 +66,18 @@ public class Conference implements java.io.Serializable
         jpaConference.setLocationCity(locationCity);
         jpaConference.setLocationState(locationState);
         jpaConference.setLocationZipCode(locationZipCode);
+
+		ConferenceCostsEntity jpaConferenceCosts = new ConferenceCostsEntity();
+		jpaConferenceCosts.setId(conferenceCostsId);
+		jpaConferenceCosts.setAcceptCreditCards(acceptCreditCards);
+		jpaConferenceCosts.setAuthnetId(authnetId);
+		jpaConferenceCosts.setAuthnetToken(authnetToken);
+		jpaConferenceCosts.setConferenceBaseCost(conferenceCost);
+		jpaConferenceCosts.setEarlyRegistrationAmount(earlyRegistrationAmount);
+		jpaConferenceCosts.setEarlyRegistrationCutoff(earlyRegistrationCutoff);
+		jpaConferenceCosts.setEarlyRegistrationDiscount(earlyRegistrationDiscount);
+
+		jpaConference.setConferenceCosts(jpaConferenceCosts);
 
 		jpaConference.setPages(new ArrayList<PageEntity>());
 		
@@ -105,6 +119,7 @@ public class Conference implements java.io.Serializable
 
         if(jpaConference.getConferenceCosts() != null)
         {
+			webConference.conferenceCostsId = jpaConference.getConferenceCosts().getId();
             webConference.authnetId = jpaConference.getConferenceCosts().getAuthnetId();
             /*don't expose the authnet token back out to the Client!*/
             webConference.acceptCreditCards = jpaConference.getConferenceCosts().isAcceptCreditCards();
