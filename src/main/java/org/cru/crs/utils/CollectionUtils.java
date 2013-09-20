@@ -1,6 +1,5 @@
 package org.cru.crs.utils;
 
-import java.util.List;
 import java.util.Set;
 
 public class CollectionUtils
@@ -8,7 +7,7 @@ public class CollectionUtils
 	/*
 	 * remove from first all those in second (thereby leaving in first those not found in second)
 	 */
-	public static <T> List<T> firstNotFoundInSecond(List<T> first, List<T> second)
+	public static <T> Set<T> firstNotFoundInSecond(Set<T> first, Set<T> second)
 	{
 		first.removeAll(second);
 
