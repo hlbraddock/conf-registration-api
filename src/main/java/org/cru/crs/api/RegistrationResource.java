@@ -2,6 +2,7 @@ package org.cru.crs.api;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
@@ -184,6 +185,17 @@ public class RegistrationResource
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 	}
+
+    @POST
+    @Path("/payment")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response postPayment(Payment payment, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    {
+        logObject(payment, logger);
+
+
+        return Response.noContent().build();
+    }
 
 	private void logObject(Object object, Logger logger)
 	{
