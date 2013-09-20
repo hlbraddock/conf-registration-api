@@ -4,6 +4,8 @@ import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
+import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.utils.AuthCodeGenerator;
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
@@ -19,9 +21,31 @@ public class Payment implements Serializable
     private String creditCardNameOnCard;
     private String creditCardExpirationMonth;
     private String creditCardExpirationYear;
-    private String creditCardLastFourDigits;
+    private String creditCardNumber;
     private BigDecimal amount;
     private DateTime transactionDatetime;
+
+    public PaymentEntity toJpaPaymentEntity()
+    {
+        PaymentEntity jpaPayment = new PaymentEntity();
+
+        jpaPayment.setId(id);
+        jpaPayment.setRegistrationId(registrationId);
+        jpaPayment.setAmount(amount);
+        jpaPayment.setCreditCardExpirationMonth(creditCardExpirationMonth);
+        jpaPayment.setCreditCardExpirationYear(creditCardExpirationYear);
+        jpaPayment.setCreditCardNameOnCard(creditCardNameOnCard);
+
+        if(creditCardNumber != null)
+        {
+            jpaPayment.setCreditCardLastFourDigits(creditCardNumber.substring(Math.max(0, creditCardNumber.length() - 4)));
+        }
+
+        //just put something mock in there for now
+        jpaPayment.setAuthnetTransactionId(AuthCodeGenerator.generate());
+
+        return jpaPayment;
+    }
 
     public UUID getId()
     {
@@ -73,14 +97,14 @@ public class Payment implements Serializable
         this.creditCardExpirationYear = creditCardExpirationYear;
     }
 
-    public String getCreditCardLastFourDigits()
+    public String getCreditCardNumber()
     {
-        return creditCardLastFourDigits;
+        return creditCardNumber;
     }
 
-    public void setCreditCardLastFourDigits(String creditCardLastFourDigits)
+    public void setCreditCardNumber(String creditCardNumber)
     {
-        this.creditCardLastFourDigits = creditCardLastFourDigits;
+        this.creditCardNumber = creditCardNumber;
     }
 
     public BigDecimal getAmount()

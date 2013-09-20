@@ -10,6 +10,7 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
@@ -34,6 +35,7 @@ public class RegistrationResource
 	@Inject RegistrationService registrationService;
 	@Inject ConferenceService conferenceService;
 	@Inject CrsUserService userService;
+    @Inject PaymentService paymentService;
 
 	@Context HttpServletRequest request;
 
@@ -193,6 +195,7 @@ public class RegistrationResource
     {
         logObject(payment, logger);
 
+        paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
 
         return Response.noContent().build();
     }
