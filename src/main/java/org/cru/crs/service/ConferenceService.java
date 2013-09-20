@@ -60,12 +60,12 @@ public class ConferenceService
          */
 
         //can't inject a PageService, because PageService injects this class.
-        PageService pageService = new PageService(em,this);
-        for(PageEntity page : conferenceToUpdate.getPages())
-        {
-            pageService.updatePage(page, crsLoggedInUser);
-            em.flush();
-        }
+//        PageService pageService = new PageService(em,this);
+//        for(PageEntity page : conferenceToUpdate.getPages())
+//        {
+//            pageService.updatePage(page, crsLoggedInUser);
+//            em.flush();
+//        }
 
 		em.merge(conferenceToUpdate);
 	}
