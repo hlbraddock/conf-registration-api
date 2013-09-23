@@ -1,4 +1,3 @@
-DROP TABLE cru_crs_pages CASCADE;
 DROP TABLE pages CASCADE;
 
 CREATE TABLE pages (

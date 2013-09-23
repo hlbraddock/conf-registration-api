@@ -1,4 +1,3 @@
-DROP TABLE cru_crs_auth_provider_identities CASCADE;
 DROP TABLE auth_provider_identities CASCADE;
 
 CREATE TABLE auth_provider_identities(
