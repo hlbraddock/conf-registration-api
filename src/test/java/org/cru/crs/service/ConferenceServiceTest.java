@@ -41,7 +41,7 @@ public class ConferenceServiceTest
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
 		
-		conferenceService = new ConferenceService(em);
+		conferenceService = new ConferenceService(em, new UserService(em));
 	}
 	
 	@AfterClass

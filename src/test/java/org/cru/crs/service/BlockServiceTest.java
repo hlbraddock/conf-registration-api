@@ -36,7 +36,7 @@ public class BlockServiceTest
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
 
-		blockService = new BlockService(em, new ConferenceService(em), new PageService(em, new ConferenceService(em)));
+		blockService = new BlockService(em, new ConferenceService(em, new UserService(em)), new PageService(em, new ConferenceService(em, new UserService(em))));
 	}
 
 	@AfterClass

@@ -19,7 +19,19 @@ public class UserEntity implements java.io.Serializable
 	@Column(name = "ID")
 	@Type(type="pg-uuid")
 	private UUID id;
-	
+
+    @Column(name = "FIRST_NAME")
+    private String firstName;
+
+    @Column(name = "LAST_NAME")
+    private String lastName;
+
+    @Column(name = "CONTACT_EMAIL")
+    private String emailAddress;
+
+    @Column(name = "PHONE_NUMBER")
+    private String phoneNumber;
+
 	public UUID getId()
 	{
 		return id;
@@ -30,4 +42,48 @@ public class UserEntity implements java.io.Serializable
 		this.id = id;
 		return this;
 	}
+
+    public String getFirstName()
+    {
+        return firstName;
+    }
+
+    public UserEntity setFirstName(String firstName)
+    {
+        this.firstName = firstName;
+        return this;
+    }
+
+    public String getLastName()
+    {
+        return lastName;
+    }
+
+    public UserEntity setLastName(String lastName)
+    {
+        this.lastName = lastName;
+        return this;
+    }
+
+    public String getEmailAddress()
+    {
+        return emailAddress;
+    }
+
+    public UserEntity setEmailAddress(String emailAddress)
+    {
+        this.emailAddress = emailAddress;
+        return this;
+    }
+
+    public String getPhoneNumber()
+    {
+        return phoneNumber;
+    }
+
+    public UserEntity setPhoneNumber(String phoneNumber)
+    {
+        this.phoneNumber = phoneNumber;
+        return this;
+    }
 }
