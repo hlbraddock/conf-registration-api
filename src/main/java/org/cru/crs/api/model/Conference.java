@@ -32,6 +32,10 @@ public class Conference implements java.io.Serializable
 	private DateTime registrationEndTime;
 	
 	private UUID contactUser;
+    private String contactPersonName;
+    private String contactPersonEmail;
+    private String contactPersonPhone;
+
 	private int totalSlots;
 	
 	private String locationName;
@@ -61,6 +65,9 @@ public class Conference implements java.io.Serializable
 		jpaConference.setRegistrationEndTime(registrationEndTime);
 		jpaConference.setTotalSlots(totalSlots);
 		jpaConference.setContactUser(contactUser);
+        jpaConference.setContactPersonName(contactPersonName);
+        jpaConference.setContactPersonEmail(contactPersonEmail);
+        jpaConference.setContactPersonPhone(contactPersonPhone);
 
         jpaConference.setLocationName(locationName);
         jpaConference.setLocationAddress(locationAddress);
@@ -109,6 +116,9 @@ public class Conference implements java.io.Serializable
 		webConference.registrationEndTime = jpaConference.getRegistrationEndTime();
 		webConference.totalSlots = jpaConference.getTotalSlots();
 		webConference.contactUser = jpaConference.getContactUser();
+        webConference.contactPersonName = jpaConference.getContactPersonName();
+        webConference.contactPersonEmail = jpaConference.getContactPersonEmail();
+        webConference.contactPersonPhone = jpaConference.getContactPersonPhone();
 
         webConference.locationName = jpaConference.getLocationName();
         webConference.locationAddress = jpaConference.getLocationAddress();
@@ -238,7 +248,37 @@ public class Conference implements java.io.Serializable
 		this.contactUser = contactUser;
 	}
 
-	public int getTotalSlots()
+    public String getContactPersonName()
+    {
+        return contactPersonName;
+    }
+
+    public void setContactPersonName(String contactPersonName)
+    {
+        this.contactPersonName = contactPersonName;
+    }
+
+    public String getContactPersonEmail()
+    {
+        return contactPersonEmail;
+    }
+
+    public void setContactPersonEmail(String contactPersonEmail)
+    {
+        this.contactPersonEmail = contactPersonEmail;
+    }
+
+    public String getContactPersonPhone()
+    {
+        return contactPersonPhone;
+    }
+
+    public void setContactPersonPhone(String contactPersonPhone)
+    {
+        this.contactPersonPhone = contactPersonPhone;
+    }
+
+    public int getTotalSlots()
 	{
 		return totalSlots;
 	}
