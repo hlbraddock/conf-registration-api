@@ -1,4 +1,3 @@
-DROP TABLE cru_crs_registrations CASCADE;
 DROP TABLE registrations CASCADE;
 
 CREATE TABLE registrations (

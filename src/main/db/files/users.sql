@@ -1,4 +1,3 @@
-DROP TABLE cru_crs_users CASCADE ;
 DROP TABLE users CASCADE ;
 
 CREATE TABLE users (
