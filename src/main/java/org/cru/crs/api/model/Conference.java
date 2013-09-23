@@ -20,7 +20,9 @@ public class Conference implements java.io.Serializable
 
 	private UUID id;
 	private String name;
-	
+
+    private String description;
+
 	private List<Page> registrationPages;
 	
 	private DateTime eventStartTime;
@@ -364,5 +366,15 @@ public class Conference implements java.io.Serializable
     public void setAuthnetToken(String authnetToken)
     {
         this.authnetToken = authnetToken;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
     }
 }

@@ -28,6 +28,9 @@ public class ConferenceEntity implements java.io.Serializable
 	@Column(name = "NAME")
 	private String name;
 
+    @Column(name = "DESCRIPTION")
+    private String description;
+
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval=true)
     @JoinColumn(name = "CONFERENCE_ID", nullable = false)
     @OrderColumn(name = "POSITION", nullable = false)
@@ -96,7 +99,17 @@ public class ConferenceEntity implements java.io.Serializable
 		this.name = name;
 	}
 
-	public DateTime getEventStartTime()
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    public DateTime getEventStartTime()
 	{
 		return eventStartTime;
 	}
