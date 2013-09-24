@@ -47,7 +47,7 @@ public class RegistrationServiceTest
 		em = emFactory.createEntityManager();
 
         registrationService = new RegistrationService(em, new AuthorizationService());
-        conferenceService = new ConferenceService(em);
+        conferenceService = new ConferenceService(em, new UserService(em), new AnswerService(em));
 
 		crsApplicationUser = new CrsApplicationUser(originalUserUUID, AuthenticationProviderType.FACEBOOK, null/*username will go here*/);
 		adminCrsApplicationUser = new CrsApplicationUser(adminUserUUID, AuthenticationProviderType.FACEBOOK, null/*username will go here*/);

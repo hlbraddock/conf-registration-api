@@ -10,17 +10,20 @@ import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.UserEntity;
 
 public class ConferenceService
 {
 	EntityManager em;
+    UserService userService;
 	AnswerService answerService;
 
     @Inject
-	public ConferenceService(EntityManager em)
+	public ConferenceService(EntityManager em, UserService userService, AnswerService answerService)
 	{
 		this.em = em;
-		this.answerService = new AnswerService(em);
+        this.userService = userService;
+		this.answerService = answerService;
 	}
 
 	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
@@ -44,11 +47,23 @@ public class ConferenceService
 		}
 		
 		newConference.setContactUser(crsLoggedInUser.getId());
-		
+
+        newConference = setInitialContactPersonDetailsBasedOn(crsLoggedInUser, newConference);
+
 		em.persist(newConference);
 	}
-	
-	public void updateConference(ConferenceEntity conferenceToUpdate,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+
+    private ConferenceEntity setInitialContactPersonDetailsBasedOn(CrsApplicationUser crsLoggedInUser, ConferenceEntity newConference)
+    {
+        UserEntity user = userService.fetchUserBy(crsLoggedInUser.getId());
+        newConference.setContactPersonName(user.getFirstName() + " " + user.getLastName());
+        newConference.setContactPersonEmail(user.getEmailAddress());
+        newConference.setContactPersonPhone(user.getPhoneNumber());
+
+        return newConference;
+    }
+
+    public void updateConference(ConferenceEntity conferenceToUpdate,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferenceToUpdate.getContactUser()))
 		{

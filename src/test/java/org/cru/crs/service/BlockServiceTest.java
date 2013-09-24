@@ -38,7 +38,8 @@ public class BlockServiceTest
 		em = emFactory.createEntityManager();
 
 		answerService = new AnswerService(em);
-		blockService = new BlockService(em, new ConferenceService(em), new PageService(em, new ConferenceService(em), answerService), answerService);
+        ConferenceService conferenceService = new ConferenceService(em,new UserService(em), answerService);
+		blockService = new BlockService(em, conferenceService, new PageService(em,conferenceService , answerService), answerService);
 	}
 
 	@AfterClass

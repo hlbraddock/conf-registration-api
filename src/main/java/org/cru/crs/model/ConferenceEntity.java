@@ -28,6 +28,9 @@ public class ConferenceEntity implements java.io.Serializable
 	@Column(name = "NAME")
 	private String name;
 
+    @Column(name = "DESCRIPTION")
+    private String description;
+
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval=true)
     @JoinColumn(name = "CONFERENCE_ID", nullable = false)
     @OrderColumn(name = "POSITION", nullable = false)
@@ -52,9 +55,18 @@ public class ConferenceEntity implements java.io.Serializable
 	@Column(name = "TOTAL_SLOTS")
 	private int totalSlots;
 
-	@Column(name = "CONTACT_USER")
+	@Column(name = "CONTACT_PERSON_ID")
 	@Type(type="pg-uuid")
 	private UUID contactUser;
+
+    @Column(name = "CONTACT_PERSON_NAME")
+    private String contactPersonName;
+
+    @Column(name = "CONTACT_PERSON_EMAIL")
+    private String contactPersonEmail;
+
+    @Column(name = "CONTACT_PERSON_PHONE")
+    private String contactPersonPhone;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "CONFERENCE_COSTS_ID")
@@ -96,7 +108,17 @@ public class ConferenceEntity implements java.io.Serializable
 		this.name = name;
 	}
 
-	public DateTime getEventStartTime()
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    public DateTime getEventStartTime()
 	{
 		return eventStartTime;
 	}
@@ -224,5 +246,35 @@ public class ConferenceEntity implements java.io.Serializable
     public void setConferenceCosts(ConferenceCostsEntity conferenceCosts)
     {
         this.conferenceCosts = conferenceCosts;
+    }
+
+    public String getContactPersonName()
+    {
+        return contactPersonName;
+    }
+
+    public void setContactPersonName(String contactPersonName)
+    {
+        this.contactPersonName = contactPersonName;
+    }
+
+    public String getContactPersonEmail()
+    {
+        return contactPersonEmail;
+    }
+
+    public void setContactPersonEmail(String contactPersonEmail)
+    {
+        this.contactPersonEmail = contactPersonEmail;
+    }
+
+    public String getContactPersonPhone()
+    {
+        return contactPersonPhone;
+    }
+
+    public void setContactPersonPhone(String contactPersonPhone)
+    {
+        this.contactPersonPhone = contactPersonPhone;
     }
 }
