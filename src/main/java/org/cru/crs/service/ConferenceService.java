@@ -6,7 +6,6 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import org.cru.crs.api.model.Page;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
@@ -17,12 +16,14 @@ public class ConferenceService
 {
 	EntityManager em;
     UserService userService;
+	AnswerService answerService;
 
     @Inject
-	public ConferenceService(EntityManager em, UserService userService)
+	public ConferenceService(EntityManager em, UserService userService, AnswerService answerService)
 	{
 		this.em = em;
         this.userService = userService;
+		this.answerService = answerService;
 	}
 
 	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
@@ -75,16 +76,21 @@ public class ConferenceService
          */
 
         //can't inject a PageService, because PageService injects this class.
-        PageService pageService = new PageService(em,this);
-        for(PageEntity page : conferenceToUpdate.getPages())
+        PageService pageService = new PageService(em,this, new AnswerService(em));
+
+		// delete answers on pages update
+		ConferenceEntity currentConference = fetchConferenceBy(conferenceToUpdate.getId());
+		pageService.deleteAnswersOnPagesUpdate(currentConference.getPages(), conferenceToUpdate.getPages());
+
+		for(PageEntity page : conferenceToUpdate.getPages())
         {
-            pageService.updatePage(page, crsLoggedInUser);
+            pageService.updatePage(page, crsLoggedInUser, false);
             em.flush();
         }
 
 		em.merge(conferenceToUpdate);
 	}
-	
+
 	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/

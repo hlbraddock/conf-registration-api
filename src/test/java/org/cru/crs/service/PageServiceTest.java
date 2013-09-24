@@ -35,7 +35,8 @@ public class PageServiceTest
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
 
-		pageService = new PageService(em, new ConferenceService(em, new UserService(em)));
+		pageService = new PageService(em, new ConferenceService(em, new UserService(em), new AnswerService(em)), new AnswerService(em));
+
 	}
 
 	@AfterClass

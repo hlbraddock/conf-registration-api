@@ -34,14 +34,15 @@ public class ConferenceServiceTest
 	
 	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898"), AuthenticationProviderType.RELAY, "crs.testuser@crue.org");
 	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null, null);
-		
+
 	@BeforeClass
 	public void setup()
 	{
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
-		
-		conferenceService = new ConferenceService(em, new UserService(em));
+
+		conferenceService = new ConferenceService(em, new UserService(em), new AnswerService(em));
+
 	}
 	
 	@AfterClass
@@ -160,7 +161,62 @@ public class ConferenceServiceTest
 		}
 		
 	}
-	
+
+	@Test(groups="db-integration-tests")
+	public void updateConferenceDeleteBlockFromPage() throws UnauthorizedException
+	{
+		ConferenceEntity conferenceFetched = conferenceService.fetchConferenceBy(UUID.fromString("42e4c1b2-0cc1-89f7-9f4b-6bc3e0db5309"));
+
+		int pagen = 0;
+		int blockn = 0;
+
+		// get an entity not associated with the current entity manager
+		Conference conference = Conference.fromJpaWithPages(conferenceFetched);
+		ConferenceEntity conferenceEntity = conference.toJpaConferenceEntity();
+
+		BlockEntity blockToDelete = conferenceEntity.getPages().get(pagen).getBlocks().get(blockn);
+
+		int numBlocks = conferenceEntity.getPages().get(pagen).getBlocks().size();
+
+		System.out.println("block id to delete " + blockToDelete.getId());
+
+		conferenceEntity.getPages().get(pagen).getBlocks().remove(blockn);
+
+		try
+		{
+			em.getTransaction().begin();
+			conferenceService.updateConference(conferenceEntity, testAppUser);
+			em.flush();
+			em.getTransaction().commit();
+		}
+		catch(Exception e)
+		{
+			System.out.println("error was " + e.getMessage());
+			em.getTransaction().rollback();
+			Assert.fail("Hibernate wasn't happy. Database rebuild is needed to retry", e);
+		}
+
+		Assert.assertEquals(conferenceEntity.getPages().get(0).getBlocks().size(), numBlocks-1);
+
+		//now do the reverse to set the conference right.
+
+		conferenceEntity.getPages().get(pagen).getBlocks().add(blockn,blockToDelete);
+
+		try
+		{
+			em.getTransaction().begin();
+			conferenceService.updateConference(conferenceEntity, testAppUser);
+			em.flush();
+			em.getTransaction().commit();
+		}
+		catch(Exception e)
+		{
+			em.getTransaction().rollback();
+			Assert.fail("Hibernate wasn't happy. Database rebuild is needed to retry", e);
+		}
+
+	}
+
 	/**
 	 * Test: add a new page to an existing conference
 	 * 

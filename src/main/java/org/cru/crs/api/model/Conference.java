@@ -75,17 +75,19 @@ public class Conference implements java.io.Serializable
         jpaConference.setLocationState(locationState);
         jpaConference.setLocationZipCode(locationZipCode);
 
-        jpaConference.setConferenceCosts(new ConferenceCostsEntity());
+		ConferenceCostsEntity jpaConferenceCosts = new ConferenceCostsEntity();
+		jpaConferenceCosts.setId(id);
+		jpaConferenceCosts.setAcceptCreditCards(acceptCreditCards);
+		jpaConferenceCosts.setAuthnetId(authnetId);
+		jpaConferenceCosts.setAuthnetToken(authnetToken);
+		jpaConferenceCosts.setConferenceBaseCost(conferenceCost);
+		jpaConferenceCosts.setEarlyRegistrationAmount(earlyRegistrationAmount);
+		jpaConferenceCosts.setEarlyRegistrationCutoff(earlyRegistrationCutoff);
+		jpaConferenceCosts.setEarlyRegistrationDiscount(earlyRegistrationDiscount);
 
-        jpaConference.getConferenceCosts().setAuthnetId(authnetId);
-        jpaConference.getConferenceCosts().setAuthnetToken(authnetToken);
-        jpaConference.getConferenceCosts().setAcceptCreditCards(acceptCreditCards);
-        jpaConference.getConferenceCosts().setConferenceBaseCost(conferenceCost);
-        jpaConference.getConferenceCosts().setEarlyRegistrationAmount(earlyRegistrationAmount);
-		jpaConference.getConferenceCosts().setEarlyRegistrationCutoff(earlyRegistrationCutoff);
-        jpaConference.getConferenceCosts().setEarlyRegistrationDiscount(earlyRegistrationDiscount);
+		jpaConference.setConferenceCosts(jpaConferenceCosts);
 
-        jpaConference.setPages(new ArrayList<PageEntity>());
+		jpaConference.setPages(new ArrayList<PageEntity>());
 
 		if(registrationPages != null)
 		{

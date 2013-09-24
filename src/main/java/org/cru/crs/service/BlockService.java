@@ -1,28 +1,29 @@
 package org.cru.crs.service;
 
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import java.util.UUID;
+
 public class BlockService
 {
 	EntityManager em;
 	PageService pageService;
 	ConferenceService conferenceService;
+	AnswerService answerService;
 
     @Inject
-	public BlockService(EntityManager em, ConferenceService conferenceService, PageService pageService)
+	public BlockService(EntityManager em, ConferenceService conferenceService, PageService pageService, AnswerService answerService)
 	{
 		this.em = em;
 		this.conferenceService = conferenceService;
 		this.pageService = pageService;
+		this.answerService = answerService;
 	}
 	
 	public BlockEntity fetchBlockBy(UUID blockId)
@@ -40,12 +41,19 @@ public class BlockService
 	public void deleteBlock(UUID blockId, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		BlockEntity blockToDelete = em.find(BlockEntity.class, blockId);
-		
+
 		verifyUserIdHasAccessToModifyThisBlocksConference(blockToDelete,crsLoggedInUser);
-		
-		em.remove(blockToDelete);
+
+		deleteBlock(blockToDelete);
 	}
-	
+
+	protected void deleteBlock(BlockEntity blockEntity) throws UnauthorizedException
+	{
+		answerService.deleteAnswersByBlockId(blockEntity.getId());
+
+		em.remove(blockEntity);
+	}
+
 	private void verifyUserIdHasAccessToModifyThisBlocksConference(BlockEntity blockToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(blockToUpdate.getPageId());
