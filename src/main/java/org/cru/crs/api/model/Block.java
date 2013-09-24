@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.JsonNode;
 import org.cru.crs.model.BlockEntity;
 
@@ -30,22 +32,22 @@ public class Block implements java.io.Serializable
 		block.required = jpaBlock.isRequired();
 		return block;
 	}
-	
+
 	public static List<Block> fromJpa(List<BlockEntity> jpaBlocks)
 	{
 		List<Block> webBlocks = new ArrayList<Block>();
-		
+
 		if(jpaBlocks == null) return webBlocks;
-		
+
 		for(BlockEntity jpaBlock : jpaBlocks)
 		{
             if(jpaBlock == null) continue;
 			webBlocks.add(fromJpa(jpaBlock));
 		}
-		
+
 		return webBlocks;
 	}
-	
+
 	public BlockEntity toJpaBlockEntity()
 	{
 		BlockEntity jpaBlock = new BlockEntity();
@@ -112,5 +114,25 @@ public class Block implements java.io.Serializable
 	public void setRequired(boolean required)
 	{
 		this.required = required;
+	}
+
+	public int hashCode() {
+		return new HashCodeBuilder(17, 31). // two randomly chosen prime numbers
+				append(id).
+				toHashCode();
+	}
+
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (obj == this)
+			return true;
+		if (!(obj instanceof Block))
+			return false;
+
+		Block rhs = (Block) obj;
+		return new EqualsBuilder().
+				append(id, rhs.id).
+				isEquals();
 	}
 }

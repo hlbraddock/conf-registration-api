@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
+import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.joda.time.DateTime;
@@ -64,6 +65,18 @@ public class Conference implements java.io.Serializable
         jpaConference.setLocationCity(locationCity);
         jpaConference.setLocationState(locationState);
         jpaConference.setLocationZipCode(locationZipCode);
+
+		ConferenceCostsEntity jpaConferenceCosts = new ConferenceCostsEntity();
+		jpaConferenceCosts.setId(id);
+		jpaConferenceCosts.setAcceptCreditCards(acceptCreditCards);
+		jpaConferenceCosts.setAuthnetId(authnetId);
+		jpaConferenceCosts.setAuthnetToken(authnetToken);
+		jpaConferenceCosts.setConferenceBaseCost(conferenceCost);
+		jpaConferenceCosts.setEarlyRegistrationAmount(earlyRegistrationAmount);
+		jpaConferenceCosts.setEarlyRegistrationCutoff(earlyRegistrationCutoff);
+		jpaConferenceCosts.setEarlyRegistrationDiscount(earlyRegistrationDiscount);
+
+		jpaConference.setConferenceCosts(jpaConferenceCosts);
 
 		jpaConference.setPages(new ArrayList<PageEntity>());
 		

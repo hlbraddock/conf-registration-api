@@ -26,6 +26,7 @@ public class BlockServiceTest
 	private EntityManager em;
 
 	private BlockService blockService;
+	private AnswerService answerService;
 
 	private CrsApplicationUser testAppUser = new CrsApplicationUser(UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898"), AuthenticationProviderType.RELAY, "crs.testuser@crue.org");
 	private CrsApplicationUser testAppUserNotAuthorized = new CrsApplicationUser(UUID.randomUUID(), null, null);
@@ -36,7 +37,8 @@ public class BlockServiceTest
 		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 		em = emFactory.createEntityManager();
 
-		blockService = new BlockService(em, new ConferenceService(em), new PageService(em, new ConferenceService(em)));
+		answerService = new AnswerService(em);
+		blockService = new BlockService(em, new ConferenceService(em), new PageService(em, new ConferenceService(em), answerService), answerService);
 	}
 
 	@AfterClass
@@ -187,7 +189,12 @@ public class BlockServiceTest
         answer.setBlockId(block.getId());
         answer.setRegistrationId(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
 
-        try
+		AnswerEntity answer2 = new AnswerEntity();
+		answer2.setId(UUID.randomUUID());
+		answer2.setBlockId(block.getId());
+		answer2.setRegistrationId(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
+
+		try
         {
             RegistrationEntity registration = setupEm.find(RegistrationEntity.class, UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
 
@@ -199,7 +206,8 @@ public class BlockServiceTest
 
             setupEm.flush();
 
-            registration.getAnswers().add(answer);
+			registration.getAnswers().add(answer);
+			registration.getAnswers().add(answer2);
 
             setupEm.flush();
 
@@ -208,17 +216,20 @@ public class BlockServiceTest
             BlockEntity retrievedBlock = em.find(BlockEntity.class, block.getId());
 
             em.getTransaction().begin();
-            em.remove(retrievedBlock);
 
-            em.flush();
+			blockService.deleteBlock(retrievedBlock);
+
+			em.flush();
 
             em.getTransaction().commit();
 
             Assert.assertNull(em.find(BlockEntity.class, block.getId()));
-            Assert.assertNull(em.find(AnswerEntity.class, answer.getId()));
+			Assert.assertNull(em.find(AnswerEntity.class, answer.getId()));
+			Assert.assertNull(em.find(AnswerEntity.class, answer2.getId()));
         }
         catch(Exception e)
         {
+
             setupEm.getTransaction().rollback();
             setupEm.close();
             em.getTransaction().rollback();
