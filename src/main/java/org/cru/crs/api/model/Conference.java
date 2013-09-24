@@ -38,7 +38,6 @@ public class Conference implements java.io.Serializable
     private String locationState;
     private String locationZipCode;
 
-	private UUID conferenceCostsId;
     private BigDecimal conferenceCost;
     private boolean earlyRegistrationDiscount;
     private BigDecimal earlyRegistrationAmount;
@@ -68,7 +67,7 @@ public class Conference implements java.io.Serializable
         jpaConference.setLocationZipCode(locationZipCode);
 
 		ConferenceCostsEntity jpaConferenceCosts = new ConferenceCostsEntity();
-		jpaConferenceCosts.setId(conferenceCostsId);
+		jpaConferenceCosts.setId(id);
 		jpaConferenceCosts.setAcceptCreditCards(acceptCreditCards);
 		jpaConferenceCosts.setAuthnetId(authnetId);
 		jpaConferenceCosts.setAuthnetToken(authnetToken);
@@ -119,7 +118,6 @@ public class Conference implements java.io.Serializable
 
         if(jpaConference.getConferenceCosts() != null)
         {
-			webConference.conferenceCostsId = jpaConference.getConferenceCosts().getId();
             webConference.authnetId = jpaConference.getConferenceCosts().getAuthnetId();
             /*don't expose the authnet token back out to the Client!*/
             webConference.acceptCreditCards = jpaConference.getConferenceCosts().isAcceptCreditCards();
