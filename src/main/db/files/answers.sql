@@ -1,4 +1,3 @@
-DROP TABLE cru_crs_answers CASCADE;
 DROP TABLE answers CASCADE;
 
 CREATE TABLE answers (

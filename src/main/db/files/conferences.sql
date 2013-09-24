@@ -1,4 +1,3 @@
-DROP TABLE cru_crs_conferences CASCADE;
 DROP TABLE conferences CASCADE;
 
 CREATE TABLE conferences (
