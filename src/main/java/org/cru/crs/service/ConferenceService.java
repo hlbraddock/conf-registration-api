@@ -74,7 +74,6 @@ public class ConferenceService
          * So that blocks don't get deleting when moving them to a preceding page, update pages
          * one by one and flush to the database between moving them.  See Github issue 39 and PR 42 for context
          */
-
         //can't inject a PageService, because PageService injects this class.
         PageService pageService = new PageService(em,this, new AnswerService(em));
 
@@ -87,6 +86,7 @@ public class ConferenceService
             pageService.updatePage(page, crsLoggedInUser, false);
             em.flush();
         }
+
 
 		em.merge(conferenceToUpdate);
 	}
