@@ -6,20 +6,24 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import org.cru.crs.api.model.Page;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.UserEntity;
 
 public class ConferenceService
 {
 	EntityManager em;
+    UserService userService;
+	AnswerService answerService;
 
     @Inject
-	public ConferenceService(EntityManager em)
+	public ConferenceService(EntityManager em, UserService userService, AnswerService answerService)
 	{
 		this.em = em;
+        this.userService = userService;
+		this.answerService = answerService;
 	}
 
 	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
@@ -43,11 +47,23 @@ public class ConferenceService
 		}
 		
 		newConference.setContactUser(crsLoggedInUser.getId());
-		
+
+        newConference = setInitialContactPersonDetailsBasedOn(crsLoggedInUser, newConference);
+
 		em.persist(newConference);
 	}
-	
-	public void updateConference(ConferenceEntity conferenceToUpdate,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+
+    private ConferenceEntity setInitialContactPersonDetailsBasedOn(CrsApplicationUser crsLoggedInUser, ConferenceEntity newConference)
+    {
+        UserEntity user = userService.fetchUserBy(crsLoggedInUser.getId());
+        newConference.setContactPersonName(user.getFirstName() + " " + user.getLastName());
+        newConference.setContactPersonEmail(user.getEmailAddress());
+        newConference.setContactPersonPhone(user.getPhoneNumber());
+
+        return newConference;
+    }
+
+    public void updateConference(ConferenceEntity conferenceToUpdate,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferenceToUpdate.getContactUser()))
 		{
@@ -58,18 +74,23 @@ public class ConferenceService
          * So that blocks don't get deleting when moving them to a preceding page, update pages
          * one by one and flush to the database between moving them.  See Github issue 39 and PR 42 for context
          */
-
         //can't inject a PageService, because PageService injects this class.
-//        PageService pageService = new PageService(em,this);
-//        for(PageEntity page : conferenceToUpdate.getPages())
-//        {
-//            pageService.updatePage(page, crsLoggedInUser);
-//            em.flush();
-//        }
+        PageService pageService = new PageService(em,this, new AnswerService(em));
+
+		// delete answers on pages update
+		ConferenceEntity currentConference = fetchConferenceBy(conferenceToUpdate.getId());
+		pageService.deleteAnswersOnPagesUpdate(currentConference.getPages(), conferenceToUpdate.getPages());
+
+		for(PageEntity page : conferenceToUpdate.getPages())
+        {
+            pageService.updatePage(page, crsLoggedInUser, false);
+            em.flush();
+        }
+
 
 		em.merge(conferenceToUpdate);
 	}
-	
+
 	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/

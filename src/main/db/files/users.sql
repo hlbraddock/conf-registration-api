@@ -7,6 +7,7 @@ CREATE TABLE users (
   spouse_user_id uuid,
   birth_date date,
   contact_email text,
+  phone_number text,
   home_address_line_1 text,
   home_address_line_2 text,
   home_address_city text,
