@@ -1,4 +1,3 @@
-DROP TABLE cru_crs_blocks CASCADE;
 DROP TABLE blocks CASCADE;
 
 CREATE TABLE blocks (
