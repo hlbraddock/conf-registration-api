@@ -199,7 +199,7 @@ public class ConferenceServiceTest
 
 		//now do the reverse to set the conference right.
 
-		conferenceEntity.getPages().get(0).getBlocks().add(2,blockToDelete);
+		conferenceEntity.getPages().get(pagen).getBlocks().add(blockn,blockToDelete);
 
 		try
 		{
