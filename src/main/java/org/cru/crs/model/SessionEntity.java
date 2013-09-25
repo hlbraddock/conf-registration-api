@@ -23,8 +23,8 @@ public class SessionEntity implements java.io.Serializable
 	private UUID id;
 
 	@Column(name = "AUTH_CODE")
-	@Type(type = "pg-uuid")
-	private UUID authCode;
+	@Type(type = "text")
+	private String authCode;
 
 	@Column(name = "EXPIRATION")
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
@@ -44,12 +44,12 @@ public class SessionEntity implements java.io.Serializable
 		this.id = id;
 	}
 
-	public UUID getAuthCode()
+	public String getAuthCode()
 	{
 		return authCode;
 	}
 
-	public void setAuthCode(UUID authCode)
+	public void setAuthCode(String authCode)
 	{
 		this.authCode = authCode;
 	}
