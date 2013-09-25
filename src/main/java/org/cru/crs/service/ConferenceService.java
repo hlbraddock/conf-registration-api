@@ -1,16 +1,20 @@
 package org.cru.crs.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.cru.crs.api.model.Page;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.UserEntity;
+import org.cru.crs.utils.CollectionUtils;
 
 public class ConferenceService
 {
@@ -69,6 +73,26 @@ public class ConferenceService
 		{
 			throw new UnauthorizedException();
 		}
+        ConferenceEntity originalConference = em.find(ConferenceEntity.class,conferenceToUpdate.getId());
+
+        /*
+         * The updating of pages below will cause an exception at the database level if a new page is added.  This is
+         * because JPA says that conference ID on a page is not insertable/updatable, so when it tries to insert
+         * a new page, postgres complains b/c it has a null value on a foreign key.
+         */
+
+        Set<Page> pagesOnOriginalConference = new HashSet<Page>();
+        pagesOnOriginalConference.addAll(Page.fromJpa(originalConference.getPages()));
+
+        Set<Page> pagesOnUpdatedConference = new HashSet<Page>();
+        pagesOnUpdatedConference.addAll(Page.fromJpa(conferenceToUpdate.getPages()));
+
+        Set<Page> addedPages = CollectionUtils.firstNotFoundInSecond(pagesOnUpdatedConference, pagesOnOriginalConference);
+
+        for(Page page : addedPages)
+        {
+            addPageToConference(originalConference, page.toJpaPageEntity(), crsLoggedInUser);
+        }
 
         /*
          * So that blocks don't get deleting when moving them to a preceding page, update pages
@@ -87,7 +111,6 @@ public class ConferenceService
             em.flush();
         }
 
-
 		em.merge(conferenceToUpdate);
 	}
 
@@ -103,6 +126,8 @@ public class ConferenceService
 		if(pageToAdd.getId() == null) pageToAdd.setId(UUID.randomUUID());
 		
 		conferenceToAddPageTo.getPages().add(pageToAdd.setConferenceId(conferenceToAddPageTo.getId()));
+
+        em.flush();
 	}
 
 }
