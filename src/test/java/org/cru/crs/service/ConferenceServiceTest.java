@@ -231,15 +231,14 @@ public class ConferenceServiceTest
 		try
 		{
 			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			
-			setupEm.getTransaction().begin();
-			conferenceService.addPageToConference(setupEm.find(ConferenceEntity.class, 
+
+			em.getTransaction().begin();
+			conferenceService.addPageToConference(em.find(ConferenceEntity.class,
 																	UUID.fromString("42e4c1B2-0cc1-89f7-9f4b-6bc3e0db5309")),
 													newPage.toJpaPageEntity(),
 													testAppUser);
 			
-			setupEm.flush();
-			setupEm.getTransaction().commit();
+			em.getTransaction().commit();
 			
 			PageEntity persistedPage = setupEm.find(PageEntity.class, newPage.getId());
 			
@@ -269,7 +268,6 @@ public class ConferenceServiceTest
 	 * Test: add a new page to an existing conference
 	 * 
 	 * Expected outcome: existing conference will have not new page added to it
-	 * @throws UnauthorizedException 
 	 */
 	@Test(groups="db-integration-tests")
 	public void addPageToConferenceNotAuthorized() 
