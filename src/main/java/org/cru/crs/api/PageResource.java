@@ -116,7 +116,6 @@ public class PageResource
 	/**
 	 * This method will delete a page specified by ID.
 	 * 
-	 * @param page
 	 * @param pageId
 	 * @return
 	 */
