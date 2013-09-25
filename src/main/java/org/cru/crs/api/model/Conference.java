@@ -45,6 +45,7 @@ public class Conference implements java.io.Serializable
     private String locationZipCode;
 
     private BigDecimal conferenceCost;
+    private BigDecimal minimumDeposit;
     private boolean earlyRegistrationDiscount;
     private BigDecimal earlyRegistrationAmount;
     private DateTime earlyRegistrationCutoff;
@@ -81,6 +82,7 @@ public class Conference implements java.io.Serializable
 		jpaConferenceCosts.setAuthnetId(authnetId);
 		jpaConferenceCosts.setAuthnetToken(authnetToken);
 		jpaConferenceCosts.setConferenceBaseCost(conferenceCost);
+        jpaConferenceCosts.setMinimumDeposit(minimumDeposit);
 		jpaConferenceCosts.setEarlyRegistrationAmount(earlyRegistrationAmount);
 		jpaConferenceCosts.setEarlyRegistrationCutoff(earlyRegistrationCutoff);
 		jpaConferenceCosts.setEarlyRegistrationDiscount(earlyRegistrationDiscount);
@@ -134,6 +136,7 @@ public class Conference implements java.io.Serializable
             /*don't expose the authnet token back out to the Client!*/
             webConference.acceptCreditCards = jpaConference.getConferenceCosts().isAcceptCreditCards();
             webConference.conferenceCost = jpaConference.getConferenceCosts().getConferenceBaseCost();
+            webConference.minimumDeposit = jpaConference.getConferenceCosts().getMinimumDeposit();
             webConference.earlyRegistrationAmount = jpaConference.getConferenceCosts().getEarlyRegistrationAmount();
             webConference.earlyRegistrationCutoff = jpaConference.getConferenceCosts().getEarlyRegistrationCutoff();
             webConference.earlyRegistrationDiscount = jpaConference.getConferenceCosts().isEarlyRegistrationDiscount();
@@ -348,6 +351,16 @@ public class Conference implements java.io.Serializable
     public void setConferenceCost(BigDecimal conferenceCost)
     {
         this.conferenceCost = conferenceCost;
+    }
+
+    public BigDecimal getMinimumDeposit()
+    {
+        return minimumDeposit;
+    }
+
+    public void setMinimumDeposit(BigDecimal minimumDeposit)
+    {
+        this.minimumDeposit = minimumDeposit;
     }
 
     public boolean isEarlyRegistrationDiscount()

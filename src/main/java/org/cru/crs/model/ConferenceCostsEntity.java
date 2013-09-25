@@ -27,6 +27,9 @@ public class ConferenceCostsEntity
     @Column(name = "EARLY_REGISTRATION_AMOUNT")
     BigDecimal earlyRegistrationAmount;
 
+    @Column(name = "MINIMUM_DEPOSIT")
+    BigDecimal minimumDeposit;
+
     @Column(name = "EARLY_REGISTRATION_CUTOFF")
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     DateTime earlyRegistrationCutoff;
@@ -58,6 +61,16 @@ public class ConferenceCostsEntity
     public void setConferenceBaseCost(BigDecimal conferenceBaseCost)
     {
         this.conferenceBaseCost = conferenceBaseCost;
+    }
+
+    public BigDecimal getMinimumDeposit()
+    {
+        return minimumDeposit;
+    }
+
+    public void setMinimumDeposit(BigDecimal minimumDeposit)
+    {
+        this.minimumDeposit = minimumDeposit;
     }
 
     public boolean isEarlyRegistrationDiscount()
