@@ -13,7 +13,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.auth.model.EmailAccountUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.utils.AuthCodeGenerator;
@@ -37,11 +36,11 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 			return Response.status(Response.Status.UNAUTHORIZED).build();
 		}
 
-		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(EmailAccountUser.fromAuthIdAndEmail(authId, authenticationProviderIdentityEntity.getUsername()));
+		EmailAccountUser emailAccountUser = EmailAccountUser.fromAuthIdAndEmail(authId, authenticationProviderIdentityEntity.getUsername());
 
-		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, crsApplicationUser);
+		String authCode = AuthCodeGenerator.generate();
 
-        String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
+		persistSession(emailAccountUser, authCode);
 
 		// redirect to client managed auth code url with auth code
 		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + authCode)).build();
