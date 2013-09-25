@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 
@@ -65,6 +67,25 @@ public class Page implements java.io.Serializable
 		}			
 		return jpaPage;
 	}
+
+    public int hashCode()
+    {
+        return new HashCodeBuilder(29, 79). // two randomly chosen prime numbers
+                append(id).
+                toHashCode();
+    }
+
+    public boolean equals(Object obj)
+    {
+        if (obj == null) return false;
+        if (obj == this) return true;
+        if (!(obj instanceof Page)) return false;
+
+        Page rhs = (Page) obj;
+        return new EqualsBuilder().
+                append(id, rhs.id).
+                isEquals();
+    }
 
 	public UUID getId()
 	{
