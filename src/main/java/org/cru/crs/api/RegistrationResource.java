@@ -47,7 +47,7 @@ public class RegistrationResource
 	{
 		try
 		{
-			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			RegistrationEntity requestedRegistration = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
@@ -76,7 +76,7 @@ public class RegistrationResource
 	{
 		try
 		{
-			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
 				return Response.status(Status.BAD_REQUEST).build();
@@ -133,7 +133,7 @@ public class RegistrationResource
 	{
 		try
 		{
-			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
@@ -161,7 +161,7 @@ public class RegistrationResource
 	{
 		try
 		{
-			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
 				return Response.status(Status.BAD_REQUEST).build();

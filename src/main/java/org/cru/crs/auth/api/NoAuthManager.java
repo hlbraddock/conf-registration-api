@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.BasicNoAuthUser;
-import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.MailService;
 
@@ -46,11 +45,11 @@ public class NoAuthManager extends AbstractAuthManager
 
 		sendLoginLink(httpServletRequest, email, noAuthId);
 
-		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email));
+		BasicNoAuthUser basicNoAuthUser = BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email);
 
-		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, crsApplicationUser);
+		String authCode = AuthCodeGenerator.generate();
 
-		String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
+		persistSession(basicNoAuthUser, authCode);
 
 		// redirect to client managed auth code url with auth code
 		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + authCode)).build();

@@ -68,7 +68,7 @@ public class PageResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 			ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
 
 			/**
@@ -126,7 +126,7 @@ public class PageResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 
 			if(pageId == null)
 			{
@@ -152,7 +152,7 @@ public class PageResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 			PageEntity pageBlockBelongsTo = pageService.fetchPageBy(pageId);
 
 			/*if the page id, specified in the incoming block doesn't map to a page,
