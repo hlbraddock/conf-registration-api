@@ -1,5 +1,6 @@
 package org.cru.crs.auth;
 
+import org.cru.crs.api.model.Session;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.SessionEntity;
@@ -24,6 +25,9 @@ public class CrsUserService
 			SessionEntity sessionEntity = sessionService.getSessionByAuthCode(authCode);
 
 			if(sessionEntity == null)
+				throw new UnauthorizedException();
+
+			if(Session.fromJpa(sessionEntity).isExpired())
 				throw new UnauthorizedException();
 
 			UUID authProviderId = sessionEntity.getAuthenticationProviderIdentityEntity().getId();
