@@ -38,6 +38,9 @@ public class RegistrationEntity implements java.io.Serializable
 	@JoinColumn(name = "REGISTRATION_ID", nullable = false)
 	private Set<AnswerEntity> answers;
 
+    @Column(name = "COMPLETED")
+    private Boolean completed;
+
 	public UUID getId()
 	{
 		return id;
@@ -76,5 +79,15 @@ public class RegistrationEntity implements java.io.Serializable
     public void setAnswers(Set<AnswerEntity> answers)
     {
         this.answers = answers;
+    }
+
+    public Boolean getCompleted()
+    {
+        return completed;
+    }
+
+    public void setCompleted(Boolean completed)
+    {
+        this.completed = completed;
     }
 }

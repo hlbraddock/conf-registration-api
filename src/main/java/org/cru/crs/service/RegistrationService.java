@@ -90,6 +90,7 @@ public class RegistrationService {
 
 		authorizationService.authorize(registrationEntity, OperationType.CREATE, crsApplicationUser);
 
+        registrationEntity.setCompleted(false); //they're just starting, so clearly it's not complete
 		em.persist(registrationEntity);
     }
 

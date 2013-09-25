@@ -15,6 +15,7 @@ public class Registration implements java.io.Serializable
     private UUID id;
 	private UUID userId;
 	private UUID conferenceId;
+    private Boolean completed;
 
     private Set<Answer> answers = new HashSet<Answer>();
 
@@ -32,6 +33,8 @@ public class Registration implements java.io.Serializable
         webRegistration.userId = jpaRegistration.getUserId();
 		webRegistration.conferenceId = jpaRegistration.getConference().getId();
         webRegistration.answers = Answer.fromJpa(jpaRegistration.getAnswers());
+        webRegistration.completed = jpaRegistration.getCompleted();
+
 		return webRegistration;
 	}
 	
@@ -54,6 +57,7 @@ public class Registration implements java.io.Serializable
 		jpaRegistration.setId(id);
 		jpaRegistration.setUserId(userId);
         jpaRegistration.setConference(conferenceEntity);
+        jpaRegistration.setCompleted(completed);
 
         jpaRegistration.setAnswers(new HashSet<AnswerEntity>());
         for (Answer answer : getAnswers())
@@ -101,4 +105,14 @@ public class Registration implements java.io.Serializable
 	{
 		this.conferenceId = conferenceId;
 	}
+
+    public Boolean getCompleted()
+    {
+        return completed;
+    }
+
+    public void setCompleted(Boolean completed)
+    {
+        this.completed = completed;
+    }
 }

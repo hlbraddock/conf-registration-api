@@ -3,6 +3,7 @@ DROP TABLE conference_costs CASCADE;
 CREATE TABLE conference_costs (
   id uuid NOT NULL PRIMARY KEY,
   base_cost decimal,
+  minimum_deposit decimal default 0,
   early_registration_discount boolean default false,
   early_registration_amount decimal,
   early_registration_cutoff timestamp with time zone,
@@ -11,4 +12,4 @@ CREATE TABLE conference_costs (
   authnet_token varchar(25)
 );
 
-INSERT INTO conference_costs (id,base_cost) VALUES ('d3be03f0-198f-11e3-8ffd-0800200c9a66', '50.00');
+INSERT INTO conference_costs (id,base_cost,minimum_deposit) VALUES ('d3be03f0-198f-11e3-8ffd-0800200c9a66', '50.00', '10.0');
