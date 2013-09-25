@@ -1,5 +1,6 @@
 package org.cru.crs.service;
 
+import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.model.SessionEntity;
 
 import javax.inject.Inject;
@@ -37,5 +38,10 @@ public class SessionService
 	public void create(SessionEntity sessionEntity)
 	{
 		entityManager.persist(sessionEntity);
+	}
+
+	public void update(SessionEntity sessionEntity) throws UnauthorizedException
+	{
+		entityManager.merge(sessionEntity);
 	}
 }

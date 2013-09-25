@@ -6,6 +6,9 @@ import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.service.SessionService;
+import org.cru.crs.utils.CrsProperties;
+import org.cru.crs.utils.Simply;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import java.util.UUID;
@@ -14,6 +17,9 @@ public class CrsUserService
 {
 	@Inject
 	SessionService sessionService;
+
+	@Inject
+	CrsProperties crsProperties;
 
 	@Inject
 	AuthenticationProviderService authenticationProviderService;
@@ -38,6 +44,12 @@ public class CrsUserService
 				throw new UnauthorizedException();
 
 			AuthenticationProviderType authProviderType = AuthenticationProviderType.valueOf(authProviderEntity.getAuthenticationProviderName());
+
+			DateTime expiration = (new DateTime()).plusHours(Simply.toInteger(crsProperties.getProperty("maxSessionLength"), 4));
+
+			sessionEntity.setExpiration(expiration);
+
+			sessionService.update(sessionEntity);
 
 			return new CrsApplicationUser(authProviderEntity.getCrsUser().getId(), authProviderType, authProviderEntity.getUsername());
 		}
