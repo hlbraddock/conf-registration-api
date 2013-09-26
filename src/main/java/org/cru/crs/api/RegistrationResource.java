@@ -1,6 +1,5 @@
 package org.cru.crs.api;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
@@ -13,6 +12,7 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
+import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 
 import javax.ejb.Stateless;
@@ -23,7 +23,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -47,19 +46,23 @@ public class RegistrationResource
 	{
 		try
 		{
+			logger.info("get registration entity " + registrationId + " and auth code " + authCode);
+
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			RegistrationEntity requestedRegistration = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
+			logger.info("get registration is " + requestedRegistration);
+
 			if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
 
 			logger.info("get registration entity");
-			logObject(Registration.fromJpa(requestedRegistration), logger);
+			Simply.logObject(Registration.fromJpa(requestedRegistration), RegistrationResource.class);
 
 			Registration registration = Registration.fromJpa(requestedRegistration);
 
 			logger.info("get registration");
-			logObject(registration, logger);
+			Simply.logObject(registration, RegistrationResource.class);
 
 			return Response.ok(registration).build();
 		}
@@ -85,7 +88,7 @@ public class RegistrationResource
 				return Response.status(Status.BAD_REQUEST).build();
 
 			logger.info("update registration");
-			logObject(registration, logger);
+			Simply.logObject(registration, RegistrationResource.class);
 
 			ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(registration.getConferenceId());
 
@@ -100,7 +103,7 @@ public class RegistrationResource
 				RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
 				logger.info("update registration creating");
-				logObject(registrationEntity, logger);
+				Simply.logObject(registrationEntity, RegistrationResource.class);
 
 				registrationService.createNewRegistration(registrationEntity, crsLoggedInUser);
 
@@ -111,12 +114,12 @@ public class RegistrationResource
 			}
 
 			logger.info("update current registration entity");
-			logObject(Registration.fromJpa(currentRegistrationEntity), logger);
+			Simply.logObject(Registration.fromJpa(currentRegistrationEntity), RegistrationResource.class);
 
 			RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
 			logger.info("update registration entity");
-			logObject(Registration.fromJpa(registrationEntity), logger);
+			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
 
 			registrationService.updateRegistration(registrationEntity, crsLoggedInUser);
 
@@ -141,7 +144,7 @@ public class RegistrationResource
 				return Response.status(Status.BAD_REQUEST).build();
 
 			logger.info("delete registration entity");
-			logObject(Registration.fromJpa(registrationEntity), logger);
+			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
 
 			registrationService.deleteRegistration(registrationEntity, crsLoggedInUser);
 
@@ -169,14 +172,14 @@ public class RegistrationResource
 			if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
 
 			logger.info("create answer");
-			logObject(newAnswer, logger);
+			Simply.logObject(newAnswer, RegistrationResource.class);
 
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
 			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
 			logger.info("create answer with registration entity");
-			logObject(Registration.fromJpa(registrationEntity), logger);
+			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
 
 			registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
 
@@ -193,25 +196,10 @@ public class RegistrationResource
     @Consumes(MediaType.APPLICATION_JSON)
     public Response postPayment(Payment payment, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
-        logObject(payment, logger);
+        Simply.logObject(payment, RegistrationResource.class);
 
         paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
 
         return Response.noContent().build();
     }
-
-	private void logObject(Object object, Logger logger)
-	{
-		if(object == null)
-			return;
-
-		try
-		{
-			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
 }
