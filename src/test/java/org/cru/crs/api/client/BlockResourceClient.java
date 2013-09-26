@@ -6,6 +6,7 @@ import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -26,10 +27,10 @@ public interface BlockResourceClient
 		@SuppressWarnings(value="rawtypes")
 		@PUT
 		@Consumes(MediaType.APPLICATION_JSON)
-		public ClientResponse updateBlock(Block block, @PathParam(value="blockId") UUID blockId);
+		public ClientResponse updateBlock(Block block, @PathParam(value="blockId") UUID blockId, @HeaderParam(value = "Authorization") String authCode);
 		
 		@SuppressWarnings(value="rawtypes")
 		@DELETE
 		@Consumes(MediaType.APPLICATION_JSON)
-		public ClientResponse deleteBlock(Block block, @PathParam(value="blockId") UUID blockId);
+		public ClientResponse deleteBlock(Block block, @PathParam(value="blockId") UUID blockId, @HeaderParam(value = "Authorization") String authCode);
 }

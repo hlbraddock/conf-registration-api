@@ -24,7 +24,7 @@ public interface ConferenceResourceClient
 {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<List<Conference>> getConferences();
+	public ClientResponse<List<Conference>> getConferences(@HeaderParam(value = "Authorization") String authCode);
 	
 	@GET
 	@Path("/{conferenceId}")
@@ -34,19 +34,19 @@ public interface ConferenceResourceClient
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<Conference> createConference(Conference conference)throws URISyntaxException;
+	public ClientResponse<Conference> createConference(Conference conference, @HeaderParam(value = "Authorization") String authCode)throws URISyntaxException;
 	
 	@SuppressWarnings(value="rawtypes")
 	@PUT
 	@Path("/{conferenceId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId);
+	public ClientResponse updateConference(Conference conference, @PathParam(value = "conferenceId") UUID conferenceId, @HeaderParam(value = "Authorization") String authCode);
 	
 	@POST
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<Page> createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId) throws URISyntaxException;
+	public ClientResponse<Page> createPage(Page newPage, @PathParam(value = "conferenceId") UUID conferenceId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException;
 
 	@POST
 	@Path("/{conferenceId}/registrations")
