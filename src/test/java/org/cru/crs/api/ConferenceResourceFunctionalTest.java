@@ -67,7 +67,7 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void fetchAllTheConferences()
 	{
-		ClientResponse<List<Conference>> response = conferenceClient.getConferences();
+		ClientResponse<List<Conference>> response = conferenceClient.getConferences(authCodeTestUser);
 		
 		Assert.assertEquals(response.getStatus(), 200);
 		List<Conference> conferences = response.getEntity();
@@ -112,7 +112,7 @@ public class ConferenceResourceFunctionalTest
 	{
 		Conference fakeConference = createFakeConference();
 		
-		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference);
+		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference, authCodeTestUser);
 		
 		String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 		String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/conferences/";
@@ -153,7 +153,7 @@ public class ConferenceResourceFunctionalTest
 	{
 		Conference fakeConference = createFakeConference();
 		
-		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference);
+		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference, authCodeTestUser);
 		
 		String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 		String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/conferences/";
@@ -172,7 +172,7 @@ public class ConferenceResourceFunctionalTest
 		
 		/*call the update endpoint*/
 		@SuppressWarnings("rawtypes") 
-		ClientResponse updateResponse = conferenceClient.updateConference(fakeConference, conferenceId);
+		ClientResponse updateResponse = conferenceClient.updateConference(fakeConference, conferenceId, authCodeTestUser);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
 		/*get a fresh client*/
@@ -204,7 +204,7 @@ public class ConferenceResourceFunctionalTest
 		{
 			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
 			
-			ClientResponse<Page> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+			ClientResponse<Page> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"), authCodeTestUser);
 			Page pageFromCreatedResponse = response.getEntity();
 			
 			//status code, 201-Created
@@ -252,7 +252,7 @@ public class ConferenceResourceFunctionalTest
 			Page newPage = createFakePage();
 
 			@SuppressWarnings("rawtypes")
-			ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
+			ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"), authCodeTestUser);
 
 			//status code, 400-Bad Request
 			Assert.assertEquals(response.getStatus(), 400);
@@ -295,7 +295,7 @@ public class ConferenceResourceFunctionalTest
 
 			fakeConference.getRegistrationPages().add(createFakePage());
 
-			conferenceClient.updateConference(fakeConference, fakeConference.getId());
+			conferenceClient.updateConference(fakeConference, fakeConference.getId(), authCodeTestUser);
 
 			EntityManager retrievalEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
 			ConferenceEntity updatedConference = retrievalEm.find(ConferenceEntity.class, fakeConference.getId());
