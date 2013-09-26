@@ -195,6 +195,7 @@ public class RegistrationResource
     {
         logObject(payment, logger);
 
+        payment.setRegistrationId(registrationId);
         paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
 
         return Response.noContent().build();
