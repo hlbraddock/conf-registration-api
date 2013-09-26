@@ -36,6 +36,15 @@ public class ConferenceResourceFunctionalTest
 	static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
 	
 	Environment environment = Environment.LOCAL;
+
+	private String authCodeRyan = "fd33c83b97b59dc3884454b7c2b861db03d5399c";
+	private String authCodeEmail = "488aca23cecd6e5b8ac406bf74a46723dd853273";
+	private String authCodeTestUser = "11eac4a91ccb730509cd82d822b5b4dd202de7ff";
+
+	private UUID userUUIDRyan = UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1");
+	private UUID userUUIDEmail = UUID.fromString("f8f8c217-f918-4503-b3b3-85016f988343");
+	private UUID userUUIDTest = UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898");
+
 	ConferenceResourceClient conferenceClient;
 	
 	@BeforeMethod
@@ -362,7 +371,7 @@ public class ConferenceResourceFunctionalTest
 	public void addRegistrationToConference() throws URISyntaxException
 	{
 		UUID registrationIdUUID = null;
-		UUID userIdUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0deaf");
+		UUID userIdUUID = userUUIDRyan;
 
 		Registration newRegistration = createRegistration(registrationIdUUID, userIdUUID);
 
@@ -372,7 +381,7 @@ public class ConferenceResourceFunctionalTest
 
 			UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID);
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID, authCodeRyan);
 
 			Assert.assertEquals(response.getStatus(), 201);
 
@@ -401,23 +410,18 @@ public class ConferenceResourceFunctionalTest
 	{
 		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-		ClientResponse<List<Registration>> response = conferenceClient.getRegistrations(conferenceUUID);
+		ClientResponse<List<Registration>> response = conferenceClient.getRegistrations(conferenceUUID, authCodeTestUser);
 
 		Assert.assertEquals(response.getStatus(), 200);
 		List<Registration> registrations = response.getEntity();
 
-		UUID userIdUUID1 = UUID.fromString("1f6250ca-6d25-2bf4-4e56-f368b2fb8f8a");
-		UUID userIdUUID2 = UUID.fromString("7d2201e9-073f-7037-92e0-3b9f7712a8c1");
-		UUID userIdUUID3 = UUID.fromString("9c971175-2807-83cc-cb24-ab83433e0e1a");
-
 		Set<UUID> userIdUUIDSet = new HashSet<UUID>();
 
-		userIdUUIDSet.add(userIdUUID1);
-		userIdUUIDSet.add(userIdUUID2);
-		userIdUUIDSet.add(userIdUUID3);
+		userIdUUIDSet.add(userUUIDEmail);
+		userIdUUIDSet.add(userUUIDTest);
 
 		Assert.assertNotNull(registrations);
-		Assert.assertEquals(registrations.size(), 3);
+		Assert.assertEquals(registrations.size(), 2);
 
 		for(Registration registration : registrations)
 			userIdUUIDSet.remove(registration.getUserId());
@@ -430,18 +434,17 @@ public class ConferenceResourceFunctionalTest
 	{
 		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-		ClientResponse<Registration> response = conferenceClient.getCurrentRegistration(conferenceUUID);
+		ClientResponse<Registration> response = conferenceClient.getCurrentRegistration(conferenceUUID, authCodeEmail);
 
 		Assert.assertEquals(response.getStatus(), 200);
 
 		Registration registration = response.getEntity();
 
-		UUID registrationUUID = UUID.fromString("670a2732-a8b4-4863-b69a-019be680339c");
-		UUID userUUID = UUID.fromString("7d2201e9-073f-7037-92e0-3b9f7712a8c1");
+		UUID registrationUUID = UUID.fromString("B2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getId(), registrationUUID);
-		Assert.assertEquals(registration.getUserId(), userUUID);
+		Assert.assertEquals(registration.getUserId(), userUUIDEmail);
 		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
 	}
 

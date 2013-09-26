@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -50,15 +51,15 @@ public interface ConferenceResourceClient
 	@POST
 	@Path("/{conferenceId}/registrations")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<Registration> createRegistration(Registration newRegistration, @PathParam(value = "conferenceId") UUID conferenceId);
+	public ClientResponse<Registration> createRegistration(Registration newRegistration, @PathParam(value = "conferenceId") UUID conferenceId, @HeaderParam(value = "Authorization") String authCode);
 
 	@GET
 	@Path("/{conferenceId}/registrations")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<List<Registration>> getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId);
+	public ClientResponse<List<Registration>> getRegistrations(@PathParam(value = "conferenceId") UUID conferenceId, @HeaderParam(value = "Authorization") String authCode);
 
 	@GET
 	@Path("/{conferenceId}/registrations/current")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<Registration> getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId);
+	public ClientResponse<Registration> getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId, @HeaderParam(value = "Authorization") String authCode);
 }
