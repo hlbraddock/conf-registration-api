@@ -13,19 +13,19 @@ public interface RegistrationResourceClient
 {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<Registration> getRegistration(@PathParam(value = "registrationId") UUID registrationId);
-	
+	public ClientResponse<Registration> getRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode);
+
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<Registration> updateRegistration(Registration registration, @PathParam(value = "registrationId") UUID registrationId);
+	public ClientResponse<Registration> updateRegistration(Registration registration, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode);
 	
 	@DELETE
-	public ClientResponse<Registration> deleteRegistration(@PathParam(value = "registrationId") UUID registrationId);
+	public ClientResponse<Registration> deleteRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode);
 
 	@POST
 	@Path("/answers")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<Answer> createAnswer(Answer newAnswer, @PathParam(value = "registrationId") UUID conferenceId);
+	public ClientResponse<Answer> createAnswer(Answer newAnswer, @PathParam(value = "registrationId") UUID conferenceId, @HeaderParam(value = "Authorization") String authCode);
 }

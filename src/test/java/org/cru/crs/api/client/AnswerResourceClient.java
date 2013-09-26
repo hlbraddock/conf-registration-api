@@ -12,13 +12,13 @@ public interface AnswerResourceClient
 {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<Answer> getAnswer(@PathParam(value = "answerId") UUID answerId);
+	public ClientResponse<Answer> getAnswer(@PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode);
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ClientResponse<Answer> updateAnswer(Answer answer, @PathParam(value = "answerId") UUID answerId);
+	public ClientResponse<Answer> updateAnswer(Answer answer, @PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode);
 	
 	@DELETE
-	public ClientResponse<Answer> deleteAnswer(@PathParam(value = "answerId") UUID answerId);
+	public ClientResponse<Answer> deleteAnswer(@PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode);
 }
