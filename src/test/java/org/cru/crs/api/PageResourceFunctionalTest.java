@@ -8,6 +8,7 @@ import javax.persistence.Persistence;
 import org.cru.crs.api.client.PageResourceClient;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.utils.UserInfo;
 import org.cru.crs.utils.Environment;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
@@ -27,14 +28,6 @@ public class PageResourceFunctionalTest
 	
 	Environment environment = Environment.LOCAL;
 	PageResourceClient pageClient;
-
-	private String authCodeRyan = "fd33c83b97b59dc3884454b7c2b861db03d5399c";
-	private String authCodeEmail = "488aca23cecd6e5b8ac406bf74a46723dd853273";
-	private String authCodeTestUser = "11eac4a91ccb730509cd82d822b5b4dd202de7ff";
-
-	private UUID userUUIDRyan = UUID.fromString("f8f8c217-f918-4503-b3b3-85016f9883c1");
-	private UUID userUUIDEmail = UUID.fromString("f8f8c217-f918-4503-b3b3-85016f988343");
-	private UUID userUUIDTest = UUID.fromString("dbc6a808-d7bc-4d92-967c-d82d9d312898");
 
 	@BeforeMethod
 	private void createClient()
@@ -108,7 +101,7 @@ public class PageResourceFunctionalTest
 			webModelPage.setTitle("Ministry Prefs");
 
 			@SuppressWarnings("rawtypes")
-			ClientResponse response = pageClient.updatePage(webModelPage, webModelPage.getId(), authCodeTestUser);
+			ClientResponse response = pageClient.updatePage(webModelPage, webModelPage.getId(), UserInfo.AuthCode.TestUser);
 			
 			//check the response, 204-No Content
 			Assert.assertEquals(response.getStatus(), 204);
@@ -160,7 +153,7 @@ public class PageResourceFunctionalTest
 			PageEntity page = createFakePage();
 
 			@SuppressWarnings("rawtypes")
-			ClientResponse response = pageClient.updatePage(Page.fromJpa(page), page.getId(), authCodeTestUser);
+			ClientResponse response = pageClient.updatePage(Page.fromJpa(page), page.getId(), UserInfo.AuthCode.TestUser);
 			
 			//check the response, 204-No Content
 			Assert.assertEquals(response.getStatus(), 204);
@@ -205,7 +198,7 @@ public class PageResourceFunctionalTest
 		page.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa61"));
 
 		@SuppressWarnings("rawtypes")
-		ClientResponse response = pageClient.updatePage(Page.fromJpa(page), page.getId(), authCodeTestUser);
+		ClientResponse response = pageClient.updatePage(Page.fromJpa(page), page.getId(), UserInfo.AuthCode.TestUser);
 
 		//check the response, 400-Bad Request
 		Assert.assertEquals(response.getStatus(), 400);
@@ -227,7 +220,7 @@ public class PageResourceFunctionalTest
 		PageEntity page = createFakePage();
 
 		@SuppressWarnings("rawtypes")
-		ClientResponse response = pageClient.updatePage(Page.fromJpa(page), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"), authCodeTestUser);
+		ClientResponse response = pageClient.updatePage(Page.fromJpa(page), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"), UserInfo.AuthCode.TestUser);
 
 		//check the response, 400-Bad Request
 		Assert.assertEquals(response.getStatus(), 400);
@@ -283,7 +276,7 @@ public class PageResourceFunctionalTest
 		PageEntity jpaPage = createFakePage();
 		
 		@SuppressWarnings("rawtypes")
-		ClientResponse response = pageClient.deletePage(Page.fromJpa(jpaPage), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"), authCodeTestUser);
+		ClientResponse response = pageClient.deletePage(Page.fromJpa(jpaPage), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"), UserInfo.AuthCode.TestUser);
 		
 		Assert.assertEquals(response.getStatus(), 400);
 	}
