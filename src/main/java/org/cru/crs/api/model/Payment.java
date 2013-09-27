@@ -46,7 +46,23 @@ public class Payment implements Serializable
 
         return jpaPayment;
     }
-
+	
+    public static Payment fromJpa(PaymentEntity jpaPayment)
+	{
+		if(jpaPayment == null) return null;
+    	Payment payment = new Payment();
+		
+		payment.id = jpaPayment.getId();
+		payment.registrationId = jpaPayment.getRegistrationId();
+		payment.amount = jpaPayment.getAmount();
+		payment.creditCardExpirationMonth = jpaPayment.getCreditCardExpirationMonth();
+		payment.creditCardExpirationYear = jpaPayment.getCreditCardExpirationYear();
+		payment.creditCardNameOnCard = jpaPayment.getCreditCardNameOnCard();
+		payment.creditCardNumber = "****" + jpaPayment.getCreditCardLastFourDigits();
+				
+		return payment;
+	}
+	
     public UUID getId()
     {
         return id;

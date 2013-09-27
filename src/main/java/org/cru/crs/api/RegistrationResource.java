@@ -8,6 +8,7 @@ import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
@@ -198,7 +199,10 @@ public class RegistrationResource
         payment.setRegistrationId(registrationId);
         paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
 
-        return Response.noContent().build();
+        return Response.status(Status.CREATED)
+        				.location(new URI("/registrations/" + registrationId + "/payment/" + payment.getId()))
+        				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId())))
+        				.build();
     }
 
 	private void logObject(Object object, Logger logger)
