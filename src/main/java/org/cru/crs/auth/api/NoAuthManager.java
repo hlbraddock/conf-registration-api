@@ -41,11 +41,11 @@ public class NoAuthManager extends AbstractAuthManager
 			}
 		}
 
-		authenticationProviderService.createIdentityAndAuthProviderRecords(BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email));
+		BasicNoAuthUser basicNoAuthUser = BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email);
+
+		authenticationProviderService.createIdentityAndAuthProviderRecords(basicNoAuthUser);
 
 		sendLoginLink(httpServletRequest, email, noAuthId);
-
-		BasicNoAuthUser basicNoAuthUser = BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email);
 
 		String authCode = AuthCodeGenerator.generate();
 
