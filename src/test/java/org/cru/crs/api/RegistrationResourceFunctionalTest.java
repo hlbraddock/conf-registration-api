@@ -56,7 +56,7 @@ public class RegistrationResourceFunctionalTest
 		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
 		
 		Assert.assertEquals(response.getStatus(), 200);
-		
+
 		Registration registration = response.getEntity();
 
 		Assert.assertNotNull(registration);
@@ -281,6 +281,14 @@ public class RegistrationResourceFunctionalTest
 		answer.setValue(value);
 
 		return answer;
+	}
+
+	@Test(groups="functional-tests")
+	public void getRegistrationWithExpiredSession()
+	{
+		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.Expired);
+
+		Assert.assertEquals(response.getStatus(), 401);
 	}
 
 	private static JsonNode jsonNodeFromString(String jsonString)
