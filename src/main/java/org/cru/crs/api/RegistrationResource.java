@@ -196,6 +196,11 @@ public class RegistrationResource
     {
         logObject(payment, logger);
 
+        if(payment.getId() == null)
+        {
+            payment.setId(UUID.randomUUID());
+        }
+        
         payment.setRegistrationId(registrationId);
         paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
 

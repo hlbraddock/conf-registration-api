@@ -26,10 +26,6 @@ public class PaymentService
 
     public void createPaymentRecord(PaymentEntity payment)
     {
-        if(payment.getId() == null)
-        {
-            payment.setId(UUID.randomUUID());
-        }
         em.persist(payment);
     }
 
