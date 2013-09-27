@@ -24,7 +24,7 @@ public class CrsUserService
 	@Inject
 	AuthenticationProviderService authenticationProviderService;
 
-	private Logger logger = Logger.getLogger(CrsApplicationUser.class);
+	private Logger logger = Logger.getLogger(CrsUserService.class);
 
 	public CrsApplicationUser getLoggedInUser(String authCode) throws UnauthorizedException
 	{
@@ -58,11 +58,9 @@ public class CrsUserService
 
 			DateTime expiration = (new DateTime()).plusHours(Simply.toInteger(crsProperties.getProperty("maxSessionLength"), 4));
 
-			sessionEntity.setExpiration(expiration);
-
 			logger.info("getLoggedInUser() update session");
 
-			sessionService.update(sessionEntity);
+			sessionEntity.setExpiration(expiration);
 
 			logger.info("getLoggedInUser() returning crs application user");
 
