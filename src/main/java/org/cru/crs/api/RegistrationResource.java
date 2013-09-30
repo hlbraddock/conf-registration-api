@@ -192,7 +192,7 @@ public class RegistrationResource
 	@GET
     @Path("/payment/{paymentId}")
 	@Produces(MediaType.APPLICATION_JSON)
-    public Response postPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
 		PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
 		
