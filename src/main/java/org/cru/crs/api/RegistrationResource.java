@@ -189,9 +189,27 @@ public class RegistrationResource
 		}
 	}
 
+	@GET
+    @Path("/payment/{paymentId}")
+	@Produces(MediaType.APPLICATION_JSON)
+    public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    {
+		PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
+		
+		if(paymentEntity == null)
+		{
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+        logObject(Payment.fromJpa(paymentEntity), logger);
+
+        return Response.ok(Payment.fromJpa(paymentEntity)).build();
+    }
+	
     @POST
     @Path("/payment")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response postPayment(Payment payment, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
         logObject(payment, logger);
@@ -208,6 +226,35 @@ public class RegistrationResource
         				.location(new URI("/registrations/" + registrationId + "/payment/" + payment.getId()))
         				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId())))
         				.build();
+    }
+    
+    @PUT
+    @Path("/payment/{paymentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updatePayment(Payment payment, @PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    {
+        logObject(payment, logger);
+
+        if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
+        {
+        	return Response.status(Status.BAD_REQUEST).build();
+        }
+        
+        if(paymentId == null)
+        {
+        	payment.setId(UUID.randomUUID());
+        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+        }
+        else if(paymentService.fetchPaymentBy(paymentId) == null)
+        {
+        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+        }
+        else
+        {
+        	paymentService.updatePayment(payment.toJpaPaymentEntity());
+        }
+        return Response.noContent().build();
     }
 
 	private void logObject(Object object, Logger logger)
