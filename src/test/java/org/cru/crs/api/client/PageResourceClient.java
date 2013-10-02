@@ -29,6 +29,5 @@ public interface PageResourceClient
 	
 	@SuppressWarnings(value="rawtypes")
 	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse deletePage(Page page, @PathParam(value="pageId") UUID pageId, @HeaderParam(value = "Authorization") String authCode);
+	public ClientResponse deletePage(@PathParam(value="pageId") UUID pageId, @HeaderParam(value = "Authorization") String authCode);
 }

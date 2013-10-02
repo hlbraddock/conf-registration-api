@@ -1,5 +1,26 @@
 package org.cru.crs.api;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.UUID;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
@@ -7,6 +28,7 @@ import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
@@ -14,18 +36,6 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.UUID;
 
 @Stateless
 @Path("/registrations/{registrationId}")
@@ -191,16 +201,71 @@ public class RegistrationResource
 		}
 	}
 
+	@GET
+    @Path("/payment/{paymentId}")
+	@Produces(MediaType.APPLICATION_JSON)
+    public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    {
+		PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
+		
+		if(paymentEntity == null)
+		{
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+        Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
+
+        return Response.ok(Payment.fromJpa(paymentEntity)).build();
+    }
+	
     @POST
     @Path("/payment")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response postPayment(Payment payment, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
         Simply.logObject(payment, RegistrationResource.class);
 
+        if(payment.getId() == null)
+        {
+            payment.setId(UUID.randomUUID());
+        }
+        
         payment.setRegistrationId(registrationId);
         paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
 
+        return Response.status(Status.CREATED)
+        				.location(new URI("/registrations/" + registrationId + "/payment/" + payment.getId()))
+        				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId())))
+        				.build();
+    }
+    
+    @PUT
+    @Path("/payment/{paymentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updatePayment(Payment payment, @PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    {
+        Simply.logObject(payment, this.getClass());
+
+        if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
+        {
+        	return Response.status(Status.BAD_REQUEST).build();
+        }
+        
+        if(paymentId == null)
+        {
+        	payment.setId(UUID.randomUUID());
+        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+        }
+        else if(paymentService.fetchPaymentBy(paymentId) == null)
+        {
+        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+        }
+        else
+        {
+        	paymentService.updatePayment(payment.toJpaPaymentEntity());
+        }
         return Response.noContent().build();
     }
 }

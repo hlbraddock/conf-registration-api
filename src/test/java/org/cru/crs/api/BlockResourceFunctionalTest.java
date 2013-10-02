@@ -40,7 +40,7 @@ public class BlockResourceFunctionalTest
 		Assert.assertNotNull(foundBlock);
 		Assert.assertEquals(foundBlock.getId(), UUID.fromString(    "af60d878-4741-4f21-9d25-231db86e43ee"));
 		Assert.assertEquals(foundBlock.getPageId(), UUID.fromString("7a52af36-2f3c-5e45-9f76-0af10ff50bb8"));
-		Assert.assertEquals(foundBlock.getType(), "text");
+		Assert.assertEquals(foundBlock.getType(), "paragraphContent");
 	}
 	
 	@Test(groups="functional-tests")
