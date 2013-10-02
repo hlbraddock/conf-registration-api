@@ -1,11 +1,18 @@
 package org.cru.crs.api;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.UUID;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
@@ -14,11 +21,6 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.UUID;
 
 @Test(groups="functional-tests")
 public class RegistrationResourceFunctionalTest
@@ -33,6 +35,7 @@ public class RegistrationResourceFunctionalTest
 
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 	private UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+	private UUID paymentUUID = UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91957");
 	
 	@BeforeMethod
 	public void createClient()
@@ -63,6 +66,31 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(registration.getId(), registrationUUID);
 		Assert.assertEquals(registration.getUserId(), UserInfo.Id.TestUser);
 		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
+		Assert.assertEquals(registration.getPayments().size(), 1);
+		
+		Payment payment = registration.getPayments().get(0);
+		
+		Assert.assertEquals(payment.getId(), paymentUUID);
+		Assert.assertEquals(payment.getAmount(), new BigDecimal(50f));
+		Assert.assertEquals(payment.getCreditCardNameOnCard(),"Joe User");
+		Assert.assertEquals(payment.getCreditCardExpirationMonth(), "11");
+		Assert.assertEquals(payment.getCreditCardExpirationYear(), "2015");
+		Assert.assertEquals(payment.getCreditCardNumber(), "****1111");
+		Assert.assertEquals(payment.getRegistrationId(), registrationUUID);
+	}
+	
+	@Test(groups="functional-tests")
+	public void getRegistrationNoPayment()
+	{
+		ClientResponse<Registration> response = registrationClient.getRegistration(UUID.fromString("B2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7"), UserInfo.AuthCode.Email);
+		
+		Assert.assertEquals(response.getStatus(), 200);
+
+		Registration registration = response.getEntity();
+
+		Assert.assertNotNull(registration);
+		
+		Assert.assertTrue(registration.getPayments().isEmpty());
 	}
 	
 	/**
