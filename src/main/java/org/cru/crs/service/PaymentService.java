@@ -26,13 +26,14 @@ public class PaymentService
 
     public void createPaymentRecord(PaymentEntity payment)
     {
-        if(payment.getId() == null)
-        {
-            payment.setId(UUID.randomUUID());
-        }
         em.persist(payment);
     }
-
+    
+    public void updatePayment(PaymentEntity payment)
+    {
+    	em.merge(payment);
+    }
+    
     public PaymentEntity fetchPaymentForRegistration(UUID registrationId)
     {
         return em.createQuery("SELECT p FROM PaymentEntity p WHERE p.registrationId = :registrationId", PaymentEntity.class)

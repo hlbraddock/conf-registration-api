@@ -7,6 +7,7 @@ import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
@@ -191,16 +192,71 @@ public class RegistrationResource
 		}
 	}
 
+	@GET
+    @Path("/payment/{paymentId}")
+	@Produces(MediaType.APPLICATION_JSON)
+    public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    {
+		PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
+		
+		if(paymentEntity == null)
+		{
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+        logObject(Payment.fromJpa(paymentEntity), logger);
+
+        return Response.ok(Payment.fromJpa(paymentEntity)).build();
+    }
+	
     @POST
     @Path("/payment")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response postPayment(Payment payment, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
         Simply.logObject(payment, RegistrationResource.class);
 
+        if(payment.getId() == null)
+        {
+            payment.setId(UUID.randomUUID());
+        }
+        
         payment.setRegistrationId(registrationId);
         paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
 
+        return Response.status(Status.CREATED)
+        				.location(new URI("/registrations/" + registrationId + "/payment/" + payment.getId()))
+        				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId())))
+        				.build();
+    }
+    
+    @PUT
+    @Path("/payment/{paymentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updatePayment(Payment payment, @PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    {
+        logObject(payment, logger);
+
+        if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
+        {
+        	return Response.status(Status.BAD_REQUEST).build();
+        }
+        
+        if(paymentId == null)
+        {
+        	payment.setId(UUID.randomUUID());
+        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+        }
+        else if(paymentService.fetchPaymentBy(paymentId) == null)
+        {
+        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+        }
+        else
+        {
+        	paymentService.updatePayment(payment.toJpaPaymentEntity());
+        }
         return Response.noContent().build();
     }
 }
