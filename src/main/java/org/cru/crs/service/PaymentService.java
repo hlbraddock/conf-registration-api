@@ -1,13 +1,16 @@
 package org.cru.crs.service;
 
 
-import org.cru.crs.model.PaymentEntity;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import java.util.Set;
-import java.util.UUID;
+
+import org.cru.crs.model.PaymentEntity;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class PaymentService
 {
@@ -34,11 +37,11 @@ public class PaymentService
     	em.merge(payment);
     }
     
-    public PaymentEntity fetchPaymentForRegistration(UUID registrationId)
+    public List<PaymentEntity> fetchPaymentsForRegistration(UUID registrationId)
     {
-        return em.createQuery("SELECT p FROM PaymentEntity p WHERE p.registrationId = :registrationId", PaymentEntity.class)
+        return em.createQuery("SELECT p FROM PaymentEntity p WHERE p.registrationId = :registrationId ORDER BY p.transactionDatetime", PaymentEntity.class)
                 .setParameter("registrationId", registrationId)
-                .getSingleResult();
+                .getResultList();
     }
 
     public Set<PaymentEntity> fetchPaymentsForConference(UUID conferenceId)
