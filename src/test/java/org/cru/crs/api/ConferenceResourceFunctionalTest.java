@@ -66,7 +66,17 @@ public class ConferenceResourceFunctionalTest
 		List<Conference> conferences = response.getEntity();
 		
 		Assert.assertNotNull(conferences);
-		Assert.assertEquals(conferences.size(), 0);
+		Assert.assertEquals(conferences.size(), 2);
+		
+		for(Conference conference : conferences)
+		{
+			//the two conferences should be these two.
+			if(!("Northern Michigan Fall Extravaganza".equals(conference.getName()) ||
+					"Miami University Fall Retreat".equals(conference.getName())))
+			{
+				Assert.fail();
+			}
+		}
 	}
 	
 	/**
@@ -197,7 +207,7 @@ public class ConferenceResourceFunctionalTest
 		{
 			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
 			
-			ClientResponse<Page> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"), UserInfo.AuthCode.TestUser);
+			ClientResponse<Page> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"), UserInfo.AuthCode.Ryan);
 			Page pageFromCreatedResponse = response.getEntity();
 			
 			//status code, 201-Created
@@ -211,8 +221,8 @@ public class ConferenceResourceFunctionalTest
 			
 			ConferenceEntity conference = setupEm.find(ConferenceEntity.class, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
 
-			Assert.assertEquals(conference.getPages().size(), 2);
-			Assert.assertEquals(conference.getPages().get(1).getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
+			Assert.assertEquals(conference.getPages().size(), 3);
+			Assert.assertEquals(conference.getPages().get(2).getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
 			
 			setupEm.close();
 		}
@@ -288,13 +298,14 @@ public class ConferenceResourceFunctionalTest
 
 			fakeConference.getRegistrationPages().add(createFakePage());
 
-			conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
-
+			ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
+			Assert.assertEquals(updateResponse.getStatus(), 204);
+			
 			EntityManager retrievalEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			ConferenceEntity updatedConference = retrievalEm.find(ConferenceEntity.class, fakeConference.getId());
+			ConferenceEntity updatedConferenceFromDb = retrievalEm.find(ConferenceEntity.class, fakeConference.getId());
 
-			Assert.assertEquals(updatedConference.getPages().size(), 1);
-			Assert.assertEquals(updatedConference.getPages().get(0).getId(), fakeConference.getRegistrationPages().get(0).getId());
+			Assert.assertEquals(updatedConferenceFromDb.getPages().size(), 1);
+			Assert.assertEquals(updatedConferenceFromDb.getPages().get(0).getId(), fakeConference.getRegistrationPages().get(0).getId());
 		}
 		finally
 		{
@@ -336,7 +347,7 @@ public class ConferenceResourceFunctionalTest
 	private Conference createFakeConference()
 	{
 		Conference fakeConference = new Conference();
-		fakeConference.setContactUser(UUID.randomUUID());
+		fakeConference.setContactUser(UserInfo.Id.TestUser);
 		fakeConference.setName("Fake Fall Retreat");
 		fakeConference.setTotalSlots(202);
 		fakeConference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 6, 1, 8, 0, 0));
