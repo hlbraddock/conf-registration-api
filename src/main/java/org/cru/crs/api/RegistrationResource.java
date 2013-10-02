@@ -1,5 +1,26 @@
 package org.cru.crs.api;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.UUID;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
@@ -15,18 +36,6 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.UUID;
 
 @Stateless
 @Path("/registrations/{registrationId}")
@@ -204,7 +213,7 @@ public class RegistrationResource
 			return Response.status(Status.NOT_FOUND).build();
 		}
 		
-        logObject(Payment.fromJpa(paymentEntity), logger);
+        Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
 
         return Response.ok(Payment.fromJpa(paymentEntity)).build();
     }
@@ -237,7 +246,7 @@ public class RegistrationResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response updatePayment(Payment payment, @PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
-        logObject(payment, logger);
+        Simply.logObject(payment, this.getClass());
 
         if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
         {
