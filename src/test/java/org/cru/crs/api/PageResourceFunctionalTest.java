@@ -7,9 +7,10 @@ import javax.persistence.Persistence;
 
 import org.cru.crs.api.client.PageResourceClient;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
-import org.cru.crs.utils.UserInfo;
 import org.cru.crs.utils.Environment;
+import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
@@ -54,7 +55,7 @@ public class PageResourceFunctionalTest
 		
 		Page page = response.getEntity();
 		
-		Assert.assertEquals(page.getTitle(),"Ministry preferences");
+		Assert.assertEquals(page.getTitle(),"About your cat");
 		Assert.assertEquals(page.getPosition(), 1);
 		Assert.assertEquals(page.getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 	}
@@ -94,11 +95,11 @@ public class PageResourceFunctionalTest
 			
 			PageEntity page = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 
-			Assert.assertEquals(page.getTitle(), "Ministry preferences");
+			Assert.assertEquals(page.getTitle(), "About your cat");
 
 			Page webModelPage = Page.fromJpa(page);
 
-			webModelPage.setTitle("Ministry Prefs");
+			webModelPage.setTitle("About your kitty cat");
 
 			@SuppressWarnings("rawtypes")
 			ClientResponse response = pageClient.updatePage(webModelPage, webModelPage.getId(), UserInfo.AuthCode.TestUser);
@@ -115,7 +116,7 @@ public class PageResourceFunctionalTest
 			PageEntity updatedPage = postCheckEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 			
 			//this entity is still managed, so we should get the new value;
-			Assert.assertEquals(updatedPage.getTitle(), "Ministry Prefs");
+			Assert.assertEquals(updatedPage.getTitle(), "About your kitty cat");
 			
 			postCheckEm.close();
 		}
@@ -125,7 +126,7 @@ public class PageResourceFunctionalTest
 			PageEntity pageToRevert = cleanupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 			
 			//updatedPage is still managed, so setting the title back and flushing reverts the change
-			pageToRevert.setTitle("Ministry preferences");
+			pageToRevert.setTitle("About your cat");
 			cleanupEm.getTransaction().begin();
 			cleanupEm.flush();
 			cleanupEm.getTransaction().commit();
@@ -238,49 +239,36 @@ public class PageResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void deletePage()
 	{	
-//		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-//		
-//		PageEntity jpaPage = createFakePage();
-//
-//		setupEm.getTransaction().begin();
-//
-//		ConferenceEntity conference = setupEm.find(ConferenceEntity.class, UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
-//		conference.getPages().add(jpaPage);
-//		setupEm.getTransaction().commit();
-//		
-//		try
-//		{
-//			ClientResponse<Page> response = pageClient.deletePage(Page.fromJpa(jpaPage), jpaPage.getId());
-//
-//			Assert.assertEquals(response.getStatus(), 204);
-//			Assert.assertNull(setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd")));
-//		}
-//		finally
-//		{
-//			setupEm.remove(jpaPage);
-//		}
-	}
-
-	/**
-	 * Test: test delete page endpoint with ID in path that doesn't match body ID
-	 * 
-	 * Expected outcome: endpoint should return 400 bad request
-	 * 
-	 * Input: JSON page resource with page ID - "0a00d62c-af29-3723-f949-95a950a0dddd" and path page ID - "0a00d62c-af29-3723-f949-95a950a0cccc"
-	 * 
-	 * Expected output: 400 - BAD REQEUST
-	 */
-	@Test(groups="functional-tests")
-	public void deletePageWherePathAndBodyPageIdsDontMatch()
-	{
+		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		EntityManager verifyEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		
 		PageEntity jpaPage = createFakePage();
-		
-		@SuppressWarnings("rawtypes")
-		ClientResponse response = pageClient.deletePage(Page.fromJpa(jpaPage), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"), UserInfo.AuthCode.TestUser);
-		
-		Assert.assertEquals(response.getStatus(), 400);
-	}
 
+		setupEm.getTransaction().begin();
+
+		ConferenceEntity conference = setupEm.find(ConferenceEntity.class, UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
+		conference.getPages().add(jpaPage);
+		setupEm.flush();
+		setupEm.getTransaction().commit();
+		
+		try
+		{
+			ClientResponse<?> response = pageClient.deletePage(jpaPage.getId(), UserInfo.AuthCode.TestUser);
+			
+			Assert.assertEquals(response.getStatus(), 204);
+			Assert.assertNull(verifyEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd")));
+		}
+		finally
+		{
+			EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			cleanupEm.getTransaction().begin();
+			cleanupEm.remove(jpaPage);
+			cleanupEm.getTransaction().commit();
+			cleanupEm.close();
+			verifyEm.close();
+			setupEm.close();
+		}
+	}
 	
 	private PageEntity createFakePage()
 	{
