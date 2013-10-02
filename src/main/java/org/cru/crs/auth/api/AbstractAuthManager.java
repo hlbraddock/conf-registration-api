@@ -2,6 +2,7 @@ package org.cru.crs.auth.api;
 
 import javax.inject.Inject;
 
+import org.ccci.util.time.Clock;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.SessionEntity;
@@ -24,6 +25,9 @@ public abstract class AbstractAuthManager
 	@Inject
 	SessionService sessionService;
 
+	@Inject
+	Clock clock;
+
 	protected void persistIdentityAndAuthProviderRecordsIfNecessary(AuthenticationProviderUser user)
 	{
 		if (authenticationProviderService.findAuthProviderIdentityByAuthProviderId(user.getId()) == null)
@@ -42,7 +46,8 @@ public abstract class AbstractAuthManager
 		if(authenticationProviderIdentityEntity == null)
 			throw new RuntimeException("could not get authentication provider identity for user " + authenticationProviderUser.getUsername());
 
-		DateTime expiration = (new DateTime()).plusHours(Simply.toInteger(crsProperties.getProperty("maxSessionLength"), 4));
+
+		DateTime expiration = clock.currentDateTime().plusHours(Simply.toInteger(crsProperties.getProperty("maxSessionLength"), 4));
 
 		sessionEntity.setId(UUID.randomUUID());
 		sessionEntity.setAuthCode(authCode);

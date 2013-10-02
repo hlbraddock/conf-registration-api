@@ -1,5 +1,6 @@
 package org.cru.crs.auth;
 
+import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Session;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
@@ -23,6 +24,9 @@ public class CrsUserService
 
 	@Inject
 	AuthenticationProviderService authenticationProviderService;
+
+	@Inject
+	Clock clock;
 
 	private Logger logger = Logger.getLogger(CrsUserService.class);
 
@@ -56,7 +60,7 @@ public class CrsUserService
 
 			logger.info("getLoggedInUser() auth provider type " + authProviderType);
 
-			DateTime expiration = (new DateTime()).plusHours(Simply.toInteger(crsProperties.getProperty("maxSessionLength"), 4));
+			DateTime expiration = clock.currentDateTime().plusHours(Simply.toInteger(crsProperties.getProperty("maxSessionLength"), 4));
 
 			logger.info("getLoggedInUser() update session");
 
