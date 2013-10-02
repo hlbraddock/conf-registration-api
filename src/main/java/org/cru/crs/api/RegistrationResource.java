@@ -71,6 +71,8 @@ public class RegistrationResource
 
 			Registration registration = Registration.fromJpa(requestedRegistration);
 
+			registration.addAllPayments(paymentService.fetchPaymentsForRegistration(registration.getId()));
+			
 			logger.info("get registration");
 			Simply.logObject(registration, RegistrationResource.class);
 
@@ -156,6 +158,11 @@ public class RegistrationResource
 			logger.info("delete registration entity");
 			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
 
+			/*FIXME: expect this to break at run time as the registration may have payments associated with it
+			 * and that is enforced at the database level.  We need to decide if registrations should be allowed
+			 * to be deleted, b/c if so, payments will also be deleted.  That could be a really bad idea.  It's
+			 * probably better to set some status on the registration to "delete" it. 
+			 */
 			registrationService.deleteRegistration(registrationEntity, crsLoggedInUser);
 
 			return Response.noContent().build();

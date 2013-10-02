@@ -8,8 +8,6 @@ import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -18,7 +16,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -35,6 +32,7 @@ import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
+import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
@@ -46,10 +44,8 @@ public class ConferenceResource
 	@Inject ConferenceService conferenceService;
 	@Inject RegistrationService registrationService;
 	@Inject PageService pageService;
+	@Inject PaymentService paymentService;
 	
-	@Inject EntityManager em;
-	
-	@Context HttpServletRequest request;
 	@Inject CrsUserService userService;
 
 	Logger logger = Logger.getLogger(ConferenceResource.class);
@@ -299,6 +295,11 @@ public class ConferenceResource
 
 			Set<Registration> registrationSet = Registration.fromJpa(registrationEntitySet);
 
+			for(Registration reg: registrationSet)
+			{
+				reg.addAllPayments(paymentService.fetchPaymentsForRegistration(reg.getId()));
+			}
+			
 			logObject(registrationSet, logger);
 			
 			return Response.ok(registrationSet).build();
