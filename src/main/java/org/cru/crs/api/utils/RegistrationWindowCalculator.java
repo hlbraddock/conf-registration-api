@@ -9,9 +9,11 @@ public class RegistrationWindowCalculator
 {
     public static void setRegistrationOpenFieldOn(Conference conference, Clock clock)
     {
-        Preconditions.checkNotNull(conference.getRegistrationStartTime());
-        Preconditions.checkNotNull(conference.getRegistrationEndTime());
-
+        if(conference.getRegistrationStartTime() == null || conference.getRegistrationEndTime() == null)
+        {
+            conference.setRegistrationOpen(false);
+            return;
+        }
         conference.setRegistrationOpen(calculateIfRegistrationIsOpen(conference.getRegistrationStartTime(), conference.getRegistrationEndTime(), clock.currentDateTime()));
     }
 
@@ -19,9 +21,11 @@ public class RegistrationWindowCalculator
     {
         if(conference.isEarlyRegistrationDiscount())
         {
-            Preconditions.checkNotNull(conference.getEarlyRegistrationCutoff());
-            Preconditions.checkNotNull(conference.getRegistrationStartTime());
-            Preconditions.checkNotNull(conference.getRegistrationEndTime());
+            if(conference.getRegistrationStartTime() == null || conference.getRegistrationEndTime() == null || conference.getEarlyRegistrationCutoff() == null)
+            {
+                conference.setEarlyRegistrationOpen(false);
+                return;
+            }
 
             DateTime thisMomentInTime = clock.currentDateTime();
 
