@@ -66,7 +66,7 @@ public class RegistrationWindowCalculatorTest
         }
     }
 
-    @BeforeMethod
+    @BeforeMethod(groups="unittest")
     public void setup()
     {
         testConferenceWithEarlyRegistration = new Conference();
