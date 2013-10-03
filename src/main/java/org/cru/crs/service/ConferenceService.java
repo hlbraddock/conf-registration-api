@@ -107,6 +107,10 @@ public class ConferenceService
 
 		for(PageEntity page : conferenceToUpdate.getPages())
         {
+			//While it's true that the conferenceId of a page can't be altered by updating the page
+			//it's possible the client did not set the conference of the page, and a verification 
+			//call inside the service will puke w/o its being set.
+			page.setConferenceId(conferenceToUpdate.getId());
             pageService.updatePage(page, crsLoggedInUser, false);
             em.flush();
         }

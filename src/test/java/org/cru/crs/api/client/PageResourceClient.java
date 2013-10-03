@@ -5,6 +5,7 @@ import java.util.UUID;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -24,10 +25,9 @@ public interface PageResourceClient
 	@SuppressWarnings(value="rawtypes")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse updatePage(Page page, @PathParam(value="pageId") UUID pageId);
+	public ClientResponse updatePage(Page page, @PathParam(value="pageId") UUID pageId, @HeaderParam(value = "Authorization") String authCode);
 	
 	@SuppressWarnings(value="rawtypes")
 	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse deletePage(Page page, @PathParam(value="pageId") UUID pageId);
+	public ClientResponse deletePage(@PathParam(value="pageId") UUID pageId, @HeaderParam(value = "Authorization") String authCode);
 }

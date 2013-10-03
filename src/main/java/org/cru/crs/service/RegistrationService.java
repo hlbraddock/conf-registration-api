@@ -7,6 +7,7 @@ import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.utils.CollectionUtils;
+import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -24,6 +25,8 @@ public class RegistrationService {
 	EntityManager em;
 
 	AuthorizationService authorizationService;
+
+	private Logger logger = Logger.getLogger(RegistrationService.class);
 
 	@Inject
     public RegistrationService(EntityManager em, AuthorizationService authorizationService)
@@ -74,9 +77,21 @@ public class RegistrationService {
 
 	public RegistrationEntity getRegistrationBy(UUID registrationId, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
+		if(crsApplicationUser == null)
+			throw new UnauthorizedException();
+
+		logger.info("get registration by " + registrationId + " with user " + crsApplicationUser.getAuthProviderUsername());
+
         RegistrationEntity registrationEntity = em.find(RegistrationEntity.class, registrationId);
 
+		if(registrationEntity == null)
+			return registrationEntity;
+
+		logger.info("get registration by " + registrationId + " with user " + crsApplicationUser + " checking authorization");
+
 		authorizationService.authorize(registrationEntity, OperationType.READ, crsApplicationUser);
+
+		logger.info("get registration by is authorized");
 
 		return registrationEntity;
     }

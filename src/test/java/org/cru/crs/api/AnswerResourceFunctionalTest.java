@@ -9,6 +9,7 @@ import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.utils.Environment;
+import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
@@ -49,7 +50,7 @@ public class AnswerResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getAnswer()
 	{
-		ClientResponse<Answer> response = answerClient.getAnswer(answerUUID);
+		ClientResponse<Answer> response = answerClient.getAnswer(answerUUID, UserInfo.AuthCode.TestUser);
 
 		Assert.assertEquals(response.getStatus(), 200);
 
@@ -72,7 +73,7 @@ public class AnswerResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getAnswerNotFound()
 	{
-		ClientResponse<Answer> response = answerClient.getAnswer(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
+		ClientResponse<Answer> response = answerClient.getAnswer(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"), UserInfo.AuthCode.TestUser);
 		
 		Assert.assertEquals(response.getStatus(), 404);
 	}
@@ -88,24 +89,24 @@ public class AnswerResourceFunctionalTest
 	public void updateAnswer()
 	{
 		// get answer
-		ClientResponse<Answer> response = answerClient.getAnswer(answerUUID);
+		ClientResponse<Answer> response = answerClient.getAnswer(answerUUID, UserInfo.AuthCode.TestUser);
 		Answer answer = response.getEntity();
 
 		// update answer
 		JsonNode updatedAnswerValue = jsonNodeFromString("{\"Nombre\": \"Alexandrea Solzendo\"}");
 		answer.setValue(updatedAnswerValue);
 		answer.setRegistrationId(registrationUUID);
-		response = answerClient.updateAnswer(answer, answerUUID);
+		response = answerClient.updateAnswer(answer, answerUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
 
 		// get updated answer
-		response = answerClient.getAnswer(answerUUID);
+		response = answerClient.getAnswer(answerUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 200);
 		Assert.assertEquals(response.getEntity().getValue(), updatedAnswerValue);
 
 		// restore answer
 		answer.setValue(answerValue);
-		response = answerClient.updateAnswer(answer, answerUUID);
+		response = answerClient.updateAnswer(answer, answerUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 
@@ -117,7 +118,7 @@ public class AnswerResourceFunctionalTest
 		JsonNode createAnswerValue = jsonNodeFromString("{\"Name\": \"Alex Solz\"}");
 		UUID createAnswerId = UUID.randomUUID();
 		Answer answer = createAnswer(createAnswerId, registrationUUID, createBlockUUID, createAnswerValue);
-		ClientResponse<Answer> answerResponse = answerClient.updateAnswer(answer, createAnswerId);
+		ClientResponse<Answer> answerResponse = answerClient.updateAnswer(answer, createAnswerId, UserInfo.AuthCode.TestUser);
 
 		Assert.assertEquals(answerResponse.getStatus(), 201);
 		Answer gotAnswer = answerResponse.getEntity();
@@ -130,7 +131,7 @@ public class AnswerResourceFunctionalTest
 		// get answer
 
 		ClientResponse<Answer> response = null;
-		response = answerClient.getAnswer(answerIdUUID);
+		response = answerClient.getAnswer(answerIdUUID, UserInfo.AuthCode.TestUser);
 
 		gotAnswer = response.getEntity();
 		Assert.assertEquals(response.getStatus(), 200);
@@ -142,7 +143,7 @@ public class AnswerResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
 		answer.setId(answerIdUUID);
-		response = answerClient.deleteAnswer(answerIdUUID);
+		response = answerClient.deleteAnswer(answerIdUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 
@@ -164,7 +165,7 @@ public class AnswerResourceFunctionalTest
 		JsonNode randomAnswerValue = jsonNodeFromString("{ \"N\": \"Oleg Salvador\"}");
 		Answer answer = createAnswer(randomAnswerUUID, registrationUUID, randomBlockUUID, randomAnswerValue);
 
-		ClientResponse<Answer> response = answerClient.updateAnswer(answer, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cade"));
+		ClientResponse<Answer> response = answerClient.updateAnswer(answer, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cade"), UserInfo.AuthCode.TestUser);
 
 		Assert.assertEquals(response.getStatus(), 400);
 	}
@@ -184,12 +185,12 @@ public class AnswerResourceFunctionalTest
 		ClientResponse<Answer> response;
 
 		// create answer
-		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86Ebaba");
+		UUID createBlockUUID = UUID.fromString("F774EA5C-8E44-25DC-9169-2F141C57E3AE");
 		UUID createAnswerIdUUID = UUID.randomUUID();
 		JsonNode createAnswerValue = jsonNodeFromString("{\"N\": \"Oleg Salvador\"}");
 		Answer answer = createAnswer(createAnswerIdUUID, registrationUUID, createBlockUUID, createAnswerValue);
 
-		response = registrationClient.createAnswer(answer, registrationUUID);
+		response = registrationClient.createAnswer(answer, registrationUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 201);
 
 		// get answer
@@ -197,7 +198,7 @@ public class AnswerResourceFunctionalTest
 //		Assert.assertEquals(response.getStatus(), 200);
 
 		// delete answer
-		response = answerClient.deleteAnswer(createAnswerIdUUID);
+		response = answerClient.deleteAnswer(createAnswerIdUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 

@@ -15,9 +15,10 @@ import javax.ws.rs.core.Response;
 
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.BasicNoAuthUser;
-import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.MailService;
+import org.jboss.logging.Logger;
 
 @Stateless
 @Path("/auth/none")
@@ -25,6 +26,8 @@ public class NoAuthManager extends AbstractAuthManager
 {
 	@Inject
 	MailService mailService;
+
+	private Logger logger = Logger.getLogger(NoAuthManager.class);
 
 	@Path("/login")
 	@GET
@@ -42,18 +45,16 @@ public class NoAuthManager extends AbstractAuthManager
 			}
 		}
 
-		authenticationProviderService.createIdentityAndAuthProviderRecords(BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email));
+		BasicNoAuthUser basicNoAuthUser = BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email);
+
+		authenticationProviderService.createIdentityAndAuthProviderRecords(basicNoAuthUser);
 
 		sendLoginLink(httpServletRequest, email, noAuthId);
 
-		CrsApplicationUser crsApplicationUser = createCrsApplicationUser(BasicNoAuthUser.fromAuthIdAndEmail(noAuthId, email));
-
-		httpServletRequest.getSession().setAttribute(CrsApplicationUser.SESSION_OBJECT_NAME, crsApplicationUser);
-
-		String authCode = storeAuthCode(httpServletRequest, AuthCodeGenerator.generate());
+		SessionEntity sessionEntity = persistSession(basicNoAuthUser);
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + authCode)).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + sessionEntity.getAuthCode())).build();
 	}
 
 	/*
@@ -64,6 +65,8 @@ public class NoAuthManager extends AbstractAuthManager
 		try
 		{
 			String loginLink = httpServletRequest.getRequestURL().toString().replace("auth/none/login", "auth/email/login?authId=" + noAuthId);
+
+			logger.info("sendLoginLink() : " + loginLink);
 
 			mailService.send(crsProperties.getProperty("crsEmail"), email, "Cru CRS Login", getMessage(loginLink));
 		}

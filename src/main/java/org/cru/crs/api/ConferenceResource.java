@@ -68,7 +68,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 
 			return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences(loggedInUser))).build();
 		}
@@ -117,7 +117,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 
 			/*if there is no id in the conference, then create one. the client has the ability, but not 
 			 * the obligation to create one*/
@@ -166,7 +166,7 @@ public class ConferenceResource
 
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 
 			/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
 			if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
@@ -214,7 +214,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 			final ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(conferenceId);
 
 			/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
@@ -247,7 +247,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			logger.info(crsLoggedInUser);
 
@@ -291,7 +291,7 @@ public class ConferenceResource
 		{
 			logger.info(conferenceId);
 
-			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			logger.info(crsLoggedInUser);
 
@@ -319,7 +319,7 @@ public class ConferenceResource
 		{
 			logger.info(conferenceId);
 
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 
 			logger.info(loggedInUser);
 

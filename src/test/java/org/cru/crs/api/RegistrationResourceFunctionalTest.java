@@ -8,6 +8,7 @@ import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.utils.Environment;
+import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
@@ -31,9 +32,8 @@ public class RegistrationResourceFunctionalTest
 	AnswerResourceClient answerClient;
 
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
-	private UUID userUUID = UUID.fromString("1F6250CA-6D25-2BF4-4E56-F368B2FB8F8A");
 	private UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
-
+	
 	@BeforeMethod
 	public void createClient()
 	{
@@ -53,15 +53,15 @@ public class RegistrationResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getRegistration()
 	{
-		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID);
+		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
 		
 		Assert.assertEquals(response.getStatus(), 200);
-		
+
 		Registration registration = response.getEntity();
 
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getId(), registrationUUID);
-		Assert.assertEquals(registration.getUserId(), userUUID);
+		Assert.assertEquals(registration.getUserId(), UserInfo.Id.TestUser);
 		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
 	}
 	
@@ -75,7 +75,7 @@ public class RegistrationResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getRegistrationNotFound()
 	{
-		ClientResponse<Registration> response = registrationClient.getRegistration(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
+		ClientResponse<Registration> response = registrationClient.getRegistration(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"), UserInfo.AuthCode.TestUser);
 		
 		Assert.assertEquals(response.getStatus(), 404);
 	}
@@ -91,25 +91,27 @@ public class RegistrationResourceFunctionalTest
 	public void updateRegistration()
 	{
 		//get registration
-		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID);
+		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
 		Registration registration = response.getEntity();
         UUID originalUserId = registration.getUserId();
 
 		// update registration
-		UUID updatedUserUUID = UUID.randomUUID();
+		UUID updatedUserUUID = UserInfo.Id.Ryan;
+		Assert.assertNotEquals(originalUserId, updatedUserUUID);
+
 		registration.setUserId(updatedUserUUID);
-		response = registrationClient.updateRegistration(registration, registrationUUID);
+		response = registrationClient.updateRegistration(registration, registrationUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
 
 		// get updated registration
-		response = registrationClient.getRegistration(registrationUUID);
+		response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 200);
 		Assert.assertEquals(response.getEntity().getUserId(), updatedUserUUID);
 
 		// restore registration
 		registration.setId(registrationUUID);
         registration.setUserId(originalUserId);
-		response = registrationClient.updateRegistration(registration, registrationUUID);
+		response = registrationClient.updateRegistration(registration, registrationUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 
@@ -117,13 +119,13 @@ public class RegistrationResourceFunctionalTest
 	public void createRegistrationOnUpdate() throws URISyntaxException
 	{
 		UUID registrationIdUUID = UUID.randomUUID();
-		UUID userIdUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0deaf");
+		UUID userIdUUID = UserInfo.Id.Ryan;
 		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
 		Registration createRegistration = createRegistration(registrationIdUUID, userIdUUID, conferenceUUID);
 
 		// create registration through update
-		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID);
+		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(response.getStatus(), 201);
 
 		Registration registration = response.getEntity();
@@ -133,7 +135,7 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
 
 		// get updated registration
-		response = registrationClient.getRegistration(registrationIdUUID);
+		response = registrationClient.getRegistration(registrationIdUUID, UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(response.getStatus(), 200);
 
 		registration = response.getEntity();
@@ -142,8 +144,22 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
 
 		// delete created registration
-		response = registrationClient.deleteRegistration(registrationIdUUID);
+		response = registrationClient.deleteRegistration(registrationIdUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
+	}
+
+	@Test(groups="functional-tests")
+	public void createRegistrationOnUpdateUserAlreadyRegistered() throws URISyntaxException
+	{
+		UUID registrationIdUUID = UUID.randomUUID();
+		UUID userIdUUID = UserInfo.Id.TestUser;
+		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+
+		Registration createRegistration = createRegistration(registrationIdUUID, userIdUUID, conferenceUUID);
+
+		// create registration through update
+		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.TestUser);
+		Assert.assertEquals(response.getStatus(), 401);
 	}
 
 	/**
@@ -160,9 +176,9 @@ public class RegistrationResourceFunctionalTest
 	public void updateRegistrationWherePathAndBodyRegistrationIdsDontMatch()
 	{
 		UUID randomRegistrationUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0face");
-		Registration registration = createRegistration(randomRegistrationUUID, userUUID, conferenceUUID);
+		Registration registration = createRegistration(randomRegistrationUUID, UserInfo.Id.Ryan, conferenceUUID);
 
-		ClientResponse<Registration> response = registrationClient.updateRegistration(registration, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"));
+		ClientResponse<Registration> response = registrationClient.updateRegistration(registration, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"), UserInfo.AuthCode.TestUser);
 
 		Assert.assertEquals(response.getStatus(), 400);
 	}
@@ -182,11 +198,11 @@ public class RegistrationResourceFunctionalTest
         ClientResponse<Registration> response = null;
 
 		// create registration
-		UUID createUserUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a5678");
+		UUID createUserUUID = UserInfo.Id.Email;
         UUID createRegistrationIdUUID = UUID.randomUUID();
 		Registration registration = createRegistration(createRegistrationIdUUID, createUserUUID, null);
 
-		response = conferenceClient.createRegistration(registration, conferenceUUID);
+		response = conferenceClient.createRegistration(registration, conferenceUUID, UserInfo.AuthCode.Ryan);
         Assert.assertEquals(response.getStatus(), 201);
 
 		// get registration
@@ -195,7 +211,7 @@ public class RegistrationResourceFunctionalTest
 //		Assert.assertEquals(response.getStatus(), 200);
 
         // delete registration
-		response = registrationClient.deleteRegistration(createRegistrationIdUUID);
+		response = registrationClient.deleteRegistration(createRegistrationIdUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 
@@ -206,7 +222,7 @@ public class RegistrationResourceFunctionalTest
 		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
 		JsonNode createAnswerValue = jsonNodeFromString("{\"Name\": \"Alex Solz\"}");
 		Answer answer = createAnswer(null, registrationUUID, createBlockUUID, createAnswerValue);
-		ClientResponse<Answer> registrationResponse = registrationClient.createAnswer(answer, registrationUUID);
+		ClientResponse<Answer> registrationResponse = registrationClient.createAnswer(answer, registrationUUID, UserInfo.AuthCode.TestUser);
 
         Assert.assertEquals(registrationResponse.getStatus(), 201);
 		Answer gotAnswer = registrationResponse.getEntity();
@@ -219,7 +235,7 @@ public class RegistrationResourceFunctionalTest
         // get answer
 
 		ClientResponse<Answer> response = null;
-		response = answerClient.getAnswer(answerIdUUID);
+		response = answerClient.getAnswer(answerIdUUID, UserInfo.AuthCode.TestUser);
 
 		gotAnswer = response.getEntity();
 		Assert.assertEquals(response.getStatus(), 200);
@@ -231,7 +247,7 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
 		answer.setId(answerIdUUID);
-		response = answerClient.deleteAnswer(answerIdUUID);
+		response = answerClient.deleteAnswer(answerIdUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 
@@ -265,6 +281,14 @@ public class RegistrationResourceFunctionalTest
 		answer.setValue(value);
 
 		return answer;
+	}
+
+	@Test(groups="functional-tests")
+	public void getRegistrationWithExpiredSession()
+	{
+		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.Expired);
+
+		Assert.assertEquals(response.getStatus(), 401);
 	}
 
 	private static JsonNode jsonNodeFromString(String jsonString)

@@ -54,7 +54,7 @@ public class AnswerResource
 		{
 			logger.info("get answer by id " + answerId);
 
-			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
@@ -91,7 +91,7 @@ public class AnswerResource
 	{
 		try
 		{
-			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			if(IdComparer.idsAreNotNullAndDifferent(answerId, answer.getId()))
 				return Response.status(Status.BAD_REQUEST).build();
@@ -159,7 +159,7 @@ public class AnswerResource
 		{
 			logger.info("delete answer entity");
 
-			CrsApplicationUser crsLoggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 

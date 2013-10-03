@@ -19,6 +19,7 @@ import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
+import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
@@ -36,6 +37,7 @@ public class ConferenceResourceFunctionalTest
 	static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
 	
 	Environment environment = Environment.LOCAL;
+
 	ConferenceResourceClient conferenceClient;
 	
 	@BeforeMethod
@@ -58,13 +60,23 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void fetchAllTheConferences()
 	{
-		ClientResponse<List<Conference>> response = conferenceClient.getConferences();
+		ClientResponse<List<Conference>> response = conferenceClient.getConferences(UserInfo.AuthCode.TestUser);
 		
 		Assert.assertEquals(response.getStatus(), 200);
 		List<Conference> conferences = response.getEntity();
 		
 		Assert.assertNotNull(conferences);
-		Assert.assertEquals(conferences.size(), 0);
+		Assert.assertEquals(conferences.size(), 2);
+		
+		for(Conference conference : conferences)
+		{
+			//the two conferences should be these two.
+			if(!("Northern Michigan Fall Extravaganza".equals(conference.getName()) ||
+					"Miami University Fall Retreat".equals(conference.getName())))
+			{
+				Assert.fail();
+			}
+		}
 	}
 	
 	/**
@@ -103,7 +115,7 @@ public class ConferenceResourceFunctionalTest
 	{
 		Conference fakeConference = createFakeConference();
 		
-		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference);
+		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference, UserInfo.AuthCode.TestUser);
 		
 		String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 		String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/conferences/";
@@ -144,7 +156,7 @@ public class ConferenceResourceFunctionalTest
 	{
 		Conference fakeConference = createFakeConference();
 		
-		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference);
+		ClientResponse<Conference> response = conferenceClient.createConference(fakeConference, UserInfo.AuthCode.TestUser);
 		
 		String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 		String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/conferences/";
@@ -163,7 +175,7 @@ public class ConferenceResourceFunctionalTest
 		
 		/*call the update endpoint*/
 		@SuppressWarnings("rawtypes") 
-		ClientResponse updateResponse = conferenceClient.updateConference(fakeConference, conferenceId);
+		ClientResponse updateResponse = conferenceClient.updateConference(fakeConference, conferenceId, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
 		/*get a fresh client*/
@@ -195,7 +207,7 @@ public class ConferenceResourceFunctionalTest
 		{
 			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
 			
-			ClientResponse<Page> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+			ClientResponse<Page> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"), UserInfo.AuthCode.Ryan);
 			Page pageFromCreatedResponse = response.getEntity();
 			
 			//status code, 201-Created
@@ -209,8 +221,8 @@ public class ConferenceResourceFunctionalTest
 			
 			ConferenceEntity conference = setupEm.find(ConferenceEntity.class, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
 
-			Assert.assertEquals(conference.getPages().size(), 2);
-			Assert.assertEquals(conference.getPages().get(1).getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
+			Assert.assertEquals(conference.getPages().size(), 3);
+			Assert.assertEquals(conference.getPages().get(2).getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
 			
 			setupEm.close();
 		}
@@ -243,7 +255,7 @@ public class ConferenceResourceFunctionalTest
 			Page newPage = createFakePage();
 
 			@SuppressWarnings("rawtypes")
-			ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"));
+			ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"), UserInfo.AuthCode.TestUser);
 
 			//status code, 400-Bad Request
 			Assert.assertEquals(response.getStatus(), 400);
@@ -286,13 +298,14 @@ public class ConferenceResourceFunctionalTest
 
 			fakeConference.getRegistrationPages().add(createFakePage());
 
-			conferenceClient.updateConference(fakeConference, fakeConference.getId());
-
+			ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
+			Assert.assertEquals(updateResponse.getStatus(), 204);
+			
 			EntityManager retrievalEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			ConferenceEntity updatedConference = retrievalEm.find(ConferenceEntity.class, fakeConference.getId());
+			ConferenceEntity updatedConferenceFromDb = retrievalEm.find(ConferenceEntity.class, fakeConference.getId());
 
-			Assert.assertEquals(updatedConference.getPages().size(), 1);
-			Assert.assertEquals(updatedConference.getPages().get(0).getId(), fakeConference.getRegistrationPages().get(0).getId());
+			Assert.assertEquals(updatedConferenceFromDb.getPages().size(), 1);
+			Assert.assertEquals(updatedConferenceFromDb.getPages().get(0).getId(), fakeConference.getRegistrationPages().get(0).getId());
 		}
 		finally
 		{
@@ -334,7 +347,7 @@ public class ConferenceResourceFunctionalTest
 	private Conference createFakeConference()
 	{
 		Conference fakeConference = new Conference();
-		fakeConference.setContactUser(UUID.randomUUID());
+		fakeConference.setContactUser(UserInfo.Id.TestUser);
 		fakeConference.setName("Fake Fall Retreat");
 		fakeConference.setTotalSlots(202);
 		fakeConference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 6, 1, 8, 0, 0));
@@ -362,7 +375,7 @@ public class ConferenceResourceFunctionalTest
 	public void addRegistrationToConference() throws URISyntaxException
 	{
 		UUID registrationIdUUID = null;
-		UUID userIdUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0deaf");
+		UUID userIdUUID = UserInfo.Id.Ryan;
 
 		Registration newRegistration = createRegistration(registrationIdUUID, userIdUUID);
 
@@ -372,7 +385,7 @@ public class ConferenceResourceFunctionalTest
 
 			UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID);
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID, UserInfo.AuthCode.Ryan);
 
 			Assert.assertEquals(response.getStatus(), 201);
 
@@ -401,23 +414,18 @@ public class ConferenceResourceFunctionalTest
 	{
 		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-		ClientResponse<List<Registration>> response = conferenceClient.getRegistrations(conferenceUUID);
+		ClientResponse<List<Registration>> response = conferenceClient.getRegistrations(conferenceUUID, UserInfo.AuthCode.TestUser);
 
 		Assert.assertEquals(response.getStatus(), 200);
 		List<Registration> registrations = response.getEntity();
 
-		UUID userIdUUID1 = UUID.fromString("1f6250ca-6d25-2bf4-4e56-f368b2fb8f8a");
-		UUID userIdUUID2 = UUID.fromString("7d2201e9-073f-7037-92e0-3b9f7712a8c1");
-		UUID userIdUUID3 = UUID.fromString("9c971175-2807-83cc-cb24-ab83433e0e1a");
-
 		Set<UUID> userIdUUIDSet = new HashSet<UUID>();
 
-		userIdUUIDSet.add(userIdUUID1);
-		userIdUUIDSet.add(userIdUUID2);
-		userIdUUIDSet.add(userIdUUID3);
+		userIdUUIDSet.add(UserInfo.Id.Email);
+		userIdUUIDSet.add(UserInfo.Id.TestUser);
 
 		Assert.assertNotNull(registrations);
-		Assert.assertEquals(registrations.size(), 3);
+		Assert.assertEquals(registrations.size(), 2);
 
 		for(Registration registration : registrations)
 			userIdUUIDSet.remove(registration.getUserId());
@@ -430,18 +438,17 @@ public class ConferenceResourceFunctionalTest
 	{
 		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-		ClientResponse<Registration> response = conferenceClient.getCurrentRegistration(conferenceUUID);
+		ClientResponse<Registration> response = conferenceClient.getCurrentRegistration(conferenceUUID, UserInfo.AuthCode.Email);
 
 		Assert.assertEquals(response.getStatus(), 200);
 
 		Registration registration = response.getEntity();
 
-		UUID registrationUUID = UUID.fromString("670a2732-a8b4-4863-b69a-019be680339c");
-		UUID userUUID = UUID.fromString("7d2201e9-073f-7037-92e0-3b9f7712a8c1");
+		UUID registrationUUID = UUID.fromString("B2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getId(), registrationUUID);
-		Assert.assertEquals(registration.getUserId(), userUUID);
+		Assert.assertEquals(registration.getUserId(), UserInfo.Id.Email);
 		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
 	}
 

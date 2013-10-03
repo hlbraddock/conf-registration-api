@@ -27,7 +27,7 @@ public class ProfileResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 			
 			return Response.ok().entity(loggedInUser).build();
 		} 

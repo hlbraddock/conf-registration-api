@@ -68,10 +68,18 @@ public class PageResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 			ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(page.getConferenceId());
 
-			/**
+			/*
+			 * If the conference this page is supposed to belong to doesn't exist, then this is a bad request 
+			 */
+			if(conferencePageBelongsTo == null)
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+			
+			/*
 			 * If the Path pageId does not match the pageId in the body of the JSON object,
 			 * then fail fast and return a 400.  
 			 */
@@ -80,7 +88,7 @@ public class PageResource
 				return Response.status(Status.BAD_REQUEST).build();
 			}
 
-			/**
+			/*
 			 * Now that we know that the pageIds are not different.. take the first not-null
 			 * one we find and treat it as the "official" page ID.  Note in this case it still
 			 * could be null at this point, and we would need to create a new page.
@@ -116,17 +124,15 @@ public class PageResource
 	/**
 	 * This method will delete a page specified by ID.
 	 * 
-	 * @param page
 	 * @param pageId
 	 * @return
 	 */
 	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deletePage(@PathParam(value="pageId") UUID pageId, @HeaderParam(value="Authorization") String authCode)
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 
 			if(pageId == null)
 			{
@@ -135,7 +141,7 @@ public class PageResource
 
 			pageService.deletePage(pageId, loggedInUser);
 
-			return Response.ok().build();
+			return Response.noContent().build();
 		}
 		catch (UnauthorizedException e)
 		{
@@ -152,7 +158,7 @@ public class PageResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getUserFromSession(request.getSession(), authCode);
+			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 			PageEntity pageBlockBelongsTo = pageService.fetchPageBy(pageId);
 
 			/*if the page id, specified in the incoming block doesn't map to a page,
