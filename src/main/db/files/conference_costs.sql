@@ -13,3 +13,4 @@ CREATE TABLE conference_costs (
 );
 
 INSERT INTO conference_costs (id,base_cost,minimum_deposit) VALUES ('d3be03f0-198f-11e3-8ffd-0800200c9a66', '50.00', '10.0');
+INSERT INTO conference_costs (id,base_cost,minimum_deposit,early_registration_discount,early_registration_cutoff,early_registration_amount) VALUES ('abcd03f0-198f-11e3-8ffd-0800200c5555', '75.00', '0.0', true, '31-Mar-2013 23:59:59', '15');

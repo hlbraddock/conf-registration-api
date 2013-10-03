@@ -3,6 +3,7 @@ package org.cru.crs.api;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,10 +21,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.ccci.util.time.Clock;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.utils.RegistrationWindowCalculator;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -45,7 +48,8 @@ public class ConferenceResource
 	@Inject RegistrationService registrationService;
 	@Inject PageService pageService;
 	@Inject PaymentService paymentService;
-	
+	@Inject Clock clock;
+
 	@Inject CrsUserService userService;
 
 	Logger logger = Logger.getLogger(ConferenceResource.class);
@@ -66,7 +70,16 @@ public class ConferenceResource
 		{
 			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 
-			return Response.ok(Conference.fromJpa(conferenceService.fetchAllConferences(loggedInUser))).build();
+            List<Conference> conferences = Conference.fromJpa(conferenceService.fetchAllConferences(loggedInUser));
+
+            for(Conference conference : conferences)
+            {
+               /* Set these fields based on the server's time, not the client's.  The client could be in
+                * any timezone..*/
+                RegistrationWindowCalculator.setRegistrationOpenFieldOn(conference, clock);
+                RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(conference, clock);
+            }
+			return Response.ok(conferences).build();
 		}
 		catch(UnauthorizedException e)
 		{
@@ -90,6 +103,13 @@ public class ConferenceResource
 		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
 
         Conference conference = Conference.fromJpaWithPages(requestedConference);
+
+        /*
+         * Set these fields based on the server's time, not the client's.  The client could be in
+         * any timezone..
+         */
+        RegistrationWindowCalculator.setRegistrationOpenFieldOn(conference, clock);
+        RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(conference, clock);
 
         logger.info("GET: " + conference.getId());
         logObject(conference, logger);

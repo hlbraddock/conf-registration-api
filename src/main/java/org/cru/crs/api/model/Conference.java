@@ -30,7 +30,8 @@ public class Conference implements java.io.Serializable
 
 	private DateTime registrationStartTime;
 	private DateTime registrationEndTime;
-	
+	private boolean registrationOpen = false;
+
 	private UUID contactUser;
     private String contactPersonName;
     private String contactPersonEmail;
@@ -49,6 +50,7 @@ public class Conference implements java.io.Serializable
     private boolean earlyRegistrationDiscount;
     private BigDecimal earlyRegistrationAmount;
     private DateTime earlyRegistrationCutoff;
+    private boolean earlyRegistrationOpen = false;
     private boolean acceptCreditCards;
     private String authnetId;
     private String authnetToken;
@@ -431,5 +433,25 @@ public class Conference implements java.io.Serializable
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public boolean isRegistrationOpen()
+    {
+        return registrationOpen;
+    }
+
+    public void setRegistrationOpen(boolean registrationOpen)
+    {
+        this.registrationOpen = registrationOpen;
+    }
+
+    public boolean isEarlyRegistrationOpen()
+    {
+        return earlyRegistrationOpen;
+    }
+
+    public void setEarlyRegistrationOpen(boolean earlyRegistrationOpen)
+    {
+        this.earlyRegistrationOpen = earlyRegistrationOpen;
     }
 }
