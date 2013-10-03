@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.cru.crs.auth.OauthServices;
 import org.cru.crs.auth.model.FacebookUser;
-import org.cru.crs.utils.AuthCodeGenerator;
+import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.JsonUtils;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
@@ -95,12 +95,10 @@ public class FacebookAuthManager extends AbstractAuthManager
 
         persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser);
 
-		String authCode = AuthCodeGenerator.generate();
-
-		persistSession(facebookUser, authCode);
+		SessionEntity sessionEntity = persistSession(facebookUser);
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + authCode)).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + sessionEntity.getAuthCode())).build();
 	}
 
 	private boolean isLoginError(String code, String error)

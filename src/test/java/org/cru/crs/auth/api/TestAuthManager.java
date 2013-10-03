@@ -2,9 +2,9 @@ package org.cru.crs.auth.api;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
+import org.cru.crs.model.SessionEntity;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.service.SessionService;
-import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsPropertiesFactory;
 
 /**
@@ -27,10 +27,8 @@ public class TestAuthManager extends AbstractAuthManager
 	{
 		authenticationProviderService.createIdentityAndAuthProviderRecords(authenticationProviderUser);
 
-		String authCode = AuthCodeGenerator.generate();
+		SessionEntity sessionEntity = persistSession(authenticationProviderUser);
 
-		persistSession(authenticationProviderUser, authCode);
-
-		return authCode;
+		return sessionEntity.getAuthCode();
 	}
 }

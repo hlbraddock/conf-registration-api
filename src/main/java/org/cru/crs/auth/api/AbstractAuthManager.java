@@ -8,10 +8,13 @@ import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.service.SessionService;
+import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.Simply;
+import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
 
+import java.util.List;
 import java.util.UUID;
 
 public abstract class AbstractAuthManager
@@ -28,6 +31,8 @@ public abstract class AbstractAuthManager
 	@Inject
 	Clock clock;
 
+	private Logger logger = Logger.getLogger(AbstractAuthManager.class);
+
 	protected void persistIdentityAndAuthProviderRecordsIfNecessary(AuthenticationProviderUser user)
 	{
 		if (authenticationProviderService.findAuthProviderIdentityByAuthProviderId(user.getId()) == null)
@@ -36,24 +41,69 @@ public abstract class AbstractAuthManager
 		}
 	}
 
-	protected void persistSession(AuthenticationProviderUser authenticationProviderUser, String authCode)
+	protected SessionEntity persistSession(AuthenticationProviderUser authenticationProviderUser)
 	{
-		SessionEntity sessionEntity = new SessionEntity();
-
 		AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity =
 				authenticationProviderService.findAuthProviderIdentityByAuthProviderId(authenticationProviderUser.getId());
 
 		if(authenticationProviderIdentityEntity == null)
 			throw new RuntimeException("could not get authentication provider identity for user " + authenticationProviderUser.getUsername());
 
+		return getSession(authenticationProviderIdentityEntity);
+	}
 
-		DateTime expiration = clock.currentDateTime().plusHours(Simply.toInteger(crsProperties.getProperty("maxSessionLength"), 4));
+	private SessionEntity getSession(AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity)
+	{
+		SessionEntity sessionEntity = getActiveSession(authenticationProviderIdentityEntity.getUserAuthProviderId());
+
+		if(sessionEntity != null)
+		{
+			logger.info("getSession() : returning active session auth code " + sessionEntity.getAuthCode() + ", " + sessionEntity.getExpiration());
+			return sessionEntity;
+		}
+
+		sessionEntity = createSessionEntity(authenticationProviderIdentityEntity);
+
+		logger.info("getSession() : returning new session auth code " + sessionEntity.getAuthCode() + ", " + sessionEntity.getExpiration());
+
+		return sessionEntity;
+	}
+
+	private SessionEntity createSessionEntity(AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity)
+	{
+		SessionEntity sessionEntity = new SessionEntity();
 
 		sessionEntity.setId(UUID.randomUUID());
-		sessionEntity.setAuthCode(authCode);
+		sessionEntity.setAuthCode(AuthCodeGenerator.generate());
 		sessionEntity.setAuthenticationProviderIdentityEntity(authenticationProviderIdentityEntity);
-		sessionEntity.setExpiration(expiration);
+		sessionEntity.setExpiration(clock.currentDateTime().plusHours(getMaxSessionLength()));
 
 		sessionService.create(sessionEntity);
+
+		return sessionEntity;
+	}
+
+	private SessionEntity getActiveSession(String userAuthProviderId)
+	{
+		List<SessionEntity> sessionEntities = sessionService.fetchSessionsByUserAuthProviderId(userAuthProviderId);
+
+		DateTime expired = clock.currentDateTime().minusHours(getMaxSessionLength());
+
+		for(SessionEntity sessionEntity : sessionEntities)
+		{
+			if(sessionEntity.getExpiration().isAfter(expired))
+			{
+				sessionEntity.setExpiration(clock.currentDateTime().plusHours(getMaxSessionLength()));
+
+				return sessionEntity;
+			}
+		}
+
+		return null;
+	}
+
+	private Integer getMaxSessionLength()
+	{
+		return Simply.toInteger(crsProperties.getProperty("maxSessionLength"), 4);
 	}
 }

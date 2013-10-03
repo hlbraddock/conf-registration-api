@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.EmailAccountUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
-import org.cru.crs.utils.AuthCodeGenerator;
+import org.cru.crs.model.SessionEntity;
 
 @Stateless
 @Path("/auth/email")
@@ -23,7 +23,7 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 {
 	@Path("/login")
 	@GET
-	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "authId") String authId) throws URISyntaxException, MalformedURLException
+	public Response login(@QueryParam(value = "authId") String authId) throws URISyntaxException, MalformedURLException
 	{	
 		/**The "No-auth" provider should have already saved a row with this code as the auth_id and type "No-auth".
 		 * Now that the user is logging back in via email address, we should update the type to "Email-Account".
@@ -38,11 +38,9 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 
 		EmailAccountUser emailAccountUser = EmailAccountUser.fromAuthIdAndEmail(authId, authenticationProviderIdentityEntity.getUsername());
 
-		String authCode = AuthCodeGenerator.generate();
-
-		persistSession(emailAccountUser, authCode);
+		SessionEntity sessionEntity = persistSession(emailAccountUser);
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + authCode)).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + sessionEntity.getAuthCode())).build();
 	}
 }

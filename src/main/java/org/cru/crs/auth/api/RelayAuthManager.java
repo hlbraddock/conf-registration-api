@@ -3,7 +3,7 @@ package org.cru.crs.auth.api;
 import edu.yale.its.tp.cas.client.CASReceipt;
 import edu.yale.its.tp.cas.client.filter.CASFilter;
 import org.cru.crs.auth.model.RelayUser;
-import org.cru.crs.utils.AuthCodeGenerator;
+import org.cru.crs.model.SessionEntity;
 
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
@@ -30,11 +30,9 @@ public class RelayAuthManager extends AbstractAuthManager
 		
 		persistIdentityAndAuthProviderRecordsIfNecessary(relayUser);
 
-		String authCode = AuthCodeGenerator.generate();
-
-		persistSession(relayUser, authCode);
+		SessionEntity sessionEntity = persistSession(relayUser);
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + authCode)).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + sessionEntity.getAuthCode())).build();
 	}
 }

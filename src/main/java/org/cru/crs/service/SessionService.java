@@ -5,6 +5,7 @@ import org.cru.crs.model.SessionEntity;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import java.util.List;
 
 public class SessionService
 {
@@ -32,6 +33,14 @@ public class SessionService
 			 * is 'no'.  okay, i'll get off my soapbox now, but really.... */
 			return null;
 		}
+	}
+
+	public List<SessionEntity> fetchSessionsByUserAuthProviderId(String	 userAuthProviderId)
+	{
+		return entityManager.createQuery("SELECT session FROM SessionEntity session " +
+				"WHERE session.authenticationProviderIdentityEntity.userAuthProviderId = :userAuthProviderId", SessionEntity.class)
+				.setParameter("userAuthProviderId", userAuthProviderId)
+				.getResultList();
 	}
 
 	public void create(SessionEntity sessionEntity)
