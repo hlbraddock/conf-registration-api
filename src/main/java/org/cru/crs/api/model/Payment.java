@@ -16,7 +16,9 @@ import java.util.UUID;
 
 public class Payment implements Serializable
 {
-    private UUID id;
+	private static final long serialVersionUID = 1L;
+
+	private UUID id;
     private UUID registrationId;
     private String creditCardNameOnCard;
     private String creditCardExpirationMonth;
@@ -58,7 +60,7 @@ public class Payment implements Serializable
 		payment.creditCardExpirationMonth = jpaPayment.getCreditCardExpirationMonth();
 		payment.creditCardExpirationYear = jpaPayment.getCreditCardExpirationYear();
 		payment.creditCardNameOnCard = jpaPayment.getCreditCardNameOnCard();
-		payment.creditCardNumber = "****" + jpaPayment.getCreditCardLastFourDigits();
+		if(jpaPayment.getCreditCardLastFourDigits() != null) payment.creditCardNumber = "****" + jpaPayment.getCreditCardLastFourDigits();
 				
 		return payment;
 	}

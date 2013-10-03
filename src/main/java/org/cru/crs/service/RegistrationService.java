@@ -20,12 +20,13 @@ import java.util.UUID;
 /**
  * User: lee.braddock
  */
-public class RegistrationService {
+public class RegistrationService
+{
 
 	EntityManager em;
 
 	AuthorizationService authorizationService;
-
+	
 	private Logger logger = Logger.getLogger(RegistrationService.class);
 
 	@Inject

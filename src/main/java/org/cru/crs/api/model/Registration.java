@@ -1,12 +1,15 @@
 package org.cru.crs.api.model;
 
-import org.cru.crs.model.AnswerEntity;
-import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.RegistrationEntity;
-
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.model.RegistrationEntity;
 
 public class Registration implements java.io.Serializable
 {
@@ -18,7 +21,8 @@ public class Registration implements java.io.Serializable
     private Boolean completed;
 
     private Set<Answer> answers = new HashSet<Answer>();
-
+    private List<Payment> payments = new ArrayList<Payment>();
+    
 	/**
 	 * Creates a web api friendly registration
 	 * 
@@ -66,6 +70,14 @@ public class Registration implements java.io.Serializable
 		return jpaRegistration;
 	}
 
+	public void addAllPayments(List<PaymentEntity> fetchPaymentsForRegistration)
+	{
+		for(PaymentEntity jpaPayment : fetchPaymentsForRegistration)
+		{
+			payments.add(Payment.fromJpa(jpaPayment));
+		}
+	}
+	
 	public UUID getId()
 	{
 		return id;
@@ -115,4 +127,15 @@ public class Registration implements java.io.Serializable
     {
         this.completed = completed;
     }
+
+	public List<Payment> getPayments()
+	{
+		return payments;
+	}
+
+	public void setPayments(List<Payment> payments)
+	{
+		this.payments = payments;
+	}
+
 }
