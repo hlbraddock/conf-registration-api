@@ -92,6 +92,39 @@ public class RegistrationResourceFunctionalTest
 		
 		Assert.assertTrue(registration.getPayments().isEmpty());
 	}
+
+    @Test(groups="functional-tests")
+    public void getRegistrationMultiplePayments()
+    {
+        ClientResponse<Registration> response = registrationClient.getRegistration(UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111"), UserInfo.AuthCode.Ryan);
+
+        Assert.assertEquals(response.getStatus(), 200);
+
+        Registration registration = response.getEntity();
+
+        Assert.assertNotNull(registration);
+
+        Assert.assertEquals(registration.getPayments().size(), 2);
+
+        Payment payment1 = registration.getPayments().get(0);
+        Payment payment2 = registration.getPayments().get(1);
+
+        Assert.assertEquals(payment1.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91958"));
+        Assert.assertEquals(payment1.getAmount(), new BigDecimal(20f));
+        Assert.assertEquals(payment1.getCreditCardNameOnCard(),"Billy User");
+        Assert.assertEquals(payment1.getCreditCardExpirationMonth(), "04");
+        Assert.assertEquals(payment1.getCreditCardExpirationYear(), "2014");
+        Assert.assertEquals(payment1.getCreditCardNumber(), "****1111");
+        Assert.assertEquals(payment1.getRegistrationId(), UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111"));
+
+        Assert.assertEquals(payment2.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91959"));
+        Assert.assertEquals(payment2.getAmount(), new BigDecimal(55f));
+        Assert.assertEquals(payment2.getCreditCardNameOnCard(),"Billy User");
+        Assert.assertEquals(payment2.getCreditCardExpirationMonth(), "04");
+        Assert.assertEquals(payment2.getCreditCardExpirationYear(), "2014");
+        Assert.assertEquals(payment2.getCreditCardNumber(), "****1111");
+        Assert.assertEquals(payment2.getRegistrationId(), UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111"));
+    }
 	
 	/**
 	 * Test: test endpoint with id that does not exist
@@ -228,15 +261,10 @@ public class RegistrationResourceFunctionalTest
 		// create registration
 		UUID createUserUUID = UserInfo.Id.Email;
         UUID createRegistrationIdUUID = UUID.randomUUID();
-		Registration registration = createRegistration(createRegistrationIdUUID, createUserUUID, null);
+		Registration registration = createRegistration(createRegistrationIdUUID, createUserUUID, conferenceUUID);
 
 		response = conferenceClient.createRegistration(registration, conferenceUUID, UserInfo.AuthCode.Ryan);
         Assert.assertEquals(response.getStatus(), 201);
-
-		// get registration
-//		UUID registrationIdUUID = getIdFromResponseLocation(response);
-//		response = registrationClient.getRegistration(registrationUUID);
-//		Assert.assertEquals(response.getStatus(), 200);
 
         // delete registration
 		response = registrationClient.deleteRegistration(createRegistrationIdUUID, UserInfo.AuthCode.TestUser);
