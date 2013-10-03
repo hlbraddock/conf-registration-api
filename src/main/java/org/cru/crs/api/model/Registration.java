@@ -70,9 +70,9 @@ public class Registration implements java.io.Serializable
 		return jpaRegistration;
 	}
 
-	public void addAllPayments(List<PaymentEntity> fetchPaymentsForRegistration)
+	public void addAllPayments(List<PaymentEntity> paymentsForRegistration)
 	{
-		for(PaymentEntity jpaPayment : fetchPaymentsForRegistration)
+		for(PaymentEntity jpaPayment : paymentsForRegistration)
 		{
 			payments.add(Payment.fromJpa(jpaPayment));
 		}
