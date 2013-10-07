@@ -1,6 +1,7 @@
 package org.cru.crs.payment.authnet;
 
-import org.uscm.crs.util.Contract;
+import com.google.common.base.Preconditions;
+
 
 public final class Auth extends Transaction
 {
@@ -30,7 +31,7 @@ public final class Auth extends Transaction
 	@Override
 	protected void checkTypeSpecificProperties()
 	{
-		Contract.require(getAmount(), "amount");
+		Preconditions.checkNotNull(getAmount(),"amount was null");
 	}
 
 }
