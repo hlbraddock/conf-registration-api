@@ -55,7 +55,7 @@ public class AuthnetPaymentProcess
 		
 	}
 
-	private CreditCard createCreditCard(Payment payment)
+	CreditCard createCreditCard(Payment payment)
 	{
 		CreditCard creditCard = new CreditCard();
 		
@@ -69,12 +69,12 @@ public class AuthnetPaymentProcess
 		return creditCard;
 	}
 	
-	private GatewayConfiguration createGatewayConfiguration()
+	GatewayConfiguration createGatewayConfiguration()
 	{
 		return new GatewayConfiguration().setTestRequest(Boolean.valueOf(crsProperties.getProperty("authnetTestMode")));
 	}
 	
-	private Invoice createInvoice(Conference conference, Payment payment)
+	Invoice createInvoice(Conference conference, Payment payment)
 	{
 		Invoice invoice = new Invoice();
 		
@@ -83,7 +83,7 @@ public class AuthnetPaymentProcess
 		return invoice;
 	}
 	
-	private Merchant createMerchant(Conference conference)
+	Merchant createMerchant(Conference conference)
 	{
 		Merchant merchant = new Merchant();
 		
