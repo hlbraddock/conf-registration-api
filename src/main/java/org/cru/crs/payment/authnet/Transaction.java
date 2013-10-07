@@ -43,7 +43,7 @@ public abstract class Transaction
 
 	private String currency;
 	private BigDecimal amount;
-	private Method method;
+	private CreditCardMethod method;
 
 	private Map<String, String> request = new HashMap<String, String>();
 	protected AuthnetResponse authnetResponse;
@@ -53,7 +53,7 @@ public abstract class Transaction
 
 	private CreditCard creditCard;
 
-	public Transaction(Method method)
+	public Transaction(CreditCardMethod method)
 	{
 		this.method = method;
 	}
@@ -261,12 +261,12 @@ public abstract class Transaction
 		this.log = log;
 	}
 
-	public Method getMethod()
+	public CreditCardMethod getMethod()
 	{
 		return method;
 	}
 
-	public void setMethod(Method method)
+	public void setMethod(CreditCardMethod method)
 	{
 		this.method = method;
 	}

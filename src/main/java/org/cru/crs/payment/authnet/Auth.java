@@ -6,7 +6,7 @@ import com.google.common.base.Preconditions;
 public final class Auth extends Transaction
 {
 
-	Auth(Method method)
+	Auth(CreditCardMethod method)
 	{
 		super(method);
 	}

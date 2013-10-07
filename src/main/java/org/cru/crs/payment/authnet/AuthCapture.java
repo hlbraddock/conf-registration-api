@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 public final class AuthCapture extends Transaction
 {
 
-	AuthCapture(Method method)
+	AuthCapture(CreditCardMethod method)
 	{
 		super(method);
 	}
