@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.auth.CrsUserService;
@@ -30,6 +32,7 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.payment.authnet.AuthnetPaymentProcess;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
@@ -45,7 +48,9 @@ public class RegistrationResource
 	@Inject ConferenceService conferenceService;
 	@Inject CrsUserService userService;
     @Inject PaymentService paymentService;
-
+    
+    @Inject AuthnetPaymentProcess paymentProcess;
+    
 	@Context HttpServletRequest request;
 
 	private Logger logger = Logger.getLogger(RegistrationResource.class);
@@ -251,28 +256,53 @@ public class RegistrationResource
     @Path("/payment/{paymentId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updatePayment(Payment payment, @PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    public Response updatePayment(Payment payment, @PathParam(value = "registrationId") UUID registrationId, @PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
-        Simply.logObject(payment, this.getClass());
+    	try
+    	{
+    		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-        if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
-        {
-        	return Response.status(Status.BAD_REQUEST).build();
-        }
-        
-        if(paymentId == null)
-        {
-        	payment.setId(UUID.randomUUID());
-        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
-        }
-        else if(paymentService.fetchPaymentBy(paymentId) == null)
-        {
-        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
-        }
-        else
-        {
-        	paymentService.updatePayment(payment.toJpaPaymentEntity());
-        }
-        return Response.noContent().build();
+    		Simply.logObject(payment, this.getClass());
+
+    		if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
+    		{
+    			return Response.status(Status.BAD_REQUEST).build();
+    		}
+
+    		if(paymentId == null)
+    		{
+    			payment.setId(UUID.randomUUID());
+    			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+    		}
+    		else if(paymentService.fetchPaymentBy(paymentId) == null)
+    		{
+    			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+    		}
+    		else
+    		{
+    			paymentService.updatePayment(payment.toJpaPaymentEntity());
+
+    			try
+    			{
+    				RegistrationEntity currentRegistration = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
+    				ConferenceEntity currentConference = conferenceService.fetchConferenceBy(currentRegistration.getConference().getId());
+    				
+    				paymentProcess.processCreditCardTransaction(Conference.fromJpa(currentConference),
+    																Registration.fromJpa(currentRegistration), 
+    																payment);
+
+    			}
+    			catch(IOException e)
+    			{
+    				//return a bad gateway error response
+    				return Response.status(502).build();
+    			}
+    		}
+    		return Response.noContent().build();
+    	}
+    	catch(UnauthorizedException e)
+    	{
+    		return Response.status(Status.UNAUTHORIZED).build();
+    	}
     }
 }
