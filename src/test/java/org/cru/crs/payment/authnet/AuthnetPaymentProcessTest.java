@@ -1,5 +1,6 @@
 package org.cru.crs.payment.authnet;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
@@ -7,21 +8,25 @@ import java.util.UUID;
 import org.apache.commons.httpclient.HttpClient;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
+import org.cru.crs.api.model.Registration;
 import org.cru.crs.payment.authnet.model.CreditCard;
+import org.cru.crs.payment.authnet.model.GatewayConfiguration;
 import org.cru.crs.payment.authnet.model.Invoice;
 import org.cru.crs.payment.authnet.model.Merchant;
-import org.cru.crs.utils.AuthCodeGenerator;
+import org.cru.crs.utils.CrsProperties;
+import org.cru.crs.utils.CrsPropertiesFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class AuthnetPaymentProcessTest
 {
+	
+	CrsProperties testProperties = new CrsPropertiesFactory().get();
 
 	@Test(groups="unittest")
 	public void createCreditCard()
 	{
-		//properties are not needed for this test
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(null,new HttpClientProviderImpl(new HttpClient()));
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
 		
 		CreditCard creditCard = paymentProcess.createCreditCard(testPaymentOne());
 		
@@ -35,15 +40,14 @@ public class AuthnetPaymentProcessTest
 		Assert.assertEquals(creditCardParams.get("x_card_num"), "4111111111111111");
 		Assert.assertEquals(creditCard.getFormattedExpirationDate(), "05/2015");
 		Assert.assertEquals(creditCardParams.get("x_exp_date"), "05/2015");
-		Assert.assertNull(creditCard.getCardCode());
-		Assert.assertNull(creditCardParams.get("x_card_code"));
+		Assert.assertEquals(creditCard.getCardCode(),"123");
+		Assert.assertEquals(creditCardParams.get("x_card_code"), "123");
 	}
 	
 	@Test(groups="unittest")
 	public void createInvoice()
 	{
-		//properties are not needed for this test
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(null,new HttpClientProviderImpl(new HttpClient()));
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
 		Conference testConference = testConferenceOne();
 		Payment testPayment = testPaymentOne();
 		
@@ -66,7 +70,7 @@ public class AuthnetPaymentProcessTest
 	public void createMerchant()
 	{
 		//properties are not needed for this test
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(null,new HttpClientProviderImpl(new HttpClient()));
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
 		Conference testConference = testConferenceOne();
 			
 		Merchant merchant = paymentProcess.createMerchant(testConference);
@@ -85,7 +89,50 @@ public class AuthnetPaymentProcessTest
 		Assert.assertEquals(merchantParams.get("x_email_merchant"), "joe.user@cru.org");
 		
 	}
-
+	
+	@Test(groups="unittest")
+	public void testGatewayConfiguration()
+	{
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
+		
+		GatewayConfiguration gatewayConfig = paymentProcess.createGatewayConfiguration();
+		
+		Assert.assertNotNull(gatewayConfig);
+		Assert.assertTrue(gatewayConfig.getTestRequest());
+	}
+	
+	@Test(groups="unittest")
+	public void execute() throws IOException
+	{
+		Registration registration = testRegistrationOne();
+		Conference conference = testConferenceOne();
+		registration.setConferenceId(conference.getId());
+		
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
+		
+		try
+		{
+			Long transactionId = paymentProcess.processCreditCardTransaction(conference, registration, registration.getPayments().get(0));
+			Assert.assertNotNull(transactionId);
+		}
+		catch(Exception e)
+		{
+			Assert.fail("should not have thrown an exception", e);
+		}
+	}
+	
+	private Registration testRegistrationOne()
+	{
+		Registration testRegistration = new Registration();
+		
+		testRegistration.setId(UUID.randomUUID());
+		testRegistration.setCompleted(true);
+		testRegistration.getPayments().add(testPaymentOne());
+		testRegistration.setUserId(UUID.randomUUID());
+		
+		return testRegistration;
+	}
+	
 	private Payment testPaymentOne()
 	{
 		Payment testPayment = new Payment();
@@ -95,6 +142,7 @@ public class AuthnetPaymentProcessTest
 		testPayment.setCreditCardExpirationMonth("05");
 		testPayment.setCreditCardExpirationYear("2015");
 		testPayment.setCreditCardNumber("4111111111111111");
+		testPayment.setCreditCardCVVNumber("123");
 		testPayment.setCreditCardNameOnCard("Joe User");
 		testPayment.setRegistrationId(UUID.randomUUID());
 		
@@ -106,8 +154,8 @@ public class AuthnetPaymentProcessTest
 		Conference testConference = new Conference();
 		
 		testConference.setAcceptCreditCards(true);
-		testConference.setAuthnetId(AuthCodeGenerator.generate());
-		testConference.setAuthnetToken(UUID.randomUUID().toString());
+		testConference.setAuthnetId(testProperties.getProperty("authnetTestId"));
+		testConference.setAuthnetToken(testProperties.getProperty("authnetTestToken"));
 		testConference.setConferenceCost(new BigDecimal(55.00f));
 		testConference.setName("Super Duper Fall Retreat");
 		testConference.setContactPersonEmail("joe.user@cru.org");

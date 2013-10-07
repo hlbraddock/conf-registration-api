@@ -29,7 +29,7 @@ public class AuthnetPaymentProcess
 		this.httpProvider = httpProvider;
 	}
 	
-	public String processCreditCardTransaction(Conference conference, Registration registration, Payment payment) throws IOException
+	public Long processCreditCardTransaction(Conference conference, Registration registration, Payment payment) throws IOException
 	{
 		AuthCapture authnetAuthorizeCapture = new AuthCapture();
 		
@@ -46,12 +46,12 @@ public class AuthnetPaymentProcess
 		authnetAuthorizeCapture.setMerchant(createMerchant(conference));
 		authnetAuthorizeCapture.setMethod(new CreditCardMethod());
 		authnetAuthorizeCapture.setTransactionResult(null);
-		authnetAuthorizeCapture.setUrl(crsProperties.getProperty("authnetApiUrl"));
+		authnetAuthorizeCapture.setUrl(crsProperties.getProperty("authnetTestApiUrl"));
 		
 		authnetAuthorizeCapture.execute();
 		
 		//eventually this will be the authnet transaction id, but for now just return something useful;
-		return AuthCodeGenerator.generate();
+		return authnetAuthorizeCapture.getTransactionResult().getTransactionID();
 		
 	}
 
@@ -65,6 +65,9 @@ public class AuthnetPaymentProcess
 												   .dayOfMonth().withMaximumValue()
 												   .secondOfDay().withMaximumValue()
 												   .toDate());
+		
+		creditCard.setCardCode(payment.getCreditCardCVVNumber());
+		
 		
 		return creditCard;
 	}
