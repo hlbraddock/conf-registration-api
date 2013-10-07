@@ -1,18 +1,16 @@
 package org.cru.crs.api.model;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.UUID;
+
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.utils.AuthCodeGenerator;
-import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
-
-import javax.persistence.Column;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.UUID;
 
 public class Payment implements Serializable
 {
@@ -23,6 +21,8 @@ public class Payment implements Serializable
     private String creditCardNameOnCard;
     private String creditCardExpirationMonth;
     private String creditCardExpirationYear;
+    private String creditCardLastFourDigits;
+    private String authnetTransactionId;
     private String creditCardNumber;
     private BigDecimal amount;
     private DateTime transactionDatetime;
@@ -37,7 +37,7 @@ public class Payment implements Serializable
         jpaPayment.setCreditCardExpirationMonth(creditCardExpirationMonth);
         jpaPayment.setCreditCardExpirationYear(creditCardExpirationYear);
         jpaPayment.setCreditCardNameOnCard(creditCardNameOnCard);
-
+        
         if(creditCardNumber != null)
         {
             jpaPayment.setCreditCardLastFourDigits(creditCardNumber.substring(Math.max(0, creditCardNumber.length() - 4)));
@@ -60,6 +60,10 @@ public class Payment implements Serializable
 		payment.creditCardExpirationMonth = jpaPayment.getCreditCardExpirationMonth();
 		payment.creditCardExpirationYear = jpaPayment.getCreditCardExpirationYear();
 		payment.creditCardNameOnCard = jpaPayment.getCreditCardNameOnCard();
+		payment.authnetTransactionId = jpaPayment.getAuthnetTransactionId();
+		payment.creditCardLastFourDigits = jpaPayment.getCreditCardLastFourDigits();
+		payment.transactionDatetime = jpaPayment.getTransactionDatetime();
+		
 		if(jpaPayment.getCreditCardLastFourDigits() != null) payment.creditCardNumber = "****" + jpaPayment.getCreditCardLastFourDigits();
 				
 		return payment;
@@ -146,4 +150,24 @@ public class Payment implements Serializable
     {
         this.transactionDatetime = transactionDatetime;
     }
+
+	public String getCreditCardLastFourDigits()
+	{
+		return creditCardLastFourDigits;
+	}
+
+	public void setCreditCardLastFourDigits(String creditCardLastFourDigits)
+	{
+		this.creditCardLastFourDigits = creditCardLastFourDigits;
+	}
+
+	public String getAuthnetTransactionId()
+	{
+		return authnetTransactionId;
+	}
+
+	public void setAuthnetTransactionId(String authnetTransactionId)
+	{
+		this.authnetTransactionId = authnetTransactionId;
+	}
 }
