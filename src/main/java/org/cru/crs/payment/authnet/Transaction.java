@@ -77,15 +77,25 @@ public abstract class Transaction
 	{
 		buildTransactionData();
 		if (merchant != null)
+		{
 			request.putAll(merchant.getParamMap());
+		}
 		if (gatewayConfiguration != null)
+		{
 			request.putAll(gatewayConfiguration.getParamMap());
+		}
 		if (customer != null)
+		{
 			request.putAll(customer.getParamMap());
+		}
 		if (invoice != null)
+		{
 			request.putAll(invoice.getParamMap());
+		}
 		if (transactionResult != null)
+		{
 			request.putAll(transactionResult.getParamMap());
+		}
 	}
 
 	/**
