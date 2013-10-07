@@ -24,7 +24,7 @@
 
 	<!-- authorize dot net configuration -->
 	<entry key="currencyCode">USD</entry>
-	<entry key="authnetApiUrl">http://isup.me</entry>
+	<entry key="authnetApiUrl">https://test.authorize.net/gateway/transact.dll</entry>
 	<entry key="authnetTestMode">true</entry>
 </properties>
 
