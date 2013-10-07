@@ -25,10 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.hibernate.validator.Length;
-import org.jboss.seam.log.Log;
-import org.jboss.seam.log.Logging;
-import org.uscm.crs.util.Contract;
+import org.scribe.utils.Preconditions;
 
 public abstract class Transaction
 {
@@ -175,13 +172,12 @@ public abstract class Transaction
 
 	private void checkProperties() throws IllegalArgumentException
 	{
-
-		Contract.require(merchant, "merchant");
-		Contract.require(merchant, "merchant.login");
-		Contract.require(merchant, "merchant.tranKey");
-		Contract.require(method, "method");
-		Contract.require(getTransactionType(), "transactionType");
-		Contract.require(gatewayConfiguration, "gatewayConfiguration");
+		Preconditions.checkNotNull(merchant, "merchant was null");
+		Preconditions.checkEmptyString(merchant.getLogin(),"merchant.login was null/empty");
+		Preconditions.checkEmptyString(merchant.getTranKey(),"merchant.tranKey was null/empty");
+		Preconditions.checkNotNull(method, "method was null");
+		Preconditions.checkEmptyString(getTransactionType(), "transactionType was null/empty");
+		Preconditions.checkNotNull(gatewayConfiguration, "gatewayConfiguration was null");
 		checkTypeSpecificProperties();
 		method.checkProperties(this);
 	}
@@ -255,7 +251,7 @@ public abstract class Transaction
 		this.currency = currency;
 	}
 
-	public Log getLog()
+	public Logger getLog()
 	{
 		return log;
 	}
@@ -334,8 +330,8 @@ public abstract class Transaction
 
 	public void checkCreditCard()
 	{
-		Contract.require(getCreditCard(), "creditCard.cardNumber");
-		Contract.require(getCreditCard(), "creditCard.expirationDate");
-		Contract.require(getCreditCard(), "creditCard.cardCode");
+		Preconditions.checkNotNull(getCreditCard().getCardNumber(), "creditCard.cardNumber was null");
+		Preconditions.checkNotNull(getCreditCard().getExpirationDate(), "creditCard.expirationDate was null");
+		Preconditions.checkNotNull(getCreditCard().getCardCode(), "creditCard.cardCode was null");
 	}
 }
