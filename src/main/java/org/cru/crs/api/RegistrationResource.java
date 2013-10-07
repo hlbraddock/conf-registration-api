@@ -22,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
@@ -48,6 +49,7 @@ public class RegistrationResource
 	@Inject ConferenceService conferenceService;
 	@Inject CrsUserService userService;
     @Inject PaymentService paymentService;
+    @Inject Clock clock; 
     
     @Inject AuthnetPaymentProcess paymentProcess;
     
@@ -140,11 +142,40 @@ public class RegistrationResource
 
 			registrationService.updateRegistration(registrationEntity, crsLoggedInUser);
 
+			//a registration is completed, any payments that have not yet been processed now will be processed.
+			if(registration.getCompleted())
+			{
+				try
+				{
+					processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity));
+				}
+				catch(Exception e)
+				{
+					return Response.status(502).build();
+				}
+			}
+
 			return Response.noContent().build();
 		}
 		catch(UnauthorizedException e)
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
+		}
+	}
+
+	private void processPaymentsIfNecessary(Registration registration, Conference conference) throws IOException
+	{
+		for(Payment payment : registration.getPayments())
+		{
+			if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
+			{
+				String transactionId = paymentProcess.processCreditCardTransaction(conference, registration, payment);
+				
+				payment.setAuthnetTransactionId(transactionId);
+				payment.setTransactionDatetime(clock.currentDateTime());
+				
+				paymentService.updatePayment(payment.toJpaPaymentEntity());
+			}
 		}
 	}
 
@@ -281,22 +312,6 @@ public class RegistrationResource
     		else
     		{
     			paymentService.updatePayment(payment.toJpaPaymentEntity());
-
-    			try
-    			{
-    				RegistrationEntity currentRegistration = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
-    				ConferenceEntity currentConference = conferenceService.fetchConferenceBy(currentRegistration.getConference().getId());
-    				
-    				paymentProcess.processCreditCardTransaction(Conference.fromJpa(currentConference),
-    																Registration.fromJpa(currentRegistration), 
-    																payment);
-
-    			}
-    			catch(IOException e)
-    			{
-    				//return a bad gateway error response
-    				return Response.status(502).build();
-    			}
     		}
     		return Response.noContent().build();
     	}
