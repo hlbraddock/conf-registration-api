@@ -27,7 +27,7 @@ public class PaymentEntity implements Serializable
     private UUID registrationId;
 
     @Column(name = "AUTHNET_TRANSACTION_ID")
-    private String authnetTransactionId;
+    private Long authnetTransactionId;
 
     @Column(name = "CC_NAME_ON_CARD")
     private String creditCardNameOnCard;
@@ -68,12 +68,12 @@ public class PaymentEntity implements Serializable
         this.registrationId = registrationId;
     }
 
-    public String getAuthnetTransactionId()
+    public Long getAuthnetTransactionId()
     {
         return authnetTransactionId;
     }
 
-    public void setAuthnetTransactionId(String authnetTransactionId)
+    public void setAuthnetTransactionId(Long authnetTransactionId)
     {
         this.authnetTransactionId = authnetTransactionId;
     }

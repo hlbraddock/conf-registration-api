@@ -23,7 +23,7 @@ public class Payment implements Serializable
     private String creditCardExpirationYear;
     private String creditCardLastFourDigits;
     private String creditCardCVVNumber;
-	private String authnetTransactionId;
+	private Long authnetTransactionId;
     private String creditCardNumber;
     private BigDecimal amount;
     private DateTime transactionDatetime;
@@ -44,8 +44,7 @@ public class Payment implements Serializable
             jpaPayment.setCreditCardLastFourDigits(creditCardNumber.substring(Math.max(0, creditCardNumber.length() - 4)));
         }
 
-        //just put something mock in there for now
-        jpaPayment.setAuthnetTransactionId(AuthCodeGenerator.generate());
+        jpaPayment.setAuthnetTransactionId(authnetTransactionId);
 
         return jpaPayment;
     }
@@ -162,12 +161,12 @@ public class Payment implements Serializable
 		this.creditCardLastFourDigits = creditCardLastFourDigits;
 	}
 
-	public String getAuthnetTransactionId()
+	public Long getAuthnetTransactionId()
 	{
 		return authnetTransactionId;
 	}
 
-	public void setAuthnetTransactionId(String authnetTransactionId)
+	public void setAuthnetTransactionId(Long authnetTransactionId)
 	{
 		this.authnetTransactionId = authnetTransactionId;
 	}

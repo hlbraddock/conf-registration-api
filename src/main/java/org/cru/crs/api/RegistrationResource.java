@@ -169,7 +169,7 @@ public class RegistrationResource
 		{
 			if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
 			{
-				String transactionId = paymentProcess.processCreditCardTransaction(conference, registration, payment);
+				Long transactionId = paymentProcess.processCreditCardTransaction(conference, registration, payment);
 				
 				payment.setAuthnetTransactionId(transactionId);
 				payment.setTransactionDatetime(clock.currentDateTime());
