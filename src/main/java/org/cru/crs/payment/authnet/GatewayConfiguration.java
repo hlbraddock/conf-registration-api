@@ -27,9 +27,10 @@ public class GatewayConfiguration
 		return delimiter;
 	}
 
-	public void setDelimiter(String delimiter)
+	public GatewayConfiguration setDelimiter(String delimiter)
 	{
 		this.delimiter = delimiter;
+		return this;
 	}
 
 	public Boolean getEmailCustomer()
@@ -37,9 +38,10 @@ public class GatewayConfiguration
 		return emailCustomer;
 	}
 
-	public void setEmailCustomer(Boolean emailCustomer)
+	public GatewayConfiguration setEmailCustomer(Boolean emailCustomer)
 	{
 		this.emailCustomer = emailCustomer;
+		return this;
 	}
 
 	public Boolean getTestRequest()
@@ -47,9 +49,10 @@ public class GatewayConfiguration
 		return testRequest;
 	}
 
-	public void setTestRequest(Boolean testReq)
+	public GatewayConfiguration setTestRequest(Boolean testReq)
 	{
 		this.testRequest = testReq;
+		return this;
 	}
 
 	public String getVersion()
@@ -57,9 +60,10 @@ public class GatewayConfiguration
 		return version;
 	}
 
-	public void setVersion(String version)
+	public GatewayConfiguration setVersion(String version)
 	{
 		this.version = version;
+		return this;
 	}
 
 	private String toString(Boolean emailCustomer)
