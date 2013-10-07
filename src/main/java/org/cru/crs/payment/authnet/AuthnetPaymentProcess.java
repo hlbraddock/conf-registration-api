@@ -9,7 +9,6 @@ import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.payment.authnet.model.CreditCard;
-import org.cru.crs.payment.authnet.model.Customer;
 import org.cru.crs.payment.authnet.model.GatewayConfiguration;
 import org.cru.crs.payment.authnet.model.Invoice;
 import org.cru.crs.payment.authnet.model.Merchant;
@@ -30,7 +29,9 @@ public class AuthnetPaymentProcess
 		authnetAuthorizeCapture.setAmount(payment.getAmount());
 		authnetAuthorizeCapture.setCreditCard(createCreditCard(payment));
 		authnetAuthorizeCapture.setCurrency(crsProperties.getProperty("currencyCode"));
-		authnetAuthorizeCapture.setCustomer(createCustomer());
+		/*this isn't required by the authnet api, which is convenient because
+		 * we don't have an easy way to parse it out of our questions*/
+		authnetAuthorizeCapture.setCustomer(null);
 		authnetAuthorizeCapture.setGatewayConfiguration(createGatewayConfiguration());
 		authnetAuthorizeCapture.setHttpProvider(httpProvider);
 		authnetAuthorizeCapture.setInvoice(createInvoice(conference,payment));
@@ -55,14 +56,6 @@ public class AuthnetPaymentProcess
 												   .toDate());
 		
 		return creditCard;
-	}
-	
-	private Customer createCustomer()
-	{
-		Customer customer = new Customer();
-		
-		//TODO: figure out how to get this from the registration
-		return customer;
 	}
 	
 	private GatewayConfiguration createGatewayConfiguration()
