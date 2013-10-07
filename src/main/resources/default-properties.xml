@@ -22,5 +22,9 @@
     <!-- user logged in session length (in hours) -->
     <entry key="maxSessionLength">4</entry>
 
+	<!-- authorize dot net configuration -->
+	<entry key="currencyCode">USD</entry>
+	<entry key="authnetApiUrl">http://isup.me</entry>
+	<entry key="authnetTestMode">true</entry>
 </properties>
 
