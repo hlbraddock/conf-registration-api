@@ -13,6 +13,7 @@ import org.cru.crs.payment.authnet.model.GatewayConfiguration;
 import org.cru.crs.payment.authnet.model.Invoice;
 import org.cru.crs.payment.authnet.model.Merchant;
 import org.cru.crs.payment.authnet.transaction.AuthCapture;
+import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 import org.joda.time.DateTime;
 
@@ -22,7 +23,7 @@ public class AuthnetPaymentProcess
 	@Inject CrsProperties crsProperties;
 	@Inject HttpProvider httpProvider;
 	
-	public void processCreditCardTransaction(Conference conference, Registration registration, Payment payment) throws IOException
+	public String processCreditCardTransaction(Conference conference, Registration registration, Payment payment) throws IOException
 	{
 		AuthCapture authnetAuthorizeCapture = new AuthCapture();
 		
@@ -42,6 +43,10 @@ public class AuthnetPaymentProcess
 		authnetAuthorizeCapture.setUrl(crsProperties.getProperty("authnetApiUrl"));
 		
 		authnetAuthorizeCapture.execute();
+		
+		//eventually this will be the authnet transaction id, but for now just return something useful;
+		return AuthCodeGenerator.generate();
+		
 	}
 
 	private CreditCard createCreditCard(Payment payment)

@@ -3,7 +3,8 @@ package org.cru.crs.payment.authnet;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TransactionResult {
+public class TransactionResult
+{
 
 	private Long transactionID;
 	private String authCode;
