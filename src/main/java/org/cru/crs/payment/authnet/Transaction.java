@@ -241,7 +241,7 @@ public abstract class Transaction
 		return log;
 	}
 
-	public void setLog(Log log)
+	public void setLog(Logger log)
 	{
 		this.log = log;
 	}
