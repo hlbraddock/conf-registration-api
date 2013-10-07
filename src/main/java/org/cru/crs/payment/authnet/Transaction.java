@@ -115,9 +115,13 @@ public abstract class Transaction
 			String key = iter.next();
 			String value = request.get(key);
 			if (value != null)
+			{
 				request.put(key, key.equals("x_delim_char") ? value : escape(value));
+			}
 			else
+			{
 				iter.remove();
+			}
 		}
 
 		if (isTestRequest())
@@ -133,7 +137,9 @@ public abstract class Transaction
 			log.debug("transaction response: " + httpResponse);
 
 			if (httpResponse == null)
+			{
 				throw new IOException("Authorize.net service is unavailable");
+			}
 			authnetResponse = new AuthnetResponse(httpResponse, gatewayConfiguration.getDelimiter());
 
 			if (!authnetResponse.isApproved())
@@ -187,12 +193,16 @@ public abstract class Transaction
 	protected void buildTransactionData()
 	{
 		if (amount != null)
+		{
 			request.put("x_amount", amount.toString());
+		}
 		request.put("x_currency_Code", currency);
 		request.put("x_method", method.getCode());
 		request.put("x_type", getTransactionType());
 		if (creditCard != null)
+		{
 			request.putAll(creditCard.getParamMap());
+		}
 	}
 
 	public BigDecimal getAmount()
@@ -235,7 +245,6 @@ public abstract class Transaction
 		this.creditCard = creditCard;
 	}
 
-	@Length(max = 3)
 	public String getCurrency()
 	{
 		return currency;
