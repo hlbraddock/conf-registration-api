@@ -101,19 +101,25 @@ public class RegistrationResource
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
+			{
 				return Response.status(Status.BAD_REQUEST).build();
-
+			}
+			
 			if(registration.getId() == null || registrationId == null)
+			{
 				return Response.status(Status.BAD_REQUEST).build();
-
+			}
+			
 			logger.info("update registration");
 			Simply.logObject(registration, RegistrationResource.class);
 
 			ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(registration.getConferenceId());
 
 			if(conferenceEntity == null)
+			{
 				return Response.status(Status.BAD_REQUEST).build();
-
+			}
+			
 			RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
 			// create the entity if none exists
@@ -122,37 +128,37 @@ public class RegistrationResource
 				RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
 				logger.info("update registration creating");
-				Simply.logObject(registrationEntity, RegistrationResource.class);
 
 				registrationService.createNewRegistration(registrationEntity, crsLoggedInUser);
 
+				try
+				{
+					processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity));
+				}
+				catch(IOException ioe)
+				{
+					logger.error("error hitting auth.net API", ioe);
+					return Response.status(502).build();
+				}
+				
 				return Response.status(Status.CREATED)
 						.location(new URI("/registrations/" + registration.getId()))
 						.entity(registration)
 						.build();
 			}
 
-			logger.info("update current registration entity");
-			Simply.logObject(Registration.fromJpa(currentRegistrationEntity), RegistrationResource.class);
+			currentRegistrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
-			RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
+			registrationService.updateRegistration(currentRegistrationEntity, crsLoggedInUser);
 
-			logger.info("update registration entity");
-			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
-
-			registrationService.updateRegistration(registrationEntity, crsLoggedInUser);
-
-			//a registration is completed, any payments that have not yet been processed now will be processed.
-			if(registration.getCompleted())
+			try
 			{
-				try
-				{
-					processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity));
-				}
-				catch(Exception e)
-				{
-					return Response.status(502).build();
-				}
+				processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity));
+			}
+			catch(IOException ioe)
+			{
+				logger.error("error hitting auth.net API", ioe);
+				return Response.status(502).build();
 			}
 
 			return Response.noContent().build();
@@ -165,16 +171,19 @@ public class RegistrationResource
 
 	private void processPaymentsIfNecessary(Registration registration, Conference conference) throws IOException
 	{
-		for(Payment payment : registration.getPayments())
+		if(registration.getCompleted())
 		{
-			if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
+			for(Payment payment : registration.getPayments())
 			{
-				Long transactionId = paymentProcess.processCreditCardTransaction(conference, registration, payment);
-				
-				payment.setAuthnetTransactionId(transactionId);
-				payment.setTransactionDatetime(clock.currentDateTime());
-				
-				paymentService.updatePayment(payment.toJpaPaymentEntity());
+				if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
+				{
+					Long transactionId = paymentProcess.processCreditCardTransaction(conference, registration, payment);
+
+					payment.setAuthnetTransactionId(transactionId);
+					payment.setTransactionDatetime(clock.currentDateTime());
+
+					paymentService.updatePayment(payment.toJpaPaymentEntity());
+				}
 			}
 		}
 	}
