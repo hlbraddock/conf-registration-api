@@ -22,7 +22,8 @@ public class Payment implements Serializable
     private String creditCardExpirationMonth;
     private String creditCardExpirationYear;
     private String creditCardLastFourDigits;
-    private String authnetTransactionId;
+    private String creditCardCVVNumber;
+	private String authnetTransactionId;
     private String creditCardNumber;
     private BigDecimal amount;
     private DateTime transactionDatetime;
@@ -169,5 +170,15 @@ public class Payment implements Serializable
 	public void setAuthnetTransactionId(String authnetTransactionId)
 	{
 		this.authnetTransactionId = authnetTransactionId;
+	}
+	
+	public String getCreditCardCVVNumber()
+	{
+		return creditCardCVVNumber;
+	}
+
+	public void setCreditCardCVVNumber(String creditCardCVVNumber)
+	{
+		this.creditCardCVVNumber = creditCardCVVNumber;
 	}
 }
