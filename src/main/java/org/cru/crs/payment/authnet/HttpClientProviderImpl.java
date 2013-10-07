@@ -22,9 +22,14 @@ public class HttpClientProviderImpl implements HttpProvider
 	Logger log = Logger.getLogger(this.getClass());
 	
 	private int retries = 3;
-
-	@Inject private HttpClient httpClient;
-
+	private HttpClient httpClient;
+	
+	@Inject 
+	public HttpClientProviderImpl(HttpClient httpClient)
+	{
+		this.httpClient = httpClient;
+	}
+	
 	public String getContentFromGet(String url) throws IOException
 	{
 		HttpMethod method = new GetMethod(url);

@@ -19,9 +19,15 @@ import org.joda.time.DateTime;
 
 public class AuthnetPaymentProcess
 {
+	private CrsProperties crsProperties;
+	private HttpProvider httpProvider;
 	
-	@Inject CrsProperties crsProperties;
-	@Inject HttpProvider httpProvider;
+	@Inject
+	public AuthnetPaymentProcess(CrsProperties props, HttpProvider httpProvider)
+	{
+		this.crsProperties = props;
+		this.httpProvider = httpProvider;
+	}
 	
 	public String processCreditCardTransaction(Conference conference, Registration registration, Payment payment) throws IOException
 	{
