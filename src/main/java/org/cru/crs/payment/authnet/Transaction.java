@@ -25,6 +25,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.cru.crs.payment.authnet.model.CreditCard;
+import org.cru.crs.payment.authnet.model.Customer;
+import org.cru.crs.payment.authnet.model.GatewayConfiguration;
+import org.cru.crs.payment.authnet.model.Invoice;
+import org.cru.crs.payment.authnet.model.Merchant;
 import org.scribe.utils.Preconditions;
 
 public abstract class Transaction

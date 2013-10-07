@@ -8,6 +8,12 @@ import org.apache.log4j.Logger;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.payment.authnet.model.CreditCard;
+import org.cru.crs.payment.authnet.model.Customer;
+import org.cru.crs.payment.authnet.model.GatewayConfiguration;
+import org.cru.crs.payment.authnet.model.Invoice;
+import org.cru.crs.payment.authnet.model.Merchant;
+import org.cru.crs.payment.authnet.transaction.AuthCapture;
 import org.cru.crs.utils.CrsProperties;
 import org.joda.time.DateTime;
 
@@ -15,6 +21,7 @@ public class AuthnetPaymentProcess
 {
 	
 	@Inject CrsProperties crsProperties;
+	@Inject HttpProvider httpProvider;
 	
 	public void processCreditCardTransaction(Conference conference, Registration registration, Payment payment) throws IOException
 	{
@@ -25,7 +32,7 @@ public class AuthnetPaymentProcess
 		authnetAuthorizeCapture.setCurrency(crsProperties.getProperty("currencyCode"));
 		authnetAuthorizeCapture.setCustomer(createCustomer());
 		authnetAuthorizeCapture.setGatewayConfiguration(createGatewayConfiguration());
-		authnetAuthorizeCapture.setHttpProvider(null);
+		authnetAuthorizeCapture.setHttpProvider(httpProvider);
 		authnetAuthorizeCapture.setInvoice(createInvoice(conference,payment));
 		authnetAuthorizeCapture.setLog(Logger.getLogger(this.getClass()));
 		authnetAuthorizeCapture.setMerchant(createMerchant(conference));
