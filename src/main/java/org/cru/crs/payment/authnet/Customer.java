@@ -3,9 +3,6 @@ package org.cru.crs.payment.authnet;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hibernate.validator.Email;
-import org.hibernate.validator.Length;
-
 public class Customer
 {
 
