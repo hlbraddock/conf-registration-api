@@ -133,7 +133,7 @@ public class RegistrationResource
 
 				try
 				{
-					processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity));
+					processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity),crsLoggedInUser);
 				}
 				catch(IOException ioe)
 				{
@@ -153,7 +153,7 @@ public class RegistrationResource
 
 			try
 			{
-				processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity));
+				processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity), crsLoggedInUser);
 			}
 			catch(IOException ioe)
 			{
@@ -169,7 +169,7 @@ public class RegistrationResource
 		}
 	}
 
-	private void processPaymentsIfNecessary(Registration registration, Conference conference) throws IOException
+	private void processPaymentsIfNecessary(Registration registration, Conference conference, CrsApplicationUser loggedInUser) throws IOException, UnauthorizedException
 	{
 		if(registration.getCompleted())
 		{
@@ -182,7 +182,7 @@ public class RegistrationResource
 					payment.setAuthnetTransactionId(transactionId);
 					payment.setTransactionDatetime(clock.currentDateTime());
 
-					paymentService.updatePayment(payment.toJpaPaymentEntity());
+					paymentService.updatePayment(payment.toJpaPaymentEntity(), loggedInUser);
 				}
 			}
 		}
@@ -258,16 +258,25 @@ public class RegistrationResource
 	@Produces(MediaType.APPLICATION_JSON)
     public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
-		PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
-		
-		if(paymentEntity == null)
+		try
 		{
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		
-        Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-        return Response.ok(Payment.fromJpa(paymentEntity)).build();
+			PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId, crsLoggedInUser);
+
+			if(paymentEntity == null)
+			{
+				return Response.status(Status.NOT_FOUND).build();
+			}
+
+			Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
+
+			return Response.ok(Payment.fromJpa(paymentEntity)).build();
+		}
+		catch(UnauthorizedException e)
+    	{
+    		return Response.status(Status.UNAUTHORIZED).build();
+    	}
     }
 	
     @POST
@@ -276,20 +285,29 @@ public class RegistrationResource
     @Produces(MediaType.APPLICATION_JSON)
     public Response postPayment(Payment payment, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
-        Simply.logObject(payment, RegistrationResource.class);
+    	try
+    	{
+    		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-        if(payment.getId() == null)
-        {
-            payment.setId(UUID.randomUUID());
-        }
-        
-        payment.setRegistrationId(registrationId);
-        paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+    		Simply.logObject(payment, RegistrationResource.class);
 
-        return Response.status(Status.CREATED)
-        				.location(new URI("/registrations/" + registrationId + "/payment/" + payment.getId()))
-        				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId())))
-        				.build();
+    		if(payment.getId() == null)
+    		{
+    			payment.setId(UUID.randomUUID());
+    		}
+
+    		payment.setRegistrationId(registrationId);
+    		paymentService.createPaymentRecord(payment.toJpaPaymentEntity(), crsLoggedInUser);
+
+    		return Response.status(Status.CREATED)
+    				.location(new URI("/registrations/" + registrationId + "/payment/" + payment.getId()))
+    				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId(),crsLoggedInUser)))
+    				.build();
+    	}
+    	catch(UnauthorizedException e)
+    	{
+    		return Response.status(Status.UNAUTHORIZED).build();
+    	}
     }
     
     @PUT
@@ -312,15 +330,15 @@ public class RegistrationResource
     		if(paymentId == null)
     		{
     			payment.setId(UUID.randomUUID());
-    			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+    			paymentService.createPaymentRecord(payment.toJpaPaymentEntity(), crsLoggedInUser);
     		}
-    		else if(paymentService.fetchPaymentBy(paymentId) == null)
+    		else if(paymentService.fetchPaymentBy(paymentId, crsLoggedInUser) == null)
     		{
-    			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+    			paymentService.createPaymentRecord(payment.toJpaPaymentEntity(), crsLoggedInUser);
     		}
     		else
     		{
-    			paymentService.updatePayment(payment.toJpaPaymentEntity());
+    			paymentService.updatePayment(payment.toJpaPaymentEntity(), crsLoggedInUser);
     		}
     		return Response.noContent().build();
     	}
