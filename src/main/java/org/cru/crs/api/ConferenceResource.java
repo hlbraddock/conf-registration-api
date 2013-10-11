@@ -32,6 +32,7 @@ import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
@@ -283,6 +284,11 @@ public class ConferenceResource
 
             newRegistrationEntity.setUserId(crsLoggedInUser.getId());
 
+            if(conference.getConferenceCosts().isAcceptCreditCards())
+            {
+            	newRegistrationEntity.getPayments().add(new PaymentEntity().setId(UUID.randomUUID()));
+            }
+            
 			// TODO need to make sure user had not already registered for this conference
 			registrationService.createNewRegistration(newRegistrationEntity, crsLoggedInUser);
 
@@ -315,11 +321,6 @@ public class ConferenceResource
 
 			Set<Registration> registrationSet = Registration.fromJpa(registrationEntitySet);
 
-			for(Registration reg: registrationSet)
-			{
-				reg.addAllPayments(paymentService.fetchPaymentsForRegistration(reg.getId()));
-			}
-			
 			logObject(registrationSet, logger);
 			
 			return Response.ok(registrationSet).build();
@@ -349,8 +350,6 @@ public class ConferenceResource
 			if(registrationEntity == null) return Response.status(Status.NOT_FOUND).build();
 			
 			Registration registration = Registration.fromJpa(registrationEntity);
-
-			registration.addAllPayments(paymentService.fetchPaymentsForRegistration(registration.getId()));
 			
 			logObject(registration, logger);
 

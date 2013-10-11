@@ -111,7 +111,7 @@ public class AuthnetPaymentProcessTest
 		
 		try
 		{
-			Long transactionId = paymentProcess.processCreditCardTransaction(conference, registration.getPayments().get(0));
+			Long transactionId = paymentProcess.processCreditCardTransaction(conference, registration.getCurrentPayment());
 			Assert.assertNotNull(transactionId);
 		}
 		catch(Exception e)
@@ -126,7 +126,7 @@ public class AuthnetPaymentProcessTest
 		
 		testRegistration.setId(UUID.randomUUID());
 		testRegistration.setCompleted(true);
-		testRegistration.getPayments().add(testPaymentOne());
+		testRegistration.setCurrentPayment(testPaymentOne());
 		testRegistration.setUserId(UUID.randomUUID());
 		
 		return testRegistration;

@@ -397,6 +397,8 @@ public class ConferenceResourceFunctionalTest
 
 			Assert.assertEquals(registration.getUserId(), newRegistration.getUserId());
 
+			Assert.assertEquals(registration.getPayments().size(), 1);
+			
 			setupEm.close();
 		}
 		finally
@@ -436,20 +438,23 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getCurrentRegistration()
 	{
-		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+		UUID conferenceUUID = UUID.fromString("1951613E-A253-1AF8-6BC4-C9F1D0B3FA60");
 
-		ClientResponse<Registration> response = conferenceClient.getCurrentRegistration(conferenceUUID, UserInfo.AuthCode.Email);
+		ClientResponse<Registration> response = conferenceClient.getCurrentRegistration(conferenceUUID, UserInfo.AuthCode.Ryan);
 
 		Assert.assertEquals(response.getStatus(), 200);
 
 		Registration registration = response.getEntity();
 
-		UUID registrationUUID = UUID.fromString("B2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
+		UUID registrationUUID = UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111");
 
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getId(), registrationUUID);
-		Assert.assertEquals(registration.getUserId(), UserInfo.Id.Email);
+		Assert.assertEquals(registration.getUserId(), UserInfo.Id.Ryan);
 		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
+		Assert.assertNull(registration.getCurrentPayment());
+		Assert.assertNotNull(registration.getPastPayments());
+		Assert.assertFalse(registration.getPastPayments().isEmpty());
 	}
 
 	private Registration createRegistration(UUID registrationIdUUID, UUID userIdUUID)

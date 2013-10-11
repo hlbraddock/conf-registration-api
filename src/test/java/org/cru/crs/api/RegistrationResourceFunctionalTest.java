@@ -66,9 +66,9 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(registration.getId(), registrationUUID);
 		Assert.assertEquals(registration.getUserId(), UserInfo.Id.TestUser);
 		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
-		Assert.assertEquals(registration.getPayments().size(), 1);
+		Assert.assertEquals(registration.getPastPayments().size(), 1);
 		
-		Payment payment = registration.getPayments().get(0);
+		Payment payment = registration.getPastPayments().get(0);
 		
 		Assert.assertEquals(payment.getId(), paymentUUID);
 		Assert.assertEquals(payment.getAmount(), new BigDecimal(50f));
@@ -90,7 +90,7 @@ public class RegistrationResourceFunctionalTest
 
 		Assert.assertNotNull(registration);
 		
-		Assert.assertTrue(registration.getPayments().isEmpty());
+		Assert.assertTrue(registration.getPastPayments().isEmpty());
 	}
 
     @Test(groups="functional-tests")
@@ -104,10 +104,10 @@ public class RegistrationResourceFunctionalTest
 
         Assert.assertNotNull(registration);
 
-        Assert.assertEquals(registration.getPayments().size(), 2);
+        Assert.assertEquals(registration.getPastPayments().size(), 2);
 
-        Payment payment1 = registration.getPayments().get(0);
-        Payment payment2 = registration.getPayments().get(1);
+        Payment payment1 = registration.getPastPayments().get(0);
+        Payment payment2 = registration.getPastPayments().get(1);
 
         Assert.assertEquals(payment1.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91958"));
         Assert.assertEquals(payment1.getAmount(), new BigDecimal(20f));

@@ -19,9 +19,10 @@ public class Registration implements java.io.Serializable
 	private UUID userId;
 	private UUID conferenceId;
     private Boolean completed;
-
+    private Payment currentPayment;
+    
     private Set<Answer> answers = new HashSet<Answer>();
-    private List<Payment> payments = new ArrayList<Payment>();
+    private List<Payment> pastPayments = new ArrayList<Payment>();
     
 	/**
 	 * Creates a web api friendly registration
@@ -38,8 +39,20 @@ public class Registration implements java.io.Serializable
 		webRegistration.conferenceId = jpaRegistration.getConference().getId();
         webRegistration.answers = Answer.fromJpa(jpaRegistration.getAnswers());
         webRegistration.completed = jpaRegistration.getCompleted();
-
-		return webRegistration;
+        
+        for(PaymentEntity jpaPayment : jpaRegistration.getPayments())
+        {
+        	if(jpaPayment.getTransactionDatetime() == null || jpaPayment.getAuthnetTransactionId() == null)
+        	{
+        		webRegistration.currentPayment = Payment.fromJpa(jpaPayment);
+        	}
+        	else
+        	{
+        		webRegistration.pastPayments.add(Payment.fromJpa(jpaPayment));
+        	}
+        }
+        
+        return webRegistration;
 	}
 	
 	public static Set<Registration> fromJpa(Set<RegistrationEntity> jpaRegistrations)
@@ -65,17 +78,18 @@ public class Registration implements java.io.Serializable
 
         jpaRegistration.setAnswers(new HashSet<AnswerEntity>());
         for (Answer answer : getAnswers())
+        {
             jpaRegistration.getAnswers().add(answer.toJpaAnswerEntity());
-
+        }
+        
+        for(Payment payment : pastPayments)
+        {
+        	jpaRegistration.getPayments().add(payment.toJpaPaymentEntity());
+        }
+        
+        if(currentPayment != null) jpaRegistration.getPayments().add(currentPayment.toJpaPaymentEntity());
+        
 		return jpaRegistration;
-	}
-
-	public void addAllPayments(List<PaymentEntity> paymentsForRegistration)
-	{
-		for(PaymentEntity jpaPayment : paymentsForRegistration)
-		{
-			payments.add(Payment.fromJpa(jpaPayment));
-		}
 	}
 	
 	public UUID getId()
@@ -128,14 +142,24 @@ public class Registration implements java.io.Serializable
         this.completed = completed;
     }
 
-	public List<Payment> getPayments()
+	public List<Payment> getPastPayments()
 	{
-		return payments;
+		return pastPayments;
 	}
 
-	public void setPayments(List<Payment> payments)
+	public void setPastPayments(List<Payment> pastPayments)
 	{
-		this.payments = payments;
+		this.pastPayments = pastPayments;
+	}
+
+	public Payment getCurrentPayment()
+	{
+		return currentPayment;
+	}
+
+	public void setCurrentPayment(Payment currentPayment)
+	{
+		this.currentPayment = currentPayment;
 	}
 
 }

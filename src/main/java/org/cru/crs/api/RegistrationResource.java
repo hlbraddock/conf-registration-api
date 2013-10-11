@@ -77,8 +77,6 @@ public class RegistrationResource
 			Simply.logObject(Registration.fromJpa(requestedRegistration), RegistrationResource.class);
 
 			Registration registration = Registration.fromJpa(requestedRegistration);
-
-			registration.addAllPayments(paymentService.fetchPaymentsForRegistration(registration.getId()));
 			
 			logger.info("get registration");
 			Simply.logObject(registration, RegistrationResource.class);

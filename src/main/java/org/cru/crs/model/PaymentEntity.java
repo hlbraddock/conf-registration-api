@@ -53,9 +53,10 @@ public class PaymentEntity implements Serializable
         return id;
     }
 
-    public void setId(UUID id)
+    public PaymentEntity setId(UUID id)
     {
         this.id = id;
+        return this;
     }
 
     public UUID getRegistrationId()
