@@ -28,7 +28,7 @@ public class AuthnetPaymentProcess
 		this.httpProvider = httpProvider;
 	}
 	
-	public Long processCreditCardTransaction(Conference conference, Registration registration, Payment payment) throws IOException
+	public Long processCreditCardTransaction(Conference conference, Payment payment) throws IOException
 	{
 		AuthCapture authnetAuthorizeCapture = new AuthCapture();
 		

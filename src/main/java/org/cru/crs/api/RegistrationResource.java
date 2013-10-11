@@ -149,25 +149,6 @@ public class RegistrationResource
 		}
 	}
 
-	private void processPaymentsIfNecessary(Registration registration, Conference conference, CrsApplicationUser loggedInUser) throws IOException, UnauthorizedException
-	{
-		if(registration.getCompleted())
-		{
-			for(Payment payment : registration.getPayments())
-			{
-				if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
-				{
-					Long transactionId = paymentProcess.processCreditCardTransaction(conference, registration, payment);
-
-					payment.setAuthnetTransactionId(transactionId);
-					payment.setTransactionDatetime(clock.currentDateTime());
-
-					paymentService.updatePayment(payment.toJpaPaymentEntity(), loggedInUser);
-				}
-			}
-		}
-	}
-
 	@DELETE
 	public Response deleteRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode)
 	{
@@ -178,8 +159,9 @@ public class RegistrationResource
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
 			if(registrationEntity == null)
+			{
 				return Response.status(Status.BAD_REQUEST).build();
-
+			}
 			logger.info("delete registration entity");
 			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
 
@@ -280,6 +262,18 @@ public class RegistrationResource
     		payment.setRegistrationId(registrationId);
     		paymentService.createPaymentRecord(payment.toJpaPaymentEntity(), crsLoggedInUser);
 
+    		if(payment.getReadyToProcess())
+    		{
+    			try
+    			{
+    				processPayment(payment, crsLoggedInUser);
+    			}
+    			catch(IOException ioe)
+    			{
+    				return Response.status(502).build();
+    			}
+    		}
+    		
     		return Response.status(Status.CREATED)
     				.location(new URI("/registrations/" + registrationId + "/payment/" + payment.getId()))
     				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId(),crsLoggedInUser)))
@@ -322,11 +316,44 @@ public class RegistrationResource
     		{
     			paymentService.updatePayment(payment.toJpaPaymentEntity(), crsLoggedInUser);
     		}
+    		
+    		if(payment.getReadyToProcess())
+    		{
+    			try
+    			{
+    				processPayment(payment, crsLoggedInUser);
+    			}
+    			catch(IOException ioe)
+    			{
+    				return Response.status(502).build();
+    			}
+    		}
+    		
     		return Response.noContent().build();
     	}
     	catch(UnauthorizedException e)
     	{
     		return Response.status(Status.UNAUTHORIZED).build();
+    	}
+    }
+    
+    private void processPayment(Payment payment, CrsApplicationUser loggedInUser) throws IOException, UnauthorizedException
+    {
+    	if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
+    	{
+    		ConferenceEntity jpaConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId(), 
+    																					loggedInUser).getConference().getId());
+    		
+    		Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromJpa(jpaConference), payment);
+
+    		payment.setAuthnetTransactionId(transactionId);
+    		payment.setTransactionDatetime(clock.currentDateTime());
+
+    		paymentService.updatePayment(payment.toJpaPaymentEntity(), loggedInUser);
+    	}
+    	else
+    	{
+    		
     	}
     }
 }

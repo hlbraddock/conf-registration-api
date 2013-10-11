@@ -11,6 +11,7 @@ import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.PaymentEntity;
 import org.joda.time.DateTime;
 
+
 public class Payment implements Serializable
 {
 	private static final long serialVersionUID = 1L;
@@ -57,6 +58,7 @@ public class Payment implements Serializable
 		payment.id = jpaPayment.getId();
 		payment.registrationId = jpaPayment.getRegistrationId();
 		payment.amount = jpaPayment.getAmount();
+
 		payment.creditCardExpirationMonth = jpaPayment.getCreditCardExpirationMonth();
 		payment.creditCardExpirationYear = jpaPayment.getCreditCardExpirationYear();
 		payment.creditCardNameOnCard = jpaPayment.getCreditCardNameOnCard();
@@ -68,88 +70,56 @@ public class Payment implements Serializable
 				
 		return payment;
 	}
-	
-    public UUID getId()
-    {
-        return id;
-    }
 
-    public void setId(UUID id)
-    {
-        this.id = id;
-    }
+	public UUID getId()
+	{
+		return id;
+	}
 
-    public UUID getRegistrationId()
-    {
-        return registrationId;
-    }
+	public void setId(UUID id)
+	{
+		this.id = id;
+	}
 
-    public void setRegistrationId(UUID registrationId)
-    {
-        this.registrationId = registrationId;
-    }
+	public UUID getRegistrationId()
+	{
+		return registrationId;
+	}
 
-    public String getCreditCardNameOnCard()
-    {
-        return creditCardNameOnCard;
-    }
+	public void setRegistrationId(UUID registrationId)
+	{
+		this.registrationId = registrationId;
+	}
 
-    public void setCreditCardNameOnCard(String creditCardNameOnCard)
-    {
-        this.creditCardNameOnCard = creditCardNameOnCard;
-    }
+	public String getCreditCardNameOnCard()
+	{
+		return creditCardNameOnCard;
+	}
 
-    public String getCreditCardExpirationMonth()
-    {
-        return creditCardExpirationMonth;
-    }
+	public void setCreditCardNameOnCard(String creditCardNameOnCard)
+	{
+		this.creditCardNameOnCard = creditCardNameOnCard;
+	}
 
-    public void setCreditCardExpirationMonth(String creditCardExpirationMonth)
-    {
-        this.creditCardExpirationMonth = creditCardExpirationMonth;
-    }
+	public String getCreditCardExpirationMonth()
+	{
+		return creditCardExpirationMonth;
+	}
 
-    public String getCreditCardExpirationYear()
-    {
-        return creditCardExpirationYear;
-    }
+	public void setCreditCardExpirationMonth(String creditCardExpirationMonth)
+	{
+		this.creditCardExpirationMonth = creditCardExpirationMonth;
+	}
 
-    public void setCreditCardExpirationYear(String creditCardExpirationYear)
-    {
-        this.creditCardExpirationYear = creditCardExpirationYear;
-    }
+	public String getCreditCardExpirationYear()
+	{
+		return creditCardExpirationYear;
+	}
 
-    public String getCreditCardNumber()
-    {
-        return creditCardNumber;
-    }
-
-    public void setCreditCardNumber(String creditCardNumber)
-    {
-        this.creditCardNumber = creditCardNumber;
-    }
-
-    public BigDecimal getAmount()
-    {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount)
-    {
-        this.amount = amount;
-    }
-
-    @JsonSerialize(using=JsonStandardDateTimeSerializer.class)
-    public DateTime getTransactionDatetime()
-    {
-        return transactionDatetime;
-    }
-
-    @JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
-    public void setTransactionDatetime(DateTime transactionDatetime)
-    {
-        this.transactionDatetime = transactionDatetime;
-    }
+	public void setCreditCardExpirationYear(String creditCardExpirationYear)
+	{
+		this.creditCardExpirationYear = creditCardExpirationYear;
+	}
 
 	public String getCreditCardLastFourDigits()
 	{
@@ -161,6 +131,16 @@ public class Payment implements Serializable
 		this.creditCardLastFourDigits = creditCardLastFourDigits;
 	}
 
+	public String getCreditCardCVVNumber()
+	{
+		return creditCardCVVNumber;
+	}
+
+	public void setCreditCardCVVNumber(String creditCardCVVNumber)
+	{
+		this.creditCardCVVNumber = creditCardCVVNumber;
+	}
+
 	public Long getAuthnetTransactionId()
 	{
 		return authnetTransactionId;
@@ -170,15 +150,37 @@ public class Payment implements Serializable
 	{
 		this.authnetTransactionId = authnetTransactionId;
 	}
-	
-	public String getCreditCardCVVNumber()
+
+	public String getCreditCardNumber()
 	{
-		return creditCardCVVNumber;
+		return creditCardNumber;
 	}
 
-	public void setCreditCardCVVNumber(String creditCardCVVNumber)
+	public void setCreditCardNumber(String creditCardNumber)
 	{
-		this.creditCardCVVNumber = creditCardCVVNumber;
+		this.creditCardNumber = creditCardNumber;
+	}
+
+	public BigDecimal getAmount()
+	{
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount)
+	{
+		this.amount = amount;
+	}
+
+    @JsonSerialize(using=JsonStandardDateTimeSerializer.class)
+	public DateTime getTransactionDatetime()
+	{
+		return transactionDatetime;
+	}
+
+    @JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
+	public void setTransactionDatetime(DateTime transactionDatetime)
+	{
+		this.transactionDatetime = transactionDatetime;
 	}
 
 	public Boolean getReadyToProcess()
@@ -190,4 +192,5 @@ public class Payment implements Serializable
 	{
 		this.readyToProcess = readyToProcess;
 	}
+    
 }
