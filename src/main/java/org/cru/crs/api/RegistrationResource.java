@@ -118,28 +118,45 @@ public class RegistrationResource
 				return Response.status(Status.BAD_REQUEST).build();
 			}
 			
-			RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
-
+			boolean createdNewRegistration = false;
 			// create the entity if none exists
-			if(currentRegistrationEntity == null)
+			if(registrationService.getRegistrationBy(registrationId, crsLoggedInUser) == null)
 			{
+				createdNewRegistration = true;
+				
 				RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
 				logger.info("update registration creating");
 
 				registrationService.createNewRegistration(registrationEntity, crsLoggedInUser);
 
+
+			}
+			else
+			{
+				registrationService.updateRegistration(registration.toJpaRegistrationEntity(conferenceEntity), crsLoggedInUser);
+			}
+			
+			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
+			{	
+				try
+				{
+					processPayment(registration.getCurrentPayment(), crsLoggedInUser);
+				}
+				catch(IOException e)
+				{
+					return Response.status(502).build();
+				}
+			}
+
+			if(createdNewRegistration)
+			{
 				return Response.status(Status.CREATED)
 						.location(new URI("/registrations/" + registration.getId()))
 						.entity(registration)
 						.build();
 			}
-
-			currentRegistrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
-
-			registrationService.updateRegistration(currentRegistrationEntity, crsLoggedInUser);
-
-			return Response.noContent().build();
+			else return Response.noContent().build();
 		}
 		catch(UnauthorizedException e)
 		{

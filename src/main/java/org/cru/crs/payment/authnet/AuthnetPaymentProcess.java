@@ -90,8 +90,8 @@ public class AuthnetPaymentProcess
 		Merchant merchant = new Merchant();
 		
 		merchant.setEmail(conference.getContactPersonEmail());
-		merchant.setLogin(conference.getAuthnetId());
-		merchant.setTranKey(conference.getAuthnetToken());
+		merchant.setLogin(conference.getAuthnetId() == null ? crsProperties.getProperty("authnetTestId") : conference.getAuthnetId());
+		merchant.setTranKey(conference.getAuthnetToken() == null ? crsProperties.getProperty("authnetTestToken") : conference.getAuthnetToken());
 		return merchant;
 	}
 }

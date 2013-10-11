@@ -46,7 +46,7 @@ public class Payment implements Serializable
         }
 
         jpaPayment.setAuthnetTransactionId(authnetTransactionId);
-
+        jpaPayment.setTransactionDatetime(transactionDatetime);
         return jpaPayment;
     }
 	
