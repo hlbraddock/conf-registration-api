@@ -6,10 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -55,27 +51,19 @@ public class HttpClientProviderImpl implements HttpProvider
 	{
 		CloseableHttpResponse response = null;
 		String content = null;
-		
-		requestBase.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-				new DefaultHttpMethodRetryHandler(retries, false));
 
 		try
 		{
 			// Execute the method.
 			response = httpClient.execute(requestBase);
 
-			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
+			if (response.getStatusLine().getStatusCode() != 200)
 			{
 				log.warn("Method failed: #0" + response.getStatusLine());
 
 			}
 			content = new Scanner(response.getEntity().getContent()).useDelimiter("\\A").next();
 
-		}
-		catch (HttpException e)
-		{
-			log.warn("Fatal protocol violation getting content");
-			throw e;
 		}
 		catch (IOException e)
 		{

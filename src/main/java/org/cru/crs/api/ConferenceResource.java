@@ -350,6 +350,8 @@ public class ConferenceResource
 			
 			Registration registration = Registration.fromJpa(registrationEntity);
 
+			registration.addAllPayments(paymentService.fetchPaymentsForRegistration(registration.getId()));
+			
 			logObject(registration, logger);
 
 			return Response.ok(registration).build();

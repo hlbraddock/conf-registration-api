@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
@@ -26,7 +25,7 @@ public class AuthnetPaymentProcessTest
 	@Test(groups="unittest")
 	public void createCreditCard()
 	{
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
 		
 		CreditCard creditCard = paymentProcess.createCreditCard(testPaymentOne());
 		
@@ -47,7 +46,7 @@ public class AuthnetPaymentProcessTest
 	@Test(groups="unittest")
 	public void createInvoice()
 	{
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
 		Conference testConference = testConferenceOne();
 		Payment testPayment = testPaymentOne();
 		
@@ -70,7 +69,7 @@ public class AuthnetPaymentProcessTest
 	public void createMerchant()
 	{
 		//properties are not needed for this test
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
 		Conference testConference = testConferenceOne();
 			
 		Merchant merchant = paymentProcess.createMerchant(testConference);
@@ -93,7 +92,7 @@ public class AuthnetPaymentProcessTest
 	@Test(groups="unittest")
 	public void testGatewayConfiguration()
 	{
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
 		
 		GatewayConfiguration gatewayConfig = paymentProcess.createGatewayConfiguration();
 		
@@ -108,7 +107,7 @@ public class AuthnetPaymentProcessTest
 		Conference conference = testConferenceOne();
 		registration.setConferenceId(conference.getId());
 		
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(new HttpClient()));
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
 		
 		try
 		{

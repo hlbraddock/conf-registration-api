@@ -262,7 +262,7 @@ public class RegistrationResource
     		payment.setRegistrationId(registrationId);
     		paymentService.createPaymentRecord(payment.toJpaPaymentEntity(), crsLoggedInUser);
 
-    		if(payment.getReadyToProcess())
+    		if(payment.isReadyToProcess())
     		{
     			try
     			{
@@ -317,7 +317,7 @@ public class RegistrationResource
     			paymentService.updatePayment(payment.toJpaPaymentEntity(), crsLoggedInUser);
     		}
     		
-    		if(payment.getReadyToProcess())
+    		if(payment.isReadyToProcess())
     		{
     			try
     			{

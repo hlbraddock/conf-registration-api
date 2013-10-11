@@ -59,8 +59,8 @@ public class PaymentService
     
 	private void ensureUserHasPermissionsForPayment(CrsApplicationUser crsLoggedInUser, PaymentEntity payment) throws UnauthorizedException
 	{
-		RegistrationEntity registrationForCurrentPayment = em.find(RegistrationEntity.class, payment.getId());
-		if(!registrationForCurrentPayment.getId().equals(crsLoggedInUser.getId()))
+		RegistrationEntity registrationForCurrentPayment = em.find(RegistrationEntity.class, payment.getRegistrationId());
+		if(!registrationForCurrentPayment.getUserId().equals(crsLoggedInUser.getId()))
 		{
 			throw new UnauthorizedException();
 		}

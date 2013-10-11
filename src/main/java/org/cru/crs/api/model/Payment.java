@@ -27,7 +27,7 @@ public class Payment implements Serializable
     private String creditCardNumber;
     private BigDecimal amount;
     private DateTime transactionDatetime;
-    private Boolean readyToProcess;
+    private boolean readyToProcess;
 
     public PaymentEntity toJpaPaymentEntity()
     {
@@ -183,12 +183,12 @@ public class Payment implements Serializable
 		this.transactionDatetime = transactionDatetime;
 	}
 
-	public Boolean getReadyToProcess()
+	public boolean isReadyToProcess()
 	{
 		return readyToProcess;
 	}
 
-	public void setReadyToProcess(Boolean readyToProcess)
+	public void setReadyToProcess(boolean readyToProcess)
 	{
 		this.readyToProcess = readyToProcess;
 	}
