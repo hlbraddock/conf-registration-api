@@ -9,7 +9,6 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.PaymentEntity;
-import org.cru.crs.utils.AuthCodeGenerator;
 import org.joda.time.DateTime;
 
 public class Payment implements Serializable
@@ -27,6 +26,7 @@ public class Payment implements Serializable
     private String creditCardNumber;
     private BigDecimal amount;
     private DateTime transactionDatetime;
+    private Boolean readyToProcess;
 
     public PaymentEntity toJpaPaymentEntity()
     {
@@ -179,5 +179,15 @@ public class Payment implements Serializable
 	public void setCreditCardCVVNumber(String creditCardCVVNumber)
 	{
 		this.creditCardCVVNumber = creditCardCVVNumber;
+	}
+
+	public Boolean getReadyToProcess()
+	{
+		return readyToProcess;
+	}
+
+	public void setReadyToProcess(Boolean readyToProcess)
+	{
+		this.readyToProcess = readyToProcess;
 	}
 }
