@@ -11,9 +11,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 
 import org.cru.crs.api.client.ConferenceResourceClient;
+import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.RegistrationEntity;
@@ -268,109 +270,6 @@ public class ConferenceResourceFunctionalTest
 		}
 	}
 
-	/**
-	 * Test: add a page to conference by fetching the conference and adding a child page to it. this is different than hitting
-	 * the createPage endpoint, but should have the same outcome
-	 * 
-	 * Expected outcome: page should be stored and associated with conference
-	 * 
-	 * Input: JSON conference resource with new page attached to it
-	 * 
-	 * Expected return: 204 - No Content
-	 */	@Test(groups="functional-tests")
-	 public void addPageToConferenceByAddingToAConferenceResourceAndUpdating()
-	 {
-		UUID testConferenceId = UUID.randomUUID();
-		
-		try
-		{
-			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			Conference fakeConference = createFakeConference();
-			
-			fakeConference.setId(testConferenceId);
-			
-			setupEm.getTransaction().begin();
-			setupEm.persist(fakeConference.toJpaConferenceEntity());
-			setupEm.flush();
-			setupEm.getTransaction().commit();
-
-			setupEm.close();
-
-			fakeConference.getRegistrationPages().add(createFakePage());
-
-			ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
-			Assert.assertEquals(updateResponse.getStatus(), 204);
-			
-			EntityManager retrievalEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			ConferenceEntity updatedConferenceFromDb = retrievalEm.find(ConferenceEntity.class, fakeConference.getId());
-
-			Assert.assertEquals(updatedConferenceFromDb.getPages().size(), 1);
-			Assert.assertEquals(updatedConferenceFromDb.getPages().get(0).getId(), fakeConference.getRegistrationPages().get(0).getId());
-		}
-		finally
-		{
-			EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			cleanupEm.getTransaction().begin();
-			cleanupEm.remove(cleanupEm.find(ConferenceEntity.class,testConferenceId));
-			cleanupEm.getTransaction().commit();
-			cleanupEm.close();
-		}
-	}
-	
-	 //**********************************************************************
-	 // Helper methods
-	 //**********************************************************************
-
-	private void removeFakeConference(String conferenceIdString)
-	{
-		EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		ConferenceEntity fakeFoundConference = cleanupEm.find(ConferenceEntity.class,UUID.fromString(conferenceIdString));
-		
-		cleanupEm.getTransaction().begin();
-		cleanupEm.remove(fakeFoundConference);
-		cleanupEm.flush();
-		cleanupEm.getTransaction().commit();
-		cleanupEm.close();
-	}
-
-	private void removeAddedPage(EntityManager setupEm)
-	{
-		PageEntity pageToDelete = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
-		if(pageToDelete == null) return;
-		
-		setupEm.getTransaction().begin();
-		setupEm.remove(pageToDelete);
-		setupEm.flush();
-		setupEm.getTransaction().commit();
-	}
-	
-	private Conference createFakeConference()
-	{
-		Conference fakeConference = new Conference();
-		fakeConference.setContactUser(UserInfo.Id.TestUser);
-		fakeConference.setName("Fake Fall Retreat");
-		fakeConference.setTotalSlots(202);
-		fakeConference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 6, 1, 8, 0, 0));
-		fakeConference.setRegistrationEndTime(DateTimeCreaterHelper.createDateTime(2013, 6, 22, 23, 59, 59));
-		fakeConference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 7, 4, 15, 0, 0));
-		fakeConference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 7, 9, 11, 0, 0));
-		fakeConference.setRegistrationPages(new ArrayList<Page>());
-		
-		return fakeConference;
-	}
-	
-	private Page createFakePage()
-	{
-		Page fakePage = new Page();
-		
-		fakePage.setTitle("Ministry Prefs");
-		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
-		fakePage.setPosition(1);
-		fakePage.setBlocks(null);
-		
-		return fakePage;
-	}
-
 	@Test(groups="functional-tests")
 	public void addRegistrationToConference() throws URISyntaxException
 	{
@@ -465,6 +364,176 @@ public class ConferenceResourceFunctionalTest
 		registration.setUserId(userIdUUID);
 
 		return registration;
+	}
+	
+	/**
+	 * Test: add a page to conference by fetching the conference and adding a child page to it. this is different than hitting
+	 * the createPage endpoint, but should have the same outcome
+	 * 
+	 * Expected outcome: page should be stored and associated with conference
+	 * 
+	 * Input: JSON conference resource with new page attached to it
+	 * 
+	 * Expected return: 204 - No Content
+	 */	
+	@Test(groups="functional-tests")
+	 public void addPageToConferenceByAddingToAConferenceResourceAndUpdating()
+	 {
+		UUID testConferenceId = UUID.randomUUID();
+		
+		try
+		{
+			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			Conference fakeConference = createFakeConference();
+			
+			fakeConference.setId(testConferenceId);
+			
+			setupEm.getTransaction().begin();
+			setupEm.persist(fakeConference.toJpaConferenceEntity());
+			setupEm.flush();
+			setupEm.getTransaction().commit();
+
+			setupEm.close();
+
+			fakeConference.getRegistrationPages().add(createFakePage());
+
+			ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
+			Assert.assertEquals(updateResponse.getStatus(), 204);
+			
+			EntityManager retrievalEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			ConferenceEntity updatedConferenceFromDb = retrievalEm.find(ConferenceEntity.class, fakeConference.getId());
+
+			Assert.assertEquals(updatedConferenceFromDb.getPages().size(), 1);
+			Assert.assertEquals(updatedConferenceFromDb.getPages().get(0).getId(), fakeConference.getRegistrationPages().get(0).getId());
+		}
+		finally
+		{
+			EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+			cleanupEm.getTransaction().begin();
+			cleanupEm.remove(cleanupEm.find(ConferenceEntity.class,testConferenceId));
+			cleanupEm.getTransaction().commit();
+			cleanupEm.close();
+		}
+	}
+	
+	@Test(groups="functional-tests")
+	public void moveBlockUpOnePage()
+	{
+		EntityManager em = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		ConferenceEntity jpaConference = em.find(ConferenceEntity.class, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
+		Conference webConference = Conference.fromJpaWithPages(jpaConference);
+		
+		em.close();
+		
+		Block blockToMove = webConference.getRegistrationPages().get(1).getBlocks().remove(1);
+		webConference.getRegistrationPages().get(0).getBlocks().add(blockToMove);
+		
+		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
+		Assert.assertEquals(updateResponse.getStatus(), 204);
+		
+		em = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		
+		ConferenceEntity updatedJpaConferece = em.find(ConferenceEntity.class, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
+		Conference updatedWebConference = Conference.fromJpaWithPages(updatedJpaConferece);
+		
+		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().size(), 5);
+		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().size(), 3);
+		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().get(4).getId(), 
+									UUID.fromString("A728C555-6989-F658-7C29-B3DD034F6FDB"));
+		
+		em.getTransaction().begin();
+		BlockEntity blockToReplace = updatedJpaConferece.getPages().get(0).getBlocks().remove(4);
+		updatedJpaConferece.getPages().get(1).getBlocks().add(1, blockToReplace);
+		em.merge(updatedJpaConferece);
+		em.getTransaction().commit();
+				
+	}
+
+	@Test(groups="functional-tests")
+	public void moveBlockDownOnePage()
+	{
+		EntityManager em = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		ConferenceEntity jpaConference = em.find(ConferenceEntity.class, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
+		Conference webConference = Conference.fromJpaWithPages(jpaConference);
+		
+		em.close();
+		
+		Block blockToMove = webConference.getRegistrationPages().get(0).getBlocks().remove(1);
+		webConference.getRegistrationPages().get(1).getBlocks().add(blockToMove);
+		
+		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
+		Assert.assertEquals(updateResponse.getStatus(), 204);
+		
+		em = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		
+		ConferenceEntity updatedJpaConferece = em.find(ConferenceEntity.class, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
+		Conference updatedWebConference = Conference.fromJpaWithPages(updatedJpaConferece);
+		
+		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().size(), 3);
+		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().size(), 5);
+		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().get(4).getId(), 
+									UUID.fromString("A229C555-6989-F658-7C29-B3DD034F6FDB"));
+		
+		em.getTransaction().begin();
+		BlockEntity blockToReplace = updatedJpaConferece.getPages().get(1).getBlocks().remove(4);
+		updatedJpaConferece.getPages().get(0).getBlocks().add(1, blockToReplace);
+		em.merge(updatedJpaConferece);
+		em.getTransaction().commit();
+				
+	}
+	
+	 //**********************************************************************
+	 // Helper methods
+	 //**********************************************************************
+
+	private void removeFakeConference(String conferenceIdString)
+	{
+		EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		ConferenceEntity fakeFoundConference = cleanupEm.find(ConferenceEntity.class,UUID.fromString(conferenceIdString));
+		
+		cleanupEm.getTransaction().begin();
+		cleanupEm.remove(fakeFoundConference);
+		cleanupEm.flush();
+		cleanupEm.getTransaction().commit();
+		cleanupEm.close();
+	}
+
+	private void removeAddedPage(EntityManager setupEm)
+	{
+		PageEntity pageToDelete = setupEm.find(PageEntity.class, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
+		if(pageToDelete == null) return;
+		
+		setupEm.getTransaction().begin();
+		setupEm.remove(pageToDelete);
+		setupEm.flush();
+		setupEm.getTransaction().commit();
+	}
+	
+	private Conference createFakeConference()
+	{
+		Conference fakeConference = new Conference();
+		fakeConference.setContactUser(UserInfo.Id.TestUser);
+		fakeConference.setName("Fake Fall Retreat");
+		fakeConference.setTotalSlots(202);
+		fakeConference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 6, 1, 8, 0, 0));
+		fakeConference.setRegistrationEndTime(DateTimeCreaterHelper.createDateTime(2013, 6, 22, 23, 59, 59));
+		fakeConference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 7, 4, 15, 0, 0));
+		fakeConference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 7, 9, 11, 0, 0));
+		fakeConference.setRegistrationPages(new ArrayList<Page>());
+		
+		return fakeConference;
+	}
+	
+	private Page createFakePage()
+	{
+		Page fakePage = new Page();
+		
+		fakePage.setTitle("Ministry Prefs");
+		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
+		fakePage.setPosition(1);
+		fakePage.setBlocks(null);
+		
+		return fakePage;
 	}
 
 	private void removeAddedRegistration(EntityManager setupEm, UUID registrationIdUUID)
