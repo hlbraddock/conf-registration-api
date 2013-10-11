@@ -1,7 +1,9 @@
 package org.cru.crs.model;
 
 
-import org.hibernate.annotations.Type;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,8 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.Set;
-import java.util.UUID;
+
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "REGISTRATIONS")
@@ -38,6 +40,10 @@ public class RegistrationEntity implements java.io.Serializable
 	@JoinColumn(name = "REGISTRATION_ID", nullable = false)
 	private Set<AnswerEntity> answers;
 
+    @OneToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.EAGER, orphanRemoval=false)
+    @JoinColumn(name = "REGISTRATION_ID")
+    private Set<PaymentEntity> payments = new HashSet<PaymentEntity>(); 
+    
     @Column(name = "COMPLETED")
     private Boolean completed;
 
@@ -90,4 +96,14 @@ public class RegistrationEntity implements java.io.Serializable
     {
         this.completed = completed;
     }
+
+	public Set<PaymentEntity> getPayments()
+	{
+		return payments;
+	}
+
+	public void setPayments(Set<PaymentEntity> payments)
+	{
+		this.payments = payments;
+	}
 }

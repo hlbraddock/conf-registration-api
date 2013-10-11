@@ -9,8 +9,8 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.PaymentEntity;
-import org.cru.crs.utils.AuthCodeGenerator;
 import org.joda.time.DateTime;
+
 
 public class Payment implements Serializable
 {
@@ -22,10 +22,12 @@ public class Payment implements Serializable
     private String creditCardExpirationMonth;
     private String creditCardExpirationYear;
     private String creditCardLastFourDigits;
-    private String authnetTransactionId;
+    private String creditCardCVVNumber;
+	private Long authnetTransactionId;
     private String creditCardNumber;
     private BigDecimal amount;
     private DateTime transactionDatetime;
+    private boolean readyToProcess;
 
     public PaymentEntity toJpaPaymentEntity()
     {
@@ -43,9 +45,8 @@ public class Payment implements Serializable
             jpaPayment.setCreditCardLastFourDigits(creditCardNumber.substring(Math.max(0, creditCardNumber.length() - 4)));
         }
 
-        //just put something mock in there for now
-        jpaPayment.setAuthnetTransactionId(AuthCodeGenerator.generate());
-
+        jpaPayment.setAuthnetTransactionId(authnetTransactionId);
+        jpaPayment.setTransactionDatetime(transactionDatetime);
         return jpaPayment;
     }
 	
@@ -57,6 +58,7 @@ public class Payment implements Serializable
 		payment.id = jpaPayment.getId();
 		payment.registrationId = jpaPayment.getRegistrationId();
 		payment.amount = jpaPayment.getAmount();
+
 		payment.creditCardExpirationMonth = jpaPayment.getCreditCardExpirationMonth();
 		payment.creditCardExpirationYear = jpaPayment.getCreditCardExpirationYear();
 		payment.creditCardNameOnCard = jpaPayment.getCreditCardNameOnCard();
@@ -68,88 +70,56 @@ public class Payment implements Serializable
 				
 		return payment;
 	}
-	
-    public UUID getId()
-    {
-        return id;
-    }
 
-    public void setId(UUID id)
-    {
-        this.id = id;
-    }
+	public UUID getId()
+	{
+		return id;
+	}
 
-    public UUID getRegistrationId()
-    {
-        return registrationId;
-    }
+	public void setId(UUID id)
+	{
+		this.id = id;
+	}
 
-    public void setRegistrationId(UUID registrationId)
-    {
-        this.registrationId = registrationId;
-    }
+	public UUID getRegistrationId()
+	{
+		return registrationId;
+	}
 
-    public String getCreditCardNameOnCard()
-    {
-        return creditCardNameOnCard;
-    }
+	public void setRegistrationId(UUID registrationId)
+	{
+		this.registrationId = registrationId;
+	}
 
-    public void setCreditCardNameOnCard(String creditCardNameOnCard)
-    {
-        this.creditCardNameOnCard = creditCardNameOnCard;
-    }
+	public String getCreditCardNameOnCard()
+	{
+		return creditCardNameOnCard;
+	}
 
-    public String getCreditCardExpirationMonth()
-    {
-        return creditCardExpirationMonth;
-    }
+	public void setCreditCardNameOnCard(String creditCardNameOnCard)
+	{
+		this.creditCardNameOnCard = creditCardNameOnCard;
+	}
 
-    public void setCreditCardExpirationMonth(String creditCardExpirationMonth)
-    {
-        this.creditCardExpirationMonth = creditCardExpirationMonth;
-    }
+	public String getCreditCardExpirationMonth()
+	{
+		return creditCardExpirationMonth;
+	}
 
-    public String getCreditCardExpirationYear()
-    {
-        return creditCardExpirationYear;
-    }
+	public void setCreditCardExpirationMonth(String creditCardExpirationMonth)
+	{
+		this.creditCardExpirationMonth = creditCardExpirationMonth;
+	}
 
-    public void setCreditCardExpirationYear(String creditCardExpirationYear)
-    {
-        this.creditCardExpirationYear = creditCardExpirationYear;
-    }
+	public String getCreditCardExpirationYear()
+	{
+		return creditCardExpirationYear;
+	}
 
-    public String getCreditCardNumber()
-    {
-        return creditCardNumber;
-    }
-
-    public void setCreditCardNumber(String creditCardNumber)
-    {
-        this.creditCardNumber = creditCardNumber;
-    }
-
-    public BigDecimal getAmount()
-    {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount)
-    {
-        this.amount = amount;
-    }
-
-    @JsonSerialize(using=JsonStandardDateTimeSerializer.class)
-    public DateTime getTransactionDatetime()
-    {
-        return transactionDatetime;
-    }
-
-    @JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
-    public void setTransactionDatetime(DateTime transactionDatetime)
-    {
-        this.transactionDatetime = transactionDatetime;
-    }
+	public void setCreditCardExpirationYear(String creditCardExpirationYear)
+	{
+		this.creditCardExpirationYear = creditCardExpirationYear;
+	}
 
 	public String getCreditCardLastFourDigits()
 	{
@@ -161,13 +131,66 @@ public class Payment implements Serializable
 		this.creditCardLastFourDigits = creditCardLastFourDigits;
 	}
 
-	public String getAuthnetTransactionId()
+	public String getCreditCardCVVNumber()
+	{
+		return creditCardCVVNumber;
+	}
+
+	public void setCreditCardCVVNumber(String creditCardCVVNumber)
+	{
+		this.creditCardCVVNumber = creditCardCVVNumber;
+	}
+
+	public Long getAuthnetTransactionId()
 	{
 		return authnetTransactionId;
 	}
 
-	public void setAuthnetTransactionId(String authnetTransactionId)
+	public void setAuthnetTransactionId(Long authnetTransactionId)
 	{
 		this.authnetTransactionId = authnetTransactionId;
 	}
+
+	public String getCreditCardNumber()
+	{
+		return creditCardNumber;
+	}
+
+	public void setCreditCardNumber(String creditCardNumber)
+	{
+		this.creditCardNumber = creditCardNumber;
+	}
+
+	public BigDecimal getAmount()
+	{
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount)
+	{
+		this.amount = amount;
+	}
+
+    @JsonSerialize(using=JsonStandardDateTimeSerializer.class)
+	public DateTime getTransactionDatetime()
+	{
+		return transactionDatetime;
+	}
+
+    @JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
+	public void setTransactionDatetime(DateTime transactionDatetime)
+	{
+		this.transactionDatetime = transactionDatetime;
+	}
+
+	public boolean isReadyToProcess()
+	{
+		return readyToProcess;
+	}
+
+	public void setReadyToProcess(boolean readyToProcess)
+	{
+		this.readyToProcess = readyToProcess;
+	}
+    
 }

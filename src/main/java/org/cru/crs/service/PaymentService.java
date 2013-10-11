@@ -2,15 +2,18 @@ package org.cru.crs.service;
 
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.model.RegistrationEntity;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import com.google.common.base.Preconditions;
+
 
 public class PaymentService
 {
@@ -22,18 +25,28 @@ public class PaymentService
         this.em = em;
     }
 
-    public PaymentEntity fetchPaymentBy(UUID id)
+    public PaymentEntity fetchPaymentBy(UUID id, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
     {
-        return em.find(PaymentEntity.class, id);
+        PaymentEntity payment = em.find(PaymentEntity.class, id);
+        if(payment != null)
+        {
+        	ensureUserHasPermissionsForPayment(crsLoggedInUser, payment);
+        }
+        
+        return payment;
     }
 
-    public void createPaymentRecord(PaymentEntity payment)
+    public void createPaymentRecord(PaymentEntity payment, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
     {
+    	Preconditions.checkNotNull(payment.getRegistrationId());
+    	ensureUserHasPermissionsForPayment(crsLoggedInUser, payment);
         em.persist(payment);
     }
     
-    public void updatePayment(PaymentEntity payment)
+    public void updatePayment(PaymentEntity payment, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
     {
+    	Preconditions.checkNotNull(payment.getRegistrationId());
+    	ensureUserHasPermissionsForPayment(crsLoggedInUser, payment);
     	em.merge(payment);
     }
     
@@ -43,9 +56,13 @@ public class PaymentService
                 .setParameter("registrationId", registrationId)
                 .getResultList();
     }
-
-    public Set<PaymentEntity> fetchPaymentsForConference(UUID conferenceId)
-    {
-        throw new NotImplementedException();
-    }
+    
+	private void ensureUserHasPermissionsForPayment(CrsApplicationUser crsLoggedInUser, PaymentEntity payment) throws UnauthorizedException
+	{
+		RegistrationEntity registrationForCurrentPayment = em.find(RegistrationEntity.class, payment.getRegistrationId());
+		if(!registrationForCurrentPayment.getUserId().equals(crsLoggedInUser.getId()))
+		{
+			throw new UnauthorizedException();
+		}
+	}
 }

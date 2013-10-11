@@ -22,12 +22,12 @@ public class PaymentEntity implements Serializable
     @Type(type="pg-uuid")
     private UUID id;
 
-    @Column(name = "REGISTRATION_ID")
+    @Column(name = "REGISTRATION_ID", insertable = false, updatable = false)
     @Type(type="pg-uuid")
     private UUID registrationId;
 
     @Column(name = "AUTHNET_TRANSACTION_ID")
-    private String authnetTransactionId;
+    private Long authnetTransactionId;
 
     @Column(name = "CC_NAME_ON_CARD")
     private String creditCardNameOnCard;
@@ -53,9 +53,10 @@ public class PaymentEntity implements Serializable
         return id;
     }
 
-    public void setId(UUID id)
+    public PaymentEntity setId(UUID id)
     {
         this.id = id;
+        return this;
     }
 
     public UUID getRegistrationId()
@@ -68,12 +69,12 @@ public class PaymentEntity implements Serializable
         this.registrationId = registrationId;
     }
 
-    public String getAuthnetTransactionId()
+    public Long getAuthnetTransactionId()
     {
         return authnetTransactionId;
     }
 
-    public void setAuthnetTransactionId(String authnetTransactionId)
+    public void setAuthnetTransactionId(Long authnetTransactionId)
     {
         this.authnetTransactionId = authnetTransactionId;
     }

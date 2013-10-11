@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -21,7 +22,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.auth.CrsUserService;
@@ -30,6 +33,7 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.payment.authnet.AuthnetPaymentProcess;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
@@ -45,7 +49,10 @@ public class RegistrationResource
 	@Inject ConferenceService conferenceService;
 	@Inject CrsUserService userService;
     @Inject PaymentService paymentService;
-
+    @Inject Clock clock; 
+    
+    @Inject AuthnetPaymentProcess paymentProcess;
+    
 	@Context HttpServletRequest request;
 
 	private Logger logger = Logger.getLogger(RegistrationResource.class);
@@ -70,8 +77,6 @@ public class RegistrationResource
 			Simply.logObject(Registration.fromJpa(requestedRegistration), RegistrationResource.class);
 
 			Registration registration = Registration.fromJpa(requestedRegistration);
-
-			registration.addAllPayments(paymentService.fetchPaymentsForRegistration(registration.getId()));
 			
 			logger.info("get registration");
 			Simply.logObject(registration, RegistrationResource.class);
@@ -94,48 +99,64 @@ public class RegistrationResource
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
+			{
 				return Response.status(Status.BAD_REQUEST).build();
-
+			}
+			
 			if(registration.getId() == null || registrationId == null)
+			{
 				return Response.status(Status.BAD_REQUEST).build();
-
+			}
+			
 			logger.info("update registration");
 			Simply.logObject(registration, RegistrationResource.class);
 
 			ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(registration.getConferenceId());
 
 			if(conferenceEntity == null)
-				return Response.status(Status.BAD_REQUEST).build();
-
-			RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
-
-			// create the entity if none exists
-			if(currentRegistrationEntity == null)
 			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+			
+			boolean createdNewRegistration = false;
+			// create the entity if none exists
+			if(registrationService.getRegistrationBy(registrationId, crsLoggedInUser) == null)
+			{
+				createdNewRegistration = true;
+				
 				RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
 				logger.info("update registration creating");
-				Simply.logObject(registrationEntity, RegistrationResource.class);
 
 				registrationService.createNewRegistration(registrationEntity, crsLoggedInUser);
 
+
+			}
+			else
+			{
+				registrationService.updateRegistration(registration.toJpaRegistrationEntity(conferenceEntity), crsLoggedInUser);
+			}
+			
+			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
+			{	
+				try
+				{
+					processPayment(registration.getCurrentPayment(), crsLoggedInUser);
+				}
+				catch(IOException e)
+				{
+					return Response.status(502).build();
+				}
+			}
+
+			if(createdNewRegistration)
+			{
 				return Response.status(Status.CREATED)
 						.location(new URI("/registrations/" + registration.getId()))
 						.entity(registration)
 						.build();
 			}
-
-			logger.info("update current registration entity");
-			Simply.logObject(Registration.fromJpa(currentRegistrationEntity), RegistrationResource.class);
-
-			RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
-
-			logger.info("update registration entity");
-			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
-
-			registrationService.updateRegistration(registrationEntity, crsLoggedInUser);
-
-			return Response.noContent().build();
+			else return Response.noContent().build();
 		}
 		catch(UnauthorizedException e)
 		{
@@ -153,8 +174,9 @@ public class RegistrationResource
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
 
 			if(registrationEntity == null)
+			{
 				return Response.status(Status.BAD_REQUEST).build();
-
+			}
 			logger.info("delete registration entity");
 			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
 
@@ -213,66 +235,44 @@ public class RegistrationResource
 	@Produces(MediaType.APPLICATION_JSON)
     public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
-		PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
-		
-		if(paymentEntity == null)
+		try
 		{
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		
-        Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
+			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-        return Response.ok(Payment.fromJpa(paymentEntity)).build();
+			PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId, crsLoggedInUser);
+
+			if(paymentEntity == null)
+			{
+				return Response.status(Status.NOT_FOUND).build();
+			}
+
+			Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
+
+			return Response.ok(Payment.fromJpa(paymentEntity)).build();
+		}
+		catch(UnauthorizedException e)
+    	{
+    		return Response.status(Status.UNAUTHORIZED).build();
+    	}
     }
 	
-    @POST
-    @Path("/payment")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response postPayment(Payment payment, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    private void processPayment(Payment payment, CrsApplicationUser loggedInUser) throws IOException, UnauthorizedException
     {
-        Simply.logObject(payment, RegistrationResource.class);
+    	if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
+    	{
+    		ConferenceEntity jpaConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId(), 
+    																					loggedInUser).getConference().getId());
+    		
+    		Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromJpa(jpaConference), payment);
 
-        if(payment.getId() == null)
-        {
-            payment.setId(UUID.randomUUID());
-        }
-        
-        payment.setRegistrationId(registrationId);
-        paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+    		payment.setAuthnetTransactionId(transactionId);
+    		payment.setTransactionDatetime(clock.currentDateTime());
 
-        return Response.status(Status.CREATED)
-        				.location(new URI("/registrations/" + registrationId + "/payment/" + payment.getId()))
-        				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId())))
-        				.build();
-    }
-    
-    @PUT
-    @Path("/payment/{paymentId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response updatePayment(Payment payment, @PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
-    {
-        Simply.logObject(payment, this.getClass());
-
-        if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
-        {
-        	return Response.status(Status.BAD_REQUEST).build();
-        }
-        
-        if(paymentId == null)
-        {
-        	payment.setId(UUID.randomUUID());
-        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
-        }
-        else if(paymentService.fetchPaymentBy(paymentId) == null)
-        {
-        	paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
-        }
-        else
-        {
-        	paymentService.updatePayment(payment.toJpaPaymentEntity());
-        }
-        return Response.noContent().build();
+    		paymentService.updatePayment(payment.toJpaPaymentEntity(), loggedInUser);
+    	}
+    	else
+    	{
+    		
+    	}
     }
 }
