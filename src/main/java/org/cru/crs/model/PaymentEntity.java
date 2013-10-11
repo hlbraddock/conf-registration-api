@@ -22,7 +22,7 @@ public class PaymentEntity implements Serializable
     @Type(type="pg-uuid")
     private UUID id;
 
-    @Column(name = "REGISTRATION_ID")
+    @Column(name = "REGISTRATION_ID", insertable = false, updatable = false)
     @Type(type="pg-uuid")
     private UUID registrationId;
 

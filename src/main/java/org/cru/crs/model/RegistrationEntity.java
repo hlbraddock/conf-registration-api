@@ -38,6 +38,10 @@ public class RegistrationEntity implements java.io.Serializable
 	@JoinColumn(name = "REGISTRATION_ID", nullable = false)
 	private Set<AnswerEntity> answers;
 
+    @OneToMany(fetch = FetchType.EAGER, orphanRemoval=false)
+    @JoinColumn(name = "REGISTRATION_ID")
+    private Set<PaymentEntity> payments; 
+    
     @Column(name = "COMPLETED")
     private Boolean completed;
 
