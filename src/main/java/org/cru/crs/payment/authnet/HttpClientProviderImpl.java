@@ -1,18 +1,24 @@
 package org.cru.crs.payment.authnet;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-
-import javax.inject.Inject;
+import java.util.Scanner;
 
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.jboss.logging.Logger;
 
 import com.google.common.base.Preconditions;
@@ -22,40 +28,48 @@ public class HttpClientProviderImpl implements HttpProvider
 	Logger log = Logger.getLogger(this.getClass());
 	
 	private int retries = 3;
-	private HttpClient httpClient;
-	
-	@Inject 
-	public HttpClientProviderImpl(HttpClient httpClient)
-	{
-		this.httpClient = httpClient;
-	}
+	private CloseableHttpClient httpClient = HttpClients.createDefault();
 	
 	public String getContentFromGet(String url) throws IOException
 	{
-		HttpMethod method = new GetMethod(url);
-		return getContent(method);
+		return getContent(new HttpGet(url));
 	}
 
-	// adapted from httpClient tutorial
-	public String getContent(HttpMethod method) throws IOException
+	public String getContentFromPost(String url, Map<String, String> parameters) throws IOException
 	{
-		Preconditions.checkNotNull(httpClient, "httpClient was null");
-
-		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+		HttpPost post = new HttpPost(url);
+		List<NameValuePair> postParams = new ArrayList<NameValuePair>();
+		for (String key : parameters.keySet())
+		{
+			Preconditions.checkNotNull(parameters.get(key), "parameter referenced by: " + key + " was null");
+			postParams.add(new BasicNameValuePair(key, parameters.get(key)));
+		}
+		
+		post.setEntity(new UrlEncodedFormEntity(postParams));
+		
+		return getContent(post);
+	}
+	
+	// adapted from httpClient tutorial
+	public String getContent(HttpRequestBase requestBase) throws IOException
+	{
+		CloseableHttpResponse response = null;
+		String content = null;
+		
+		requestBase.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
 				new DefaultHttpMethodRetryHandler(retries, false));
 
-		String content = null;
 		try
 		{
 			// Execute the method.
-			int statusCode = httpClient.executeMethod(method);
+			response = httpClient.execute(requestBase);
 
-			if (statusCode != HttpStatus.SC_OK)
+			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 			{
-				log.warn("Method failed: #0" + method.getStatusLine());
-				
+				log.warn("Method failed: #0" + response.getStatusLine());
+
 			}
-			content = method.getResponseBodyAsString();
+			content = new Scanner(response.getEntity().getContent()).useDelimiter("\\A").next();
 
 		}
 		catch (HttpException e)
@@ -70,59 +84,9 @@ public class HttpClientProviderImpl implements HttpProvider
 		}
 		finally
 		{
-			method.releaseConnection();
+			response.close();
+			httpClient.close();
 		}
 		return content;
 	}
-
-	public String getContentFromPost(String url, Map<String, String> parameters) throws IOException
-	{
-		PostMethod method = new PostMethod(url);
-		for (String key : parameters.keySet())
-		{
-			Preconditions.checkNotNull(parameters.get(key), "parameter referenced by: " + key + " was null");
-			method.addParameter(key, parameters.get(key));
-		}
-		
-		String content = getContent(method);
-		if (method.getStatusCode() != HttpStatus.SC_OK)
-		{
-			return null;
-		}
-		else
-		{
-			return content;
-		}
-	}
-
-	public HttpClient getHttpClient()
-	{
-		return httpClient;
-	}
-
-	public void setHttpClient(HttpClient client)
-	{
-		this.httpClient = client;
-	}
-
-	public Logger getLog()
-	{
-		return log;
-	}
-
-	public void setLog(Logger log)
-	{
-		this.log = log;
-	}
-
-	public int getRetries()
-	{
-		return retries;
-	}
-
-	public void setRetries(int retries)
-	{
-		this.retries = retries;
-	}
-
 }
