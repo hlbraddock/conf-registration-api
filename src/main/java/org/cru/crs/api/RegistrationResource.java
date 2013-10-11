@@ -131,16 +131,6 @@ public class RegistrationResource
 
 				registrationService.createNewRegistration(registrationEntity, crsLoggedInUser);
 
-				try
-				{
-					processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity),crsLoggedInUser);
-				}
-				catch(IOException ioe)
-				{
-					logger.error("error hitting auth.net API", ioe);
-					return Response.status(502).build();
-				}
-				
 				return Response.status(Status.CREATED)
 						.location(new URI("/registrations/" + registration.getId()))
 						.entity(registration)
@@ -150,16 +140,6 @@ public class RegistrationResource
 			currentRegistrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
 
 			registrationService.updateRegistration(currentRegistrationEntity, crsLoggedInUser);
-
-			try
-			{
-				processPaymentsIfNecessary(registration,Conference.fromJpa(conferenceEntity), crsLoggedInUser);
-			}
-			catch(IOException ioe)
-			{
-				logger.error("error hitting auth.net API", ioe);
-				return Response.status(502).build();
-			}
 
 			return Response.noContent().build();
 		}
@@ -289,6 +269,7 @@ public class RegistrationResource
     	{
     		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
+    		//TODO: no! payments should not be logged b/c they have a raw CC number and CCV code in them.  only for DEV work
     		Simply.logObject(payment, RegistrationResource.class);
 
     		if(payment.getId() == null)
@@ -320,6 +301,7 @@ public class RegistrationResource
     	{
     		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
+    		//TODO: no! payments should not be logged b/c they have a raw CC number and CCV code in them.  only for DEV work
     		Simply.logObject(payment, this.getClass());
 
     		if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
