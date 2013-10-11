@@ -3,7 +3,7 @@ DROP TABLE payments CASCADE;
 CREATE TABLE payments (
   id uuid NOT NULL PRIMARY KEY,
   registration_id uuid references registrations(id),
-  authnet_transaction_id text,
+  authnet_transaction_id bigint,
   cc_name_on_card text,
   cc_expiration_month text,
   cc_expiration_year varchar(4),
