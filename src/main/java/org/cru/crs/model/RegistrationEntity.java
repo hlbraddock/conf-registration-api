@@ -94,4 +94,14 @@ public class RegistrationEntity implements java.io.Serializable
     {
         this.completed = completed;
     }
+
+	public Set<PaymentEntity> getPayments()
+	{
+		return payments;
+	}
+
+	public void setPayments(Set<PaymentEntity> payments)
+	{
+		this.payments = payments;
+	}
 }
