@@ -49,32 +49,20 @@ public class HttpClientProviderImpl implements HttpProvider
 	// adapted from httpClient tutorial
 	public String getContent(HttpRequestBase requestBase) throws IOException
 	{
-		CloseableHttpResponse response = null;
 		String content = null;
 
-		try
+		// Execute the method.
+		CloseableHttpResponse response = httpClient.execute(requestBase);
+
+		if (response.getStatusLine().getStatusCode() != 200)
 		{
-			// Execute the method.
-			response = httpClient.execute(requestBase);
-
-			if (response.getStatusLine().getStatusCode() != 200)
-			{
-				log.warn("Method failed: #0" + response.getStatusLine());
-
-			}
-			content = new Scanner(response.getEntity().getContent()).useDelimiter("\\A").next();
+			log.warn("Method failed: #0" + response.getStatusLine());
 
 		}
-		catch (IOException e)
-		{
-			log.warn("Fatal transport error getting content");
-			throw e;
-		}
-		finally
-		{
-			response.close();
-			httpClient.close();
-		}
+		content = new Scanner(response.getEntity().getContent()).useDelimiter("\\A").next();
+
+		response.close();
+
 		return content;
 	}
 }
