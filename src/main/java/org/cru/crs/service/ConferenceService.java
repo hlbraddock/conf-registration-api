@@ -23,7 +23,7 @@ public class ConferenceService
 	public ConferenceService(EntityManager em, UserService userService, AnswerService answerService)
 	{
 		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
-		this.sql.setDefaultColumnMappings(ConferenceEntity.columnMappings);
+		this.sql.setDefaultColumnMappings(ConferenceEntity.getColumnMappings());
 		
 		this.pageService = new PageService(null, this, answerService);
         this.userService = userService;
@@ -54,7 +54,30 @@ public class ConferenceService
 
         newConference = setInitialContactPersonDetailsBasedOn(crsLoggedInUser, newConference);
 
-//		sql.insert...
+        sql.createQuery("INSERT INTO conference_costs(id) VALUES (:id)", false)
+        		.addParameter("id", newConference.getId())
+        		.executeUpdate();
+        
+        sql.createQuery(ConferenceEntity.insertSyntax, false)
+        		.addParameter("id", newConference.getId())
+        		.addParameter("name", newConference.getName())
+        		.addParameter("description", newConference.getDescription())
+        		.addParameter("totalSlots", newConference.getTotalSlots())
+        		.addParameter("conferenceCostsId", newConference.getConferenceCostsId())
+        		.addParameter("eventStartTime", newConference.getEventStartTime())
+        		.addParameter("eventEndTime", newConference.getEventEndTime())
+        		.addParameter("registrationStartTime", newConference.getRegistrationStartTime())
+        		.addParameter("registrationEndTime", newConference.getRegistrationEndTime())
+        		.addParameter("contactPersonId", newConference.getContactPersonId())
+        		.addParameter("contactPersonName", newConference.getContactPersonName())
+        		.addParameter("contactPersonEmail", newConference.getContactPersonEmail())
+        		.addParameter("contactPersonPhone", newConference.getContactPersonPhone())
+        		.addParameter("locationName", newConference.getLocationName())
+        		.addParameter("locationAddress", newConference.getLocationAddress())
+        		.addParameter("locationCity", newConference.getLocationCity())
+        		.addParameter("locationState", newConference.getLocationState())
+        		.addParameter("locationZipCode", newConference.getLocationZipCode())
+        		.executeUpdate();
 	}
 
     private ConferenceEntity setInitialContactPersonDetailsBasedOn(CrsApplicationUser crsLoggedInUser, ConferenceEntity newConference)

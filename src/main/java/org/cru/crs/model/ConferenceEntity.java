@@ -1,9 +1,11 @@
 package org.cru.crs.model;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.cru.crs.utils.CamelCase;
 import org.joda.time.DateTime;
 
 /**
@@ -16,28 +18,6 @@ import org.joda.time.DateTime;
 public class ConferenceEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
-
-	public static Map<String,String> columnMappings;
-	
-	static
-	{
-		columnMappings = new HashMap<String,String>();
-		columnMappings.put("CONFERENCE_COSTS_ID", "conferenceCostsId");
-		columnMappings.put("EVENT_START_TIME", "eventStartTime");
-		columnMappings.put("EVENT_END_TIME", "eventEndTime");
-		columnMappings.put("REGISTRATION_START_TIME", "registrationStartTime");
-		columnMappings.put("REGISTRATION_END_TIME", "registrationEndTime");
-		columnMappings.put("TOTAL_SLOTS", "totalSlots");
-		columnMappings.put("CONTACT_PERSON_ID", "contactPersonId");
-		columnMappings.put("CONTACT_PERSON_NAME", "contactPersonName");
-		columnMappings.put("CONTACT_PERSON_EMAIL", "contactPersonEmail");
-		columnMappings.put("CONTACT_PERSON_PHONE", "contactPersonPhone");
-		columnMappings.put("LOCATION_NAME", "locationName");
-		columnMappings.put("LOCATION_ADDRESS", "locationAddress");
-		columnMappings.put("LOCATION_CITY", "locationCity");
-		columnMappings.put("LOCATION_STATE", "locationState");
-		columnMappings.put("LOCATION_ZIP_CODE", "locationZipCode");
-	}
 	
 	private UUID id;
 	private UUID conferenceCostsId;
@@ -62,6 +42,19 @@ public class ConferenceEntity implements java.io.Serializable
     private String locationState;
     private String locationZipCode;
     
+	public static Map<String,String> getColumnMappings()
+	{
+		if(columnMappings == null)
+		{
+			columnMappings = new HashMap<String,String>();
+			for(Field f : ConferenceEntity.class.getDeclaredFields())
+			{
+				columnMappings.put(CamelCase.toUnderscore(f.getName()), f.getName());
+			}
+		}
+		return columnMappings;
+	}
+	
 	public UUID getId()
 	{
 		return id;
