@@ -1,38 +1,29 @@
 package org.cru.crs.model;
 
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-@Entity
-@Table(name = "SESSIONS")
+import org.joda.time.DateTime;
+
+
 public class SessionEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	@Column(name = "ID")
-	@Type(type="pg-uuid")
+	public static Map<String,String> columnMappings;
+	
+	static
+	{
+		columnMappings = new HashMap<String,String>();
+		columnMappings.put("AUTH_PROVIDER_ID", "authProviderId");
+		columnMappings.put("AUTH_CODE", "authCode");
+	}
+	
 	private UUID id;
-
-	@Column(name = "AUTH_CODE")
-	@Type(type = "text")
+	private UUID authProviderId;
 	private String authCode;
-
-	@Column(name = "EXPIRATION")
-	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	DateTime expiration;
-
-	@ManyToOne()
-	@JoinColumn(name = "AUTH_PROVIDER_ID", nullable = false, updatable = false)
-	private AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity;
 
 	public UUID getId()
 	{
@@ -64,13 +55,11 @@ public class SessionEntity implements java.io.Serializable
 		this.expiration = expiration;
 	}
 
-	public AuthenticationProviderIdentityEntity getAuthenticationProviderIdentityEntity()
-	{
-		return authenticationProviderIdentityEntity;
+	public UUID getAuthProviderId() {
+		return authProviderId;
 	}
 
-	public void setAuthenticationProviderIdentityEntity(AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity)
-	{
-		this.authenticationProviderIdentityEntity = authenticationProviderIdentityEntity;
+	public void setAuthProviderId(UUID authProviderId) {
+		this.authProviderId = authProviderId;
 	}
 }

@@ -1,50 +1,44 @@
 package org.cru.crs.service;
 
-import org.cru.crs.model.SessionEntity;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import java.util.List;
+
+import org.cru.crs.model.SessionEntity;
+import org.sql2o.Sql2o;
 
 public class SessionService
 {
-	EntityManager entityManager;
 
+	Sql2o sql;
+	
 	@Inject
 	public SessionService(EntityManager entityManager)
 	{
-		this.entityManager = entityManager;
+		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql.setDefaultColumnMappings(SessionEntity.columnMappings);
 	}
 
 	public SessionEntity getSessionByAuthCode(String authCode)
 	{
-		try
-		{
-			return entityManager.createQuery("SELECT session FROM SessionEntity session " +
-					"WHERE session.authCode = :authCode", SessionEntity.class)
-					.setParameter("authCode", authCode)
-					.getSingleResult();
-		}
-		catch(NoResultException nre)
-		{
-			/* silly JPA, this is no reason to throw an exception and make calling code handle it. it just means there is no
-			 * record matching my criteria. it's the same as asking a yes/no question and throwing an exception when the answer
-			 * is 'no'.  okay, i'll get off my soapbox now, but really.... */
-			return null;
-		}
+		return sql.createQuery("SELECT * FROM sessions WHERE auth_code = :authCode", false)
+					.addParameter("authCode", authCode)
+					.executeAndFetchFirst(SessionEntity.class);
 	}
 
-	public List<SessionEntity> fetchSessionsByUserAuthProviderId(String	 userAuthProviderId)
+	public List<SessionEntity> fetchSessionsByUserAuthProviderId(String	userAuthProviderId)
 	{
-		return entityManager.createQuery("SELECT session FROM SessionEntity session " +
-				"WHERE session.authenticationProviderIdentityEntity.userAuthProviderId = :userAuthProviderId", SessionEntity.class)
-				.setParameter("userAuthProviderId", userAuthProviderId)
-				.getResultList();
+		return null;
 	}
 
 	public void create(SessionEntity sessionEntity)
 	{
-		entityManager.persist(sessionEntity);
+		sql.createQuery("INSERT INTO sessions(id, auth_provider_id, auth_code, expiration) VALUES(:id, :authProviderId, :authCode, :expiration)", false)
+					.addParameter("id", sessionEntity.getId())
+					.addParameter("authProviderId", sessionEntity.getAuthProviderId())
+					.addParameter("authCode", sessionEntity.getAuthCode())
+					.addParameter("expiration", sessionEntity.getExpiration())
+					.executeUpdate();
 	}
 }

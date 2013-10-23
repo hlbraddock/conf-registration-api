@@ -36,21 +36,21 @@ public class Registration implements java.io.Serializable
 		
 		webRegistration.id = jpaRegistration.getId();
         webRegistration.userId = jpaRegistration.getUserId();
-		webRegistration.conferenceId = jpaRegistration.getConference().getId();
-        webRegistration.answers = Answer.fromJpa(jpaRegistration.getAnswers());
+//		webRegistration.conferenceId = jpaRegistration.getConference().getId();
+//        webRegistration.answers = Answer.fromJpa(jpaRegistration.getAnswers());
         webRegistration.completed = jpaRegistration.getCompleted();
         
-        for(PaymentEntity jpaPayment : jpaRegistration.getPayments())
-        {
-        	if(jpaPayment.getTransactionDatetime() == null || jpaPayment.getAuthnetTransactionId() == null)
-        	{
-        		webRegistration.currentPayment = Payment.fromJpa(jpaPayment);
-        	}
-        	else
-        	{
-        		webRegistration.pastPayments.add(Payment.fromJpa(jpaPayment));
-        	}
-        }
+//        for(PaymentEntity jpaPayment : jpaRegistration.getPayments())
+//        {
+//        	if(jpaPayment.getTransactionDatetime() == null || jpaPayment.getAuthnetTransactionId() == null)
+//        	{
+//        		webRegistration.currentPayment = Payment.fromJpa(jpaPayment);
+//        	}
+//        	else
+//        	{
+//        		webRegistration.pastPayments.add(Payment.fromJpa(jpaPayment));
+//        	}
+//        }
         
         return webRegistration;
 	}
@@ -73,21 +73,21 @@ public class Registration implements java.io.Serializable
 		
 		jpaRegistration.setId(id);
 		jpaRegistration.setUserId(userId);
-        jpaRegistration.setConference(conferenceEntity);
+//        jpaRegistration.setConference(conferenceEntity);
         jpaRegistration.setCompleted(completed);
 
-        jpaRegistration.setAnswers(new HashSet<AnswerEntity>());
-        for (Answer answer : getAnswers())
-        {
-            jpaRegistration.getAnswers().add(answer.toJpaAnswerEntity());
-        }
+//        jpaRegistration.setAnswers(new HashSet<AnswerEntity>());
+//        for (Answer answer : getAnswers())
+//        {
+//            jpaRegistration.getAnswers().add(answer.toJpaAnswerEntity());
+//        }
         
-        for(Payment payment : pastPayments)
-        {
-        	jpaRegistration.getPayments().add(payment.toJpaPaymentEntity());
-        }
+//        for(Payment payment : pastPayments)
+//        {
+//        	jpaRegistration.getPayments().add(payment.toJpaPaymentEntity());
+//        }
         
-        if(currentPayment != null) jpaRegistration.getPayments().add(currentPayment.toJpaPaymentEntity());
+//        if(currentPayment != null) jpaRegistration.getPayments().add(currentPayment.toJpaPaymentEntity());
         
 		return jpaRegistration;
 	}

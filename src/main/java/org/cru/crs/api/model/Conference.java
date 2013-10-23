@@ -11,7 +11,6 @@ import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.PageEntity;
 import org.joda.time.DateTime;
 
 public class Conference implements java.io.Serializable
@@ -67,7 +66,7 @@ public class Conference implements java.io.Serializable
 		jpaConference.setRegistrationStartTime(registrationStartTime);
 		jpaConference.setRegistrationEndTime(registrationEndTime);
 		jpaConference.setTotalSlots(totalSlots);
-		jpaConference.setContactUser(contactUser);
+		jpaConference.setContactPersonId(contactUser);
         jpaConference.setContactPersonName(contactPersonName);
         jpaConference.setContactPersonEmail(contactPersonEmail);
         jpaConference.setContactPersonPhone(contactPersonPhone);
@@ -89,18 +88,8 @@ public class Conference implements java.io.Serializable
 		jpaConferenceCosts.setEarlyRegistrationCutoff(earlyRegistrationCutoff);
 		jpaConferenceCosts.setEarlyRegistrationDiscount(earlyRegistrationDiscount);
 
-		jpaConference.setConferenceCosts(jpaConferenceCosts);
+		jpaConference.setConferenceCostsId(jpaConferenceCosts.getId());
 
-		jpaConference.setPages(new ArrayList<PageEntity>());
-
-		if(registrationPages != null)
-		{
-			for(Page page : registrationPages)
-
-			{
-				jpaConference.getPages().add(page.toJpaPageEntity());
-			}
-		}
 		return jpaConference;
 	}
 	
@@ -121,7 +110,7 @@ public class Conference implements java.io.Serializable
 		webConference.registrationStartTime = jpaConference.getRegistrationStartTime();
 		webConference.registrationEndTime = jpaConference.getRegistrationEndTime();
 		webConference.totalSlots = jpaConference.getTotalSlots();
-		webConference.contactUser = jpaConference.getContactUser();
+		webConference.contactUser = jpaConference.getContactPersonId();
         webConference.contactPersonName = jpaConference.getContactPersonName();
         webConference.contactPersonEmail = jpaConference.getContactPersonEmail();
         webConference.contactPersonPhone = jpaConference.getContactPersonPhone();
@@ -132,16 +121,16 @@ public class Conference implements java.io.Serializable
         webConference.locationState = jpaConference.getLocationState();
         webConference.locationZipCode = jpaConference.getLocationZipCode();
 
-        if(jpaConference.getConferenceCosts() != null)
+        if(jpaConference.getConferenceCostsId() != null)
         {
-            webConference.authnetId = jpaConference.getConferenceCosts().getAuthnetId();
-            /*don't expose the authnet token back out to the Client!*/
-            webConference.acceptCreditCards = jpaConference.getConferenceCosts().isAcceptCreditCards();
-            webConference.conferenceCost = jpaConference.getConferenceCosts().getConferenceBaseCost();
-            webConference.minimumDeposit = jpaConference.getConferenceCosts().getMinimumDeposit();
-            webConference.earlyRegistrationAmount = jpaConference.getConferenceCosts().getEarlyRegistrationAmount();
-            webConference.earlyRegistrationCutoff = jpaConference.getConferenceCosts().getEarlyRegistrationCutoff();
-            webConference.earlyRegistrationDiscount = jpaConference.getConferenceCosts().isEarlyRegistrationDiscount();
+//            webConference.authnetId = jpaConference.getConferenceCosts().getAuthnetId();
+//            /*don't expose the authnet token back out to the Client!*/
+//            webConference.acceptCreditCards = jpaConference.getConferenceCosts().isAcceptCreditCards();
+//            webConference.conferenceCost = jpaConference.getConferenceCosts().getConferenceBaseCost();
+//            webConference.minimumDeposit = jpaConference.getConferenceCosts().getMinimumDeposit();
+//            webConference.earlyRegistrationAmount = jpaConference.getConferenceCosts().getEarlyRegistrationAmount();
+//            webConference.earlyRegistrationCutoff = jpaConference.getConferenceCosts().getEarlyRegistrationCutoff();
+//            webConference.earlyRegistrationDiscount = jpaConference.getConferenceCosts().isEarlyRegistrationDiscount();
         }
 		return webConference;
 	}
@@ -150,7 +139,7 @@ public class Conference implements java.io.Serializable
 	{
 		Conference webConference = fromJpa(jpaConference);
 		
-		webConference.registrationPages = Page.fromJpa(jpaConference.getPages());
+//		webConference.registrationPages = Page.fromJpa(jpaConference.getPages());
 		
 		return webConference;
 	}

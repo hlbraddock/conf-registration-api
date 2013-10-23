@@ -247,7 +247,7 @@ public class PageResourceFunctionalTest
 		setupEm.getTransaction().begin();
 
 		ConferenceEntity conference = setupEm.find(ConferenceEntity.class, UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
-		conference.getPages().add(jpaPage);
+//		conference.getPages().add(jpaPage);
 		setupEm.flush();
 		setupEm.getTransaction().commit();
 		
@@ -278,7 +278,7 @@ public class PageResourceFunctionalTest
 		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"));
 		fakePage.setConferenceId(UUID.fromString("1951613e-a253-1af8-6bc4-c9f1d0b3fa60"));
 		fakePage.setPosition(7);
-		fakePage.setBlocks(null);
+//		fakePage.setBlocks(null);
 		
 		return fakePage;
 	}

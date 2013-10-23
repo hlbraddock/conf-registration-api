@@ -24,7 +24,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
-import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.auth.CrsUserService;
@@ -220,7 +219,8 @@ public class RegistrationResource
 			logger.info("create answer with registration entity");
 			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
 
-			registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
+			//TODO: create answer
+//			registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
 
 			return Response.status(Status.CREATED).entity(newAnswer).header("location", new URI("/answers/" + newAnswer.getId())).build();
 		}
@@ -260,15 +260,15 @@ public class RegistrationResource
     {
     	if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
     	{
-    		ConferenceEntity jpaConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId(), 
-    																					loggedInUser).getConference().getId());
-    		
-    		Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromJpa(jpaConference), payment);
-
-    		payment.setAuthnetTransactionId(transactionId);
-    		payment.setTransactionDatetime(clock.currentDateTime());
-
-    		paymentService.updatePayment(payment.toJpaPaymentEntity(), loggedInUser);
+//    		ConferenceEntity jpaConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId(), 
+//    																					loggedInUser).getConference().getId());
+//    		
+//    		Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromJpa(jpaConference), payment);
+//
+//    		payment.setAuthnetTransactionId(transactionId);
+//    		payment.setTransactionDatetime(clock.currentDateTime());
+//
+//    		paymentService.updatePayment(payment.toJpaPaymentEntity(), loggedInUser);
     	}
     	else
     	{

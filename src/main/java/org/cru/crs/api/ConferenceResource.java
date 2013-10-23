@@ -284,10 +284,10 @@ public class ConferenceResource
 
             newRegistrationEntity.setUserId(crsLoggedInUser.getId());
 
-            if(conference.getConferenceCosts().isAcceptCreditCards())
-            {
-            	newRegistrationEntity.getPayments().add(new PaymentEntity().setId(UUID.randomUUID()));
-            }
+//            if(conference.getConferenceCosts().isAcceptCreditCards())
+//            {
+//            	newRegistrationEntity.getPayments().add(new PaymentEntity().setId(UUID.randomUUID()));
+//            }
             
 			// TODO need to make sure user had not already registered for this conference
 			registrationService.createNewRegistration(newRegistrationEntity, crsLoggedInUser);

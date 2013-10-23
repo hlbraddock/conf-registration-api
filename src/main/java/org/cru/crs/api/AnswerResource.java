@@ -1,33 +1,42 @@
 package org.cru.crs.api;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.UUID;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
-import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.authz.AuthorizationService;
+import org.cru.crs.auth.authz.OperationType;
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
+import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.UUID;
 
 /**
  * User: lee.braddock
@@ -41,7 +50,8 @@ public class AnswerResource
     @Inject BlockService blockService;
 	@Inject CrsUserService userService;
 	@Inject AuthorizationService authorizationService;
-
+	@Inject ConferenceService conferenceService; 
+	
 	@Context HttpServletRequest request;
 
 	private Logger logger = Logger.getLogger(AnswerResource.class);
@@ -68,7 +78,7 @@ public class AnswerResource
 
 			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
-			authorizationService.authorize(registrationEntity, OperationType.READ, crsLoggedInUser);
+			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.READ, crsLoggedInUser);
 
 			Answer answer = Answer.fromJpa(answerEntity);
 
@@ -120,13 +130,13 @@ public class AnswerResource
 
 				if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
-				authorizationService.authorize(registrationEntity, OperationType.CREATE, crsLoggedInUser);
+				authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.CREATE, crsLoggedInUser);
 
 				logger.info("create answer with registration entity");
 
 				logObject(Registration.fromJpa(registrationEntity), logger);
 
-				registrationEntity.getAnswers().add(answer.toJpaAnswerEntity());
+//				registrationEntity.getAnswers().add(answer.toJpaAnswerEntity());
 
 				return Response.status(Status.CREATED).entity(answer).header("location", new URI("/answers/" + answer.getId())).build();
 			}
@@ -140,7 +150,7 @@ public class AnswerResource
 			if(registrationEntity == null)
 				return Response.status(Status.BAD_REQUEST).build();
 
-			authorizationService.authorize(registrationEntity, OperationType.UPDATE, crsLoggedInUser);
+			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
 
 			answerService.updateAnswer(answer.toJpaAnswerEntity());
 
@@ -173,7 +183,7 @@ public class AnswerResource
 			if(registrationEntity == null)
 				return Response.status(Status.BAD_REQUEST).build();
 
-			authorizationService.authorize(registrationEntity, OperationType.DELETE, crsLoggedInUser);
+			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
 
 			answerService.deleteAnswer(answerEntity);
 

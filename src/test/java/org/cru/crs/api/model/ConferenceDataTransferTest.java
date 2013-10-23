@@ -40,7 +40,7 @@ public class ConferenceDataTransferTest
         ConferenceEntity jpaConference = conference.toJpaConferenceEntity();
 		
 		Assert.assertNotNull(jpaConference);
-		Assert.assertEquals(jpaConference.getContactUser(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
+		Assert.assertEquals(jpaConference.getContactPersonId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
 		Assert.assertEquals(jpaConference.getEventEndTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
 		Assert.assertEquals(jpaConference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
 		Assert.assertEquals(jpaConference.getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));
@@ -60,7 +60,7 @@ public class ConferenceDataTransferTest
 	{
 		ConferenceEntity conference = new ConferenceEntity();
 		
-		conference.setContactUser(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
+		conference.setContactPersonId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
 		conference.setEventEndTime(DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
 		conference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
 		conference.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));
@@ -130,9 +130,9 @@ public class ConferenceDataTransferTest
 		blocks.add(block1);
 		blocks.add(block2);
 		
-		page1.setBlocks(blocks);
+//		page1.setBlocks(blocks);
 		
-		jpaConference.setPages(pages);
+//		jpaConference.setPages(pages);
 		
 		Conference conferenceWithPages = Conference.fromJpaWithPages(jpaConference);
 		

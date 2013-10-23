@@ -11,41 +11,26 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Entity
-@Table(name = "PAYMENTS")
 public class PaymentEntity implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "ID")
-    @Type(type="pg-uuid")
     private UUID id;
 
-    @Column(name = "REGISTRATION_ID", insertable = false, updatable = false)
-    @Type(type="pg-uuid")
     private UUID registrationId;
 
-    @Column(name = "AUTHNET_TRANSACTION_ID")
     private Long authnetTransactionId;
 
-    @Column(name = "CC_NAME_ON_CARD")
     private String creditCardNameOnCard;
 
-    @Column(name = "CC_EXPIRATION_MONTH")
     private String creditCardExpirationMonth;
 
-    @Column(name = "CC_EXPIRATION_YEAR")
     private String creditCardExpirationYear;
 
-    @Column(name = "CC_LAST_FOUR_DIGITS")
     private String creditCardLastFourDigits;
 
-    @Column(name = "AMOUNT")
     BigDecimal amount;
 
-    @Column(name = "TRANSACTION_TIMESTAMP")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime transactionDatetime;
 
     public UUID getId()

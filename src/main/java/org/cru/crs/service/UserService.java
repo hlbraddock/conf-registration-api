@@ -1,10 +1,12 @@
 package org.cru.crs.service;
 
-import org.cru.crs.model.UserEntity;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import java.util.UUID;
+
+import org.cru.crs.model.UserEntity;
+import org.sql2o.Sql2o;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,18 +17,21 @@ import java.util.UUID;
  */
 public class UserService
 {
-    EntityManager em;
-
+    
+	Sql2o sql;
     @Inject
     public UserService(EntityManager em)
     {
-        this.em = em;
+    	this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql.setDefaultColumnMappings(UserEntity.columnMappings);
 
     }
 
     public UserEntity fetchUserBy(UUID userId)
     {
-        return em.find(UserEntity.class, userId);
+        return sql.createQuery("SELECT * FROM users WHERE id = :id", false)
+        			.addParameter("id", userId)
+        			.executeAndFetchFirst(UserEntity.class);
     }
 
 }

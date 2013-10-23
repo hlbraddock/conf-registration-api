@@ -22,7 +22,7 @@ public class Session implements java.io.Serializable
 		session.id = jpaBlock.getId();
 		session.authCode = jpaBlock.getAuthCode();
 		session.expiration = jpaBlock.getExpiration();
-		session.authenticationProviderIdentityEntity = jpaBlock.getAuthenticationProviderIdentityEntity();
+//		session.authenticationProviderIdentityEntity = jpaBlock.getAuthenticationProviderIdentityEntity();
 
 		return session;
 	}

@@ -4,56 +4,55 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.UserEntity;
+import org.sql2o.Sql2o;
 
 public class AuthenticationProviderService
 {
 
-	EntityManager entityManager;
-
+	Sql2o sql;
 	@Inject
 	public AuthenticationProviderService(EntityManager entityManager)
 	{
-		this.entityManager = entityManager;
+		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql.setDefaultColumnMappings(AuthenticationProviderIdentityEntity.columnMappings);
 	}
 
-	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderId(String userAuthProviderId)
+	/**
+	 * Finds record in auth_provider_identities based on ID of that record in auth_provider_identities
+	 * @param id
+	 * @return
+	 */
+	public AuthenticationProviderIdentityEntity findAuthProviderIdentityById(UUID id)
 	{
-		try
-		{
-			return entityManager.createQuery("SELECT ape FROM AuthenticationProviderIdentityEntity ape " +
-					"WHERE ape.userAuthProviderId = :userAuthProviderId", AuthenticationProviderIdentityEntity.class)
-					.setParameter("userAuthProviderId", userAuthProviderId)
-					.getSingleResult();
-		}
-		catch(NoResultException nre)
-		{
-			/* silly JPA, this is no reason to throw an exception and make calling code handle it. it just means there is no
-			 * record matching my criteria. it's the same as asking a yes/no question and throwing an exception when the answer
-			 * is 'no'.  okay, i'll get off my soapbox now, but really.... */
-			return null;
-		}
+		return sql.createQuery("SELECT * FROM auth_provider_identities WHERE id = :id", false)
+						.addParameter("id", id)
+						.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 
+	/**
+	 * Finds record in auth_provider_identities based on the auth provider's id of the user.
+	 *  ex: relay sso guid or facebook id.
+	 * @param userAuthProviderId
+	 * @return
+	 */
+	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByUserAuthProviderId(String userAuthProviderId)
+	{
+		return sql.createQuery("SELECT * FROM auth_provider_identities WHERE user_auth_provider_id = :userAuthProviderId", false)
+					.addParameter("userAuthProviderId", userAuthProviderId)
+					.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
+	}
+	
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderUsernameAndType(String username, AuthenticationProviderType authenticationProviderType)
 	{
-		try
-		{
-			return entityManager.createQuery("SELECT ape FROM AuthenticationProviderIdentityEntity ape " +
-					"WHERE ape.username = :username and ape.authenticationProviderName = :authenticationProviderName", AuthenticationProviderIdentityEntity.class)
-					.setParameter("username", username)
-					.setParameter("authenticationProviderName", authenticationProviderType.name())
-					.getSingleResult();
-		}
-		catch(NoResultException nre)
-		{
-			return null;
-		}
+		return sql.createQuery("SELECT * FROM auth_provider_identities WHERE username = :username AND auth_provider_name = :authProviderName", false)
+					.addParameter("username", username)
+					.addParameter("authProviderName", authenticationProviderType.getSessionIdentifierName())
+					.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 
 	/**
@@ -66,16 +65,23 @@ public class AuthenticationProviderService
 
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
-		authProviderIdentityEntity.setCrsUser(newUser);
+		authProviderIdentityEntity.setCrsId(newUser.getId());
 		authProviderIdentityEntity.setUserAuthProviderId(user.getId());
 		authProviderIdentityEntity.setAuthProviderUserAccessToken(user.getAccessToken());
-		authProviderIdentityEntity.setAuthenticationProviderName(user.getAuthenticationProviderType().name());
+		authProviderIdentityEntity.setAuthProviderName(user.getAuthenticationProviderType().name());
 		authProviderIdentityEntity.setUsername(user.getUsername());
 		authProviderIdentityEntity.setFirstName(user.getFirstName());
 		authProviderIdentityEntity.setLastName(user.getLastName());
 		
-		entityManager.persist(newUser);
-		entityManager.persist(authProviderIdentityEntity);
+		sql.createQuery("INSERT INTO users(id) VALUES(:id)",false)
+				.addParameter("id", newUser.getId())
+				.executeUpdate();
+		
+//		sql.createQuery("INSERT INTO auth_provider_identities(id, crs_id, user_auth_provider_id, auth_provider_access_token) VALUES (:id, :crsId, :userAuthProviderId, :authProviderAccessToken", false)
+//				.addParameter("id", authProviderIdentityEntity.getId())
+//				.addParameter("crsId", value)
+//		entityManager.persist(newUser);
+//		entityManager.persist(authProviderIdentityEntity);
 	}
 	
 	/**
@@ -85,11 +91,14 @@ public class AuthenticationProviderService
 	 */
 	public AuthenticationProviderIdentityEntity updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
 	{
-		AuthenticationProviderIdentityEntity authProviderEntity = findAuthProviderIdentityByAuthProviderId(authProviderId);
-
-		if(authProviderEntity != null)
-			authProviderEntity.setAuthenticationProviderName(newAuthProviderType.name());
-
-		return authProviderEntity;
+//		AuthenticationProviderIdentityEntity authProviderEntity = findAuthProviderIdentityById(authProviderId);
+//
+//		if(authProviderEntity != null)
+//		{
+//			authProviderEntity.setAuthProviderName(newAuthProviderType.name());
+//		}
+//		return authProviderEntity;
+		
+		return null;
 	}
 }

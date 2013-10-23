@@ -1,46 +1,24 @@
 package org.cru.crs.model;
 
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
-
-import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
-@Entity
-@Table(name = "CONFERENCE_COSTS")
+import org.joda.time.DateTime;
+
 public class ConferenceCostsEntity
 {
-    @Id
-    @Column(name = "ID")
-    @Type(type = "pg-uuid")
     UUID id;
 
-    @Column(name = "BASE_COST")
     BigDecimal conferenceBaseCost;
 
-    @Column(name = "EARLY_REGISTRATION_DISCOUNT")
     boolean earlyRegistrationDiscount;
-
-    @Column(name = "EARLY_REGISTRATION_AMOUNT")
     BigDecimal earlyRegistrationAmount;
-
-    @Column(name = "MINIMUM_DEPOSIT")
+    DateTime earlyRegistrationCutoff;
+    
     BigDecimal minimumDeposit;
 
-    @Column(name = "EARLY_REGISTRATION_CUTOFF")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    DateTime earlyRegistrationCutoff;
-
-    @Column(name = "ACCEPT_CREDIT_CARDS")
     boolean acceptCreditCards;
-
-    @Column(name = "AUTHNET_ID")
     String authnetId;
-
-    @Column(name = "AUTHNET_TOKEN")
     String authnetToken;
 
     public UUID getId()

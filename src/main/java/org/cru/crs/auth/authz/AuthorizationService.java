@@ -1,14 +1,15 @@
 package org.cru.crs.auth.authz;
 
+import java.util.UUID;
+
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
-
-import java.util.UUID;
 
 public class AuthorizationService
 {
-	public void authorize(RegistrationEntity registrationEntity, OperationType operationType, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	public void authorize(RegistrationEntity registrationEntity, ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
 		if(crsApplicationUser == null)
 		{
@@ -17,7 +18,7 @@ public class AuthorizationService
 
 		if(OperationType.CRUDSet.contains(operationType) && !operationType.equals(OperationType.DELETE))
 		{
-			if(!isOwnedBy(registrationEntity, crsApplicationUser.getId()) && !isAdministeredBy(registrationEntity, crsApplicationUser.getId()))
+			if(!isOwnedBy(registrationEntity, crsApplicationUser.getId()) && !isAdministeredBy(conferenceEntity, crsApplicationUser.getId()))
 			{
 				throw new UnauthorizedException();
 			}
@@ -25,7 +26,7 @@ public class AuthorizationService
 
 		if(operationType.equals(OperationType.ADMIN) || operationType.equals(OperationType.DELETE))
 		{
-			if(!isAdministeredBy(registrationEntity, crsApplicationUser.getId()))
+			if(!isAdministeredBy(conferenceEntity, crsApplicationUser.getId()))
 			{
 				throw new UnauthorizedException();
 			}
@@ -37,8 +38,8 @@ public class AuthorizationService
 		return registrationEntity.getUserId().equals(uuid);
 	}
 
-	private boolean isAdministeredBy(RegistrationEntity registrationEntity, UUID uuid)
+	private boolean isAdministeredBy(ConferenceEntity conferenceEntity, UUID uuid)
 	{
-		return registrationEntity.getConference().getContactUser().equals(uuid);
+		return conferenceEntity.getContactPersonId().equals(uuid);
 	}
 }
