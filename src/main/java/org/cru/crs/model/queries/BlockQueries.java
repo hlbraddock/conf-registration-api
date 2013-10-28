@@ -12,6 +12,14 @@ public class BlockQueries implements BasicQueries
 		return query.toString();
 	}
 
+	public String selectAllForPage()
+	{
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT * FROM blocks WHERE page_id = :pageId");
+		
+		return query.toString();
+	}
+	
 	@Override
 	public String update()
 	{
