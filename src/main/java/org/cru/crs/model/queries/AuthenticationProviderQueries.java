@@ -50,6 +50,11 @@ public class AuthenticationProviderQueries implements BasicQueries
 		return query.toString();
 	}
 
+	public String updateAuthProviderType()
+	{
+		return "UPDATE auth_provider_identities SET auth_provider_name = :authProviderName WHERE user_auth_provider_id = :userAuthProviderId";
+	}
+	
 	@Override
 	public String insert()
 	{

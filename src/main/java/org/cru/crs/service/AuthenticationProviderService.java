@@ -9,17 +9,23 @@ import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.UserEntity;
+import org.cru.crs.model.queries.AuthenticationProviderQueries;
 import org.sql2o.Sql2o;
 
 public class AuthenticationProviderService
 {
 
 	Sql2o sql;
+	
+	AuthenticationProviderQueries authenticationProviderQueries;
+	
 	@Inject
 	public AuthenticationProviderService(EntityManager entityManager)
 	{
 		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
 		this.sql.setDefaultColumnMappings(AuthenticationProviderIdentityEntity.columnMappings);
+		
+		this.authenticationProviderQueries = new AuthenticationProviderQueries();
 	}
 
 	/**
@@ -29,7 +35,7 @@ public class AuthenticationProviderService
 	 */
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityById(UUID id)
 	{
-		return sql.createQuery("SELECT * FROM auth_provider_identities WHERE id = :id", false)
+		return sql.createQuery(authenticationProviderQueries.selectById(), false)
 						.addParameter("id", id)
 						.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
@@ -42,14 +48,14 @@ public class AuthenticationProviderService
 	 */
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByUserAuthProviderId(String userAuthProviderId)
 	{
-		return sql.createQuery("SELECT * FROM auth_provider_identities WHERE user_auth_provider_id = :userAuthProviderId", false)
+		return sql.createQuery(authenticationProviderQueries.selectByUserAuthProviderId(), false)
 					.addParameter("userAuthProviderId", userAuthProviderId)
 					.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 	
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderUsernameAndType(String username, AuthenticationProviderType authenticationProviderType)
 	{
-		return sql.createQuery("SELECT * FROM auth_provider_identities WHERE username = :username AND auth_provider_name = :authProviderName", false)
+		return sql.createQuery(authenticationProviderQueries.selectByUsernameAuthProviderName(), false)
 					.addParameter("username", username)
 					.addParameter("authProviderName", authenticationProviderType.getSessionIdentifierName())
 					.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
@@ -73,15 +79,9 @@ public class AuthenticationProviderService
 		authProviderIdentityEntity.setFirstName(user.getFirstName());
 		authProviderIdentityEntity.setLastName(user.getLastName());
 		
-		sql.createQuery("INSERT INTO users(id) VALUES(:id)",false)
+		sql.createQuery(authenticationProviderQueries.insert(),false)
 				.addParameter("id", newUser.getId())
 				.executeUpdate();
-		
-//		sql.createQuery("INSERT INTO auth_provider_identities(id, crs_id, user_auth_provider_id, auth_provider_access_token) VALUES (:id, :crsId, :userAuthProviderId, :authProviderAccessToken", false)
-//				.addParameter("id", authProviderIdentityEntity.getId())
-//				.addParameter("crsId", value)
-//		entityManager.persist(newUser);
-//		entityManager.persist(authProviderIdentityEntity);
 	}
 	
 	/**
@@ -91,14 +91,11 @@ public class AuthenticationProviderService
 	 */
 	public AuthenticationProviderIdentityEntity updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
 	{
-//		AuthenticationProviderIdentityEntity authProviderEntity = findAuthProviderIdentityById(authProviderId);
-//
-//		if(authProviderEntity != null)
-//		{
-//			authProviderEntity.setAuthProviderName(newAuthProviderType.name());
-//		}
-//		return authProviderEntity;
+		sql.createQuery(authenticationProviderQueries.updateAuthProviderType())
+				.addParameter("authProviderName", newAuthProviderType.getSessionIdentifierName())
+				.addParameter("userAuthProviderId", authProviderId)
+				.executeUpdate();
 		
-		return null;
+		return findAuthProviderIdentityByUserAuthProviderId(authProviderId);
 	}
 }
