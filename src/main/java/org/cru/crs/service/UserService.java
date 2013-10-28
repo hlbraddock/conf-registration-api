@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.cru.crs.model.UserEntity;
+import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.UserQueries;
 import org.sql2o.Sql2o;
 
@@ -27,8 +28,7 @@ public class UserService
     public UserService(EntityManager em)
     {
     	this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
-		this.sql.setDefaultColumnMappings(UserEntity.columnMappings);
-
+		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(UserEntity.class));
     }
 
     public UserEntity fetchUserBy(UUID userId)
@@ -52,6 +52,5 @@ public class UserService
     			.addParameter("emailAddress", userToSave.getEmailAddress())
     			.addParameter(":phoneNumber", userToSave.getPhoneNumber())
     			.executeUpdate();
-    			
     }
 }

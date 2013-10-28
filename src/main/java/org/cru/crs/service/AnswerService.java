@@ -1,56 +1,71 @@
 package org.cru.crs.service;
 
-import org.cru.crs.model.AnswerEntity;
+import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+
+import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.queries.AnswerQueries;
+import org.cru.crs.model.queries.EntityColumnMappings;
+import org.sql2o.Sql2o;
 
 /**
  * User: lee.braddock
  */
-public class AnswerService {
-
-    EntityManager em;
-
+public class AnswerService
+{
+	Sql2o sql;
+	
+	AnswerQueries answerQueries;
+	
     @Inject
     public AnswerService(EntityManager em)
     {
-        this.em = em;
+    	this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(AnswerEntity.class));
+		this.answerQueries = new AnswerQueries();
     }
+    
 
     public AnswerEntity getAnswerBy(UUID answerId)
     {
-        return em.find(AnswerEntity.class, answerId);
+        return sql.createQuery(answerQueries.selectById())
+        			.addParameter("id", answerId)
+        			.executeAndFetchFirst(AnswerEntity.class);
     }
 
     public void updateAnswer(AnswerEntity answerToUpdate)
     {
-        em.merge(answerToUpdate);
+        sql.createQuery(answerQueries.update())
+        		.addParameter("id", answerToUpdate.getId())
+        		.addParameter("registrationId", answerToUpdate.getRegistrationId())
+        		.addParameter("blockId", answerToUpdate.getBlockId())
+//        		.addParameter("Json", "json")
+        		.executeUpdate();
+        		
     }
 
 	public void deleteAnswer(AnswerEntity answerToDelete)
 	{
-		em.remove(answerToDelete);
+		sql.createQuery(answerQueries.delete())
+						.addParameter("id", answerToDelete.getId())
+						.executeUpdate();
 	}
 
 	public void deleteAnswersByBlockId(UUID blockId)
 	{
 		for(AnswerEntity answerEntity : fetchAnswersByBlockId(blockId))
+		{
 			deleteAnswer(answerEntity);
+		}
 	}
 
-	private Set<AnswerEntity> fetchAnswersByBlockId(UUID blockId)
+	private List<AnswerEntity> fetchAnswersByBlockId(UUID blockId)
 	{
-		TypedQuery<AnswerEntity> query = em.createQuery("SELECT answer " +
-				"FROM AnswerEntity answer " +
-				"WHERE answer.blockId = :block_id", AnswerEntity.class);
-
-		query.setParameter("block_id", blockId);
-
-		return new HashSet<AnswerEntity>(query.getResultList());
+		return sql.createQuery(answerQueries.selectAllForBlock())
+				.addParameter("blockId", blockId)
+				.executeAndFetch(AnswerEntity.class);
 	}
 }
