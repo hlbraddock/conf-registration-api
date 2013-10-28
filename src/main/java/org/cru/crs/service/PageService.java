@@ -8,9 +8,11 @@ import javax.persistence.EntityManager;
 
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.PageQueries;
 import org.sql2o.Sql2o;
 
@@ -26,6 +28,8 @@ public class PageService
 	public PageService(EntityManager em, ConferenceService conferenceService, AnswerService answerService)
 	{
 		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(PageEntity.class));
+		
 		this.conferenceService = conferenceService;
 		blockService = new BlockService(null,conferenceService,this,answerService);
 		

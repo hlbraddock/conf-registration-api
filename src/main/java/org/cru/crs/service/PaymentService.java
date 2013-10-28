@@ -10,8 +10,10 @@ import javax.persistence.EntityManager;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.PaymentQueries;
 import org.sql2o.Sql2o;
 
@@ -30,6 +32,7 @@ public class PaymentService
     public PaymentService(EntityManager em)
     {
     	this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+    	this.sql.setDefaultColumnMappings(EntityColumnMappings.get(PaymentEntity.class));
     	
         this.paymentQueries = new PaymentQueries();
         this.registrationService = new RegistrationService(em, new AuthorizationService());

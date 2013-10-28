@@ -1,7 +1,5 @@
 package org.cru.crs.model;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -11,15 +9,6 @@ public class SessionEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	public static Map<String,String> columnMappings;
-	
-	static
-	{
-		columnMappings = new HashMap<String,String>();
-		columnMappings.put("AUTH_PROVIDER_ID", "authProviderId");
-		columnMappings.put("AUTH_CODE", "authCode");
-	}
-	
 	private UUID id;
 	private UUID authProviderId;
 	private String authCode;

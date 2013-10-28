@@ -8,10 +8,12 @@ import javax.persistence.EntityManager;
 
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.queries.BlockQueries;
+import org.cru.crs.model.queries.EntityColumnMappings;
 import org.sql2o.Sql2o;
 
 public class BlockService
@@ -27,6 +29,7 @@ public class BlockService
 	public BlockService(EntityManager em, ConferenceService conferenceService, PageService pageService, AnswerService answerService)
 	{
     	this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+    	this.sql.setDefaultColumnMappings(EntityColumnMappings.get(BlockEntity.class));
 		this.conferenceService = conferenceService;
 		this.pageService = pageService;
 		this.answerService = answerService;

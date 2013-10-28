@@ -12,7 +12,9 @@ import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.RegistrationQueries;
 import org.cru.crs.utils.CollectionUtils;
 import org.jboss.logging.Logger;
@@ -39,6 +41,7 @@ public class RegistrationService
 		this.authorizationService = authorizationService;
 		this.conferenceService = new ConferenceService(null, new UserService(em),new AnswerService(em));
 		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(RegistrationEntity.class));
     }
 
 	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
