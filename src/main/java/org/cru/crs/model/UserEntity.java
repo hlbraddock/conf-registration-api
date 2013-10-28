@@ -1,24 +1,11 @@
 package org.cru.crs.model;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class UserEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	public static Map<String,String> columnMappings;
-	
-	static
-	{
-		columnMappings = new HashMap<String,String>();
-		columnMappings.put("FIRST_NAME", "firstName");
-		columnMappings.put("LAST_NAME", "lastName");
-		columnMappings.put("EMAIL_ADDRESS", "emailAddress");
-		columnMappings.put("PHONE_NUMBER", "phoneNumber");
-	}
-	
 	private UUID id;
     private String firstName;
     private String lastName;
