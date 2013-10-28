@@ -38,4 +38,20 @@ public class UserService
         			.executeAndFetchFirst(UserEntity.class);
     }
 
+    public void createUser(UserEntity userToSave)
+    {
+    	if(userToSave.getId() == null)
+    	{
+    		userToSave.setId(UUID.randomUUID());
+    	}
+    	
+    	sql.createQuery(userQueries.insert())
+    			.addParameter(":id", userToSave.getId())
+    			.addParameter(":firstName", userToSave.getFirstName())
+    			.addParameter("lastName", userToSave.getLastName())
+    			.addParameter("emailAddress", userToSave.getEmailAddress())
+    			.addParameter(":phoneNumber", userToSave.getPhoneNumber())
+    			.executeUpdate();
+    			
+    }
 }

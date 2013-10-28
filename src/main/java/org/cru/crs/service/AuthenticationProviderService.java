@@ -16,6 +16,7 @@ public class AuthenticationProviderService
 {
 
 	Sql2o sql;
+	UserService userService;
 	
 	AuthenticationProviderQueries authenticationProviderQueries;
 	
@@ -25,6 +26,7 @@ public class AuthenticationProviderService
 		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
 		this.sql.setDefaultColumnMappings(AuthenticationProviderIdentityEntity.columnMappings);
 		
+		this.userService = new UserService(entityManager);
 		this.authenticationProviderQueries = new AuthenticationProviderQueries();
 	}
 
@@ -79,8 +81,17 @@ public class AuthenticationProviderService
 		authProviderIdentityEntity.setFirstName(user.getFirstName());
 		authProviderIdentityEntity.setLastName(user.getLastName());
 		
+		userService.createUser(newUser);
+		
 		sql.createQuery(authenticationProviderQueries.insert(),false)
-				.addParameter("id", newUser.getId())
+				.addParameter("id", authProviderIdentityEntity.getId())
+				.addParameter("crsId", authProviderIdentityEntity.getCrsId())
+				.addParameter("userAuthProviderId", authProviderIdentityEntity.getUserAuthProviderId())
+				.addParameter("authProviderUserAccessToken", authProviderIdentityEntity.getAuthProviderUserAccessToken())
+				.addParameter("authProviderName", authProviderIdentityEntity.getAuthProviderName())
+				.addParameter("username", authProviderIdentityEntity.getUsername())
+				.addParameter("firstName", authProviderIdentityEntity.getFirstName())
+				.addParameter("lastName", authProviderIdentityEntity.getLastName())
 				.executeUpdate();
 	}
 	
