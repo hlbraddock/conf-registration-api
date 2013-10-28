@@ -11,6 +11,7 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.queries.PageQueries;
 import org.sql2o.Sql2o;
 
 public class PageService
@@ -19,24 +20,28 @@ public class PageService
 	ConferenceService conferenceService;
 	BlockService blockService;
 	
+	PageQueries pageQueries;
+	
 	@Inject
 	public PageService(EntityManager em, ConferenceService conferenceService, AnswerService answerService)
 	{
 		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
 		this.conferenceService = conferenceService;
 		blockService = new BlockService(null,conferenceService,this,answerService);
+		
+		pageQueries = new PageQueries();
 	}
 	
 	public PageEntity fetchPageBy(UUID id)
 	{
-		return sql.createQuery("SELECT * FROM pages WHERE id = :id", false)
+		return sql.createQuery(pageQueries.selectById(), false)
 						.addParameter("id", id)
 						.executeAndFetchFirst(PageEntity.class);	
 	}
 
 	public List<PageEntity> fetchPagesForConference(UUID conferenceId)
 	{
-		return sql.createQuery("SELECT * FROM pages WHERE conference_id = :conferenceId", false)
+		return sql.createQuery(pageQueries.selectAllForConference(), false)
 						.addParameter("conferenceId", conferenceId)
 						.executeAndFetch(PageEntity.class);
 	}
@@ -44,7 +49,7 @@ public class PageService
 	public void savePage(PageEntity pageToSave)
 	{
 		/*content and conferenceCostsBlocksId omitted for now*/
-		sql.createQuery("INSERT INTO pages(id,conference_id,position,title VALUES (:id, :conferenceId, :position, :title")
+		sql.createQuery(pageQueries.insert())
 				.addParameter("id", pageToSave.getId())
 				.addParameter("conferenceId", pageToSave.getConferenceId())
 				.addParameter("position", pageToSave.getPosition())
@@ -57,7 +62,7 @@ public class PageService
 		verifyUserIdHasAccessToModifyThisPagesConference(pageToUpdate, crsLoggedInUser.getId());
 
 		/*content and conferenceCostsBlocksId omitted for now*/
-		sql.createQuery("UPDATE pages SET conference_id = :conferenceId, position = :position, title = :title WHERE id = :id")
+		sql.createQuery(pageQueries.update())
 				.addParameter("id", pageToUpdate.getId())
 				.addParameter("conferenceId", pageToUpdate.getConferenceId())
 				.addParameter("position", pageToUpdate.getPosition())
@@ -74,7 +79,7 @@ public class PageService
 			blockService.deleteBlock(blockToDelete);
 		}
 
-		sql.createQuery("DELETE from pages where id = :pageId")
+		sql.createQuery(pageQueries.delete())
 			.addParameter("pageId", pageId)
 			.executeUpdate();
 	}
