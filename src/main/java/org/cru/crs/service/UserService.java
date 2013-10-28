@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.cru.crs.model.UserEntity;
+import org.cru.crs.model.queries.UserQueries;
 import org.sql2o.Sql2o;
 
 /**
@@ -19,6 +20,9 @@ public class UserService
 {
     
 	Sql2o sql;
+	
+	UserQueries userQueries = new UserQueries();
+	
     @Inject
     public UserService(EntityManager em)
     {
@@ -29,7 +33,7 @@ public class UserService
 
     public UserEntity fetchUserBy(UUID userId)
     {
-        return sql.createQuery("SELECT * FROM users WHERE id = :id", false)
+        return sql.createQuery(userQueries.selectById(), false)
         			.addParameter("id", userId)
         			.executeAndFetchFirst(UserEntity.class);
     }
