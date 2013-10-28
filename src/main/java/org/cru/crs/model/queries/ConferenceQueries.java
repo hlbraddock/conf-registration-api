@@ -13,7 +13,7 @@ public class ConferenceQueries implements BasicQueries
 		return query.toString();
 	}
 	
-	public static String selectAllForUser()
+	public String selectAllForUser()
 	{
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT * FROM conferences WHERE contact_person_id = :contactPersonId");
