@@ -1,15 +1,10 @@
 package org.cru.crs.model;
 
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
+
+import org.joda.time.DateTime;
 
 public class PaymentEntity implements Serializable
 {
