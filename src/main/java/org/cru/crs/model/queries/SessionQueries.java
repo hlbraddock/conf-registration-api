@@ -12,6 +12,11 @@ public class SessionQueries implements BasicQueries
 		return query.toString();
 	}
 
+	public String selectByAuthCode() 
+	{
+		return "SELECT * FROM sessions WHERE auth_code = :authCode";
+	}
+	
 	public String selectByAuthProviderId()
 	{
 		StringBuilder query = new StringBuilder();
