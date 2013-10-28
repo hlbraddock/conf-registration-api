@@ -55,8 +55,8 @@ public class BlockService
 				.addParameter("id", blockToSave.getId())
 				.addParameter("pageId", blockToSave.getPageId())
 				.addParameter("position", blockToSave.getPosition())
-				.addParameter("block_type", blockToSave.getBlockType())
-				.addParameter("admin_only", blockToSave.isAdminOnly())
+				.addParameter("blockType", blockToSave.getBlockType())
+				.addParameter("adminOnly", blockToSave.isAdminOnly())
 				.addParameter("required", blockToSave.isRequired())
 				.addParameter("title", blockToSave.getTitle())
 				.executeUpdate();
@@ -71,8 +71,8 @@ public class BlockService
 				.addParameter("id", blockToUpdate.getId())
 				.addParameter("pageId", blockToUpdate.getPageId())
 				.addParameter("position", blockToUpdate.getPosition())
-				.addParameter("block_type", blockToUpdate.getBlockType())
-				.addParameter("admin_only", blockToUpdate.isAdminOnly())
+				.addParameter("blockType", blockToUpdate.getBlockType())
+				.addParameter("adminOnly", blockToUpdate.isAdminOnly())
 				.addParameter("required", blockToUpdate.isRequired())
 				.addParameter("title", blockToUpdate.getTitle())
 				.executeUpdate();
