@@ -11,6 +11,7 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.queries.BlockQueries;
 import org.sql2o.Sql2o;
 
 public class BlockService
@@ -20,6 +21,8 @@ public class BlockService
 	ConferenceService conferenceService;
 	AnswerService answerService;
 
+	BlockQueries blockQueries;
+	
     @Inject
 	public BlockService(EntityManager em, ConferenceService conferenceService, PageService pageService, AnswerService answerService)
 	{
@@ -27,18 +30,20 @@ public class BlockService
 		this.conferenceService = conferenceService;
 		this.pageService = pageService;
 		this.answerService = answerService;
+		
+		this.blockQueries = new BlockQueries();
 	}
 	
 	public BlockEntity fetchBlockBy(UUID blockId)
 	{
-		return sql.createQuery("SELECT * FROM blocks WHERE id = :id", false)
+		return sql.createQuery(blockQueries.selectById(), false)
 						.addParameter("id", blockId)
 						.executeAndFetchFirst(BlockEntity.class);
 	}
 	
 	public List<BlockEntity> fetchBlocksForPage(UUID pageId)
 	{
-		return sql.createQuery("SELECT * FROM blocks WHERE page_id = :pageId", false)
+		return sql.createQuery(blockQueries.selectAllForPage(), false)
 						.addParameter("pageId", pageId)
 						.executeAndFetch(BlockEntity.class);
 	}
@@ -46,7 +51,7 @@ public class BlockService
 	public void saveBlock(BlockEntity blockToSave)
 	{
 		/*content and conferenceCostsBlocksId omitted for now*/
-		sql.createQuery("INSERT INTO blocks(id,page_id,position,block_type,admin_only,required,title VALUES (:id, :pageId, :position, :blockType, :adminOnly, :required, :title")
+		sql.createQuery(blockQueries.insert())
 				.addParameter("id", blockToSave.getId())
 				.addParameter("pageId", blockToSave.getPageId())
 				.addParameter("position", blockToSave.getPosition())
@@ -62,7 +67,7 @@ public class BlockService
 		verifyUserIdHasAccessToModifyThisBlocksConference(blockToUpdate,crsLoggedInUser);
 		
 		/*content and conferenceCostsBlocksId omitted for now*/
-		sql.createQuery("UPDATE blocks SET page_id = :pageId, position = :position, block_type = :blockType, admin_only = :adminOnly, required = :required, title = :title WHERE id = :id")
+		sql.createQuery(blockQueries.update())
 				.addParameter("id", blockToUpdate.getId())
 				.addParameter("pageId", blockToUpdate.getPageId())
 				.addParameter("position", blockToUpdate.getPosition())
@@ -86,7 +91,7 @@ public class BlockService
 	{
 		answerService.deleteAnswersByBlockId(blockEntity.getId());
 
-		sql.createQuery("DELETE from blocks where id = :blockId")
+		sql.createQuery(blockQueries.delete())
 				.addParameter("blockId", blockEntity.getId())
 				.executeUpdate();
 	}
