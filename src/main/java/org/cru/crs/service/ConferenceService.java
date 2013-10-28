@@ -12,6 +12,7 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.model.queries.ConferenceQueries;
+import org.cru.crs.model.queries.EntityColumnMappings;
 import org.sql2o.Sql2o;
 
 public class ConferenceService
@@ -25,7 +26,7 @@ public class ConferenceService
 	public ConferenceService(EntityManager em, UserService userService, AnswerService answerService)
 	{
 		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
-		this.sql.setDefaultColumnMappings(ConferenceEntity.getColumnMappings());
+		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(ConferenceEntity.class));
 		
 		this.pageService = new PageService(null, this, answerService);
         this.userService = userService;

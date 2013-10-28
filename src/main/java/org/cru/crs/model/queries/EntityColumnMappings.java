@@ -8,8 +8,6 @@ import org.cru.crs.utils.StringUtils;
 
 public class EntityColumnMappings
 {
-	public static Map<String, String> columnMappings;
-	
 	public static Map<String,String> get(Class<?> entityClazz)
 	{
 		Map<String, String> columnMappings = new HashMap<String,String>();
