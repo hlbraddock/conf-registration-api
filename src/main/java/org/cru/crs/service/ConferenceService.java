@@ -11,6 +11,7 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.UserEntity;
+import org.cru.crs.model.queries.ConferenceQueries;
 import org.sql2o.Sql2o;
 
 public class ConferenceService
@@ -18,7 +19,8 @@ public class ConferenceService
 	Sql2o sql;
 	PageService pageService;
     UserService userService;
-
+    ConferenceQueries conferenceQueries;
+    
     @Inject
 	public ConferenceService(EntityManager em, UserService userService, AnswerService answerService)
 	{
@@ -27,18 +29,19 @@ public class ConferenceService
 		
 		this.pageService = new PageService(null, this, answerService);
         this.userService = userService;
+        this.conferenceQueries = new ConferenceQueries();
 	}
 
 	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
 	{
-		return sql.createQuery("SELECT * FROM conferences WHERE contact_person_id = :contactPersonId", false)
+		return sql.createQuery(conferenceQueries.selectAllForUser(), false)
 					.addParameter("contactPersonId", crsLoggedInUser.getId())
 					.executeAndFetch(ConferenceEntity.class);
 	}
 
 	public ConferenceEntity fetchConferenceBy(UUID id)
 	{
-		return sql.createQuery("SELECT * FROM conferences WHERE id = :id", false)
+		return sql.createQuery(conferenceQueries.selectById(), false)
 					.addParameter("id", id)
 					.executeAndFetchFirst(ConferenceEntity.class);
     }
@@ -58,7 +61,7 @@ public class ConferenceService
         		.addParameter("id", newConference.getId())
         		.executeUpdate();
         
-        sql.createQuery(ConferenceEntity.insertSyntax, false)
+        sql.createQuery(conferenceQueries.insert(), false)
         		.addParameter("id", newConference.getId())
         		.addParameter("name", newConference.getName())
         		.addParameter("description", newConference.getDescription())
@@ -98,7 +101,7 @@ public class ConferenceService
 		}
         
 		/*content and conferenceCostsBlocksId omitted for now*/
-		sql.createQuery("UPDATE conferences SET name = :name WHERE id = :id")
+		sql.createQuery(conferenceQueries.update())
 				.addParameter("name", conferenceToUpdate.getName())
 				.executeUpdate();
 	}
