@@ -12,6 +12,14 @@ public class RegistrationQueries implements BasicQueries
 		return query.toString();
 	}
 
+	public String selectAllForConference()
+	{
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT * FROM registrations WHERE conference_id = :conferenceId");
+		
+		return query.toString();
+	}
+	
 	public String selectByUserIdConferenceId()
 	{
 		StringBuilder query = new StringBuilder();
