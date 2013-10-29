@@ -110,7 +110,9 @@ public class PageResource
 			}
 			else
 			{
-				pageService.updatePage(page.toJpaPageEntity().setId(officialPageId), loggedInUser);
+				pageService.updatePage(conferenceService.fetchConferenceBy(page.getConferenceId()), 
+										page.toJpaPageEntity().setId(officialPageId), 
+										loggedInUser);
 			}
 
 			return Response.noContent().build();
@@ -139,8 +141,13 @@ public class PageResource
 				return Response.status(Status.BAD_REQUEST).build();
 			}
 
-			pageService.deletePage(pageId, loggedInUser);
-
+			PageEntity pageToDelete = pageService.fetchPageBy(pageId);
+			
+			if(pageToDelete != null)
+			{
+				pageService.deletePage(conferenceService.fetchConferenceBy(pageToDelete.getConferenceId()), pageId, loggedInUser);
+			}
+			
 			return Response.noContent().build();
 		}
 		catch (UnauthorizedException e)
@@ -168,7 +175,10 @@ public class PageResource
 				return Response.status(Status.BAD_REQUEST).build();
 			}
 
-			pageService.addBlockToPage(pageBlockBelongsTo, newBlock.toJpaBlockEntity(), loggedInUser);
+			pageService.addBlockToPage(conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId()), 
+										pageBlockBelongsTo, 
+										newBlock.toJpaBlockEntity(), 
+										loggedInUser);
 
 			return Response.status(Status.CREATED)
 					.location(new URI("/blocks/" + newBlock.getId()))

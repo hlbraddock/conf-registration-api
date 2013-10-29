@@ -33,10 +33,11 @@ import org.cru.crs.utils.IdComparer;
 @Path("/blocks/{blockId}")
 public class BlockResource
 {
-	@Inject BlockService blockService;
-	@Inject PageService pageService;
+	
 	@Inject ConferenceService conferenceService;
-
+	@Inject PageService pageService;
+	@Inject BlockService blockService;
+	
 	@Context HttpServletRequest request;
 	@Inject CrsUserService userService;
 
@@ -90,11 +91,16 @@ public class BlockResource
 				 * Make sure the Page ID is set in the object, it could be that it was only
 				 * specified as a path parameter.
 				 */
-				pageService.addBlockToPage(pageBlockBelongsTo, block.toJpaBlockEntity(), loggedInUser);
+				pageService.addBlockToPage(conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId()), 
+												pageBlockBelongsTo,
+												block.toJpaBlockEntity(),
+												loggedInUser);
 			}
 			else
 			{
-				blockService.updateBlock(block.toJpaBlockEntity().setId(officialBlockId), loggedInUser);
+				blockService.updateBlock(conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId()),
+											block.toJpaBlockEntity().setId(officialBlockId), 
+											loggedInUser);
 			}
 			
 			return Response.noContent().build();
@@ -105,6 +111,12 @@ public class BlockResource
 		}
 	}
 
+	/**
+	 * We are considering deleting this endpoint since it's not used, for simplicity
+	 * @param blockId
+	 * @param authCode
+	 * @return
+	 */
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteBlock(@PathParam(value="blockId") UUID blockId,
@@ -119,9 +131,9 @@ public class BlockResource
 				return Response.status(Status.BAD_REQUEST).build();
 			}
 
-			blockService.deleteBlock(blockId, loggedInUser);
+//			blockService.deleteBlock(blockId, loggedInUser);
 			
-			return Response.ok().build();
+			return Response.status(Status.SERVICE_UNAVAILABLE).build();
 		} 
 		catch (UnauthorizedException e) 
 		{

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.queries.AnswerQueries;
@@ -21,11 +20,11 @@ public class AnswerService
 	AnswerQueries answerQueries;
 	
     @Inject
-    public AnswerService(EntityManager em)
+    public AnswerService(Sql2o sql, AnswerQueries answerQueries)
     {
-    	this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+    	this.sql = sql;
 		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(AnswerEntity.class));
-		this.answerQueries = new AnswerQueries();
+		this.answerQueries = answerQueries;
     }
     
 

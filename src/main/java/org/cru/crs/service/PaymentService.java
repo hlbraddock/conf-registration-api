@@ -5,12 +5,9 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.cru.crs.auth.UnauthorizedException;
-import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.queries.EntityColumnMappings;
@@ -29,13 +26,13 @@ public class PaymentService
     PaymentQueries paymentQueries;
     
     @Inject
-    public PaymentService(EntityManager em)
+    public PaymentService(Sql2o sql, RegistrationService registrationService, PaymentQueries paymentQueries)
     {
-    	this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+    	this.sql = sql;
     	this.sql.setDefaultColumnMappings(EntityColumnMappings.get(PaymentEntity.class));
+    	this.registrationService = registrationService;
     	
-        this.paymentQueries = new PaymentQueries();
-        this.registrationService = new RegistrationService(em, new AuthorizationService());
+        this.paymentQueries = paymentQueries;
     }
 
     public PaymentEntity fetchPaymentBy(UUID id, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException

@@ -6,13 +6,11 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.RegistrationQueries;
@@ -36,12 +34,12 @@ public class RegistrationService
 	private Logger logger = Logger.getLogger(RegistrationService.class);
 
 	@Inject
-    public RegistrationService(EntityManager em, AuthorizationService authorizationService)
+    public RegistrationService(Sql2o sql, ConferenceService conferenceService, AuthorizationService authorizationService)
     {
-		this.authorizationService = authorizationService;
-		this.conferenceService = new ConferenceService(null, new UserService(em),new AnswerService(em));
-		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql = sql;
 		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(RegistrationEntity.class));
+		this.authorizationService = authorizationService;
+		this.conferenceService = conferenceService;
     }
 
 	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId, CrsApplicationUser crsApplicationUser) throws UnauthorizedException

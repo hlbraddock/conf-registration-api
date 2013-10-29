@@ -4,14 +4,11 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.queries.BlockQueries;
 import org.cru.crs.model.queries.EntityColumnMappings;
 import org.sql2o.Sql2o;
@@ -19,20 +16,18 @@ import org.sql2o.Sql2o;
 public class BlockService
 {
 	Sql2o sql;
-	PageService pageService;
-	ConferenceService conferenceService;
+
 	AnswerService answerService;
 
 	BlockQueries blockQueries;
 	
     @Inject
-	public BlockService(EntityManager em, ConferenceService conferenceService, PageService pageService, AnswerService answerService)
+	public BlockService(Sql2o sql, AnswerService answerService)
 	{
-    	this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+    	this.sql = sql;
     	this.sql.setDefaultColumnMappings(EntityColumnMappings.get(BlockEntity.class));
-		this.conferenceService = conferenceService;
-		this.pageService = pageService;
-		this.answerService = answerService;
+
+    	this.answerService = answerService;
 		
 		this.blockQueries = new BlockQueries();
 	}
@@ -65,9 +60,9 @@ public class BlockService
 				.executeUpdate();
 	}
 	
-	public void updateBlock(BlockEntity blockToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	public void updateBlock(ConferenceEntity owningConference, BlockEntity blockToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
-		verifyUserIdHasAccessToModifyThisBlocksConference(blockToUpdate,crsLoggedInUser);
+		verifyUserIdHasAccessToModifyThisBlocksConference(owningConference, blockToUpdate,crsLoggedInUser);
 		
 		/*content and conferenceCostsBlocksId omitted for now*/
 		sql.createQuery(blockQueries.update())
@@ -81,11 +76,11 @@ public class BlockService
 				.executeUpdate();
 	}
 
-	public void deleteBlock(UUID blockId, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	public void deleteBlock(ConferenceEntity owningConference, UUID blockId, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
 		BlockEntity blockToDelete = fetchBlockBy(blockId);
 
-		verifyUserIdHasAccessToModifyThisBlocksConference(blockToDelete,crsLoggedInUser);
+		verifyUserIdHasAccessToModifyThisBlocksConference(owningConference, blockToDelete,crsLoggedInUser);
 
 		deleteBlock(blockToDelete);
 	}
@@ -99,15 +94,12 @@ public class BlockService
 				.executeUpdate();
 	}
 
-	private void verifyUserIdHasAccessToModifyThisBlocksConference(BlockEntity blockToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	private void verifyUserIdHasAccessToModifyThisBlocksConference(ConferenceEntity owningConference, BlockEntity blockToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
-		PageEntity pageBlockBelongsTo = pageService.fetchPageBy(blockToUpdate.getPageId());
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageBlockBelongsTo.getConferenceId());
-		
 		/*This could NPE if the conference is null, I considered adding an extra check here, but
 		 * the end result would only be that a different exception be thrown.  Either way it
 		 * will end up as a 500 to the client.*/
-		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferencePageBelongsTo.getContactPersonId()))
+		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(owningConference.getContactPersonId()))
 		{
 			throw new UnauthorizedException();
 		}

@@ -246,24 +246,13 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void addPageToBogusConference() throws URISyntaxException
 	{
-		EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		
-		try
-		{
-			Page newPage = createFakePage();
+		Page newPage = createFakePage();
 
-			@SuppressWarnings("rawtypes")
-			ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"), UserInfo.AuthCode.TestUser);
+		@SuppressWarnings("rawtypes")
+		ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"), UserInfo.AuthCode.TestUser);
 
-			//status code, 400-Bad Request
-			Assert.assertEquals(response.getStatus(), 400);
-
-			Assert.assertNull(setupEm.find(PageEntity.class, newPage.getId()));
-		}
-		finally
-		{
-			setupEm.close();
-		}
+		//status code, 400-Bad Request
+		Assert.assertEquals(response.getStatus(), 400);
 	}
 
 	@Test(groups="functional-tests")
@@ -373,44 +362,30 @@ public class ConferenceResourceFunctionalTest
 	 * Expected return: 204 - No Content
 	 */	
 	@Test(groups="functional-tests")
-	 public void addPageToConferenceByAddingToAConferenceResourceAndUpdating()
+	 public void addPageToConferenceByAddingToAConferenceResourceAndUpdating() throws Exception
 	 {
 		UUID testConferenceId = UUID.randomUUID();
-		
-		try
-		{
-			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			Conference fakeConference = createFakeConference();
-			
-			fakeConference.setId(testConferenceId);
-			
-			setupEm.getTransaction().begin();
-			setupEm.persist(fakeConference.toJpaConferenceEntity());
-			setupEm.flush();
-			setupEm.getTransaction().commit();
 
-			setupEm.close();
+		Conference fakeConference = createFakeConference();	
+		fakeConference.setId(testConferenceId);
 
-			fakeConference.getRegistrationPages().add(createFakePage());
+		conferenceClient.createConference(fakeConference, UserInfo.AuthCode.TestUser);
 
-			ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
-			Assert.assertEquals(updateResponse.getStatus(), 204);
-			
-			EntityManager retrievalEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			ConferenceEntity updatedConferenceFromDb = retrievalEm.find(ConferenceEntity.class, fakeConference.getId());
+		fakeConference.getRegistrationPages().add(createFakePage());
 
-//			Assert.assertEquals(updatedConferenceFromDb.getPages().size(), 1);
-//			Assert.assertEquals(updatedConferenceFromDb.getPages().get(0).getId(), fakeConference.getRegistrationPages().get(0).getId());
-		}
-		finally
-		{
-			EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			cleanupEm.getTransaction().begin();
-			cleanupEm.remove(cleanupEm.find(ConferenceEntity.class,testConferenceId));
-			cleanupEm.getTransaction().commit();
-			cleanupEm.close();
-		}
-	}
+		createClient();
+
+		ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
+
+		Assert.assertEquals(updateResponse.getStatus(), 204);
+
+		createClient();
+
+		ClientResponse<Conference> fetchResponse = conferenceClient.getConference(fakeConference.getId());
+		Conference updatedConference = fetchResponse.getEntity();
+
+		Assert.assertNotNull(updatedConference.getRegistrationPages().get(0));
+	 }
 	
 	@Test(groups="functional-tests")
 	public void moveBlockUpOnePage()

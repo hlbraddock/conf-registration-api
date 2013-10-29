@@ -3,7 +3,6 @@ package org.cru.crs.service;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
@@ -21,12 +20,13 @@ public class AuthenticationProviderService
 	AuthenticationProviderQueries authenticationProviderQueries;
 	
 	@Inject
-	public AuthenticationProviderService(EntityManager entityManager)
+	public AuthenticationProviderService(Sql2o sql, UserService userService, AuthenticationProviderQueries authenticationProviderQueries)
 	{
-		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql = sql;
 		this.sql.setDefaultColumnMappings(AuthenticationProviderIdentityEntity.columnMappings);
 		
-		this.userService = new UserService(entityManager);
+		this.userService = userService;
+		
 		this.authenticationProviderQueries = new AuthenticationProviderQueries();
 	}
 

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -18,19 +17,21 @@ import org.sql2o.Sql2o;
 public class ConferenceService
 {
 	Sql2o sql;
+	
 	PageService pageService;
     UserService userService;
+    
     ConferenceQueries conferenceQueries;
     
     @Inject
-	public ConferenceService(EntityManager em, UserService userService, AnswerService answerService)
+	public ConferenceService(Sql2o sql, PageService pageService, UserService userService, ConferenceQueries conferenceQueries)
 	{
-		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql = sql;
 		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(ConferenceEntity.class));
 		
-		this.pageService = new PageService(null, this, answerService);
+		this.pageService = pageService;
         this.userService = userService;
-        this.conferenceQueries = new ConferenceQueries();
+        this.conferenceQueries = conferenceQueries;
 	}
 
 	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
@@ -103,7 +104,24 @@ public class ConferenceService
         
 		/*content and conferenceCostsBlocksId omitted for now*/
 		sql.createQuery(conferenceQueries.update())
+				.addParameter("id", conferenceToUpdate.getId())
 				.addParameter("name", conferenceToUpdate.getName())
+				.addParameter("description", conferenceToUpdate.getDescription())
+        		.addParameter("totalSlots", conferenceToUpdate.getTotalSlots())
+        		.addParameter("conferenceCostsId", conferenceToUpdate.getConferenceCostsId())
+        		.addParameter("eventStartTime", conferenceToUpdate.getEventStartTime())
+        		.addParameter("eventEndTime", conferenceToUpdate.getEventEndTime())
+        		.addParameter("registrationStartTime", conferenceToUpdate.getRegistrationStartTime())
+        		.addParameter("registrationEndTime", conferenceToUpdate.getRegistrationEndTime())
+        		.addParameter("contactPersonId", conferenceToUpdate.getContactPersonId())
+        		.addParameter("contactPersonName", conferenceToUpdate.getContactPersonName())
+        		.addParameter("contactPersonEmail", conferenceToUpdate.getContactPersonEmail())
+        		.addParameter("contactPersonPhone", conferenceToUpdate.getContactPersonPhone())
+        		.addParameter("locationName", conferenceToUpdate.getLocationName())
+        		.addParameter("locationAddress", conferenceToUpdate.getLocationAddress())
+        		.addParameter("locationCity", conferenceToUpdate.getLocationCity())
+        		.addParameter("locationState", conferenceToUpdate.getLocationState())
+        		.addParameter("locationZipCode", conferenceToUpdate.getLocationZipCode())
 				.executeUpdate();
 	}
 

@@ -32,7 +32,6 @@ import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
-import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;

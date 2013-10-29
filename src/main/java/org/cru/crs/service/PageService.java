@@ -4,11 +4,9 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
@@ -19,21 +17,20 @@ import org.sql2o.Sql2o;
 public class PageService
 {
 	Sql2o sql;
-	ConferenceService conferenceService;
+	
 	BlockService blockService;
 	
 	PageQueries pageQueries;
 	
 	@Inject
-	public PageService(EntityManager em, ConferenceService conferenceService, AnswerService answerService)
+	public PageService(Sql2o sql, BlockService blockService, PageQueries pageQueries)
 	{
-		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql = sql;
 		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(PageEntity.class));
 		
-		this.conferenceService = conferenceService;
-		blockService = new BlockService(null,conferenceService,this,answerService);
+		this.blockService = blockService;
 		
-		pageQueries = new PageQueries();
+		this.pageQueries = pageQueries;
 	}
 	
 	public PageEntity fetchPageBy(UUID id)
@@ -61,9 +58,9 @@ public class PageService
 				.executeUpdate();
 	}
 	
-	public void updatePage(PageEntity pageToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	public void updatePage(ConferenceEntity owningConference, PageEntity pageToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
-		verifyUserIdHasAccessToModifyThisPagesConference(pageToUpdate, crsLoggedInUser.getId());
+		verifyUserIdHasAccessToModifyThisPagesConference(owningConference, pageToUpdate, crsLoggedInUser.getId());
 
 		/*content and conferenceCostsBlocksId omitted for now*/
 		sql.createQuery(pageQueries.update())
@@ -74,9 +71,9 @@ public class PageService
 				.executeUpdate();	
 	}
 
-	public void deletePage(UUID pageId, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	public void deletePage(ConferenceEntity owningConference, UUID pageId, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
-		verifyUserIdHasAccessToModifyThisPagesConference(fetchPageBy(pageId), crsLoggedInUser.getId());
+		verifyUserIdHasAccessToModifyThisPagesConference(owningConference, fetchPageBy(pageId), crsLoggedInUser.getId());
 
 		for(BlockEntity blockToDelete : blockService.fetchBlocksForPage(pageId))
 		{
@@ -88,12 +85,10 @@ public class PageService
 			.executeUpdate();
 	}
 
-	public void addBlockToPage(PageEntity pageToAddBlockTo, BlockEntity blockToAdd, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
-	{
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageToAddBlockTo.getConferenceId());
-		
+	public void addBlockToPage(ConferenceEntity owningConference, PageEntity pageToAddBlockTo, BlockEntity blockToAdd, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	{		
 		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
-		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferencePageBelongsTo.getContactPersonId()))
+		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(owningConference.getContactPersonId()))
 		{
 			throw new UnauthorizedException();
 		}
@@ -104,15 +99,13 @@ public class PageService
 		blockService.saveBlock(blockToAdd);
 	}
 
-	private void verifyUserIdHasAccessToModifyThisPagesConference(PageEntity pageToDelete, UUID crsAppUserId)
+	private void verifyUserIdHasAccessToModifyThisPagesConference(ConferenceEntity owningConference, PageEntity pageToDelete, UUID crsAppUserId)
 			throws UnauthorizedException
-	{
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageToDelete.getConferenceId());
-		
+	{		
 		/*This could NPE if the conference is null, I considered adding an extra check here, but
 		 * the end result would only be that a different exception be thrown.  Either way it
 		 * will end up as a 500 to the client.*/
-		if(crsAppUserId == null || !crsAppUserId.equals(conferencePageBelongsTo.getContactPersonId()))
+		if(crsAppUserId == null || !crsAppUserId.equals(owningConference.getContactPersonId()))
 		{
 			throw new UnauthorizedException();
 		}

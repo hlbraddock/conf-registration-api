@@ -3,7 +3,6 @@ package org.cru.crs.service;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.model.queries.EntityColumnMappings;
@@ -25,9 +24,9 @@ public class UserService
 	UserQueries userQueries = new UserQueries();
 	
     @Inject
-    public UserService(EntityManager em)
+    public UserService(Sql2o sql)
     {
-    	this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+    	this.sql = sql;
 		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(UserEntity.class));
     }
 
