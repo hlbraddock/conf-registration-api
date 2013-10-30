@@ -13,6 +13,12 @@ public class AnswerQueries implements BasicQueries
 	{
 		return "SELECT * FROM answers WHERE block_id = :blockId";
 	}
+	
+	public String selectAllForRegistration()
+	{
+		return "SELECT * FROM answers WHERE registration_id = :registrationId";
+	}
+	
 	@Override
 	public String update()
 	{
@@ -20,8 +26,7 @@ public class AnswerQueries implements BasicQueries
 		query.append("UPDATE answers SET ")
 				.append("registration_id = :registrationId")
 				.append("block_id = :blockId")
-//				.append("json = :json")
-				;
+				.append("answer = :answer");
 		
 		return query.toString();
 	}
@@ -34,13 +39,12 @@ public class AnswerQueries implements BasicQueries
 				.append("id,")
 				.append("registration_id,")
 				.append("block_id")
-//				.append("json")
+				.append("answer")
 				.append(") VALUES (")
 				.append(":id,")
 				.append(":registrationId,")
 				.append(":blockId")
-//				.append(":json")
-				;
+				.append(":answer");
 		
 		return query.toString();
 	}

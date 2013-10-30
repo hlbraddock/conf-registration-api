@@ -134,7 +134,7 @@ public class AnswerResource
 
 				logger.info("create answer with registration entity");
 
-				logObject(Registration.fromJpa(registrationEntity), logger);
+				logObject(Registration.fromDb(registrationEntity), logger);
 
 //				registrationEntity.getAnswers().add(answer.toJpaAnswerEntity());
 

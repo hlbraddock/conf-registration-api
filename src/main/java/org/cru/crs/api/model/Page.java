@@ -1,6 +1,5 @@
 package org.cru.crs.api.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,52 +19,41 @@ public class Page implements java.io.Serializable
 	private int position;
 	private List<Block> blocks;
 	
-	public static Page fromJpa(PageEntity jpaPage)
+	public static Page fromDb(PageEntity dbPage)
 	{
 		Page page = new Page();
 		
-		page.id = jpaPage.getId();
-		page.conferenceId = jpaPage.getConferenceId();
-		page.title = jpaPage.getTitle();
-		page.position = jpaPage.getPosition();
-//		page.blocks = Block.fromJpa(jpaPage.getBlocks());
+		page.id = dbPage.getId();
+		page.conferenceId = dbPage.getConferenceId();
+		page.title = dbPage.getTitle();
+		page.position = dbPage.getPosition();
 		
 		return page;
 	}
 	
-	public static List<Page> fromJpa(List<PageEntity> jpaPages)
+	public static Page fromDb(PageEntity dbPage, List<BlockEntity> dbBlocks)
 	{
-		List<Page> pages = new ArrayList<Page>();
+		Page page = new Page();
 		
-		if(jpaPages == null) return pages;
+		page.id = dbPage.getId();
+		page.conferenceId = dbPage.getConferenceId();
+		page.title = dbPage.getTitle();
+		page.position = dbPage.getPosition();
+		page.blocks = Block.fromDb(dbBlocks);
 		
-		for(PageEntity jpaPage : jpaPages)
-		{
-            if(jpaPage == null) continue;
-			pages.add(fromJpa(jpaPage));
-		}
-		
-		return pages;
+		return page;
 	}
 	
-	public PageEntity toJpaPageEntity()
+	public PageEntity toDbPageEntity()
 	{
-		PageEntity jpaPage = new PageEntity();
+		PageEntity dbPage = new PageEntity();
 		
-		jpaPage.setId(id);
-		jpaPage.setConferenceId(conferenceId);
-		jpaPage.setTitle(title);
-		jpaPage.setPosition(position);
-//		jpaPage.setBlocks(new ArrayList<BlockEntity>());
-		
-		if(blocks != null)
-		{
-			for(Block block : blocks)
-			{
-//				jpaPage.getBlocks().add(block.toJpaBlockEntity());
-			}
-		}			
-		return jpaPage;
+		dbPage.setId(id);
+		dbPage.setConferenceId(conferenceId);
+		dbPage.setTitle(title);
+		dbPage.setPosition(position);
+
+		return dbPage;
 	}
 
     public int hashCode()

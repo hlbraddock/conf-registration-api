@@ -37,7 +37,7 @@ public class PageQueries implements BasicQueries
 		query.append("INSERT INTO pages(")
 				.append("id,")
 				.append("title,")
-				.append("conferenceId,")
+				.append("conference_id,")
 				.append("position")
 				.append(") VALUES(")
 				.append(":id,")

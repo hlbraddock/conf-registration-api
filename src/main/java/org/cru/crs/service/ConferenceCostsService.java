@@ -2,6 +2,8 @@ package org.cru.crs.service;
 
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.queries.ConferenceCostsQueries;
 import org.cru.crs.model.queries.EntityColumnMappings;
@@ -13,25 +15,26 @@ public class ConferenceCostsService
 
 	ConferenceCostsQueries conferenceCostsQueries;
 	
-	public ConferenceCostsService()
+	@Inject
+	public ConferenceCostsService(Sql2o sql)
 	{
-		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql = sql;
 		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(ConferenceCostsEntity.class));
 		this.conferenceCostsQueries = new ConferenceCostsQueries();
 	}
 	
 	public ConferenceCostsEntity fetchBy(UUID id)
 	{
-		return sql.createQuery(conferenceCostsQueries.selectById())
+		return sql.createQuery(conferenceCostsQueries.selectById(),false)
 						.addParameter("id", id)
 						.executeAndFetchFirst(ConferenceCostsEntity.class);
 	}
 	
 	public void saveNew(ConferenceCostsEntity costs)
 	{
-		sql.createQuery(conferenceCostsQueries.insert())
+		sql.createQuery(conferenceCostsQueries.insert(),false)
 				.addParameter("id", costs.getId())
-				.addParameter("baseCost", costs.getConferenceBaseCost())
+				.addParameter("baseCost", costs.getBaseCost())
 				.addParameter("minimumDeposit", costs.getMinimumDeposit())
 				.addParameter("earlyRegistrationDiscount", costs.isEarlyRegistrationDiscount())
 				.addParameter("earlyRegistrationAmount", costs.getEarlyRegistrationAmount())
@@ -44,9 +47,9 @@ public class ConferenceCostsService
 	
 	public void update(ConferenceCostsEntity costs)
 	{
-		sql.createQuery(conferenceCostsQueries.update())
+		sql.createQuery(conferenceCostsQueries.update(),false)
 				.addParameter("id", costs.getId())
-				.addParameter("baseCost", costs.getConferenceBaseCost())
+				.addParameter("baseCost", costs.getBaseCost())
 				.addParameter("minimumDeposit", costs.getMinimumDeposit())
 				.addParameter("earlyRegistrationDiscount", costs.isEarlyRegistrationDiscount())
 				.addParameter("earlyRegistrationAmount", costs.getEarlyRegistrationAmount())

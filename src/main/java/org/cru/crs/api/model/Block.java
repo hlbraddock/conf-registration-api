@@ -33,7 +33,7 @@ public class Block implements java.io.Serializable
 		return block;
 	}
 
-	public static List<Block> fromJpa(List<BlockEntity> jpaBlocks)
+	public static List<Block> fromDb(List<BlockEntity> jpaBlocks)
 	{
 		List<Block> webBlocks = new ArrayList<Block>();
 

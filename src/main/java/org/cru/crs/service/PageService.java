@@ -23,14 +23,14 @@ public class PageService
 	PageQueries pageQueries;
 	
 	@Inject
-	public PageService(Sql2o sql, BlockService blockService, PageQueries pageQueries)
+	public PageService(Sql2o sql, BlockService blockService)
 	{
 		this.sql = sql;
 		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(PageEntity.class));
 		
 		this.blockService = blockService;
 		
-		this.pageQueries = pageQueries;
+		this.pageQueries = new PageQueries();
 	}
 	
 	public PageEntity fetchPageBy(UUID id)
@@ -50,7 +50,7 @@ public class PageService
 	public void savePage(PageEntity pageToSave)
 	{
 		/*content and conferenceCostsBlocksId omitted for now*/
-		sql.createQuery(pageQueries.insert())
+		sql.createQuery(pageQueries.insert(),false)
 				.addParameter("id", pageToSave.getId())
 				.addParameter("conferenceId", pageToSave.getConferenceId())
 				.addParameter("position", pageToSave.getPosition())
@@ -63,7 +63,7 @@ public class PageService
 		verifyUserIdHasAccessToModifyThisPagesConference(owningConference, pageToUpdate, crsLoggedInUser.getId());
 
 		/*content and conferenceCostsBlocksId omitted for now*/
-		sql.createQuery(pageQueries.update())
+		sql.createQuery(pageQueries.update(),false)
 				.addParameter("id", pageToUpdate.getId())
 				.addParameter("conferenceId", pageToUpdate.getConferenceId())
 				.addParameter("position", pageToUpdate.getPosition())
@@ -80,7 +80,7 @@ public class PageService
 			blockService.deleteBlock(blockToDelete);
 		}
 
-		sql.createQuery(pageQueries.delete())
+		sql.createQuery(pageQueries.delete(),false)
 			.addParameter("pageId", pageId)
 			.executeUpdate();
 	}

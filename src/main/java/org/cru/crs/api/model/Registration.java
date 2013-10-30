@@ -30,64 +30,38 @@ public class Registration implements java.io.Serializable
 	 * @param jpaRegistration
 	 * @return
 	 */
-	public static Registration fromJpa(RegistrationEntity jpaRegistration)
+	public static Registration fromDb(RegistrationEntity jpaRegistration)
 	{
 		Registration webRegistration = new Registration();
 		
 		webRegistration.id = jpaRegistration.getId();
         webRegistration.userId = jpaRegistration.getUserId();
-//		webRegistration.conferenceId = jpaRegistration.getConference().getId();
-//        webRegistration.answers = Answer.fromJpa(jpaRegistration.getAnswers());
+		webRegistration.conferenceId = jpaRegistration.getConferenceId();
         webRegistration.completed = jpaRegistration.getCompleted();
-        
-//        for(PaymentEntity jpaPayment : jpaRegistration.getPayments())
-//        {
-//        	if(jpaPayment.getTransactionDatetime() == null || jpaPayment.getAuthnetTransactionId() == null)
-//        	{
-//        		webRegistration.currentPayment = Payment.fromJpa(jpaPayment);
-//        	}
-//        	else
-//        	{
-//        		webRegistration.pastPayments.add(Payment.fromJpa(jpaPayment));
-//        	}
-//        }
         
         return webRegistration;
 	}
 	
-	public static Set<Registration> fromJpa(Set<RegistrationEntity> jpaRegistrations)
+	public static Set<Registration> fromDb(Set<RegistrationEntity> dbRegistrations)
 	{
 		Set<Registration> registrations = new HashSet<Registration>();
 		
-		for(RegistrationEntity jpaRegistration : jpaRegistrations)
+		for(RegistrationEntity dbRegistration : dbRegistrations)
 		{
-			registrations.add(fromJpa(jpaRegistration));
+			registrations.add(fromDb(dbRegistration));
 		}
 		
 		return registrations;
 	}
 	
-	public RegistrationEntity toJpaRegistrationEntity(ConferenceEntity conferenceEntity)
+	public RegistrationEntity toDbRegistrationEntity()
 	{
 		RegistrationEntity jpaRegistration = new RegistrationEntity();
 		
 		jpaRegistration.setId(id);
 		jpaRegistration.setUserId(userId);
-//        jpaRegistration.setConference(conferenceEntity);
         jpaRegistration.setCompleted(completed);
-
-//        jpaRegistration.setAnswers(new HashSet<AnswerEntity>());
-//        for (Answer answer : getAnswers())
-//        {
-//            jpaRegistration.getAnswers().add(answer.toJpaAnswerEntity());
-//        }
-        
-//        for(Payment payment : pastPayments)
-//        {
-//        	jpaRegistration.getPayments().add(payment.toJpaPaymentEntity());
-//        }
-        
-//        if(currentPayment != null) jpaRegistration.getPayments().add(currentPayment.toJpaPaymentEntity());
+        jpaRegistration.setConferenceId(conferenceId);
         
 		return jpaRegistration;
 	}

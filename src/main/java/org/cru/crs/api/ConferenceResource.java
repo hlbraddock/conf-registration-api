@@ -23,31 +23,45 @@ import javax.ws.rs.core.Response.Status;
 
 import org.ccci.util.time.Clock;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.utils.ConferenceAssembler;
 import org.cru.crs.api.utils.RegistrationWindowCalculator;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.service.AnswerService;
+import org.cru.crs.service.BlockService;
+import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
+import org.testng.collections.Lists;
+
+import com.beust.jcommander.internal.Sets;
 
 @Stateless
 @Path("/conferences")
 public class ConferenceResource
 {
 	@Inject ConferenceService conferenceService;
+	@Inject ConferenceCostsService conferenceCostsService;
 	@Inject RegistrationService registrationService;
 	@Inject PageService pageService;
+	@Inject BlockService blockService;
 	@Inject PaymentService paymentService;
+	@Inject AnswerService answerService;
 	@Inject Clock clock;
 
 	@Inject CrsUserService userService;
@@ -70,15 +84,18 @@ public class ConferenceResource
 		{
 			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 
-            List<Conference> conferences = Conference.fromJpa(conferenceService.fetchAllConferences(loggedInUser));
-
-            for(Conference conference : conferences)
+            List<Conference> conferences = Lists.newArrayList();
+            
+            for(ConferenceEntity databaseConference : conferenceService.fetchAllConferences(loggedInUser))
             {
-               /* Set these fields based on the server's time, not the client's.  The client could be in
-                * any timezone..*/
-                RegistrationWindowCalculator.setRegistrationOpenFieldOn(conference, clock);
-                RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(conference, clock);
+            	Conference webConference = ConferenceAssembler.buildConference(databaseConference.getId(), conferenceService, conferenceCostsService, pageService, blockService);
+            													            	
+            	RegistrationWindowCalculator.setRegistrationOpenFieldOn(webConference, clock);
+                RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(webConference, clock);
+                
+                conferences.add(webConference);
             }
+
 			return Response.ok(conferences).build();
 		}
 		catch(UnauthorizedException e)
@@ -98,23 +115,22 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getConference(@PathParam(value = "conferenceId") UUID conferenceId)
 	{
-		ConferenceEntity requestedConference = conferenceService.fetchConferenceBy(conferenceId);
-
+		
+		Conference requestedConference = ConferenceAssembler.buildConference(conferenceId, conferenceService, conferenceCostsService, pageService, blockService);
+		
 		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
-
-        Conference conference = Conference.fromJpaWithPages(requestedConference);
-
+        
         /*
          * Set these fields based on the server's time, not the client's.  The client could be in
          * any timezone..
          */
-        RegistrationWindowCalculator.setRegistrationOpenFieldOn(conference, clock);
-        RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(conference, clock);
+        RegistrationWindowCalculator.setRegistrationOpenFieldOn(requestedConference, clock);
+        RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(requestedConference, clock);
 
-        logger.info("GET: " + conference.getId());
-        logObject(conference, logger);
+        logger.info("GET: " + requestedConference.getId());
+        logObject(requestedConference, logger);
 
-        return Response.ok(conference).build();
+        return Response.ok(requestedConference).build();
 	}
 
 	/**
@@ -146,13 +162,13 @@ public class ConferenceResource
 			conferenceService.createNewConference(conference.toJpaConferenceEntity(), loggedInUser);
 			
 			/*fetch the created conference so a nice pretty conference object can be returned to client*/
-			ConferenceEntity createdConference = conferenceService.fetchConferenceBy(conference.getId());
+			Conference createdConference = ConferenceAssembler.buildConference(conference.getId(), conferenceService, conferenceCostsService, pageService, blockService);
 			
 			/*return a response with status 201 - Created and a location header to fetch the conference.
 			 * a copy of the entity is also returned.*/
 			return Response.status(Status.CREATED)
-					.location(new URI("/conferences/" + conference.getId()))
-					.entity(Conference.fromJpaWithPages(createdConference)).build();
+							.location(new URI("/conferences/" + conference.getId()))
+							.entity(createdConference).build();
 		}
 		catch(UnauthorizedException e)
 		{
@@ -239,12 +255,25 @@ public class ConferenceResource
 				return Response.status(Status.BAD_REQUEST).build();
 			}
 
-			conferenceService.addPageToConference(conferencePageBelongsTo, newPage.toJpaPageEntity(), loggedInUser);
-			final PageEntity createdPage = pageService.fetchPageBy(newPage.getId());
+			if(!conferencePageBelongsTo.getContactPersonId().equals(loggedInUser.getId()))
+			{
+				throw new UnauthorizedException();
+			}
+			
+			if(newPage.getId() == null)
+			{
+				newPage.setId(UUID.randomUUID());
+			}
+			
+			newPage.setConferenceId(conferenceId);
+			
+			pageService.savePage(newPage.toDbPageEntity());
+			
+			PageEntity createdPage = pageService.fetchPageBy(newPage.getId());
 			
 			return Response.status(Status.CREATED)
 					.location(new URI("/pages/" + newPage.getId()))
-					.entity(Page.fromJpa(createdPage))
+					.entity(Page.fromDb(createdPage, blockService.fetchBlocksForPage(createdPage.getId())))
 					.build();
 		} 
 		catch (UnauthorizedException e)
@@ -271,30 +300,27 @@ public class ConferenceResource
 
             logger.info(conferenceId);
 
-            ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+            if(conferenceService.fetchConferenceBy(conferenceId) == null) return Response.status(Status.BAD_REQUEST).build();
 
-            logObject(conference, logger);
-
-            if(conference == null) return Response.status(Status.BAD_REQUEST).build();
-
-            RegistrationEntity newRegistrationEntity = newRegistration.toJpaRegistrationEntity(conference);
+            RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
 
             logObject(newRegistrationEntity, logger);
 
             newRegistrationEntity.setUserId(crsLoggedInUser.getId());
 
-//            if(conference.getConferenceCosts().isAcceptCreditCards())
-//            {
-//            	newRegistrationEntity.getPayments().add(new PaymentEntity().setId(UUID.randomUUID()));
-//            }
+            if(conferenceCostsService.fetchBy(conferenceId).isAcceptCreditCards())
+            {
+            	PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(newRegistration.getId());
+            	paymentService.createPaymentRecord(newPayment, crsLoggedInUser);
+            }
             
 			// TODO need to make sure user had not already registered for this conference
 			registrationService.createNewRegistration(newRegistrationEntity, crsLoggedInUser);
 
 			return Response.status(Status.CREATED)
-					.location(new URI("/pages/" + newRegistration.getId()))
-					.entity(newRegistration)
-					.build();
+								.location(new URI("/pages/" + newRegistration.getId()))
+								.entity(newRegistration)
+								.build();
 		}
 		catch(UnauthorizedException e)
 		{
@@ -316,10 +342,14 @@ public class ConferenceResource
 
 			logger.info(crsLoggedInUser);
 
-			Set<RegistrationEntity> registrationEntitySet = registrationService.fetchAllRegistrations(conferenceId, crsLoggedInUser);
+			Set<Registration> registrationSet = Registration.fromDb(registrationService.fetchAllRegistrations(conferenceId, crsLoggedInUser));
 
-			Set<Registration> registrationSet = Registration.fromJpa(registrationEntitySet);
-
+			for(Registration registration : registrationSet)
+			{
+				addPaymentsToRegistration(registration);
+				addAnswersToRegistration(registration);
+			}
+			
 			logObject(registrationSet, logger);
 			
 			return Response.ok(registrationSet).build();
@@ -328,6 +358,32 @@ public class ConferenceResource
 		{
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
+	}
+
+	private void addPaymentsToRegistration(Registration registration)
+	{
+		List<PaymentEntity> paymentEntitiesForRegistration = paymentService.fetchPaymentsForRegistration(registration.getId());
+		List<Payment> pastPayments = Lists.newArrayList();
+		
+		for(PaymentEntity paymentEntity : paymentEntitiesForRegistration)
+		{
+			Payment payment = Payment.fromJpa(paymentEntity);
+			if(payment.getAuthnetTransactionId() != null) pastPayments.add(payment);
+			else registration.setCurrentPayment(payment);
+		}
+		registration.setPastPayments(pastPayments);
+	}
+
+	private void addAnswersToRegistration(Registration registration)
+	{
+		List<AnswerEntity> answerEntitiesForRegistration = answerService.getAllAnswersForRegistration(registration.getId());
+		Set<Answer> answers = Sets.newHashSet();
+		
+		for(AnswerEntity answerEntity : answerEntitiesForRegistration)
+		{
+			answers.add(Answer.fromJpa(answerEntity));
+		}
+		registration.setAnswers(answers);
 	}
 
 	@GET
@@ -348,7 +404,10 @@ public class ConferenceResource
 
 			if(registrationEntity == null) return Response.status(Status.NOT_FOUND).build();
 			
-			Registration registration = Registration.fromJpa(registrationEntity);
+			Registration registration = Registration.fromDb(registrationEntity);
+			
+			addAnswersToRegistration(registration);
+			addPaymentsToRegistration(registration);
 			
 			logObject(registration, logger);
 

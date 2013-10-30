@@ -3,7 +3,6 @@ package org.cru.crs.service;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.model.queries.EntityColumnMappings;
@@ -17,9 +16,9 @@ public class SessionService
 	SessionQueries sessionQueries;
 	
 	@Inject
-	public SessionService(EntityManager entityManager)
+	public SessionService(Sql2o sql)
 	{
-		this.sql = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		this.sql = sql;
 		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(SessionEntity.class));
 		this.sessionQueries = new SessionQueries();
 	}

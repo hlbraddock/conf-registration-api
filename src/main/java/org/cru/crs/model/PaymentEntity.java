@@ -44,9 +44,10 @@ public class PaymentEntity implements Serializable
         return registrationId;
     }
 
-    public void setRegistrationId(UUID registrationId)
+    public PaymentEntity setRegistrationId(UUID registrationId)
     {
         this.registrationId = registrationId;
+        return this;
     }
 
     public Long getAuthnetTransactionId()

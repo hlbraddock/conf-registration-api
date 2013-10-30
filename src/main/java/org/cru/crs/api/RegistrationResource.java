@@ -73,9 +73,9 @@ public class RegistrationResource
 			if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
 
 			logger.info("get registration entity");
-			Simply.logObject(Registration.fromJpa(requestedRegistration), RegistrationResource.class);
+			Simply.logObject(Registration.fromDb(requestedRegistration), RegistrationResource.class);
 
-			Registration registration = Registration.fromJpa(requestedRegistration);
+			Registration registration = Registration.fromDb(requestedRegistration);
 			
 			logger.info("get registration");
 			Simply.logObject(registration, RegistrationResource.class);
@@ -123,7 +123,7 @@ public class RegistrationResource
 			{
 				createdNewRegistration = true;
 				
-				RegistrationEntity registrationEntity = registration.toJpaRegistrationEntity(conferenceEntity);
+				RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
 
 				logger.info("update registration creating");
 
@@ -133,7 +133,7 @@ public class RegistrationResource
 			}
 			else
 			{
-				registrationService.updateRegistration(registration.toJpaRegistrationEntity(conferenceEntity), crsLoggedInUser);
+				registrationService.updateRegistration(registration.toDbRegistrationEntity(), crsLoggedInUser);
 			}
 			
 			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
@@ -177,7 +177,7 @@ public class RegistrationResource
 				return Response.status(Status.BAD_REQUEST).build();
 			}
 			logger.info("delete registration entity");
-			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
+			Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
 
 			/*FIXME: expect this to break at run time as the registration may have payments associated with it
 			 * and that is enforced at the database level.  We need to decide if registrations should be allowed
@@ -217,7 +217,7 @@ public class RegistrationResource
 			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
 			logger.info("create answer with registration entity");
-			Simply.logObject(Registration.fromJpa(registrationEntity), RegistrationResource.class);
+			Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
 
 			//TODO: create answer
 //			registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());

@@ -9,7 +9,7 @@ public class ConferenceCostsEntity
 {
     UUID id;
 
-    BigDecimal conferenceBaseCost;
+    BigDecimal baseCost;
 
     boolean earlyRegistrationDiscount;
     BigDecimal earlyRegistrationAmount;
@@ -31,14 +31,14 @@ public class ConferenceCostsEntity
         this.id = id;
     }
 
-    public BigDecimal getConferenceBaseCost()
+    public BigDecimal getBaseCost()
     {
-        return conferenceBaseCost;
+        return baseCost;
     }
 
-    public void setConferenceBaseCost(BigDecimal conferenceBaseCost)
+    public void setBaseCost(BigDecimal baseCost)
     {
-        this.conferenceBaseCost = conferenceBaseCost;
+        this.baseCost = baseCost;
     }
 
     public BigDecimal getMinimumDeposit()

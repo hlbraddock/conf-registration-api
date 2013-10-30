@@ -24,14 +24,14 @@ public class ConferenceService
     ConferenceQueries conferenceQueries;
     
     @Inject
-	public ConferenceService(Sql2o sql, PageService pageService, UserService userService, ConferenceQueries conferenceQueries)
+	public ConferenceService(Sql2o sql, PageService pageService, UserService userService)
 	{
 		this.sql = sql;
 		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(ConferenceEntity.class));
 		
 		this.pageService = pageService;
         this.userService = userService;
-        this.conferenceQueries = conferenceQueries;
+        this.conferenceQueries = new ConferenceQueries();
 	}
 
 	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)

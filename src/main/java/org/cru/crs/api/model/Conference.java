@@ -1,17 +1,20 @@
 package org.cru.crs.api.model;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
+import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PageEntity;
 import org.joda.time.DateTime;
+import org.testng.collections.Lists;
 
 public class Conference implements java.io.Serializable
 {
@@ -82,7 +85,7 @@ public class Conference implements java.io.Serializable
 		jpaConferenceCosts.setAcceptCreditCards(acceptCreditCards);
 		jpaConferenceCosts.setAuthnetId(authnetId);
 		jpaConferenceCosts.setAuthnetToken(authnetToken);
-		jpaConferenceCosts.setConferenceBaseCost(conferenceCost);
+		jpaConferenceCosts.setBaseCost(conferenceCost);
         jpaConferenceCosts.setMinimumDeposit(minimumDeposit);
 		jpaConferenceCosts.setEarlyRegistrationAmount(earlyRegistrationAmount);
 		jpaConferenceCosts.setEarlyRegistrationCutoff(earlyRegistrationCutoff);
@@ -96,64 +99,58 @@ public class Conference implements java.io.Serializable
 	/**
 	 * Creates a web api friendly conference, with no pages attached to it.
 	 * 
-	 * @param jpaConference
+	 * @param dbConference
 	 * @return
 	 */
-	public static Conference fromJpa(ConferenceEntity jpaConference)
+	public static Conference fromDb(ConferenceEntity dbConference, ConferenceCostsEntity dbConferenceCosts)
 	{
 		Conference webConference = new Conference();
 		
-		webConference.id = jpaConference.getId();
-		webConference.name = jpaConference.getName();
-		webConference.eventStartTime = jpaConference.getEventStartTime();
-		webConference.eventEndTime = jpaConference.getEventEndTime();
-		webConference.registrationStartTime = jpaConference.getRegistrationStartTime();
-		webConference.registrationEndTime = jpaConference.getRegistrationEndTime();
-		webConference.totalSlots = jpaConference.getTotalSlots();
-		webConference.contactUser = jpaConference.getContactPersonId();
-        webConference.contactPersonName = jpaConference.getContactPersonName();
-        webConference.contactPersonEmail = jpaConference.getContactPersonEmail();
-        webConference.contactPersonPhone = jpaConference.getContactPersonPhone();
+		webConference.id = dbConference.getId();
+		webConference.name = dbConference.getName();
+		webConference.eventStartTime = dbConference.getEventStartTime();
+		webConference.eventEndTime = dbConference.getEventEndTime();
+		webConference.registrationStartTime = dbConference.getRegistrationStartTime();
+		webConference.registrationEndTime = dbConference.getRegistrationEndTime();
+		webConference.totalSlots = dbConference.getTotalSlots();
+		webConference.contactUser = dbConference.getContactPersonId();
+        webConference.contactPersonName = dbConference.getContactPersonName();
+        webConference.contactPersonEmail = dbConference.getContactPersonEmail();
+        webConference.contactPersonPhone = dbConference.getContactPersonPhone();
 
-        webConference.locationName = jpaConference.getLocationName();
-        webConference.locationAddress = jpaConference.getLocationAddress();
-        webConference.locationCity = jpaConference.getLocationCity();
-        webConference.locationState = jpaConference.getLocationState();
-        webConference.locationZipCode = jpaConference.getLocationZipCode();
+        webConference.locationName = dbConference.getLocationName();
+        webConference.locationAddress = dbConference.getLocationAddress();
+        webConference.locationCity = dbConference.getLocationCity();
+        webConference.locationState = dbConference.getLocationState();
+        webConference.locationZipCode = dbConference.getLocationZipCode();
 
-        if(jpaConference.getConferenceCostsId() != null)
+        if(dbConferenceCosts != null)
         {
-//            webConference.authnetId = jpaConference.getConferenceCosts().getAuthnetId();
-//            /*don't expose the authnet token back out to the Client!*/
-//            webConference.acceptCreditCards = jpaConference.getConferenceCosts().isAcceptCreditCards();
-//            webConference.conferenceCost = jpaConference.getConferenceCosts().getConferenceBaseCost();
-//            webConference.minimumDeposit = jpaConference.getConferenceCosts().getMinimumDeposit();
-//            webConference.earlyRegistrationAmount = jpaConference.getConferenceCosts().getEarlyRegistrationAmount();
-//            webConference.earlyRegistrationCutoff = jpaConference.getConferenceCosts().getEarlyRegistrationCutoff();
-//            webConference.earlyRegistrationDiscount = jpaConference.getConferenceCosts().isEarlyRegistrationDiscount();
+            webConference.authnetId = dbConferenceCosts.getAuthnetId();
+            /*don't expose the authnet token back out to the Client!*/
+            webConference.acceptCreditCards = dbConferenceCosts.isAcceptCreditCards();
+            webConference.conferenceCost = dbConferenceCosts.getBaseCost();
+            webConference.minimumDeposit = dbConferenceCosts.getMinimumDeposit();
+            webConference.earlyRegistrationAmount = dbConferenceCosts.getEarlyRegistrationAmount();
+            webConference.earlyRegistrationCutoff = dbConferenceCosts.getEarlyRegistrationCutoff();
+            webConference.earlyRegistrationDiscount = dbConferenceCosts.isEarlyRegistrationDiscount();
         }
+        
+        webConference.registrationPages = Lists.newArrayList();
+        
 		return webConference;
 	}
 
-	public static Conference fromJpaWithPages(ConferenceEntity jpaConference)
+	public static Conference fromDb(ConferenceEntity dbConference, ConferenceCostsEntity dbConferenceCosts, List<PageEntity> pages, Map<UUID,List<BlockEntity>> dbBlocks)
 	{
-		Conference webConference = fromJpa(jpaConference);
+		Conference webConference = fromDb(dbConference, dbConferenceCosts);
 		
-//		webConference.registrationPages = Page.fromJpa(jpaConference.getPages());
-		
-		return webConference;
-	}
-	
-	public static List<Conference> fromJpa(List<ConferenceEntity> jpaConferences)
-	{
-		List<Conference> conferences = new ArrayList<Conference>();
-		
-		for(ConferenceEntity jpaConference : jpaConferences)
+		for(PageEntity page : pages)
 		{
-			conferences.add(fromJpa(jpaConference));
+			webConference.registrationPages.add(Page.fromDb(page, dbBlocks.get(page.getId())));
 		}
 		
-		return conferences;
+		return webConference;
 	}
 
 	public UUID getId()
