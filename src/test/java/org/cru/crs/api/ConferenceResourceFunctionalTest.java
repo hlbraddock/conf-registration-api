@@ -15,14 +15,24 @@ import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.utils.ConferenceAssembler;
+import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.model.queries.EntityColumnMappings;
+import org.cru.crs.service.AnswerService;
+import org.cru.crs.service.BlockService;
+import org.cru.crs.service.ConferenceCostsService;
+import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.PageService;
+import org.cru.crs.service.UserService;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
+import org.sql2o.Sql2o;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -41,11 +51,24 @@ public class ConferenceResourceFunctionalTest
 
 	ConferenceResourceClient conferenceClient;
 	
+	Sql2o sql;
+	ConferenceService conferenceService;
+	ConferenceCostsService conferenceCostsService;
+	PageService pageService;
+	BlockService blockService;
+	AnswerService answerService;
+	
 	@BeforeMethod
 	private void createClient()
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
+        sql = new SqlConnectionProducer().getSqlConnection();
+        answerService = new AnswerService(sql);
+        blockService = new BlockService(sql, answerService);
+        pageService = new PageService(sql,blockService);
+        conferenceCostsService = new ConferenceCostsService(sql);
+        conferenceService = new ConferenceService(sql,pageService,new UserService(sql));
 	}
 	
 	/**
@@ -200,38 +223,23 @@ public class ConferenceResourceFunctionalTest
 	public void addPageToConference() throws URISyntaxException 
 	{
 		Page newPage = createFakePage();
-		
-		try
-		{
-			EntityManager setupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			
-			ClientResponse<Page> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"), UserInfo.AuthCode.Ryan);
-			Page pageFromCreatedResponse = response.getEntity();
-			
-			//status code, 201-Created
-			Assert.assertEquals(response.getStatus(), 201);
 
-			/*make sure we get a copy of the page back*/
-			Assert.assertNotNull(pageFromCreatedResponse);
-			
-			/*make sure the ID of the created page matches what was passed in*/
-			Assert.assertEquals(pageFromCreatedResponse.getId(), newPage.getId());
-			
-			ConferenceEntity conference = setupEm.find(ConferenceEntity.class, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
-//
-//			Assert.assertEquals(conference.getPages().size(), 3);
-//			Assert.assertEquals(conference.getPages().get(2).getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
-			
-			setupEm.close();
-		}
-		finally
-		{
-			EntityManager cleanupEm = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-			
-			removeAddedPage(cleanupEm);
-			cleanupEm.close();
+		ClientResponse<Page> response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"), UserInfo.AuthCode.Ryan);
+		Page pageFromCreatedResponse = response.getEntity();
 
-		}
+		//status code, 201-Created
+		Assert.assertEquals(response.getStatus(), 201);
+
+		/*make sure we get a copy of the page back*/
+		Assert.assertNotNull(pageFromCreatedResponse);
+
+		/*make sure the ID of the created page matches what was passed in*/
+		Assert.assertEquals(pageFromCreatedResponse.getId(), newPage.getId());
+
+		sql.setDefaultColumnMappings(EntityColumnMappings.get(PageEntity.class));
+		List<PageEntity> pages = pageService.fetchPagesForConference(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+		Assert.assertEquals(pages.size(), 3);
+		Assert.assertEquals(pages.get(2).getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
 	}
 
 	/**
@@ -390,11 +398,12 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void moveBlockUpOnePage()
 	{
-		EntityManager em = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		ConferenceEntity jpaConference = em.find(ConferenceEntity.class, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
-		Conference webConference = Conference.fromJpaWithPages(jpaConference);
+		Conference webConference = ConferenceAssembler.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
+																			conferenceService, 
+																			conferenceCostsService, 
+																			pageService, 
+																			blockService);
 		
-		em.close();
 		
 		Block blockToMove = webConference.getRegistrationPages().get(1).getBlocks().remove(1);
 		webConference.getRegistrationPages().get(0).getBlocks().add(blockToMove);
@@ -402,54 +411,46 @@ public class ConferenceResourceFunctionalTest
 		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
-		em = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
+		Conference updatedWebConference = ConferenceAssembler.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
+																			conferenceService, 
+																			conferenceCostsService, 
+																			pageService, 
+																			blockService);
 		
-		ConferenceEntity updatedJpaConferece = em.find(ConferenceEntity.class, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
-		Conference updatedWebConference = Conference.fromJpaWithPages(updatedJpaConferece);
 		
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().size(), 5);
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().size(), 3);
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().get(4).getId(), 
 									UUID.fromString("A728C555-6989-F658-7C29-B3DD034F6FDB"));
-		
-		em.getTransaction().begin();
-//		BlockEntity blockToReplace = updatedJpaConferece.getPages().get(0).getBlocks().remove(4);
-//		updatedJpaConferece.getPages().get(1).getBlocks().add(1, blockToReplace);
-		em.merge(updatedJpaConferece);
-		em.getTransaction().commit();
-				
 	}
 
 	@Test(groups="functional-tests")
 	public void moveBlockDownOnePage()
 	{
-		EntityManager em = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		ConferenceEntity jpaConference = em.find(ConferenceEntity.class, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
-		Conference webConference = Conference.fromJpaWithPages(jpaConference);
-		
-		em.close();
-		
+		Conference webConference = ConferenceAssembler.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
+																			conferenceService, 
+																			conferenceCostsService, 
+																			pageService, 
+																			blockService);
+				
 		Block blockToMove = webConference.getRegistrationPages().get(0).getBlocks().remove(1);
 		webConference.getRegistrationPages().get(1).getBlocks().add(blockToMove);
 		
 		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
-		em = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		
-		ConferenceEntity updatedJpaConferece = em.find(ConferenceEntity.class, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
-		Conference updatedWebConference = Conference.fromJpaWithPages(updatedJpaConferece);
+		Conference updatedWebConference = ConferenceAssembler.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
+																					conferenceService, 
+																					conferenceCostsService, 
+																					pageService, 
+																					blockService);
 		
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().size(), 3);
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().size(), 5);
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().get(4).getId(), 
 									UUID.fromString("A229C555-6989-F658-7C29-B3DD034F6FDB"));
 		
-		em.getTransaction().begin();
-//		BlockEntity blockToReplace = updatedJpaConferece.getPages().get(1).getBlocks().remove(4);
-//		updatedJpaConferece.getPages().get(0).getBlocks().add(1, blockToReplace);
-		em.merge(updatedJpaConferece);
-		em.getTransaction().commit();
+		
 				
 	}
 	

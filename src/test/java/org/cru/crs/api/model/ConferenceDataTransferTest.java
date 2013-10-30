@@ -3,6 +3,7 @@ package org.cru.crs.api.model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.codehaus.jackson.JsonParseException;
@@ -14,6 +15,7 @@ import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.testng.collections.Maps;
 
 public class ConferenceDataTransferTest
 {
@@ -69,7 +71,7 @@ public class ConferenceDataTransferTest
 		conference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 8, 12, 17, 30, 10));
 		conference.setTotalSlots(150);
 		
-		Conference webConference = Conference.fromJpa(conference);
+		Conference webConference = Conference.fromDb(conference, null);
 		
 		Assert.assertNotNull(webConference);
 		Assert.assertEquals(webConference.getContactUser(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
@@ -130,11 +132,10 @@ public class ConferenceDataTransferTest
 		blocks.add(block1);
 		blocks.add(block2);
 		
-//		page1.setBlocks(blocks);
+		Map<UUID,List<BlockEntity>> blocksMap = Maps.newHashMap();
+		blocksMap.put(page1.getId(), blocks);
 		
-//		jpaConference.setPages(pages);
-		
-		Conference conferenceWithPages = Conference.fromJpaWithPages(jpaConference);
+		Conference conferenceWithPages = Conference.fromDb(jpaConference, null, pages, blocksMap);
 		
 		List<Page> webRegistrationPages = conferenceWithPages.getRegistrationPages();
 		
