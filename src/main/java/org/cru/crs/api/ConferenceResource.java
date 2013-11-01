@@ -34,6 +34,7 @@ import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
@@ -307,8 +308,11 @@ public class ConferenceResource
             logObject(newRegistrationEntity, logger);
 
             newRegistrationEntity.setUserId(crsLoggedInUser.getId());
-
-            if(conferenceCostsService.fetchBy(conferenceId).isAcceptCreditCards())
+            newRegistrationEntity.setConferenceId(conferenceId);
+            
+            ConferenceCostsEntity conferenceCosts = conferenceCostsService.fetchBy(conferenceId);
+			
+            if(conferenceCosts != null && conferenceCosts.isAcceptCreditCards())
             {
             	PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(newRegistration.getId());
             	paymentService.createPaymentRecord(newPayment, crsLoggedInUser);
