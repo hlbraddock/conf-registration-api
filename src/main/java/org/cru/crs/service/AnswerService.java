@@ -7,7 +7,6 @@ import javax.inject.Inject;
 
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.queries.AnswerQueries;
-import org.cru.crs.model.queries.EntityColumnMappings;
 import org.sql2o.Sql2o;
 
 /**
@@ -23,26 +22,27 @@ public class AnswerService
     public AnswerService(Sql2o sql)
     {
     	this.sql = sql;
-		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(AnswerEntity.class));
     }
     
     public AnswerEntity getAnswerBy(UUID answerId)
     {
-        return sql.createQuery(answerQueries.selectById(), false)
+        return sql.createQuery(answerQueries.selectById())
         			.addParameter("id", answerId)
+        			.setAutoDeriveColumnNames(true)
         			.executeAndFetchFirst(AnswerEntity.class);
     }
 
     public List<AnswerEntity> getAllAnswersForRegistration(UUID registrationId)
     {
-    	return sql.createQuery(answerQueries.selectAllForRegistration(), false)
+    	return sql.createQuery(answerQueries.selectAllForRegistration())
     			.addParameter("registrationId", registrationId)
+    			.setAutoDeriveColumnNames(true)
     			.executeAndFetch(AnswerEntity.class);
     }
     
     public void updateAnswer(AnswerEntity answerToUpdate)
     {
-        sql.createQuery(answerQueries.update(), false)
+        sql.createQuery(answerQueries.update())
         		.addParameter("id", answerToUpdate.getId())
         		.addParameter("registrationId", answerToUpdate.getRegistrationId())
         		.addParameter("blockId", answerToUpdate.getBlockId())
@@ -53,7 +53,7 @@ public class AnswerService
 
     public void insertAnswer(AnswerEntity answerToInsert)
     {
-        sql.createQuery(answerQueries.insert(), false)
+        sql.createQuery(answerQueries.insert())
         		.addParameter("id", answerToInsert.getId())
         		.addParameter("registrationId", answerToInsert.getRegistrationId())
         		.addParameter("blockId", answerToInsert.getBlockId())
@@ -63,7 +63,7 @@ public class AnswerService
     
 	public void deleteAnswer(AnswerEntity answerToDelete)
 	{
-		sql.createQuery(answerQueries.delete(), false)
+		sql.createQuery(answerQueries.delete())
 						.addParameter("id", answerToDelete.getId())
 						.executeUpdate();
 	}
@@ -80,6 +80,7 @@ public class AnswerService
 	{
 		return sql.createQuery(answerQueries.selectAllForBlock())
 				.addParameter("blockId", blockId)
+				.setAutoDeriveColumnNames(true)
 				.executeAndFetch(AnswerEntity.class);
 	}
 	

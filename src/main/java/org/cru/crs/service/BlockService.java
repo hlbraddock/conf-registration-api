@@ -10,7 +10,6 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.queries.BlockQueries;
-import org.cru.crs.model.queries.EntityColumnMappings;
 import org.sql2o.Sql2o;
 
 public class BlockService
@@ -25,7 +24,6 @@ public class BlockService
 	public BlockService(Sql2o sql, AnswerService answerService)
 	{
     	this.sql = sql;
-    	this.sql.setDefaultColumnMappings(EntityColumnMappings.get(BlockEntity.class));
 
     	this.answerService = answerService;
 		
@@ -36,6 +34,7 @@ public class BlockService
 	{
 		return sql.createQuery(blockQueries.selectById(), false)
 						.addParameter("id", blockId)
+						.setAutoDeriveColumnNames(true)
 						.executeAndFetchFirst(BlockEntity.class);
 	}
 	
@@ -43,6 +42,7 @@ public class BlockService
 	{
 		return sql.createQuery(blockQueries.selectAllForPage(), false)
 						.addParameter("pageId", pageId)
+						.setAutoDeriveColumnNames(true)
 						.executeAndFetch(BlockEntity.class);
 	}
 	

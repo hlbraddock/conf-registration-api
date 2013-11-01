@@ -5,7 +5,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.cru.crs.model.SessionEntity;
-import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.SessionQueries;
 import org.sql2o.Sql2o;
 
@@ -19,7 +18,6 @@ public class SessionService
 	public SessionService(Sql2o sql)
 	{
 		this.sql = sql;
-		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(SessionEntity.class));
 		this.sessionQueries = new SessionQueries();
 	}
 
@@ -27,6 +25,7 @@ public class SessionService
 	{
 		return sql.createQuery(sessionQueries.selectByAuthCode(), false)
 					.addParameter("authCode", authCode)
+					.setAutoDeriveColumnNames(true)
 					.executeAndFetchFirst(SessionEntity.class);
 	}
 
@@ -34,6 +33,7 @@ public class SessionService
 	{
 		return sql.createQuery(sessionQueries.selectByAuthProviderId())
 					.addParameter("authProviderId", userAuthProviderId)
+					.setAutoDeriveColumnNames(true)
 					.executeAndFetch(SessionEntity.class);
 	}
 

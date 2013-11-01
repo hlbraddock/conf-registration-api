@@ -26,19 +26,20 @@ public class PaymentService
     PaymentQueries paymentQueries;
     
     @Inject
-    public PaymentService(Sql2o sql, RegistrationService registrationService, PaymentQueries paymentQueries)
+    public PaymentService(Sql2o sql, RegistrationService registrationService)
     {
     	this.sql = sql;
     	this.sql.setDefaultColumnMappings(EntityColumnMappings.get(PaymentEntity.class));
     	this.registrationService = registrationService;
     	
-        this.paymentQueries = paymentQueries;
+        this.paymentQueries = new PaymentQueries();
     }
 
     public PaymentEntity fetchPaymentBy(UUID id, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
     {
         PaymentEntity payment = sql.createQuery(paymentQueries.selectById())
         							.addParameter("id", id)
+        							.setAutoDeriveColumnNames(true)
         							.executeAndFetchFirst(PaymentEntity.class);
         if(payment != null)
         {
@@ -86,6 +87,7 @@ public class PaymentService
     {
         return sql.createQuery(paymentQueries.selectAllForRegistration())
         			.addParameter("registrationId", registrationId)
+        			.setAutoDeriveColumnNames(true)
         			.executeAndFetch(PaymentEntity.class);
     }
     

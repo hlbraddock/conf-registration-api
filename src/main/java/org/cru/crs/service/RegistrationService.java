@@ -12,7 +12,6 @@ import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.RegistrationEntity;
-import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.RegistrationQueries;
 import org.cru.crs.utils.CollectionUtils;
 import org.jboss.logging.Logger;
@@ -37,7 +36,6 @@ public class RegistrationService
     public RegistrationService(Sql2o sql, ConferenceService conferenceService, AuthorizationService authorizationService)
     {
 		this.sql = sql;
-		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(RegistrationEntity.class));
 		this.authorizationService = authorizationService;
 		this.conferenceService = conferenceService;
     }
@@ -46,6 +44,7 @@ public class RegistrationService
 	{
 		List<RegistrationEntity> registrations = sql.createQuery(registrationQueries.selectAllForConference())
 														.addParameter("conferenceId", conferenceId)
+														.setAutoDeriveColumnNames(true)
 														.executeAndFetch(RegistrationEntity.class);
 
 		Set<RegistrationEntity> regstrationsAsSet = new HashSet<RegistrationEntity>(registrations);
@@ -62,9 +61,10 @@ public class RegistrationService
 	{
 
 		RegistrationEntity registration = sql.createQuery(registrationQueries.selectByUserIdConferenceId())
-												.addParameter("conferenceId", conferenceId)
-												.addParameter("userId", userId)
-												.executeAndFetchFirst(RegistrationEntity.class);
+													.addParameter("conferenceId", conferenceId)
+													.addParameter("userId", userId)
+													.setAutoDeriveColumnNames(true)
+													.executeAndFetchFirst(RegistrationEntity.class);
 
 		authorizationService.authorize(registration, conferenceService.fetchConferenceBy(conferenceId), OperationType.READ, crsApplicationUser);
 
@@ -82,6 +82,7 @@ public class RegistrationService
 
 		RegistrationEntity registration = sql.createQuery(registrationQueries.selectById())
 												.addParameter("id", registrationId)
+												.setAutoDeriveColumnNames(true)
 												.executeAndFetchFirst(RegistrationEntity.class);
 		if(registration == null)
 		{

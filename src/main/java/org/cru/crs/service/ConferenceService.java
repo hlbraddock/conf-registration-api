@@ -11,7 +11,6 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.model.queries.ConferenceQueries;
-import org.cru.crs.model.queries.EntityColumnMappings;
 import org.sql2o.Sql2o;
 
 public class ConferenceService
@@ -27,7 +26,6 @@ public class ConferenceService
 	public ConferenceService(Sql2o sql, PageService pageService, UserService userService)
 	{
 		this.sql = sql;
-		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(ConferenceEntity.class));
 		
 		this.pageService = pageService;
         this.userService = userService;
@@ -36,15 +34,17 @@ public class ConferenceService
 
 	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
 	{
-		return sql.createQuery(conferenceQueries.selectAllForUser(), false)
+		return sql.createQuery(conferenceQueries.selectAllForUser())
 					.addParameter("contactPersonId", crsLoggedInUser.getId())
+					.setAutoDeriveColumnNames(true)
 					.executeAndFetch(ConferenceEntity.class);
 	}
 
 	public ConferenceEntity fetchConferenceBy(UUID id)
 	{
-		return sql.createQuery(conferenceQueries.selectById(), false)
+		return sql.createQuery(conferenceQueries.selectById())
 					.addParameter("id", id)
+					.setAutoDeriveColumnNames(true)
 					.executeAndFetchFirst(ConferenceEntity.class);
     }
 	
@@ -59,11 +59,11 @@ public class ConferenceService
 
         newConference = setInitialContactPersonDetailsBasedOn(crsLoggedInUser, newConference);
 
-        sql.createQuery("INSERT INTO conference_costs(id) VALUES (:id)", false)
+        sql.createQuery("INSERT INTO conference_costs(id) VALUES (:id)")
         		.addParameter("id", newConference.getId())
         		.executeUpdate();
         
-        sql.createQuery(conferenceQueries.insert(), false)
+        sql.createQuery(conferenceQueries.insert())
         		.addParameter("id", newConference.getId())
         		.addParameter("name", newConference.getName())
         		.addParameter("description", newConference.getDescription())

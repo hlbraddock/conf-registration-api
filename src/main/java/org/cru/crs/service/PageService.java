@@ -10,7 +10,6 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
-import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.PageQueries;
 import org.sql2o.Sql2o;
 
@@ -26,7 +25,6 @@ public class PageService
 	public PageService(Sql2o sql, BlockService blockService)
 	{
 		this.sql = sql;
-		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(PageEntity.class));
 		
 		this.blockService = blockService;
 		
@@ -37,6 +35,7 @@ public class PageService
 	{
 		return sql.createQuery(pageQueries.selectById(), false)
 						.addParameter("id", id)
+						.setAutoDeriveColumnNames(true)
 						.executeAndFetchFirst(PageEntity.class);	
 	}
 
@@ -44,6 +43,7 @@ public class PageService
 	{
 		return sql.createQuery(pageQueries.selectAllForConference(), false)
 						.addParameter("conferenceId", conferenceId)
+						.setAutoDeriveColumnNames(true)
 						.executeAndFetch(PageEntity.class);
 	}
 	

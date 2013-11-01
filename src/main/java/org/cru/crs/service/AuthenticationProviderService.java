@@ -23,7 +23,6 @@ public class AuthenticationProviderService
 	public AuthenticationProviderService(Sql2o sql, UserService userService, AuthenticationProviderQueries authenticationProviderQueries)
 	{
 		this.sql = sql;
-		this.sql.setDefaultColumnMappings(AuthenticationProviderIdentityEntity.columnMappings);
 		
 		this.userService = userService;
 		
@@ -37,8 +36,9 @@ public class AuthenticationProviderService
 	 */
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityById(UUID id)
 	{
-		return sql.createQuery(authenticationProviderQueries.selectById(), false)
+		return sql.createQuery(authenticationProviderQueries.selectById())
 						.addParameter("id", id)
+						.setAutoDeriveColumnNames(true)
 						.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 
@@ -50,16 +50,18 @@ public class AuthenticationProviderService
 	 */
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByUserAuthProviderId(String userAuthProviderId)
 	{
-		return sql.createQuery(authenticationProviderQueries.selectByUserAuthProviderId(), false)
+		return sql.createQuery(authenticationProviderQueries.selectByUserAuthProviderId())
 					.addParameter("userAuthProviderId", userAuthProviderId)
+					.setAutoDeriveColumnNames(true)
 					.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 	
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderUsernameAndType(String username, AuthenticationProviderType authenticationProviderType)
 	{
-		return sql.createQuery(authenticationProviderQueries.selectByUsernameAuthProviderName(), false)
+		return sql.createQuery(authenticationProviderQueries.selectByUsernameAuthProviderName())
 					.addParameter("username", username)
 					.addParameter("authProviderName", authenticationProviderType.getSessionIdentifierName())
+					.setAutoDeriveColumnNames(true)
 					.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 

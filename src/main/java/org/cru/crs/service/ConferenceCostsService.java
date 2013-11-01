@@ -6,7 +6,6 @@ import javax.inject.Inject;
 
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.queries.ConferenceCostsQueries;
-import org.cru.crs.model.queries.EntityColumnMappings;
 import org.sql2o.Sql2o;
 
 public class ConferenceCostsService
@@ -19,7 +18,6 @@ public class ConferenceCostsService
 	public ConferenceCostsService(Sql2o sql)
 	{
 		this.sql = sql;
-		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(ConferenceCostsEntity.class));
 		this.conferenceCostsQueries = new ConferenceCostsQueries();
 	}
 	
@@ -27,6 +25,7 @@ public class ConferenceCostsService
 	{
 		return sql.createQuery(conferenceCostsQueries.selectById(),false)
 						.addParameter("id", id)
+						.setAutoDeriveColumnNames(true)
 						.executeAndFetchFirst(ConferenceCostsEntity.class);
 	}
 	

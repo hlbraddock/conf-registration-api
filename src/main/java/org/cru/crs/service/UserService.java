@@ -5,7 +5,6 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.cru.crs.model.UserEntity;
-import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.UserQueries;
 import org.sql2o.Sql2o;
 
@@ -27,13 +26,13 @@ public class UserService
     public UserService(Sql2o sql)
     {
     	this.sql = sql;
-		this.sql.setDefaultColumnMappings(EntityColumnMappings.get(UserEntity.class));
     }
 
     public UserEntity fetchUserBy(UUID userId)
     {
-        return sql.createQuery(userQueries.selectById(), false)
+        return sql.createQuery(userQueries.selectById())
         			.addParameter("id", userId)
+        			.setAutoDeriveColumnNames(true)
         			.executeAndFetchFirst(UserEntity.class);
     }
 
