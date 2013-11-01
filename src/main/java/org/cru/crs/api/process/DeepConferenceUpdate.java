@@ -51,22 +51,26 @@ public class DeepConferenceUpdate
 		
 		handleMissingPages(conference);
 		
+		int pagePosition = 0;
 		for(Page page : conference.getRegistrationPages())
 		{
 			page.setConferenceId(originalConferenceEntity.getId());
+			page.setPosition(pagePosition);
 			
 			if(!maybeAddNewPage(page))
 			{
-				handleMissingBlocks(page);
+				handleMissingBlocks(conference, page);
 				pageService.updatePage(page.toDbPageEntity());
 			}
 			
+			int blockPosition = 0;
 			if(page.getBlocks() != null)
 			{
 				for(Block block : page.getBlocks())
 				{
 					block.setPageId(page.getId());
-
+					block.setPosition(blockPosition);
+					
 					if(!maybeAddNewBlock(block))
 					{
 						blockService.updateBlock(block.toDbBlockEntity());
@@ -84,7 +88,7 @@ public class DeepConferenceUpdate
 		
 		Set<PageEntity> possiblyNewPages = Sets.newHashSet();
 		possiblyNewPages.add(page.toDbPageEntity());
-		Collection<PageEntity> definitelyNewPages = CollectionUtils.firstNotFoundInSecond(possiblyNewPages, originalPageEntityList);
+		Collection<PageEntity> definitelyNewPages = CollectionUtils.firstNotFoundInSecond(possiblyNewPages, Lists.newArrayList(originalPageEntityList));
 		
 		for(PageEntity newPage : definitelyNewPages)
 		{
@@ -103,7 +107,8 @@ public class DeepConferenceUpdate
 		{
 			Set<BlockEntity> possiblyNewBlocks = Sets.newHashSet();
 			possiblyNewBlocks.add(block.toDbBlockEntity());
-			Collection<BlockEntity> definitelyNewBlocks = CollectionUtils.firstNotFoundInSecond(possiblyNewBlocks, originalBlockEntityMap.get(block.getPageId()));
+						
+			Collection<BlockEntity> definitelyNewBlocks = CollectionUtils.firstNotFoundInSecond(possiblyNewBlocks, getOriginalMasterBlockSet());
 			
 			for(BlockEntity newBlock : definitelyNewBlocks)
 			{
@@ -123,7 +128,7 @@ public class DeepConferenceUpdate
 	{
 		List<PageEntity> updatedPageEntityList = convertWebPagesToPageEntities(conference.getRegistrationPages());
 		
-		Collection<PageEntity> deletedPageEntities = CollectionUtils.firstNotFoundInSecond(originalPageEntityList, updatedPageEntityList);
+		Collection<PageEntity> deletedPageEntities = CollectionUtils.firstNotFoundInSecond(Lists.newArrayList(originalPageEntityList), Lists.newArrayList(updatedPageEntityList));
 				
 		for(PageEntity pageToDelete : deletedPageEntities)
 		{
@@ -131,16 +136,35 @@ public class DeepConferenceUpdate
 		}
 	}
 	
-	private void handleMissingBlocks(Page page)
+	private void handleMissingBlocks(Conference conference, Page page)
 	{
-		List<BlockEntity> updatedBlockEntityList = convertWebBlocksToBlockEntities(page.getBlocks());
-		
-		Collection<BlockEntity> deletedBlockEntites = CollectionUtils.firstNotFoundInSecond(originalBlockEntityMap.get(page.getId()), updatedBlockEntityList);
+		Collection<BlockEntity> deletedBlockEntites = CollectionUtils.firstNotFoundInSecond(Lists.newArrayList(originalBlockEntityMap.get(page.getId())), Lists.newArrayList(getUpdatedMasterBlockSet(conference)));
 		
 		for(BlockEntity blockToDelete : deletedBlockEntites)
 		{
 			blockService.deleteBlock(blockToDelete.getId());
 		}
+	}
+
+	private Set<BlockEntity> getOriginalMasterBlockSet()
+	{
+		/*create a master set so we can detect if a block has moved from one page to another*/
+		Set<BlockEntity> masterBlockSet = Sets.newHashSet();
+		for(PageEntity existingPage : originalPageEntityList)
+		{
+			masterBlockSet.addAll(originalBlockEntityMap.get(existingPage.getId()));
+		}
+		return masterBlockSet;
+	}
+	
+	private Set<BlockEntity> getUpdatedMasterBlockSet(Conference updatedConference)
+	{
+		Set<BlockEntity> masterBlockSet = Sets.newHashSet();
+		for(Page updatedPage : updatedConference.getRegistrationPages())
+		{
+			masterBlockSet.addAll(convertWebBlocksToBlockEntities(updatedPage.getBlocks()));
+		}
+		return masterBlockSet;
 	}
 
 	private List<PageEntity> getPageEntityListFromDb(Conference conference)

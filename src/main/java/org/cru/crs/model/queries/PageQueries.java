@@ -22,8 +22,8 @@ public class PageQueries implements BasicQueries
 	{
 		StringBuilder query = new StringBuilder();
 		query.append("UPDATE pages SET ")
-				.append("title = :title")
-				.append("position = :postition")
+				.append("title = :title,")
+				.append("position = :position,")
 				.append("conference_id = :conferenceId")
 				.append(" WHERE ")
 				.append("id = :id");

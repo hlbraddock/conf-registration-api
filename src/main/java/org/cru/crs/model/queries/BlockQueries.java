@@ -23,7 +23,6 @@ public class BlockQueries implements BasicQueries
 	@Override
 	public String update()
 	{
-		//TODO: research 'content JSON type'
 		StringBuilder query = new StringBuilder();
 		query.append("UPDATE blocks SET ")
 				.append("page_id = :pageId,")
@@ -31,8 +30,9 @@ public class BlockQueries implements BasicQueries
 				.append("block_type = :blockType,")
 				.append("admin_only = :adminOnly,")
 				.append("required = :required,")
-				.append("title = :title")
-				.append(" WHERE" )
+				.append("title = :title,")
+				.append("content = :content")
+				.append(" WHERE " )
 				.append("id = :id");
 		
 		return query.toString();
@@ -44,19 +44,22 @@ public class BlockQueries implements BasicQueries
 		StringBuilder query = new StringBuilder();
 		query.append("INSERT INTO blocks(")
 				.append("id,")
-				.append("page_id")
-				.append("position")
-				.append("block_type")
-				.append("admin_only")
-				.append("required")
-				.append("title")
+				.append("page_id,")
+				.append("position,")
+				.append("block_type,")
+				.append("admin_only,")
+				.append("required,")
+				.append("title,")
+				.append("content")
 				.append(") VALUES (")
 				.append(":id,")
 				.append(":pageId,")
+				.append(":position,")
 				.append(":blockType,")
 				.append(":adminOnly,")
 				.append(":required,")
-				.append(":title")
+				.append(":title,")
+				.append(":content")
 				.append(")");
 		
 		return query.toString();

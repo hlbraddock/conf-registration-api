@@ -2,6 +2,8 @@ package org.cru.crs.model;
 
 import java.util.UUID;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.JsonNode;
 
 public class BlockEntity implements java.io.Serializable
@@ -20,6 +22,26 @@ public class BlockEntity implements java.io.Serializable
 	private JsonNode content;
 	private String title;
 
+	@Override
+	public int hashCode()
+	{
+		return new HashCodeBuilder(29, 79). // two randomly chosen prime numbers
+				append(id).
+				toHashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj == null) return false;
+		if (obj == this) return true;
+		if (!(obj instanceof BlockEntity)) return false;
+
+		BlockEntity rhs = (BlockEntity) obj;
+		return new EqualsBuilder().
+				append(id, rhs.id).
+				isEquals();
+	}
 
 	public UUID getId()
 	{

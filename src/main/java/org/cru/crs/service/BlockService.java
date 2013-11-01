@@ -57,6 +57,7 @@ public class BlockService
 				.addParameter("adminOnly", blockToSave.isAdminOnly())
 				.addParameter("required", blockToSave.isRequired())
 				.addParameter("title", blockToSave.getTitle())
+				.addParameter("content", blockToSave.getContent())
 				.executeUpdate();
 	}
 	
@@ -71,6 +72,7 @@ public class BlockService
 				.addParameter("adminOnly", blockToUpdate.isAdminOnly())
 				.addParameter("required", blockToUpdate.isRequired())
 				.addParameter("title", blockToUpdate.getTitle())
+				.addParameter("content", blockToUpdate.getContent())
 				.executeUpdate();
 	}
 

@@ -80,6 +80,13 @@ public class Conference implements java.io.Serializable
         jpaConference.setLocationState(locationState);
         jpaConference.setLocationZipCode(locationZipCode);
 
+		jpaConference.setConferenceCostsId(getId());
+
+		return jpaConference;
+	}
+	
+	public ConferenceCostsEntity toDbConferenceCostsEntity()
+	{
 		ConferenceCostsEntity jpaConferenceCosts = new ConferenceCostsEntity();
 		jpaConferenceCosts.setId(id);
 		jpaConferenceCosts.setAcceptCreditCards(acceptCreditCards);
@@ -90,10 +97,8 @@ public class Conference implements java.io.Serializable
 		jpaConferenceCosts.setEarlyRegistrationAmount(earlyRegistrationAmount);
 		jpaConferenceCosts.setEarlyRegistrationCutoff(earlyRegistrationCutoff);
 		jpaConferenceCosts.setEarlyRegistrationDiscount(earlyRegistrationDiscount);
-
-		jpaConference.setConferenceCostsId(jpaConferenceCosts.getId());
-
-		return jpaConference;
+		
+		return jpaConferenceCosts;
 	}
 	
 	/**
