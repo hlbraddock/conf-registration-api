@@ -10,7 +10,6 @@ import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
-import org.cru.crs.model.queries.EntityColumnMappings;
 import org.cru.crs.model.queries.PaymentQueries;
 import org.sql2o.Sql2o;
 
@@ -29,7 +28,6 @@ public class PaymentService
     public PaymentService(Sql2o sql, RegistrationService registrationService)
     {
     	this.sql = sql;
-    	this.sql.setDefaultColumnMappings(EntityColumnMappings.get(PaymentEntity.class));
     	this.registrationService = registrationService;
     	
         this.paymentQueries = new PaymentQueries();

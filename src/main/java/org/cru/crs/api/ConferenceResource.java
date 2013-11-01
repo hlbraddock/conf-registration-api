@@ -29,6 +29,7 @@ import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.utils.ConferenceAssembler;
+import org.cru.crs.api.process.DeepConferenceUpdate;
 import org.cru.crs.api.utils.RegistrationWindowCalculator;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
@@ -224,8 +225,8 @@ public class ConferenceResource
                 logObject(conference, logger);
 
 				/*there is an existing conference, so go update it*/
-				conferenceService.updateConference(conference.toJpaConferenceEntity().setId(conferenceId), 
-						loggedInUser);
+                DeepConferenceUpdate conferenceUpdateProcess = new DeepConferenceUpdate(conferenceService, pageService, blockService, answerService);
+                conferenceUpdateProcess.performDeepUpdate(conference);
 			}
 			
 			return Response.noContent().build();

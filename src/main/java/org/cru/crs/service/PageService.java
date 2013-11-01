@@ -58,10 +58,8 @@ public class PageService
 				.executeUpdate();
 	}
 	
-	public void updatePage(ConferenceEntity owningConference, PageEntity pageToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	public void updatePage(PageEntity pageToUpdate)
 	{
-		verifyUserIdHasAccessToModifyThisPagesConference(owningConference, pageToUpdate, crsLoggedInUser.getId());
-
 		/*content and conferenceCostsBlocksId omitted for now*/
 		sql.createQuery(pageQueries.update(),false)
 				.addParameter("id", pageToUpdate.getId())
@@ -71,13 +69,15 @@ public class PageService
 				.executeUpdate();	
 	}
 
-	public void deletePage(ConferenceEntity owningConference, UUID pageId, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	/**
+	 * Deletes the page specified by @param pageId along with any blocks associated with it.
+	 * @param blockId
+	 */
+	public void deletePage(UUID pageId)
 	{
-		verifyUserIdHasAccessToModifyThisPagesConference(owningConference, fetchPageBy(pageId), crsLoggedInUser.getId());
-
 		for(BlockEntity blockToDelete : blockService.fetchBlocksForPage(pageId))
 		{
-			blockService.deleteBlock(blockToDelete);
+			blockService.deleteBlock(blockToDelete.getId());
 		}
 
 		sql.createQuery(pageQueries.delete(),false)

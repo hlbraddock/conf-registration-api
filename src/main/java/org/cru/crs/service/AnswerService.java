@@ -40,6 +40,14 @@ public class AnswerService
     			.executeAndFetch(AnswerEntity.class);
     }
     
+	public List<AnswerEntity> getAllAnswersForBlock(UUID blockId)
+	{
+		return sql.createQuery(answerQueries.selectAllForBlock())
+				.addParameter("blockId", blockId)
+				.setAutoDeriveColumnNames(true)
+				.executeAndFetch(AnswerEntity.class);
+	}
+    
     public void updateAnswer(AnswerEntity answerToUpdate)
     {
         sql.createQuery(answerQueries.update())
@@ -70,18 +78,9 @@ public class AnswerService
 
 	public void deleteAnswersByBlockId(UUID blockId)
 	{
-		for(AnswerEntity answerEntity : fetchAnswersByBlockId(blockId))
+		for(AnswerEntity answerEntity : getAllAnswersForBlock(blockId))
 		{
 			deleteAnswer(answerEntity);
 		}
 	}
-
-	private List<AnswerEntity> fetchAnswersByBlockId(UUID blockId)
-	{
-		return sql.createQuery(answerQueries.selectAllForBlock())
-				.addParameter("blockId", blockId)
-				.setAutoDeriveColumnNames(true)
-				.executeAndFetch(AnswerEntity.class);
-	}
-	
 }

@@ -48,7 +48,7 @@ public class Block implements java.io.Serializable
 		return webBlocks;
 	}
 
-	public BlockEntity toJpaBlockEntity()
+	public BlockEntity toDbBlockEntity()
 	{
 		BlockEntity jpaBlock = new BlockEntity();
 		

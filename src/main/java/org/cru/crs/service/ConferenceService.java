@@ -95,14 +95,8 @@ public class ConferenceService
         return newConference;
     }
 
-    public void updateConference(ConferenceEntity conferenceToUpdate,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+    public void updateConference(ConferenceEntity conferenceToUpdate)
 	{
-		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferenceToUpdate.getContactPersonId()))
-		{
-			throw new UnauthorizedException();
-		}
-        
-		/*content and conferenceCostsBlocksId omitted for now*/
 		sql.createQuery(conferenceQueries.update())
 				.addParameter("id", conferenceToUpdate.getId())
 				.addParameter("name", conferenceToUpdate.getName())
@@ -125,14 +119,8 @@ public class ConferenceService
 				.executeUpdate();
 	}
 
-	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd)
 	{
-		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
-		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferenceToAddPageTo.getContactPersonId()))
-		{
-			throw new UnauthorizedException();
-		}
-		
 		/*create a page id if the client didn't*/
 		if(pageToAdd.getId() == null) pageToAdd.setId(UUID.randomUUID());
 		pageToAdd.setConferenceId(conferenceToAddPageTo.getId());

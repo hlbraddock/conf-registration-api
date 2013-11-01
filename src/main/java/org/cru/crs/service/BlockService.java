@@ -60,10 +60,8 @@ public class BlockService
 				.executeUpdate();
 	}
 	
-	public void updateBlock(ConferenceEntity owningConference, BlockEntity blockToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
-	{
-		verifyUserIdHasAccessToModifyThisBlocksConference(owningConference, blockToUpdate,crsLoggedInUser);
-		
+	public void updateBlock(BlockEntity blockToUpdate)
+	{		
 		/*content and conferenceCostsBlocksId omitted for now*/
 		sql.createQuery(blockQueries.update())
 				.addParameter("id", blockToUpdate.getId())
@@ -76,23 +74,20 @@ public class BlockService
 				.executeUpdate();
 	}
 
-	public void deleteBlock(ConferenceEntity owningConference, UUID blockId, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	/**
+	 * Deletes the block specified by @param blockId along with any answers associated with it.
+	 * @param owningConference
+	 * @param blockId
+	 */
+	public void deleteBlock(UUID blockId)
 	{
-		BlockEntity blockToDelete = fetchBlockBy(blockId);
-
-		verifyUserIdHasAccessToModifyThisBlocksConference(owningConference, blockToDelete,crsLoggedInUser);
-
-		deleteBlock(blockToDelete);
-	}
-
-	protected void deleteBlock(BlockEntity blockEntity) throws UnauthorizedException
-	{
-		answerService.deleteAnswersByBlockId(blockEntity.getId());
+		answerService.deleteAnswersByBlockId(blockId);
 
 		sql.createQuery(blockQueries.delete())
-				.addParameter("blockId", blockEntity.getId())
+				.addParameter("id", blockId)
 				.executeUpdate();
 	}
+
 
 	private void verifyUserIdHasAccessToModifyThisBlocksConference(ConferenceEntity owningConference, BlockEntity blockToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
 	{
