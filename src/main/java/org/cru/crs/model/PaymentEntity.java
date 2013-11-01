@@ -16,17 +16,17 @@ public class PaymentEntity implements Serializable
 
     private Long authnetTransactionId;
 
-    private String creditCardNameOnCard;
+    private String ccNameOnCard;
 
-    private String creditCardExpirationMonth;
+    private String ccExpirationMonth;
 
-    private String creditCardExpirationYear;
+    private String ccExpirationYear;
 
-    private String creditCardLastFourDigits;
+    private String ccLastFourDigits;
 
     BigDecimal amount;
 
-    private DateTime transactionDatetime;
+    private DateTime transactionTimestamp;
 
     public UUID getId()
     {
@@ -60,44 +60,44 @@ public class PaymentEntity implements Serializable
         this.authnetTransactionId = authnetTransactionId;
     }
 
-    public String getCreditCardNameOnCard()
+    public String getCcNameOnCard()
     {
-        return creditCardNameOnCard;
+        return ccNameOnCard;
     }
 
-    public void setCreditCardNameOnCard(String creditCardNameOnCard)
+    public void setCcNameOnCard(String ccNameOnCard)
     {
-        this.creditCardNameOnCard = creditCardNameOnCard;
+        this.ccNameOnCard = ccNameOnCard;
     }
 
-    public String getCreditCardExpirationMonth()
+    public String getCcExpirationMonth()
     {
-        return creditCardExpirationMonth;
+        return ccExpirationMonth;
     }
 
-    public void setCreditCardExpirationMonth(String creditCardExpirationMonth)
+    public void setCcExpirationMonth(String ccExpirationMonth)
     {
-        this.creditCardExpirationMonth = creditCardExpirationMonth;
+        this.ccExpirationMonth = ccExpirationMonth;
     }
 
-    public String getCreditCardExpirationYear()
+    public String getCcExpirationYear()
     {
-        return creditCardExpirationYear;
+        return ccExpirationYear;
     }
 
-    public void setCreditCardExpirationYear(String creditCardExpirationYear)
+    public void setCcExpirationYear(String ccExpirationYear)
     {
-        this.creditCardExpirationYear = creditCardExpirationYear;
+        this.ccExpirationYear = ccExpirationYear;
     }
 
-    public String getCreditCardLastFourDigits()
+    public String getCcLastFourDigits()
     {
-        return creditCardLastFourDigits;
+        return ccLastFourDigits;
     }
 
-    public void setCreditCardLastFourDigits(String creditCardLastFourDigits)
+    public void setCcLastFourDigits(String ccLastFourDigits)
     {
-        this.creditCardLastFourDigits = creditCardLastFourDigits;
+        this.ccLastFourDigits = ccLastFourDigits;
     }
 
     public BigDecimal getAmount()
@@ -110,13 +110,13 @@ public class PaymentEntity implements Serializable
         this.amount = amount;
     }
 
-    public DateTime getTransactionDatetime()
+    public DateTime getTransactionTimestamp()
     {
-        return transactionDatetime;
+        return transactionTimestamp;
     }
 
-    public void setTransactionDatetime(DateTime transactionDatetime)
+    public void setTransactionTimestamp(DateTime transactionTimestamp)
     {
-        this.transactionDatetime = transactionDatetime;
+        this.transactionTimestamp = transactionTimestamp;
     }
 }
