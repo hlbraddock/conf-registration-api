@@ -292,26 +292,36 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void addRegistrationToConference() throws URISyntaxException,UnauthorizedException
 	{
-		UUID registrationIdUUID = null;
-		UUID userIdUUID = UserInfo.Id.Ryan;
-		CrsApplicationUser crsUser = new CrsApplicationUser(userIdUUID,AuthenticationProviderType.RELAY,"");
-		
-		Registration newRegistration = createRegistration(registrationIdUUID, userIdUUID);
+		UUID registrationId = null;
+		UUID paymentId = null;
+		try
+		{
+			UUID userIdUUID = UserInfo.Id.Ryan;
+			CrsApplicationUser crsUser = new CrsApplicationUser(userIdUUID,AuthenticationProviderType.RELAY,"");
 
-		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
+			Registration newRegistration = createRegistration(registrationId, userIdUUID);
 
-		ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID, UserInfo.AuthCode.Ryan);
+			UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
-		Assert.assertEquals(response.getStatus(), 201);
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID, UserInfo.AuthCode.Ryan);
 
-		registrationIdUUID = getIdFromResponseLocation(response.getLocation().toString());
+			Assert.assertEquals(response.getStatus(), 201);
 
-		RegistrationEntity registration = registrationService.getRegistrationBy(registrationIdUUID, crsUser);
-		List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(registrationIdUUID);
-		
-		Assert.assertEquals(registration.getId(), registrationIdUUID);
-		Assert.assertEquals(registration.getUserId(), newRegistration.getUserId());
-		Assert.assertEquals(payments.size(), 1);
+			registrationId = getIdFromResponseLocation(response.getLocation().toString());
+
+			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId, crsUser);
+			List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(registrationId);
+
+			Assert.assertEquals(registration.getId(), registrationId);
+			Assert.assertEquals(registration.getUserId(), newRegistration.getUserId());
+			Assert.assertEquals(payments.size(), 1);
+			paymentId = payments.get(0).getId();
+		}
+		finally
+		{
+			deletePaymentForNextTests(paymentId);
+			deleteRegistrationForNextTests(registrationId);
+		}
 
 	}
 
@@ -377,26 +387,36 @@ public class ConferenceResourceFunctionalTest
 	 public void addPageToConferenceByAddingToAConferenceResourceAndUpdating() throws Exception
 	 {
 		UUID testConferenceId = UUID.randomUUID();
+		UUID testPageId = null;
+		
+		try
+		{
+			Conference fakeConference = createFakeConference();	
+			fakeConference.setId(testConferenceId);
 
-		Conference fakeConference = createFakeConference();	
-		fakeConference.setId(testConferenceId);
+			conferenceClient.createConference(fakeConference, UserInfo.AuthCode.TestUser);
 
-		conferenceClient.createConference(fakeConference, UserInfo.AuthCode.TestUser);
+			fakeConference.getRegistrationPages().add(createFakePage());
 
-		fakeConference.getRegistrationPages().add(createFakePage());
+			createClient();
 
-		createClient();
+			ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
 
-		ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
+			Assert.assertEquals(updateResponse.getStatus(), 204);
 
-		Assert.assertEquals(updateResponse.getStatus(), 204);
+			createClient();
 
-		createClient();
+			ClientResponse<Conference> fetchResponse = conferenceClient.getConference(fakeConference.getId());
+			Conference updatedConference = fetchResponse.getEntity();
 
-		ClientResponse<Conference> fetchResponse = conferenceClient.getConference(fakeConference.getId());
-		Conference updatedConference = fetchResponse.getEntity();
-
-		Assert.assertNotNull(updatedConference.getRegistrationPages().get(0));
+			Assert.assertNotNull(updatedConference.getRegistrationPages().get(0));
+			testPageId = updatedConference.getRegistrationPages().get(0).getId();
+		}
+		finally
+		{
+			deletePageForNextTests(testPageId);
+			deleteConferenceForNextTests(testConferenceId);
+		}
 	 }
 	
 	@Test(groups="functional-tests")
@@ -515,6 +535,26 @@ public class ConferenceResourceFunctionalTest
 		{
 			sql.createQuery("DELETE FROM pages WHERE id = :id")
 						.addParameter("id", pageId)
+						.executeUpdate();
+		}
+	}
+	
+	private void deletePaymentForNextTests(UUID paymentId)
+	{
+		if(paymentId != null)
+		{
+			sql.createQuery("DELETE FROM payments WHERE id = :id")
+						.addParameter("id", paymentId)
+						.executeUpdate();
+		}
+	}
+	
+	private void deleteRegistrationForNextTests(UUID registrationId)
+	{
+		if(registrationId != null)
+		{
+			sql.createQuery("DELETE FROM registrations WHERE id = :id")
+						.addParameter("id", registrationId)
 						.executeUpdate();
 		}
 	}

@@ -34,7 +34,6 @@ import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.AnswerEntity;
-import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
@@ -301,7 +300,8 @@ public class ConferenceResource
 
             logger.info(conferenceId);
 
-            if(conferenceService.fetchConferenceBy(conferenceId) == null) return Response.status(Status.BAD_REQUEST).build();
+            ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+            if(conference == null) return Response.status(Status.BAD_REQUEST).build();
 
             RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
 
@@ -310,17 +310,17 @@ public class ConferenceResource
             newRegistrationEntity.setUserId(crsLoggedInUser.getId());
             newRegistrationEntity.setConferenceId(conferenceId);
             
-            ConferenceCostsEntity conferenceCosts = conferenceCostsService.fetchBy(conferenceId);
-			
-            if(conferenceCosts != null && conferenceCosts.isAcceptCreditCards())
-            {
-            	PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(newRegistration.getId());
-            	paymentService.createPaymentRecord(newPayment, crsLoggedInUser);
+            registrationService.createNewRegistration(newRegistrationEntity, crsLoggedInUser);
+
+            if(conference.getConferenceCostsId() != null)
+            {			
+            	if(conferenceCostsService.fetchBy(conference.getConferenceCostsId()).isAcceptCreditCards())
+            	{
+            		PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(newRegistration.getId());
+            		paymentService.createPaymentRecord(newPayment, crsLoggedInUser);
+            	}
             }
             
-			// TODO need to make sure user had not already registered for this conference
-			registrationService.createNewRegistration(newRegistrationEntity, crsLoggedInUser);
-
 			return Response.status(Status.CREATED)
 								.location(new URI("/pages/" + newRegistration.getId()))
 								.entity(newRegistration)
@@ -363,33 +363,7 @@ public class ConferenceResource
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 	}
-
-	private void addPaymentsToRegistration(Registration registration)
-	{
-		List<PaymentEntity> paymentEntitiesForRegistration = paymentService.fetchPaymentsForRegistration(registration.getId());
-		List<Payment> pastPayments = Lists.newArrayList();
-		
-		for(PaymentEntity paymentEntity : paymentEntitiesForRegistration)
-		{
-			Payment payment = Payment.fromJpa(paymentEntity);
-			if(payment.getAuthnetTransactionId() != null) pastPayments.add(payment);
-			else registration.setCurrentPayment(payment);
-		}
-		registration.setPastPayments(pastPayments);
-	}
-
-	private void addAnswersToRegistration(Registration registration)
-	{
-		List<AnswerEntity> answerEntitiesForRegistration = answerService.getAllAnswersForRegistration(registration.getId());
-		Set<Answer> answers = Sets.newHashSet();
-		
-		for(AnswerEntity answerEntity : answerEntitiesForRegistration)
-		{
-			answers.add(Answer.fromJpa(answerEntity));
-		}
-		registration.setAnswers(answers);
-	}
-
+	
 	@GET
 	@Path("/{conferenceId}/registrations/current")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -422,6 +396,34 @@ public class ConferenceResource
 			return Response.status(Status.UNAUTHORIZED).build(); 
 		}
 	}
+
+	private void addPaymentsToRegistration(Registration registration)
+	{
+		List<PaymentEntity> paymentEntitiesForRegistration = paymentService.fetchPaymentsForRegistration(registration.getId());
+		List<Payment> pastPayments = Lists.newArrayList();
+		
+		for(PaymentEntity paymentEntity : paymentEntitiesForRegistration)
+		{
+			Payment payment = Payment.fromJpa(paymentEntity);
+			if(payment.getAuthnetTransactionId() != null) pastPayments.add(payment);
+			else registration.setCurrentPayment(payment);
+		}
+		registration.setPastPayments(pastPayments);
+	}
+
+	private void addAnswersToRegistration(Registration registration)
+	{
+		List<AnswerEntity> answerEntitiesForRegistration = answerService.getAllAnswersForRegistration(registration.getId());
+		Set<Answer> answers = Sets.newHashSet();
+		
+		for(AnswerEntity answerEntity : answerEntitiesForRegistration)
+		{
+			answers.add(Answer.fromJpa(answerEntity));
+		}
+		registration.setAnswers(answers);
+	}
+
+
 
 	private void logObject(Object object, Logger logger)
 	{

@@ -201,7 +201,7 @@ public class RegistrationResourceFunctionalTest
 		PaymentEntity processedPayment = em.find(PaymentEntity.class, registration.getCurrentPayment().getId());
 		
 		Assert.assertNotNull(processedPayment.getAuthnetTransactionId());
-		Assert.assertNotNull(processedPayment.getTransactionDatetime());
+		Assert.assertNotNull(processedPayment.getTransactionTimestamp());
 				
 		ClientResponse<Registration> subsequentResponse = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
 		Registration regstrationAfterPayment = subsequentResponse.getEntity();
@@ -215,7 +215,7 @@ public class RegistrationResourceFunctionalTest
 		finally
 		{
 			processedPayment.setAuthnetTransactionId(null);
-			processedPayment.setTransactionDatetime(null);
+			processedPayment.setTransactionTimestamp(null);
 
 			em.getTransaction().begin();
 			em.merge(processedPayment);
