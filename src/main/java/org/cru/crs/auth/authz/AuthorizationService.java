@@ -11,6 +11,8 @@ public class AuthorizationService
 {
 	public void authorize(RegistrationEntity registrationEntity, ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
+		if(registrationEntity == null) return;
+		
 		if(crsApplicationUser == null)
 		{
 			throw new UnauthorizedException();
