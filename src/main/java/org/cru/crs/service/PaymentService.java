@@ -57,12 +57,12 @@ public class PaymentService
         		.addParameter("id", payment.getId())
         		.addParameter("registrationId", payment.getRegistrationId())
         		.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
-        		.addParameter("ccNameOnCard", payment.getCreditCardNameOnCard())
-        		.addParameter("ccExpirationMonth", payment.getCreditCardExpirationMonth())
-        		.addParameter("ccExpirationYear", payment.getCreditCardExpirationYear())
-        		.addParameter("ccLastFourDigits", payment.getCreditCardLastFourDigits())
+        		.addParameter("ccNameOnCard", payment.getCcNameOnCard())
+        		.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
+        		.addParameter("ccExpirationYear", payment.getCcExpirationYear())
+        		.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
         		.addParameter("amount", payment.getAmount())
-        		.addParameter("transactionDatetime", payment.getTransactionDatetime())
+        		.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
         		.executeUpdate();
     }
     
@@ -74,12 +74,12 @@ public class PaymentService
 				.addParameter("id", payment.getId())
 				.addParameter("registrationId", payment.getRegistrationId())
 				.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
-				.addParameter("ccNameOnCard", payment.getCreditCardNameOnCard())
-				.addParameter("ccExpirationMonth", payment.getCreditCardExpirationMonth())
-				.addParameter("ccExpirationYear", payment.getCreditCardExpirationYear())
-				.addParameter("ccLastFourDigits", payment.getCreditCardLastFourDigits())
+				.addParameter("ccNameOnCard", payment.getCcNameOnCard())
+				.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
+				.addParameter("ccExpirationYear", payment.getCcExpirationYear())
+				.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
 				.addParameter("amount", payment.getAmount())
-				.addParameter("transactionDatetime", payment.getTransactionDatetime())
+				.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
 				.executeUpdate();
     }
     
