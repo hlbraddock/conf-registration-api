@@ -23,8 +23,8 @@ public class RegistrationQueries implements BasicQueries
 	public String selectByUserIdConferenceId()
 	{
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM regstrations WHERE ")
-				.append("user_id = :userID")
+		query.append("SELECT * FROM registrations WHERE ")
+				.append("user_id = :userId")
 				.append(" AND ")
 				.append("conference_id = :conferenceId");
 		
@@ -60,7 +60,8 @@ public class RegistrationQueries implements BasicQueries
 				.append(":conferenceId,")
 				.append(":completed")
 				.append(")");
-		return null;
+		
+		return query.toString();
 	}
 
 	@Override
