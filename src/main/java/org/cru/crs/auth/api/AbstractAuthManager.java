@@ -55,7 +55,7 @@ public abstract class AbstractAuthManager
 
 	private SessionEntity getSession(AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity)
 	{
-		SessionEntity sessionEntity = getActiveSession(authenticationProviderIdentityEntity.getUserAuthProviderId());
+		SessionEntity sessionEntity = getActiveSession(authenticationProviderIdentityEntity.getId());
 
 		if(sessionEntity != null)
 		{
@@ -84,9 +84,9 @@ public abstract class AbstractAuthManager
 		return sessionEntity;
 	}
 
-	private SessionEntity getActiveSession(String userAuthProviderId)
+	private SessionEntity getActiveSession(UUID authProviderId)
 	{
-		List<SessionEntity> sessionEntities = sessionService.fetchSessionsByUserAuthProviderId(userAuthProviderId);
+		List<SessionEntity> sessionEntities = sessionService.fetchSessionsByUserAuthProviderId(authProviderId);
 
 		DateTime expired = clock.currentDateTime().minusHours(getMaxSessionLength());
 

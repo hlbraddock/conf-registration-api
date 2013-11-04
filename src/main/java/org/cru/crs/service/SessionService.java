@@ -1,6 +1,7 @@
 package org.cru.crs.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -29,10 +30,10 @@ public class SessionService
 					.executeAndFetchFirst(SessionEntity.class);
 	}
 
-	public List<SessionEntity> fetchSessionsByUserAuthProviderId(String	userAuthProviderId)
+	public List<SessionEntity> fetchSessionsByUserAuthProviderId(UUID authProviderId)
 	{
 		return sql.createQuery(sessionQueries.selectByAuthProviderId())
-					.addParameter("authProviderId", userAuthProviderId)
+					.addParameter("authProviderId", authProviderId)
 					.setAutoDeriveColumnNames(true)
 					.executeAndFetch(SessionEntity.class);
 	}
