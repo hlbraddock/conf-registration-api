@@ -13,10 +13,13 @@ import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
+import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
+import org.cru.crs.service.UserService;
 import org.cru.crs.utils.CollectionUtils;
 import org.testng.collections.Lists;
 import org.testng.collections.Maps;
@@ -25,21 +28,27 @@ import org.testng.internal.annotations.Sets;
 public class DeepConferenceUpdate
 {
 	ConferenceService conferenceService;
+	ConferenceCostsService conferenceCostsService;
 	PageService pageService;
 	BlockService blockService;
 	AnswerService answerService;
+	UserService userService;
 	
 	ConferenceEntity originalConferenceEntity;
 	List<PageEntity> originalPageEntityList;
 	Map<UUID,List<BlockEntity>> originalBlockEntityMap;
 	Map<UUID,List<AnswerEntity>> originalAnswerEntityMap;
 	
-	public DeepConferenceUpdate(ConferenceService conferenceService,PageService pageService, BlockService blockService, AnswerService answerService)
+	public DeepConferenceUpdate(ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, 
+								PageService pageService, BlockService blockService, 
+								AnswerService answerService, UserService userService)
 	{
 		this.conferenceService = conferenceService;
+		this.conferenceCostsService = conferenceCostsService;
 		this.pageService = pageService;
 		this.blockService = blockService;
 		this.answerService = answerService;
+		this.userService = userService;
 	}
 
 	public void performDeepUpdate(Conference conference)
@@ -48,6 +57,13 @@ public class DeepConferenceUpdate
 		originalPageEntityList = getPageEntityListFromDb(conference);
 		originalBlockEntityMap = getBlockEntityMapFromDb(conference);
 		originalAnswerEntityMap = getAnswerEntityMapFromDb(conference);
+		
+		if(originalConferenceEntity == null)
+		{
+			setInitialContactPersonDetailsBasedOn(conference.toJpaConferenceEntity());
+			conferenceCostsService.saveNew(conference.toDbConferenceCostsEntity());
+			conferenceService.createNewConference(conference.toJpaConferenceEntity());
+		}
 		
 		handleMissingPages(conference);
 		
@@ -225,4 +241,15 @@ public class DeepConferenceUpdate
 		return answerMap;
 	}
 	
+	   private ConferenceEntity setInitialContactPersonDetailsBasedOn(ConferenceEntity newConference)
+	    {
+		   UserEntity user = userService.fetchUserBy(newConference.getContactPersonId());
+		   if(user != null)
+		   {
+			   newConference.setContactPersonName(user.getFirstName() + " " + user.getLastName());
+			   newConference.setContactPersonEmail(user.getEmailAddress());
+			   newConference.setContactPersonPhone(user.getPhoneNumber());
+		   }
+		   return newConference;
+	    }
 }

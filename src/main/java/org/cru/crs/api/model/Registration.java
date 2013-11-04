@@ -56,7 +56,7 @@ public class Registration implements java.io.Serializable
 			webRegistration.answers = Sets.newHashSet();
 			for(AnswerEntity dbAnswer : dbAnswers)
 			{
-				webRegistration.answers.add(Answer.fromJpa(dbAnswer));
+				webRegistration.answers.add(Answer.fromDb(dbAnswer));
 			}
 		}
 		if(dbPastPayments != null)

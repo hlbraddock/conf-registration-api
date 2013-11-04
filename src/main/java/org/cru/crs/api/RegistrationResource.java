@@ -139,7 +139,7 @@ public class RegistrationResource
 
 				logger.info("update registration creating");
 
-				registrationService.createNewRegistration(registrationEntity, crsLoggedInUser);
+				registrationService.createNewRegistration(registrationEntity);
 			}
 			else
 			{

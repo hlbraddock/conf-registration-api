@@ -15,11 +15,11 @@ public class ConferenceCostsQueries implements BasicQueries
 		StringBuilder query = new StringBuilder();
 		query.append("UPDATE conference_costs SET ")
 				.append("base_cost = :baseCost,")
-				.append("minimum_deposit = :minimumDeposit")
+				.append("minimum_deposit = :minimumDeposit,")
 				.append("early_registration_discount = :earlyRegistrationDiscount,")
 				.append("early_registration_amount = :earlyRegistrationamount,")
 				.append("early_registration_cutoff = :earlyRegistrationCutoff,")
-				.append("accept_credit_cards = :acceptCreditCard")
+				.append("accept_credit_cards = :acceptCreditCards,")
 				.append("authnet_id = :authnetId,")
 				.append("authnet_token = :authnetToken")
 				.append(" WHERE id = :id");
@@ -49,8 +49,9 @@ public class ConferenceCostsQueries implements BasicQueries
 				.append(":earlyRegistrationAmount,")
 				.append(":earlyRegistrationCutoff,")
 				.append(":acceptCreditCards,")
-				.append("authnetId,")
-				.append("authnetToken");
+				.append(":authnetId,")
+				.append(":authnetToken")
+				.append(")");
 		
 		return query.toString();
 				

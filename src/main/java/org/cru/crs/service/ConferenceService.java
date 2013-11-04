@@ -48,21 +48,8 @@ public class ConferenceService
 					.executeAndFetchFirst(ConferenceEntity.class);
     }
 	
-	public void createNewConference(ConferenceEntity newConference, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
-	{
-		if(crsLoggedInUser == null || crsLoggedInUser.isCrsAuthenticatedOnly())
-		{
-			throw new UnauthorizedException();
-		}
-		
-		newConference.setContactPersonId(crsLoggedInUser.getId());
-
-        newConference = setInitialContactPersonDetailsBasedOn(crsLoggedInUser, newConference);
-
-        sql.createQuery("INSERT INTO conference_costs(id) VALUES (:id)")
-        		.addParameter("id", newConference.getId())
-        		.executeUpdate();
-        
+	public void createNewConference(ConferenceEntity newConference)
+	{   
         sql.createQuery(conferenceQueries.insert())
         		.addParameter("id", newConference.getId())
         		.addParameter("name", newConference.getName())
@@ -84,16 +71,6 @@ public class ConferenceService
         		.addParameter("locationZipCode", newConference.getLocationZipCode())
         		.executeUpdate();
 	}
-
-    private ConferenceEntity setInitialContactPersonDetailsBasedOn(CrsApplicationUser crsLoggedInUser, ConferenceEntity newConference)
-    {
-        UserEntity user = userService.fetchUserBy(crsLoggedInUser.getId());
-        newConference.setContactPersonName(user.getFirstName() + " " + user.getLastName());
-        newConference.setContactPersonEmail(user.getEmailAddress());
-        newConference.setContactPersonPhone(user.getPhoneNumber());
-
-        return newConference;
-    }
 
     public void updateConference(ConferenceEntity conferenceToUpdate)
 	{

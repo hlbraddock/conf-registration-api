@@ -38,7 +38,7 @@ public class ConferenceCostsService
 				.addParameter("earlyRegistrationDiscount", costs.isEarlyRegistrationDiscount())
 				.addParameter("earlyRegistrationAmount", costs.getEarlyRegistrationAmount())
 				.addParameter("earlyRegistrationCutoff", costs.getEarlyRegistrationCutoff())
-				.addParameter("acceptCreditCard", costs.isAcceptCreditCards())
+				.addParameter("acceptCreditCards", costs.isAcceptCreditCards())
 				.addParameter("authnetId", costs.getAuthnetId())
 				.addParameter("authnetToken", costs.getAuthnetToken())
 				.executeUpdate();
@@ -53,7 +53,7 @@ public class ConferenceCostsService
 				.addParameter("earlyRegistrationDiscount", costs.isEarlyRegistrationDiscount())
 				.addParameter("earlyRegistrationAmount", costs.getEarlyRegistrationAmount())
 				.addParameter("earlyRegistrationCutoff", costs.getEarlyRegistrationCutoff())
-				.addParameter("acceptCreditCard", costs.isAcceptCreditCards())
+				.addParameter("acceptCreditCards", costs.isAcceptCreditCards())
 				.addParameter("authnetId", costs.getAuthnetId())
 				.addParameter("authnetToken", costs.getAuthnetToken())
 				.executeUpdate();

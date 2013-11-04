@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.queries.RegistrationQueries;
@@ -65,12 +64,9 @@ public class RegistrationService
 												.executeAndFetchFirst(RegistrationEntity.class);
     }
 
-    public void createNewRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+    public void createNewRegistration(RegistrationEntity registrationEntity)
 	{
-		if(isUserRegisteredForConference(crsApplicationUser, registrationEntity.getConferenceId()))
-		{
-			throw new UnauthorizedException();
-		}
+
 
         registrationEntity.setCompleted(false); //they're just starting, so clearly it's not complete
 		if(registrationEntity.getId() == null) registrationEntity.setId(UUID.randomUUID());
@@ -82,11 +78,6 @@ public class RegistrationService
 				.addParameter("completed", registrationEntity.getCompleted())
 				.executeUpdate();
     }
-
-	private boolean isUserRegisteredForConference(CrsApplicationUser crsApplicationUser, UUID conferenceId)
-	{
-		return (getRegistrationByConferenceIdUserId(conferenceId, crsApplicationUser.getId(), crsApplicationUser) != null);
-	}
 
 	public void updateRegistration(RegistrationEntity registrationEntity)
 	{

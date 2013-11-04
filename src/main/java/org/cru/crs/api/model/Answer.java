@@ -17,30 +17,16 @@ public class Answer implements java.io.Serializable
 
 	private JsonNode value;
 	
-	public static Answer fromJpa(AnswerEntity jpaAnswer)
+	public static Answer fromDb(AnswerEntity dbAnswer)
 	{
 		Answer answer = new Answer();
 
-		answer.id = jpaAnswer.getId();
-		answer.registrationId = jpaAnswer.getRegistrationId();
-		answer.blockId = jpaAnswer.getBlockId();
-		answer.value = jpaAnswer.getAnswer();
+		answer.id = dbAnswer.getId();
+		answer.registrationId = dbAnswer.getRegistrationId();
+		answer.blockId = dbAnswer.getBlockId();
+		answer.value = dbAnswer.getAnswer();
 
 		return answer;
-	}
-
-	public static Set<Answer> fromJpa(Set<AnswerEntity> jpaAnswers)
-	{
-		Set<Answer> answers = new HashSet<Answer>();
-		
-		if(jpaAnswers == null) return answers;
-		
-		for(AnswerEntity jpaAnswer : jpaAnswers)
-		{
-			answers.add(fromJpa(jpaAnswer));
-		}
-		
-		return answers;
 	}
 	
 	public AnswerEntity toDbAnswerEntity()

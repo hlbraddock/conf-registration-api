@@ -80,7 +80,7 @@ public class AnswerResource
 
 			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.READ, crsLoggedInUser);
 
-			Answer answer = Answer.fromJpa(answerEntity);
+			Answer answer = Answer.fromDb(answerEntity);
 
 			logger.info("get answer");
 

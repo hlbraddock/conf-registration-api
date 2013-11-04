@@ -30,6 +30,7 @@ import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.utils.ConferenceAssembler;
 import org.cru.crs.api.process.DeepConferenceUpdate;
+import org.cru.crs.api.process.DeepRegistrationUpdate;
 import org.cru.crs.api.utils.RegistrationWindowCalculator;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
@@ -46,6 +47,7 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
+import org.cru.crs.service.UserService;
 import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
 import org.testng.collections.Lists;
@@ -63,9 +65,10 @@ public class ConferenceResource
 	@Inject BlockService blockService;
 	@Inject PaymentService paymentService;
 	@Inject AnswerService answerService;
+	@Inject UserService userService;
 	@Inject Clock clock;
 
-	@Inject CrsUserService userService;
+	@Inject CrsUserService crsUserService;
 
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
@@ -83,7 +86,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
+			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 
             List<Conference> conferences = Lists.newArrayList();
             
@@ -150,7 +153,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
+			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 
 			/*if there is no id in the conference, then create one. the client has the ability, but not 
 			 * the obligation to create one*/
@@ -160,7 +163,9 @@ public class ConferenceResource
 			}
 
 			/*persist the new conference*/
-			conferenceService.createNewConference(conference.toJpaConferenceEntity(), loggedInUser);
+			DeepConferenceUpdate conferenceUpdateProcess = new DeepConferenceUpdate(conferenceService, conferenceCostsService, pageService,
+					blockService, answerService, userService);
+			conferenceUpdateProcess.performDeepUpdate(conference);
 			
 			/*fetch the created conference so a nice pretty conference object can be returned to client*/
 			Conference createdConference = ConferenceAssembler.buildConference(conference.getId(), conferenceService, conferenceCostsService, pageService, blockService);
@@ -199,7 +204,7 @@ public class ConferenceResource
 
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
+			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 
 			/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
 			if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
@@ -210,25 +215,16 @@ public class ConferenceResource
 			if(conferenceId == null)
 			{
 				/* If a conference ID wasn't passed in, then create a new conference.*/
-				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(UUID.randomUUID()), 
-						loggedInUser);
+				conference.setId(UUID.randomUUID());
 			}
-			else if(conferenceService.fetchConferenceBy(conferenceId) == null)
-			{
-				/* If the conference id was passed in, but there's no conference associated with it, then create a new conference*/ 
-				conferenceService.createNewConference(conference.toJpaConferenceEntity().setId(conferenceId), 
-						loggedInUser);
-			}
-			else
-			{
-				logger.info("PUT: " + conference.getId());
-                logObject(conference, logger);
 
-				/*there is an existing conference, so go update it*/
-                DeepConferenceUpdate conferenceUpdateProcess = new DeepConferenceUpdate(conferenceService, pageService, blockService, answerService);
-                conferenceUpdateProcess.performDeepUpdate(conference);
-			}
-			
+			logger.info("PUT: " + conference.getId());
+			logObject(conference, logger);
+
+			DeepConferenceUpdate conferenceUpdateProcess = new DeepConferenceUpdate(conferenceService, conferenceCostsService, pageService,
+																						blockService, answerService, userService);
+			conferenceUpdateProcess.performDeepUpdate(conference);
+
 			return Response.noContent().build();
 		}
 		catch(UnauthorizedException e)
@@ -247,7 +243,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
+			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 			final ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(conferenceId);
 
 			/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
@@ -293,7 +289,7 @@ public class ConferenceResource
 	{
 		try
 		{
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+			CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 			logger.info(crsLoggedInUser);
 
@@ -311,7 +307,7 @@ public class ConferenceResource
             newRegistrationEntity.setUserId(crsLoggedInUser.getId());
             newRegistrationEntity.setConferenceId(conferenceId);
             
-            registrationService.createNewRegistration(newRegistrationEntity, crsLoggedInUser);
+            registrationService.createNewRegistration(newRegistrationEntity);
 
             if(conference.getConferenceCostsId() != null)
             {			
@@ -343,7 +339,7 @@ public class ConferenceResource
 		{
 			logger.info(conferenceId);
 
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+			CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 			logger.info(crsLoggedInUser);
 
@@ -375,7 +371,7 @@ public class ConferenceResource
 		{
 			logger.info(conferenceId);
 
-			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
+			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 
 			logger.info(loggedInUser);
 
@@ -419,7 +415,7 @@ public class ConferenceResource
 		
 		for(AnswerEntity answerEntity : answerEntitiesForRegistration)
 		{
-			answers.add(Answer.fromJpa(answerEntity));
+			answers.add(Answer.fromDb(answerEntity));
 		}
 		registration.setAnswers(answers);
 	}
