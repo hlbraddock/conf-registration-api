@@ -275,7 +275,9 @@ public class RegistrationResource
 	
     private void processPayment(Payment payment, CrsApplicationUser loggedInUser) throws IOException, UnauthorizedException
     {
-    	if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
+    	/*make sure the payment is not processed twice in case the client didn't record the fact it was processed*/
+    	PaymentEntity copyOfPaymentFromDatabase = paymentService.fetchPaymentBy(payment.getId());
+    	if(copyOfPaymentFromDatabase.getTransactionTimestamp() == null && copyOfPaymentFromDatabase.getAuthnetTransactionId() == null)
     	{
     		ConferenceEntity dbConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId()).getConferenceId());
     		ConferenceCostsEntity dbConferenceCosts = conferenceCostsService.fetchBy(dbConference.getConferenceCostsId());
