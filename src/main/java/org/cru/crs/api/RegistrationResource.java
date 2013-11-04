@@ -28,6 +28,7 @@ import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.utils.RegistrationAssembler;
+import org.cru.crs.api.process.DeepRegistrationUpdate;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
@@ -130,7 +131,7 @@ public class RegistrationResource
 			}
 			
 			boolean createdNewRegistration = false;
-			// create the entity if none exists
+			
 			if(registrationService.getRegistrationBy(registrationId) == null)
 			{
 				createdNewRegistration = true;
@@ -139,11 +140,13 @@ public class RegistrationResource
 
 				logger.info("update registration creating");
 
+				authorizationService.authorize(registrationEntity, conferenceEntity, OperationType.CREATE, crsLoggedInUser);
 				registrationService.createNewRegistration(registrationEntity);
 			}
 			else
 			{
-				registrationService.updateRegistration(registration.toDbRegistrationEntity());
+				authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntity, OperationType.UPDATE, crsLoggedInUser);
+				new DeepRegistrationUpdate(registrationService, answerService, paymentService, conferenceService).performDeepUpdate(registration);
 			}
 			
 			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
@@ -194,6 +197,7 @@ public class RegistrationResource
 			 * to be deleted, b/c if so, payments will also be deleted.  That could be a really bad idea.  It's
 			 * probably better to set some status on the registration to "delete" it. 
 			 */
+			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
 			registrationService.deleteRegistration(registrationEntity);
 
 			return Response.noContent().build();
@@ -222,8 +226,6 @@ public class RegistrationResource
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
 			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
-
-			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
 			
 			logger.info("create answer with registration entity");
 			Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
@@ -234,6 +236,7 @@ public class RegistrationResource
 			logger.info("create answer");
 			Simply.logObject(newAnswer, RegistrationResource.class);
 
+			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
 			answerService.insertAnswer(newAnswer.toDbAnswerEntity());
 
 			return Response.status(Status.CREATED)
@@ -257,12 +260,20 @@ public class RegistrationResource
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
-
+			
 			if(paymentEntity == null)
 			{
 				return Response.status(Status.NOT_FOUND).build();
 			}
 
+			
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(paymentEntity.getRegistrationId());
+			
+			authorizationService.authorize(registrationEntity,
+											conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+											OperationType.READ,
+											crsLoggedInUser);
+											
 			Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
 
 			return Response.ok(Payment.fromJpa(paymentEntity)).build();

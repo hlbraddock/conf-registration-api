@@ -48,7 +48,7 @@ public class DeepRegistrationUpdate
 		
 		for(Answer updatedOrNewAnswer : registration.getAnswers())
 		{
-			if(originalAnswerEntitySet.contains(updatedOrNewAnswer))
+			if(originalAnswerEntitySet.contains(updatedOrNewAnswer.toDbAnswerEntity()))
 			{
 				answerService.updateAnswer(updatedOrNewAnswer.toDbAnswerEntity());
 			}
