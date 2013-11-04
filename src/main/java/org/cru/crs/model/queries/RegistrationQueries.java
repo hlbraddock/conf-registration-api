@@ -37,7 +37,7 @@ public class RegistrationQueries implements BasicQueries
 		StringBuilder query = new StringBuilder();
 		query.append("UPDATE registrations SET ")
 				.append("user_id = :userId,")
-				.append("conference_id = :conferenceId")
+				.append("conference_id = :conferenceId,")
 				.append("completed = :completed")
 				.append(" WHERE ")
 				.append("id = :id");

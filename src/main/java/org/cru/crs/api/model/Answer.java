@@ -43,7 +43,7 @@ public class Answer implements java.io.Serializable
 		return answers;
 	}
 	
-	public AnswerEntity toJpaAnswerEntity()
+	public AnswerEntity toDbAnswerEntity()
 	{
 		AnswerEntity jpaAnswer = new AnswerEntity();
 		

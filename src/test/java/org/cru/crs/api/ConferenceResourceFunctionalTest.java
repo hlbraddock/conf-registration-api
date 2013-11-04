@@ -73,8 +73,8 @@ public class ConferenceResourceFunctionalTest
         pageService = new PageService(sql,blockService);
         conferenceCostsService = new ConferenceCostsService(sql);
         conferenceService = new ConferenceService(sql,pageService,new UserService(sql));
-        registrationService = new RegistrationService(sql, conferenceService, new AuthorizationService());
-        paymentService = new PaymentService(sql,registrationService);
+        paymentService = new PaymentService(sql);
+        registrationService = new RegistrationService(sql,answerService,paymentService);
 	}
 	
 	/**
@@ -309,7 +309,7 @@ public class ConferenceResourceFunctionalTest
 
 			registrationId = getIdFromResponseLocation(response.getLocation().toString());
 
-			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId, crsUser);
+			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId);
 			List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(registrationId);
 
 			Assert.assertEquals(registration.getId(), registrationId);

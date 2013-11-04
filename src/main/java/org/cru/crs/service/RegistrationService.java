@@ -8,12 +8,9 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.cru.crs.auth.UnauthorizedException;
-import org.cru.crs.auth.authz.AuthorizationService;
-import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.queries.RegistrationQueries;
-import org.cru.crs.utils.CollectionUtils;
 import org.jboss.logging.Logger;
 import org.sql2o.Sql2o;
 
@@ -25,77 +22,47 @@ public class RegistrationService
 
 	Sql2o sql;
 	
-	AuthorizationService authorizationService;
-	ConferenceService conferenceService; 
-
+	AnswerService answerService;
+	PaymentService paymentService;
+	
 	RegistrationQueries registrationQueries = new RegistrationQueries();
 	
 	private Logger logger = Logger.getLogger(RegistrationService.class);
 
 	@Inject
-    public RegistrationService(Sql2o sql, ConferenceService conferenceService, AuthorizationService authorizationService)
+    public RegistrationService(Sql2o sql, AnswerService answerService, PaymentService paymentService)
     {
 		this.sql = sql;
-		this.authorizationService = authorizationService;
-		this.conferenceService = conferenceService;
+		this.answerService = answerService;
+		this.paymentService = paymentService;
     }
 
-	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId, CrsApplicationUser crsApplicationUser)
 	{
 		List<RegistrationEntity> registrations = sql.createQuery(registrationQueries.selectAllForConference())
 														.addParameter("conferenceId", conferenceId)
 														.setAutoDeriveColumnNames(true)
 														.executeAndFetch(RegistrationEntity.class);
 
-		Set<RegistrationEntity> regstrationsAsSet = new HashSet<RegistrationEntity>(registrations);
-		
-		// if authorized as admin for any one registration then authorized for all
-		if(registrations.size() > 0)
-		{
-			authorizationService.authorize(CollectionUtils.getAnyOne(regstrationsAsSet), conferenceService.fetchConferenceBy(conferenceId), OperationType.ADMIN, crsApplicationUser);
-		}
-		return regstrationsAsSet;
+		return new HashSet<RegistrationEntity>(registrations);		
 	}
 
-	public RegistrationEntity getRegistrationByConferenceIdUserId(UUID conferenceId, UUID userId, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	public RegistrationEntity getRegistrationByConferenceIdUserId(UUID conferenceId, UUID userId, CrsApplicationUser crsApplicationUser)
 	{
 
-		RegistrationEntity registration = sql.createQuery(registrationQueries.selectByUserIdConferenceId())
+		return sql.createQuery(registrationQueries.selectByUserIdConferenceId())
 													.addParameter("conferenceId", conferenceId)
 													.addParameter("userId", userId)
 													.setAutoDeriveColumnNames(true)
 													.executeAndFetchFirst(RegistrationEntity.class);
-
-		authorizationService.authorize(registration, conferenceService.fetchConferenceBy(conferenceId), OperationType.READ, crsApplicationUser);
-
-		return registration;
 	}
 
-	public RegistrationEntity getRegistrationBy(UUID registrationId, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	public RegistrationEntity getRegistrationBy(UUID registrationId)
 	{
-		if(crsApplicationUser == null)
-		{
-			throw new UnauthorizedException();
-		}
-		
-		logger.info("get registration by " + registrationId + " with user " + crsApplicationUser.getAuthProviderUsername());
-
-		RegistrationEntity registration = sql.createQuery(registrationQueries.selectById())
+		return sql.createQuery(registrationQueries.selectById())
 												.addParameter("id", registrationId)
 												.setAutoDeriveColumnNames(true)
 												.executeAndFetchFirst(RegistrationEntity.class);
-		if(registration == null)
-		{
-			return registration;
-		}
-
-		logger.info("get registration by " + registrationId + " with user " + crsApplicationUser + " checking authorization");
-
-		authorizationService.authorize(registration,conferenceService.fetchConferenceBy(registration.getConferenceId()), OperationType.READ, crsApplicationUser);
-
-		logger.info("get registration by is authorized");
-
-		return registration;
     }
 
     public void createNewRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
@@ -104,8 +71,6 @@ public class RegistrationService
 		{
 			throw new UnauthorizedException();
 		}
-
-		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),OperationType.CREATE, crsApplicationUser);
 
         registrationEntity.setCompleted(false); //they're just starting, so clearly it's not complete
 		if(registrationEntity.getId() == null) registrationEntity.setId(UUID.randomUUID());
@@ -118,15 +83,13 @@ public class RegistrationService
 				.executeUpdate();
     }
 
-	private boolean isUserRegisteredForConference(CrsApplicationUser crsApplicationUser, UUID conferenceId) throws UnauthorizedException
+	private boolean isUserRegisteredForConference(CrsApplicationUser crsApplicationUser, UUID conferenceId)
 	{
 		return (getRegistrationByConferenceIdUserId(conferenceId, crsApplicationUser.getId(), crsApplicationUser) != null);
 	}
 
-	public void updateRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	public void updateRegistration(RegistrationEntity registrationEntity)
 	{
-		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsApplicationUser);
-
 		sql.createQuery(registrationQueries.update())
 					.addParameter("id", registrationEntity.getId())
 					.addParameter("conferenceId", registrationEntity.getConferenceId())
@@ -135,12 +98,11 @@ public class RegistrationService
 					.executeUpdate();
     }
 
-    public void deleteRegistration(RegistrationEntity registrationEntity, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+    public void deleteRegistration(RegistrationEntity registrationEntity)
 	{
-		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsApplicationUser);
-
-		//TODO: delete answers
-		
+    	answerService.deleteAnswersByRegistrationId(registrationEntity.getId());
+    	paymentService.disassociatePaymentsFromRegistration(registrationEntity.getId());
+    	
 		sql.createQuery(registrationQueries.delete())
 				.addParameter("id", registrationEntity.getId())
 				.executeUpdate();

@@ -26,7 +26,7 @@ public class PaymentQueries implements BasicQueries
 				.append("cc_expiration_year = :ccExpirationYear,")
 				.append("cc_last_four_digits = :ccLastFourDigits,")
 				.append("amount = :amount,")
-				.append("transaction_timestamp = transactionTimestamp")
+				.append("transaction_timestamp = :transactionTimestamp")
 				.append(" WHERE ")
 				.append("id = :id");
 						

@@ -74,7 +74,7 @@ public class AnswerResource
 
 			logObject(answerEntity, logger);
 
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId(), crsLoggedInUser);
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
 
 			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
@@ -104,11 +104,15 @@ public class AnswerResource
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			if(IdComparer.idsAreNotNullAndDifferent(answerId, answer.getId()))
+			{
 				return Response.status(Status.BAD_REQUEST).build();
-
+			}
+			
 			if(answer.getId() == null || answerId == null)
+			{
 				return Response.status(Status.BAD_REQUEST).build();
-
+			}
+			
             /*if the block for which this answer is related to has been deleted, then return
             an appropriate error client error message
              */
@@ -126,7 +130,7 @@ public class AnswerResource
 			// create the answer if none yet exists for the given answer id
 			if(currentAnswerEntity == null)
 			{
-				RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answer.getRegistrationId(), crsLoggedInUser);
+				RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answer.getRegistrationId());
 
 				if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
@@ -136,8 +140,8 @@ public class AnswerResource
 
 				logObject(Registration.fromDb(registrationEntity), logger);
 
-//				registrationEntity.getAnswers().add(answer.toJpaAnswerEntity());
-
+				answerService.insertAnswer(answer.toDbAnswerEntity());
+				
 				return Response.status(Status.CREATED).entity(answer).header("location", new URI("/answers/" + answer.getId())).build();
 			}
 
@@ -145,14 +149,14 @@ public class AnswerResource
 
 			logObject(currentAnswerEntity, logger);
 
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(currentAnswerEntity.getRegistrationId(), crsLoggedInUser);
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(currentAnswerEntity.getRegistrationId());
 
 			if(registrationEntity == null)
 				return Response.status(Status.BAD_REQUEST).build();
 
 			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
 
-			answerService.updateAnswer(answer.toJpaAnswerEntity());
+			answerService.updateAnswer(answer.toDbAnswerEntity());
 
 			return Response.noContent().build();
 		}
@@ -178,7 +182,7 @@ public class AnswerResource
 
 			logObject(answerEntity, logger);
 
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId(), crsLoggedInUser);
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
 
 			if(registrationEntity == null)
 				return Response.status(Status.BAD_REQUEST).build();

@@ -54,7 +54,7 @@ public class AnswerService
         		.addParameter("id", answerToUpdate.getId())
         		.addParameter("registrationId", answerToUpdate.getRegistrationId())
         		.addParameter("blockId", answerToUpdate.getBlockId())
-        		.addParameter("content", answerToUpdate.getAnswer())
+        		.addParameter("answer", answerToUpdate.getAnswer())
         		.executeUpdate();
         		
     }
@@ -65,7 +65,7 @@ public class AnswerService
         		.addParameter("id", answerToInsert.getId())
         		.addParameter("registrationId", answerToInsert.getRegistrationId())
         		.addParameter("blockId", answerToInsert.getBlockId())
-        		.addParameter("content", answerToInsert.getAnswer())
+        		.addParameter("answer", answerToInsert.getAnswer())
         		.executeUpdate();
     }
     
@@ -79,6 +79,14 @@ public class AnswerService
 	public void deleteAnswersByBlockId(UUID blockId)
 	{
 		for(AnswerEntity answerEntity : getAllAnswersForBlock(blockId))
+		{
+			deleteAnswer(answerEntity);
+		}
+	}
+	
+	public void deleteAnswersByRegistrationId(UUID registrationId)
+	{
+		for(AnswerEntity answerEntity : getAllAnswersForRegistration(registrationId))
 		{
 			deleteAnswer(answerEntity);
 		}

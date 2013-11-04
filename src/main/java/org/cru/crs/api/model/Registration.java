@@ -7,9 +7,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.cru.crs.model.AnswerEntity;
-import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.testng.collections.Lists;
+import org.testng.internal.annotations.Sets;
 
 public class Registration implements java.io.Serializable
 {
@@ -30,16 +31,45 @@ public class Registration implements java.io.Serializable
 	 * @param jpaRegistration
 	 * @return
 	 */
-	public static Registration fromDb(RegistrationEntity jpaRegistration)
+	public static Registration fromDb(RegistrationEntity dbRegistration)
 	{
+		if(dbRegistration == null) return null;
+		
 		Registration webRegistration = new Registration();
 		
-		webRegistration.id = jpaRegistration.getId();
-        webRegistration.userId = jpaRegistration.getUserId();
-		webRegistration.conferenceId = jpaRegistration.getConferenceId();
-        webRegistration.completed = jpaRegistration.getCompleted();
+		webRegistration.id = dbRegistration.getId();
+        webRegistration.userId = dbRegistration.getUserId();
+		webRegistration.conferenceId = dbRegistration.getConferenceId();
+        webRegistration.completed = dbRegistration.getCompleted();
         
         return webRegistration;
+	}
+	
+	public static Registration fromDb(RegistrationEntity dbRegistration, List<AnswerEntity> dbAnswers, List<PaymentEntity> dbPastPayments, PaymentEntity dbCurrentPayment)
+	{
+		Registration webRegistration = fromDb(dbRegistration);
+		
+		if(webRegistration == null) return null;
+		
+		if(dbAnswers != null)
+		{
+			webRegistration.answers = Sets.newHashSet();
+			for(AnswerEntity dbAnswer : dbAnswers)
+			{
+				webRegistration.answers.add(Answer.fromJpa(dbAnswer));
+			}
+		}
+		if(dbPastPayments != null)
+		{
+			webRegistration.pastPayments = Lists.newArrayList();
+			for(PaymentEntity dbPastPayment : dbPastPayments)
+			{
+				webRegistration.pastPayments.add(Payment.fromJpa(dbPastPayment));
+			}
+		}
+		webRegistration.currentPayment = Payment.fromJpa(dbCurrentPayment);
+		
+		return webRegistration;
 	}
 	
 	public static Set<Registration> fromDb(Set<RegistrationEntity> dbRegistrations)

@@ -24,15 +24,22 @@ import javax.ws.rs.core.Response.Status;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.utils.RegistrationAssembler;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.auth.authz.AuthorizationService;
+import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.payment.authnet.AuthnetPaymentProcess;
+import org.cru.crs.service.AnswerService;
+import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
@@ -46,8 +53,13 @@ public class RegistrationResource
 {
 	@Inject RegistrationService registrationService;
 	@Inject ConferenceService conferenceService;
+	@Inject ConferenceCostsService conferenceCostsService;
 	@Inject CrsUserService userService;
     @Inject PaymentService paymentService;
+    @Inject AnswerService answerService;
+    
+    @Inject AuthorizationService authorizationService;
+    
     @Inject Clock clock; 
     
     @Inject AuthnetPaymentProcess paymentProcess;
@@ -66,17 +78,17 @@ public class RegistrationResource
 
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-			RegistrationEntity requestedRegistration = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
+			Registration registration = RegistrationAssembler.buildRegistration(registrationId, registrationService, paymentService, answerService);
 
-			logger.info("get registration is " + requestedRegistration);
+			logger.info("get registration is " + registration);
 
-			if(requestedRegistration == null) return Response.status(Status.NOT_FOUND).build();
+			if(registration == null) return Response.status(Status.NOT_FOUND).build();
 
-			logger.info("get registration entity");
-			Simply.logObject(Registration.fromDb(requestedRegistration), RegistrationResource.class);
+			authorizationService.authorize(registration.toDbRegistrationEntity(), 
+												conferenceService.fetchConferenceBy(registration.getConferenceId()), 
+												OperationType.READ,
+												crsLoggedInUser);
 
-			Registration registration = Registration.fromDb(requestedRegistration);
-			
 			logger.info("get registration");
 			Simply.logObject(registration, RegistrationResource.class);
 
@@ -84,7 +96,7 @@ public class RegistrationResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.status(Status.UNAUTHORIZED).build(); 
 		}
 	}
 
@@ -119,7 +131,7 @@ public class RegistrationResource
 			
 			boolean createdNewRegistration = false;
 			// create the entity if none exists
-			if(registrationService.getRegistrationBy(registrationId, crsLoggedInUser) == null)
+			if(registrationService.getRegistrationBy(registrationId) == null)
 			{
 				createdNewRegistration = true;
 				
@@ -128,12 +140,10 @@ public class RegistrationResource
 				logger.info("update registration creating");
 
 				registrationService.createNewRegistration(registrationEntity, crsLoggedInUser);
-
-
 			}
 			else
 			{
-				registrationService.updateRegistration(registration.toDbRegistrationEntity(), crsLoggedInUser);
+				registrationService.updateRegistration(registration.toDbRegistrationEntity());
 			}
 			
 			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
@@ -170,7 +180,7 @@ public class RegistrationResource
 		{
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
 			if(registrationEntity == null)
 			{
@@ -184,7 +194,7 @@ public class RegistrationResource
 			 * to be deleted, b/c if so, payments will also be deleted.  That could be a really bad idea.  It's
 			 * probably better to set some status on the registration to "delete" it. 
 			 */
-			registrationService.deleteRegistration(registrationEntity, crsLoggedInUser);
+			registrationService.deleteRegistration(registrationEntity);
 
 			return Response.noContent().build();
 		}
@@ -202,27 +212,34 @@ public class RegistrationResource
 	{
 		try
 		{
+			if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
+			
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-			if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
-				return Response.status(Status.BAD_REQUEST).build();
-
-			if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
-
-			logger.info("create answer");
-			Simply.logObject(newAnswer, RegistrationResource.class);
-
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId, crsLoggedInUser);
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
 			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
 
+			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
+			
 			logger.info("create answer with registration entity");
 			Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
 
-			//TODO: create answer
-//			registrationEntity.getAnswers().add(newAnswer.toJpaAnswerEntity());
+			if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
+			if(newAnswer.getRegistrationId() == null) newAnswer.setRegistrationId(registrationId);
+			
+			logger.info("create answer");
+			Simply.logObject(newAnswer, RegistrationResource.class);
 
-			return Response.status(Status.CREATED).entity(newAnswer).header("location", new URI("/answers/" + newAnswer.getId())).build();
+			answerService.insertAnswer(newAnswer.toDbAnswerEntity());
+
+			return Response.status(Status.CREATED)
+								.entity(newAnswer)
+								.header("location", new URI("/answers/" + newAnswer.getId()))
+								.build();
 		}
 		catch(UnauthorizedException e)
 		{
@@ -239,7 +256,7 @@ public class RegistrationResource
 		{
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-			PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId, crsLoggedInUser);
+			PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
 
 			if(paymentEntity == null)
 			{
@@ -260,19 +277,19 @@ public class RegistrationResource
     {
     	if(payment.getTransactionDatetime() == null && payment.getAuthnetTransactionId() == null)
     	{
-//    		ConferenceEntity jpaConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId(), 
-//    																					loggedInUser).getConference().getId());
-//    		
-//    		Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromJpa(jpaConference), payment);
-//
-//    		payment.setAuthnetTransactionId(transactionId);
-//    		payment.setTransactionDatetime(clock.currentDateTime());
-//
-//    		paymentService.updatePayment(payment.toJpaPaymentEntity(), loggedInUser);
+    		ConferenceEntity dbConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId()).getConferenceId());
+    		ConferenceCostsEntity dbConferenceCosts = conferenceCostsService.fetchBy(dbConference.getConferenceCostsId());
+    		
+    		Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromDb(dbConference, dbConferenceCosts), payment);
+
+    		payment.setAuthnetTransactionId(transactionId);
+    		payment.setTransactionDatetime(clock.currentDateTime());
+
+    		paymentService.updatePayment(payment.toJpaPaymentEntity());
     	}
     	else
     	{
-    		
+    		logger.info("Payment already processed....");
     	}
     }
 }
