@@ -346,7 +346,7 @@ public class ConferenceResource
             RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
 
             /*prep the new registration entity by making sure the IDs we need to know are set properly.*/
-            if(newRegistrationEntity.getId() == null) newRegistration.setId(UUID.randomUUID());
+            if(newRegistrationEntity.getId() == null) newRegistrationEntity.setId(UUID.randomUUID());
             newRegistrationEntity.setUserId(crsLoggedInUser.getId());
             newRegistrationEntity.setConferenceId(conferenceId);
             

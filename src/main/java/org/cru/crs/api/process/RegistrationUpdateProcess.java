@@ -39,11 +39,6 @@ public class RegistrationUpdateProcess
 		originalRegistrationEntity = registrationService.getRegistrationBy(registration.getId());
 		originalAnswerEntitySet = getAnswerEntitySetFromDb(registration);
 		
-		if(originalRegistrationEntity == null)
-		{
-			registrationService.createNewRegistration(originalRegistrationEntity);
-		}
-		
 		handleMissingAnswers(registration);
 		
 		for(Answer updatedOrNewAnswer : registration.getAnswers())
