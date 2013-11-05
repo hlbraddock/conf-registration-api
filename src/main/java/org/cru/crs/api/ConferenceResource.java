@@ -180,7 +180,7 @@ public class ConferenceResource
 			
 			/*persist the new conference*/
 			conferenceCostsService.saveNew(conference.toDbConferenceCostsEntity());
-			conferenceService.createNewConference(conference.toJpaConferenceEntity());
+			conferenceService.createNewConference(conference.toDbConferenceEntity());
 			
 			/*perform a deep update to ensure all the fields are saved.*/
 			new ConferenceUpdateProcess(conferenceService, conferenceCostsService, pageService, blockService, answerService, userService).performDeepUpdate(conference);
@@ -239,7 +239,7 @@ public class ConferenceResource
 
 			Simply.logObject(conference, ConferenceResource.class);
 
-			authorizationService.authorizeConference(conference.toJpaConferenceEntity(), OperationType.UPDATE, loggedInUser);
+			authorizationService.authorizeConference(conference.toDbConferenceEntity(), OperationType.UPDATE, loggedInUser);
 			
 			ConferenceUpdateProcess conferenceUpdateProcess = new ConferenceUpdateProcess(conferenceService, conferenceCostsService, pageService,
 																						blockService, answerService, userService);

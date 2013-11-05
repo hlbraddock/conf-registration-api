@@ -58,7 +58,7 @@ public class Conference implements java.io.Serializable
     private String authnetToken;
 
 
-	public ConferenceEntity toJpaConferenceEntity()
+	public ConferenceEntity toDbConferenceEntity()
 	{
 		ConferenceEntity jpaConference = new ConferenceEntity();
 		

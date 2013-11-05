@@ -13,7 +13,6 @@ import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
-import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;
@@ -88,7 +87,8 @@ public class ConferenceUpdateProcess
 			}
 		}
 		
-		conferenceService.updateConference(conference.toJpaConferenceEntity());
+		conferenceCostsService.update(conference.toDbConferenceCostsEntity());
+		conferenceService.updateConference(conference.toDbConferenceEntity());
 	}
 
 	private boolean maybeAddNewPage(Page page)
