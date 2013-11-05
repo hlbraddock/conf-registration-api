@@ -50,6 +50,19 @@ public class ConferenceUpdateProcess
 		this.userService = userService;
 	}
 
+	/**
+	 * Performs a "deep" update of a web model conference object.  The basic algorithm is as follows:
+	 *  - load up original Conference, Pages, Blocks and Answers from the DB and store them in memory.  they are used for comparison purposes with the updated
+	 *    conference to see what was moved, added or taken away
+	 *  - identify any pages that were removed from the conference by comparing updated to original, delete them (and all corresponding blocks and answers)
+	 *  - loop through updated pages, adding if it's new, updating if it's not
+	 *  - while on each page, if it's existing see if any of its blocks are not anywhere on the conference. if any are missing delete them (and answers)
+	 *  - while still on the same page, update its existing blocks (this update might actually move a block from another page, this is ok! (hibernate can't do this... hehehehe) )
+	 *    and add any new blocks
+	 *  - go to the next page and repeat.
+	 *  - when done with pages, update the conference and conference costs fields themselves.
+	 * @param conference
+	 */
 	public void performDeepUpdate(Conference conference)
 	{
 		originalConferenceEntity = conferenceService.fetchConferenceBy(conference.getId());
