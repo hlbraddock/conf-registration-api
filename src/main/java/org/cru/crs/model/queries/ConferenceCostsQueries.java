@@ -17,7 +17,7 @@ public class ConferenceCostsQueries implements BasicQueries
 				.append("base_cost = :baseCost,")
 				.append("minimum_deposit = :minimumDeposit,")
 				.append("early_registration_discount = :earlyRegistrationDiscount,")
-				.append("early_registration_amount = :earlyRegistrationamount,")
+				.append("early_registration_amount = :earlyRegistrationAmount,")
 				.append("early_registration_cutoff = :earlyRegistrationCutoff,")
 				.append("accept_credit_cards = :acceptCreditCards,")
 				.append("authnet_id = :authnetId,")

@@ -83,8 +83,11 @@ public class ConferenceUpdateProcess
 					{
 						blockService.updateBlock(block.toDbBlockEntity());
 					}
+					blockPosition++;
 				}
+
 			}
+			pagePosition++;
 		}
 		
 		conferenceCostsService.update(conference.toDbConferenceCostsEntity());

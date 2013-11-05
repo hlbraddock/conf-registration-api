@@ -84,7 +84,7 @@ public class ConferenceResourceFunctionalTest
 	 * Input: none
 	 * 
 	 * Expected return: 200 - OK and empty array of json-i-fied conferences, b/c this list is now limited
-	 * by the authenicated user in the session
+	 * by the authenticated user in the session
 	 */
 	@Test(groups="functional-tests")
 	public void fetchAllTheConferences()

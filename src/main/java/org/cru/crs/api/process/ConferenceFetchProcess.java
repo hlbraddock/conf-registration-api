@@ -1,5 +1,7 @@
 package org.cru.crs.api.process;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,14 +27,44 @@ public class ConferenceFetchProcess
 	{
 		ConferenceEntity databaseConference = conferenceService.fetchConferenceBy(conferenceId);
 		ConferenceCostsEntity databaseConferenceCosts = conferenceCostsService.fetchBy(conferenceId);
-		List<PageEntity> databasePages = pageService.fetchPagesForConference(conferenceId);
+		List<PageEntity> databasePages = orderPagesByPosition(pageService.fetchPagesForConference(conferenceId));
 		Map<UUID,List<BlockEntity>> databaseBlocks = Maps.newHashMap();
 		
 		for(PageEntity page : databasePages)
 		{
-			databaseBlocks.put(page.getId(), blockService.fetchBlocksForPage(page.getId()));
+			databaseBlocks.put(page.getId(), orderBlocksByPosition(blockService.fetchBlocksForPage(page.getId())));
 		}
 		
 		return Conference.fromDb(databaseConference, databaseConferenceCosts, databasePages, databaseBlocks);
+	}
+	
+	private static List<PageEntity> orderPagesByPosition(List<PageEntity> pages)
+	{
+		if(pages == null) return pages;
+		
+		Collections.sort(pages,new Comparator<PageEntity>(){
+
+			@Override
+			public int compare(PageEntity page1, PageEntity page2)
+			{
+				return new Integer(page1.getPosition()).compareTo(new Integer(page2.getPosition()));
+			}});
+		
+		return pages;
+	}
+	
+	private static List<BlockEntity> orderBlocksByPosition(List<BlockEntity> blocks)
+	{
+		if(blocks == null) return blocks;
+		
+		Collections.sort(blocks,new Comparator<BlockEntity>(){
+
+			@Override
+			public int compare(BlockEntity block1, BlockEntity block2)
+			{
+				return new Integer(block1.getPosition()).compareTo(new Integer(block2.getPosition()));
+			}});
+		
+		return blocks;
 	}
 }
