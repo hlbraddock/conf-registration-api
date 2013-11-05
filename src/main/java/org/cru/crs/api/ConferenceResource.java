@@ -179,8 +179,7 @@ public class ConferenceResource
 			Simply.logObject(conference, ConferenceResource.class);
 			
 			/*persist the new conference*/
-			conferenceCostsService.saveNew(conference.toDbConferenceCostsEntity());
-			conferenceService.createNewConference(conference.toDbConferenceEntity());
+			conferenceService.createNewConference(conference.toDbConferenceEntity(),conference.toDbConferenceCostsEntity());
 			
 			/*perform a deep update to ensure all the fields are saved.*/
 			new ConferenceUpdateProcess(conferenceService, conferenceCostsService, pageService, blockService, answerService, userService).performDeepUpdate(conference);

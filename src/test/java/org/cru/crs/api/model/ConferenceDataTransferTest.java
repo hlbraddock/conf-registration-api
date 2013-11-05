@@ -39,7 +39,7 @@ public class ConferenceDataTransferTest
 		conference.setLocationState("TX");
         conference.setLocationZipCode("23451");
 
-        ConferenceEntity jpaConference = conference.toJpaConferenceEntity();
+        ConferenceEntity jpaConference = conference.toDbConferenceEntity();
 		
 		Assert.assertNotNull(jpaConference);
 		Assert.assertEquals(jpaConference.getContactPersonId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));

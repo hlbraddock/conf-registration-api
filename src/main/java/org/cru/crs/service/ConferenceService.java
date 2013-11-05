@@ -5,11 +5,10 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
-import org.cru.crs.model.UserEntity;
 import org.cru.crs.model.queries.ConferenceQueries;
 import org.sql2o.Sql2o;
 
@@ -17,16 +16,18 @@ public class ConferenceService
 {
 	Sql2o sql;
 	
+	ConferenceCostsService conferenceCostsService;
 	PageService pageService;
     UserService userService;
     
     ConferenceQueries conferenceQueries;
     
     @Inject
-	public ConferenceService(Sql2o sql, PageService pageService, UserService userService)
+	public ConferenceService(Sql2o sql, ConferenceCostsService conferenceCostsService, PageService pageService, UserService userService)
 	{
 		this.sql = sql;
 		
+		this.conferenceCostsService = conferenceCostsService;
 		this.pageService = pageService;
         this.userService = userService;
         this.conferenceQueries = new ConferenceQueries();
@@ -48,8 +49,10 @@ public class ConferenceService
 					.executeAndFetchFirst(ConferenceEntity.class);
     }
 	
-	public void createNewConference(ConferenceEntity newConference)
+	public void createNewConference(ConferenceEntity newConference, ConferenceCostsEntity newConferenceCosts)
 	{   
+		conferenceCostsService.saveNew(newConferenceCosts);
+		
         sql.createQuery(conferenceQueries.insert())
         		.addParameter("id", newConference.getId())
         		.addParameter("name", newConference.getName())

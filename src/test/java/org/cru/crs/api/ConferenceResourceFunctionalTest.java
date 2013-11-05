@@ -15,7 +15,6 @@ import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.ConferenceFetchProcess;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.UnauthorizedException;
-import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PageEntity;
@@ -72,7 +71,7 @@ public class ConferenceResourceFunctionalTest
         blockService = new BlockService(sql, answerService);
         pageService = new PageService(sql,blockService);
         conferenceCostsService = new ConferenceCostsService(sql);
-        conferenceService = new ConferenceService(sql,pageService,new UserService(sql));
+        conferenceService = new ConferenceService(sql,conferenceCostsService,pageService,new UserService(sql));
         paymentService = new PaymentService(sql);
         registrationService = new RegistrationService(sql,answerService,paymentService);
 	}
