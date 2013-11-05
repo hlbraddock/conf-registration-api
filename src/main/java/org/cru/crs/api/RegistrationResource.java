@@ -27,8 +27,8 @@ import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.utils.RegistrationAssembler;
-import org.cru.crs.api.process.DeepRegistrationUpdate;
 import org.cru.crs.api.process.PaymentProcessor;
+import org.cru.crs.api.process.RegistrationUpdateProcess;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
@@ -37,7 +37,6 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
-import org.cru.crs.payment.authnet.AuthnetPaymentProcess;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
@@ -170,11 +169,9 @@ public class RegistrationResource
 				authorizationService.authorize(registrationEntity, conferenceEntityForUpdatedRegistration, OperationType.CREATE, crsLoggedInUser);
 				registrationService.createNewRegistration(registrationEntity);
 			}
-			else
-			{
-				authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
-				new DeepRegistrationUpdate(registrationService, answerService, paymentService, conferenceService).performDeepUpdate(registration);
-			}
+
+			authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
+			new RegistrationUpdateProcess(registrationService, answerService, paymentService, conferenceService).performDeepUpdate(registration);
 			
 			/*if this update tells us the payment is ready to process, then the payment will be processed*/
 			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())

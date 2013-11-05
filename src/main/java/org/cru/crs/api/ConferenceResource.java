@@ -30,7 +30,6 @@ import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.utils.ConferenceAssembler;
 import org.cru.crs.api.process.DeepConferenceUpdate;
-import org.cru.crs.api.process.DeepRegistrationUpdate;
 import org.cru.crs.api.utils.RegistrationWindowCalculator;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
