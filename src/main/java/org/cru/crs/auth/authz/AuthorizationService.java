@@ -9,6 +9,25 @@ import org.cru.crs.model.RegistrationEntity;
 
 public class AuthorizationService
 {
+	
+	public void authorizeConference(ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	{
+		if(conferenceEntity == null) return;
+		
+		if(crsApplicationUser == null)
+		{
+			throw new UnauthorizedException();
+		}
+
+		if(operationType.equals(OperationType.ADMIN) || operationType.equals(OperationType.DELETE) || operationType.equals(OperationType.UPDATE))
+		{
+			if(!isAdministeredBy(conferenceEntity, crsApplicationUser.getId()))
+			{
+				throw new UnauthorizedException();
+			}
+		}
+	}
+	
 	public void authorize(RegistrationEntity registrationEntity, ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
 	{
 		if(registrationEntity == null) return;

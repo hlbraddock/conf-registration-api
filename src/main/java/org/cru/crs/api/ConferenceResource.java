@@ -1,6 +1,5 @@
 package org.cru.crs.api;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -22,23 +21,24 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.ccci.util.time.Clock;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
-import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.model.utils.ConferenceAssembler;
-import org.cru.crs.api.process.DeepConferenceUpdate;
+import org.cru.crs.api.process.ConferenceFetchProcess;
+import org.cru.crs.api.process.ConferenceUpdateProcess;
+import org.cru.crs.api.process.RegistrationFetchProcess;
+import org.cru.crs.api.process.RegistrationUpdateProcess;
 import org.cru.crs.api.utils.RegistrationWindowCalculator;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
+import org.cru.crs.auth.authz.AuthorizationService;
+import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;
@@ -48,10 +48,9 @@ import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
 import org.cru.crs.utils.IdComparer;
+import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.testng.collections.Lists;
-
-import com.beust.jcommander.internal.Sets;
 
 @Stateless
 @Path("/conferences")
@@ -65,18 +64,23 @@ public class ConferenceResource
 	@Inject PaymentService paymentService;
 	@Inject AnswerService answerService;
 	@Inject UserService userService;
+	
+	@Inject AuthorizationService authorizationService;
+	
 	@Inject Clock clock;
 
 	@Inject CrsUserService crsUserService;
 
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
-    /**
-	 * Desired design: Gets all the conferences for which the authenticated user has access to.
+	/**
+	 * Returns all conference resources that the user specified by @param registrationId has access to
 	 * 
-	 * Current status: Returns all conferences in the system.  Need authentication built out to
-	 * implement as designed.
-	 * 
+	 * Possible Outcomes:
+	 * 	200 Ok - found some conferences and the user specified by @param authCode has read access to them
+	 *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist
+	 *  
+	 * @param authCode
 	 * @return
 	 */
 	@GET
@@ -91,7 +95,7 @@ public class ConferenceResource
             
             for(ConferenceEntity databaseConference : conferenceService.fetchAllConferences(loggedInUser))
             {
-            	Conference webConference = ConferenceAssembler.buildConference(databaseConference.getId(), conferenceService, conferenceCostsService, pageService, blockService);
+            	Conference webConference = ConferenceFetchProcess.buildConference(databaseConference.getId(), conferenceService, conferenceCostsService, pageService, blockService);
             													            	
             	RegistrationWindowCalculator.setRegistrationOpenFieldOn(webConference, clock);
                 RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(webConference, clock);
@@ -108,9 +112,13 @@ public class ConferenceResource
 	}
 
 	/**
-	 * Return the conference identified by ID with all associated Pages and Blocks
+	 * Returns a conference resource specified by @param conferenceId
 	 * 
-	 * @param conferenceId
+	 * Possible Outcomes:
+	 * 	200 Ok - found conference and the user specified by @param authCode has read access
+	 *  404 Not Found - no conference resource specified by @param conferenceId
+	 *  
+	 * @param authCode
 	 * @return
 	 */
 	@GET
@@ -118,8 +126,9 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getConference(@PathParam(value = "conferenceId") UUID conferenceId)
 	{
+		logger.info("get conference entity " + conferenceId);
 		
-		Conference requestedConference = ConferenceAssembler.buildConference(conferenceId, conferenceService, conferenceCostsService, pageService, blockService);
+		Conference requestedConference = ConferenceFetchProcess.buildConference(conferenceId, conferenceService, conferenceCostsService, pageService, blockService);
 		
 		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
         
@@ -130,28 +139,31 @@ public class ConferenceResource
         RegistrationWindowCalculator.setRegistrationOpenFieldOn(requestedConference, clock);
         RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(requestedConference, clock);
 
-        logger.info("GET: " + requestedConference.getId());
-        logObject(requestedConference, logger);
+        Simply.logObject(requestedConference, ConferenceResource.class);
 
         return Response.ok(requestedConference).build();
 	}
 
 	/**
-	 * Creates a new conference.  In order to create a conference the user must be logged in
-	 * with a known identity.  To check this, we look in the session for an appUserId.
+	 * Creates a new conference resource
+	 * 
+	 * Possible Outcomes:
+	 *  201 Created - @param conference was created
+	 *  401 Unauthorized - user specified by @param authCode is expired, doesn't exist or doesn't have create conference privileges
 	 * 
 	 * @param conference
+	 * @param authCode
 	 * @return
-	 * @throws URISyntaxException
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createConference(Conference conference, 
-			@HeaderParam(value="Authorization") String authCode)throws URISyntaxException
+	public Response createConference(Conference conference, @HeaderParam(value="Authorization") String authCode) throws URISyntaxException
 	{
 		try
 		{
+			logger.info("create conference auth code" + authCode);
+			
 			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 
 			/*if there is no id in the conference, then create one. the client has the ability, but not 
@@ -161,13 +173,20 @@ public class ConferenceResource
 				conference.setId(UUID.randomUUID());
 			}
 
+			conference.setContactUser(loggedInUser.getId());
+			setInitialContactPersonDetailsBasedOn(conference, loggedInUser);
+			
+			Simply.logObject(conference, ConferenceResource.class);
+			
 			/*persist the new conference*/
-			DeepConferenceUpdate conferenceUpdateProcess = new DeepConferenceUpdate(conferenceService, conferenceCostsService, pageService,
-					blockService, answerService, userService);
-			conferenceUpdateProcess.performDeepUpdate(conference);
+			conferenceCostsService.saveNew(conference.toDbConferenceCostsEntity());
+			conferenceService.createNewConference(conference.toJpaConferenceEntity());
+			
+			/*perform a deep update to ensure all the fields are saved.*/
+			new ConferenceUpdateProcess(conferenceService, conferenceCostsService, pageService, blockService, answerService, userService).performDeepUpdate(conference);
 			
 			/*fetch the created conference so a nice pretty conference object can be returned to client*/
-			Conference createdConference = ConferenceAssembler.buildConference(conference.getId(), conferenceService, conferenceCostsService, pageService, blockService);
+			Conference createdConference = ConferenceFetchProcess.buildConference(conference.getId(), conferenceService, conferenceCostsService, pageService, blockService);
 			
 			/*return a response with status 201 - Created and a location header to fetch the conference.
 			 * a copy of the entity is also returned.*/
@@ -182,13 +201,12 @@ public class ConferenceResource
 	}
 
 	/**
-	 * Updates an existing conference
+	 * Updates the conference resource specified by @param conferenceId
 	 * 
-	 * This PUT will create a new conference resource if the conference specified by @Param conferenceId does
-	 * not exist.
-	 * 
-	 * If the conference ID path parameter and the conference ID body parameter (in the JSON object) do not match
-	 * then this method will fail-fast and return a 400-Bad Request response.
+	 * Possible outcomes:
+	 * 	201 Created - page resource was created and associated to conference specified by @param conferenceId 
+	 *  400 Bad Request - if the conference specified by @param conferenceId, then bad request
+	 *  401 Unauthorized - user specified by @param authCode is expired, doesn't exist
 	 * 
 	 * @param conference
 	 * @return
@@ -203,6 +221,8 @@ public class ConferenceResource
 
 		try
 		{
+			logger.info("update conference " + conferenceId + "auth code" + authCode);
+			
 			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 
 			/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
@@ -217,10 +237,11 @@ public class ConferenceResource
 				conference.setId(UUID.randomUUID());
 			}
 
-			logger.info("PUT: " + conference.getId());
-			logObject(conference, logger);
+			Simply.logObject(conference, ConferenceResource.class);
 
-			DeepConferenceUpdate conferenceUpdateProcess = new DeepConferenceUpdate(conferenceService, conferenceCostsService, pageService,
+			authorizationService.authorizeConference(conference.toJpaConferenceEntity(), OperationType.UPDATE, loggedInUser);
+			
+			ConferenceUpdateProcess conferenceUpdateProcess = new ConferenceUpdateProcess(conferenceService, conferenceCostsService, pageService,
 																						blockService, answerService, userService);
 			conferenceUpdateProcess.performDeepUpdate(conference);
 
@@ -232,6 +253,17 @@ public class ConferenceResource
 		}
 	}
 
+	/**
+	 * Creates a new page resource and associates it to the conference specified by @param conferenceId
+	 * 
+	 * Possible outcomes:
+	 * 	201 Created - page resource was created and associated to conference specified by @param conferenceId 
+	 *  400 Bad Request - if the conference specified by @param conferenceId, then bad request
+	 *  401 Unauthorized - user specified by @param authCode is expired, doesn't exist
+	 * 
+	 * @param conference
+	 * @return
+	 */
 	@POST
 	@Path("/{conferenceId}/pages")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -242,18 +274,16 @@ public class ConferenceResource
 	{
 		try
 		{
+			logger.info("create page entity for conference " + conferenceId + "auth code" + authCode);
+			
 			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
+			
 			final ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(conferenceId);
 
 			/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
 			if(conferencePageBelongsTo == null)
 			{
 				return Response.status(Status.BAD_REQUEST).build();
-			}
-
-			if(!conferencePageBelongsTo.getContactPersonId().equals(loggedInUser.getId()))
-			{
-				throw new UnauthorizedException();
 			}
 			
 			if(newPage.getId() == null)
@@ -263,6 +293,9 @@ public class ConferenceResource
 			
 			newPage.setConferenceId(conferenceId);
 			
+			Simply.logObject(newPage, ConferenceResource.class);
+			
+			authorizationService.authorizeConference(conferencePageBelongsTo, OperationType.UPDATE, loggedInUser);
 			pageService.savePage(newPage.toDbPageEntity());
 			
 			PageEntity createdPage = pageService.fetchPageBy(newPage.getId());
@@ -278,6 +311,18 @@ public class ConferenceResource
 		}
 	}
 
+	/**
+	 * Creates a new registration resource and associates it to the conference specified by @param conferenceId and user specified by @param authCode
+	 * 
+	 * Possible outcomes:
+	 * 	201 Created - registration resource was created and associated to conference specified by @param conferenceId and user specified by @param authCode. if the conference
+	 *                accepts payments, then a payment resource was associated to the newly created conference
+	 *  400 Bad Request - if the conference specified by @param conferenceId, then bad request
+	 *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist
+	 * 
+	 * @param conference
+	 * @return
+	 */
 	@POST
 	@Path("/{conferenceId}/registrations")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -288,24 +333,26 @@ public class ConferenceResource
 	{
 		try
 		{
+			logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode);
+
 			CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
-			logger.info(crsLoggedInUser);
-
-			if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
-
-            logger.info(conferenceId);
-
-            ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
-            if(conference == null) return Response.status(Status.BAD_REQUEST).build();
+			/*if the registration this conference is supposed to belong to doesn't exist, then this is a bad request*/
+			ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+			if(conference == null)
+			{
+				return Response.status(Status.BAD_REQUEST).build();
+			}
 
             RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
 
-            logObject(newRegistrationEntity, logger);
-
+            /*prep the new registration entity by making sure the IDs we need to know are set properly.*/
+            if(newRegistrationEntity.getId() == null) newRegistration.setId(UUID.randomUUID());
             newRegistrationEntity.setUserId(crsLoggedInUser.getId());
             newRegistrationEntity.setConferenceId(conferenceId);
             
+            Simply.logObject(newRegistration, ConferenceResource.class);
+
             registrationService.createNewRegistration(newRegistrationEntity);
 
             if(conference.getConferenceCostsId() != null)
@@ -316,6 +363,9 @@ public class ConferenceResource
             		paymentService.createPaymentRecord(newPayment, crsLoggedInUser);
             	}
             }
+            
+            /*now perform a deep update to ensure that any answers or other payments are properly saved*/
+            new RegistrationUpdateProcess(registrationService,answerService,paymentService,conferenceService).performDeepUpdate(newRegistration);
             
 			return Response.status(Status.CREATED)
 								.location(new URI("/pages/" + newRegistration.getId()))
@@ -328,6 +378,16 @@ public class ConferenceResource
 		}
 	}
 
+	/**
+	 * Gets all the registration resources associated to the conference specified by @param conferenceId
+	 * 
+	 * Possible outcomes:
+	 * 	200 Ok - registration resources were found and returned
+	 *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist, or user doesn't have read access to conference or registrations
+	 * 
+	 * @param conference
+	 * @return
+	 */
 	@GET
 	@Path("/{conferenceId}/registrations")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -336,23 +396,32 @@ public class ConferenceResource
 	{
 		try
 		{
-			logger.info(conferenceId);
-
+			logger.info("get registration entities " + conferenceId + "auth code" + authCode);
+			
 			CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
-			logger.info(crsLoggedInUser);
-
-			Set<Registration> registrationSet = Registration.fromDb(registrationService.fetchAllRegistrations(conferenceId, crsLoggedInUser));
-
-			for(Registration registration : registrationSet)
-			{
-				addPaymentsToRegistration(registration);
-				addAnswersToRegistration(registration);
+			Set<RegistrationEntity> databaseRegistrationsForConferece = registrationService.fetchAllRegistrations(conferenceId);
+			
+			List<Registration> webRegistrationsForConference = Lists.newArrayList();
+			
+			for(RegistrationEntity databaseRegistration: databaseRegistrationsForConferece)
+			{	
+				webRegistrationsForConference.add(RegistrationFetchProcess.buildRegistration(databaseRegistration.getId(), registrationService, paymentService, answerService));
 			}
 			
-			logObject(registrationSet, logger);
+			/*if there are any registrations to return, check the first one to ensure the user has read access.  since they're all
+			 * attached to the same conference, read access applies to one and all*/
+			if(!webRegistrationsForConference.isEmpty())
+			{
+				authorizationService.authorize(webRegistrationsForConference.get(0).toDbRegistrationEntity(), 
+												conferenceService.fetchConferenceBy(conferenceId), 
+												OperationType.READ, 
+												crsLoggedInUser);
+			}
 			
-			return Response.ok(registrationSet).build();
+			Simply.logObject(webRegistrationsForConference, ConferenceResource.class);
+			
+			return Response.ok(webRegistrationsForConference).build();
 		}
 		catch(UnauthorizedException e)
 		{
@@ -374,16 +443,13 @@ public class ConferenceResource
 
 			logger.info(loggedInUser);
 
-			RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId(), loggedInUser);
+			RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
 
 			if(registrationEntity == null) return Response.status(Status.NOT_FOUND).build();
 			
-			Registration registration = Registration.fromDb(registrationEntity);
+			Registration registration = RegistrationFetchProcess.buildRegistration(registrationEntity.getId(), registrationService, paymentService, answerService);
 			
-			addAnswersToRegistration(registration);
-			addPaymentsToRegistration(registration);
-			
-			logObject(registration, logger);
+			Simply.logObject(registration, ConferenceResource.class);
 
 			return Response.ok(registration).build();
 		}
@@ -393,43 +459,16 @@ public class ConferenceResource
 		}
 	}
 
-	private void addPaymentsToRegistration(Registration registration)
+	private Conference setInitialContactPersonDetailsBasedOn(Conference newConference, CrsApplicationUser loggedInUser)
 	{
-		List<PaymentEntity> paymentEntitiesForRegistration = paymentService.fetchPaymentsForRegistration(registration.getId());
-		List<Payment> pastPayments = Lists.newArrayList();
-		
-		for(PaymentEntity paymentEntity : paymentEntitiesForRegistration)
+		UserEntity user = userService.fetchUserBy(loggedInUser.getId());
+		if(user != null)
 		{
-			Payment payment = Payment.fromJpa(paymentEntity);
-			if(payment.getAuthnetTransactionId() != null) pastPayments.add(payment);
-			else registration.setCurrentPayment(payment);
+			newConference.setContactUser(loggedInUser.getId());
+			newConference.setContactPersonName(user.getFirstName() + " " + user.getLastName());
+			newConference.setContactPersonEmail(user.getEmailAddress());
+			newConference.setContactPersonPhone(user.getPhoneNumber());
 		}
-		registration.setPastPayments(pastPayments);
-	}
-
-	private void addAnswersToRegistration(Registration registration)
-	{
-		List<AnswerEntity> answerEntitiesForRegistration = answerService.getAllAnswersForRegistration(registration.getId());
-		Set<Answer> answers = Sets.newHashSet();
-		
-		for(AnswerEntity answerEntity : answerEntitiesForRegistration)
-		{
-			answers.add(Answer.fromDb(answerEntity));
-		}
-		registration.setAnswers(answers);
-	}
-
-
-
-	private void logObject(Object object, Logger logger)
-	{
-		try
-		{
-			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
-		} 
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		return newConference;
 	}
 }

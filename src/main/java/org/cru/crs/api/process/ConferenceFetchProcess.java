@@ -1,4 +1,4 @@
-package org.cru.crs.api.model.utils;
+package org.cru.crs.api.process;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.testng.collections.Maps;
 
-public class ConferenceAssembler
+public class ConferenceFetchProcess
 {
 
 	/**

@@ -12,7 +12,7 @@ import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.model.utils.ConferenceAssembler;
+import org.cru.crs.api.process.ConferenceFetchProcess;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
@@ -422,7 +422,7 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void moveBlockUpOnePage()
 	{
-		Conference webConference = ConferenceAssembler.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
+		Conference webConference = ConferenceFetchProcess.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
 																			conferenceService, 
 																			conferenceCostsService, 
 																			pageService, 
@@ -435,7 +435,7 @@ public class ConferenceResourceFunctionalTest
 		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
-		Conference updatedWebConference = ConferenceAssembler.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
+		Conference updatedWebConference = ConferenceFetchProcess.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
 																			conferenceService, 
 																			conferenceCostsService, 
 																			pageService, 
@@ -451,7 +451,7 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void moveBlockDownOnePage()
 	{
-		Conference webConference = ConferenceAssembler.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
+		Conference webConference = ConferenceFetchProcess.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
 																			conferenceService, 
 																			conferenceCostsService, 
 																			pageService, 
@@ -463,7 +463,7 @@ public class ConferenceResourceFunctionalTest
 		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
-		Conference updatedWebConference = ConferenceAssembler.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
+		Conference updatedWebConference = ConferenceFetchProcess.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
 																					conferenceService, 
 																					conferenceCostsService, 
 																					pageService, 

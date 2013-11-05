@@ -25,7 +25,7 @@ import org.testng.collections.Lists;
 import org.testng.collections.Maps;
 import org.testng.internal.annotations.Sets;
 
-public class DeepConferenceUpdate
+public class ConferenceUpdateProcess
 {
 	ConferenceService conferenceService;
 	ConferenceCostsService conferenceCostsService;
@@ -39,7 +39,7 @@ public class DeepConferenceUpdate
 	Map<UUID,List<BlockEntity>> originalBlockEntityMap;
 	Map<UUID,List<AnswerEntity>> originalAnswerEntityMap;
 	
-	public DeepConferenceUpdate(ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, 
+	public ConferenceUpdateProcess(ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, 
 								PageService pageService, BlockService blockService, 
 								AnswerService answerService, UserService userService)
 	{
@@ -57,13 +57,6 @@ public class DeepConferenceUpdate
 		originalPageEntityList = getPageEntityListFromDb(conference);
 		originalBlockEntityMap = getBlockEntityMapFromDb(conference);
 		originalAnswerEntityMap = getAnswerEntityMapFromDb(conference);
-		
-		if(originalConferenceEntity == null)
-		{
-			setInitialContactPersonDetailsBasedOn(conference.toJpaConferenceEntity());
-			conferenceCostsService.saveNew(conference.toDbConferenceCostsEntity());
-			conferenceService.createNewConference(conference.toJpaConferenceEntity());
-		}
 		
 		handleMissingPages(conference);
 		
@@ -240,16 +233,4 @@ public class DeepConferenceUpdate
 		
 		return answerMap;
 	}
-	
-	   private ConferenceEntity setInitialContactPersonDetailsBasedOn(ConferenceEntity newConference)
-	    {
-		   UserEntity user = userService.fetchUserBy(newConference.getContactPersonId());
-		   if(user != null)
-		   {
-			   newConference.setContactPersonName(user.getFirstName() + " " + user.getLastName());
-			   newConference.setContactPersonEmail(user.getEmailAddress());
-			   newConference.setContactPersonPhone(user.getPhoneNumber());
-		   }
-		   return newConference;
-	    }
 }

@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.queries.RegistrationQueries;
 import org.jboss.logging.Logger;
@@ -36,7 +35,7 @@ public class RegistrationService
 		this.paymentService = paymentService;
     }
 
-	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId, CrsApplicationUser crsApplicationUser)
+	public Set<RegistrationEntity> fetchAllRegistrations(UUID conferenceId)
 	{
 		List<RegistrationEntity> registrations = sql.createQuery(registrationQueries.selectAllForConference())
 														.addParameter("conferenceId", conferenceId)
@@ -46,7 +45,7 @@ public class RegistrationService
 		return new HashSet<RegistrationEntity>(registrations);		
 	}
 
-	public RegistrationEntity getRegistrationByConferenceIdUserId(UUID conferenceId, UUID userId, CrsApplicationUser crsApplicationUser)
+	public RegistrationEntity getRegistrationByConferenceIdUserId(UUID conferenceId, UUID userId)
 	{
 
 		return sql.createQuery(registrationQueries.selectByUserIdConferenceId())
