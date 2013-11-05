@@ -60,45 +60,46 @@ public class Conference implements java.io.Serializable
 
 	public ConferenceEntity toDbConferenceEntity()
 	{
-		ConferenceEntity jpaConference = new ConferenceEntity();
+		ConferenceEntity dbConference = new ConferenceEntity();
 		
-		jpaConference.setId(id);
-		jpaConference.setName(name);
-		jpaConference.setEventStartTime(eventStartTime);
-		jpaConference.setEventEndTime(eventEndTime);
-		jpaConference.setRegistrationStartTime(registrationStartTime);
-		jpaConference.setRegistrationEndTime(registrationEndTime);
-		jpaConference.setTotalSlots(totalSlots);
-		jpaConference.setContactPersonId(contactUser);
-        jpaConference.setContactPersonName(contactPersonName);
-        jpaConference.setContactPersonEmail(contactPersonEmail);
-        jpaConference.setContactPersonPhone(contactPersonPhone);
+		dbConference.setId(id);
+		dbConference.setName(name);
+		dbConference.setDescription(description);
+		dbConference.setEventStartTime(eventStartTime);
+		dbConference.setEventEndTime(eventEndTime);
+		dbConference.setRegistrationStartTime(registrationStartTime);
+		dbConference.setRegistrationEndTime(registrationEndTime);
+		dbConference.setTotalSlots(totalSlots);
+		dbConference.setContactPersonId(contactUser);
+        dbConference.setContactPersonName(contactPersonName);
+        dbConference.setContactPersonEmail(contactPersonEmail);
+        dbConference.setContactPersonPhone(contactPersonPhone);
 
-        jpaConference.setLocationName(locationName);
-        jpaConference.setLocationAddress(locationAddress);
-        jpaConference.setLocationCity(locationCity);
-        jpaConference.setLocationState(locationState);
-        jpaConference.setLocationZipCode(locationZipCode);
+        dbConference.setLocationName(locationName);
+        dbConference.setLocationAddress(locationAddress);
+        dbConference.setLocationCity(locationCity);
+        dbConference.setLocationState(locationState);
+        dbConference.setLocationZipCode(locationZipCode);
 
-		jpaConference.setConferenceCostsId(getId());
+		dbConference.setConferenceCostsId(getId());
 
-		return jpaConference;
+		return dbConference;
 	}
 	
 	public ConferenceCostsEntity toDbConferenceCostsEntity()
 	{
-		ConferenceCostsEntity jpaConferenceCosts = new ConferenceCostsEntity();
-		jpaConferenceCosts.setId(id);
-		jpaConferenceCosts.setAcceptCreditCards(acceptCreditCards);
-		jpaConferenceCosts.setAuthnetId(authnetId);
-		jpaConferenceCosts.setAuthnetToken(authnetToken);
-		jpaConferenceCosts.setBaseCost(conferenceCost);
-        jpaConferenceCosts.setMinimumDeposit(minimumDeposit);
-		jpaConferenceCosts.setEarlyRegistrationAmount(earlyRegistrationAmount);
-		jpaConferenceCosts.setEarlyRegistrationCutoff(earlyRegistrationCutoff);
-		jpaConferenceCosts.setEarlyRegistrationDiscount(earlyRegistrationDiscount);
+		ConferenceCostsEntity dbConferenceCosts = new ConferenceCostsEntity();
+		dbConferenceCosts.setId(id);
+		dbConferenceCosts.setAcceptCreditCards(acceptCreditCards);
+		dbConferenceCosts.setAuthnetId(authnetId);
+		dbConferenceCosts.setAuthnetToken(authnetToken);
+		dbConferenceCosts.setBaseCost(conferenceCost);
+        dbConferenceCosts.setMinimumDeposit(minimumDeposit);
+		dbConferenceCosts.setEarlyRegistrationAmount(earlyRegistrationAmount);
+		dbConferenceCosts.setEarlyRegistrationCutoff(earlyRegistrationCutoff);
+		dbConferenceCosts.setEarlyRegistrationDiscount(earlyRegistrationDiscount);
 		
-		return jpaConferenceCosts;
+		return dbConferenceCosts;
 	}
 	
 	/**
@@ -113,6 +114,7 @@ public class Conference implements java.io.Serializable
 		
 		webConference.id = dbConference.getId();
 		webConference.name = dbConference.getName();
+		webConference.description = dbConference.getDescription();
 		webConference.eventStartTime = dbConference.getEventStartTime();
 		webConference.eventEndTime = dbConference.getEventEndTime();
 		webConference.registrationStartTime = dbConference.getRegistrationStartTime();
