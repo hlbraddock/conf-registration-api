@@ -5,10 +5,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import org.cru.crs.auth.UnauthorizedException;
-import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
-import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.queries.BlockQueries;
 import org.sql2o.Sql2o;
 
@@ -88,18 +85,5 @@ public class BlockService
 		sql.createQuery(blockQueries.delete())
 				.addParameter("id", blockId)
 				.executeUpdate();
-	}
-
-
-	private void verifyUserIdHasAccessToModifyThisBlocksConference(ConferenceEntity owningConference, BlockEntity blockToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
-	{
-		/*This could NPE if the conference is null, I considered adding an extra check here, but
-		 * the end result would only be that a different exception be thrown.  Either way it
-		 * will end up as a 500 to the client.*/
-		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(owningConference.getContactPersonId()))
-		{
-			throw new UnauthorizedException();
-		}
-		
 	}
 }

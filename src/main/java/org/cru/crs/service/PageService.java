@@ -99,15 +99,4 @@ public class PageService
 		blockService.saveBlock(blockToAdd);
 	}
 
-	private void verifyUserIdHasAccessToModifyThisPagesConference(ConferenceEntity owningConference, PageEntity pageToDelete, UUID crsAppUserId)
-			throws UnauthorizedException
-	{		
-		/*This could NPE if the conference is null, I considered adding an extra check here, but
-		 * the end result would only be that a different exception be thrown.  Either way it
-		 * will end up as a 500 to the client.*/
-		if(crsAppUserId == null || !crsAppUserId.equals(owningConference.getContactPersonId()))
-		{
-			throw new UnauthorizedException();
-		}
-	}
 }
