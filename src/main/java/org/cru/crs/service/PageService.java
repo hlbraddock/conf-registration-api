@@ -81,7 +81,7 @@ public class PageService
 		}
 
 		sql.createQuery(pageQueries.delete(),false)
-			.addParameter("pageId", pageId)
+			.addParameter("id", pageId)
 			.executeUpdate();
 	}
 
