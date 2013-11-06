@@ -3,6 +3,7 @@ package org.cru.crs.api.process;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
@@ -94,6 +95,11 @@ public class RegistrationUpdateProcess
 	
 	private void updateOrInsertCurrentPayment(Payment payment)
 	{
+		if(payment.getId() == null)
+		{
+			payment.setId(UUID.randomUUID());
+		}
+			
 		if(paymentService.fetchPaymentBy(payment.getId()) == null)
 		{
 			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
