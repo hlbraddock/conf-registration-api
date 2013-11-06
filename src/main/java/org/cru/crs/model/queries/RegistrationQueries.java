@@ -6,71 +6,40 @@ public class RegistrationQueries implements BasicQueries
 	@Override
 	public String selectById()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM registrations WHERE id = :id");
-		
-		return query.toString();
+		return "SELECT * FROM registrations WHERE id = :id";
 	}
 
 	public String selectAllForConference()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM registrations WHERE conference_id = :conferenceId");
-		
-		return query.toString();
+		return "SELECT * FROM registrations WHERE conference_id = :conferenceId";
 	}
 	
 	public String selectByUserIdConferenceId()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM registrations WHERE ")
-				.append("user_id = :userId")
-				.append(" AND ")
-				.append("conference_id = :conferenceId");
-		
-		return query.toString();
+		return "SELECT * FROM registrations WHERE user_id = :userId AND conference_id = :conferenceId";
 	}
 	
 	@Override
 	public String update()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("UPDATE registrations SET ")
-				.append("user_id = :userId,")
-				.append("conference_id = :conferenceId,")
-				.append("completed = :completed")
-				.append(" WHERE ")
-				.append("id = :id");
-		
-		return query.toString();
+		return "UPDATE registrations SET " +
+				 "user_id = :userId, " +
+				 "conference_id = :conferenceId, " +
+				 "completed = :completed " +
+				 " WHERE " +
+				 "id = :id";
 	}
 
 	@Override
 	public String insert()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("INSERT INTO registrations(")
-				.append("id,")
-				.append("user_id,")
-				.append("conference_id,")
-				.append("completed")
-				.append(") VALUES(")
-				.append(":id,")
-				.append(":userId,")
-				.append(":conferenceId,")
-				.append(":completed")
-				.append(")");
-		
-		return query.toString();
+		return "INSERT INTO registrations(id, user_id, conference_id, completed) VALUES(:id, :userId, :conferenceId, :completed)";
 	}
 
 	@Override
 	public String delete()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("DELETE FROM registrations WHERE id = :id");
-		
-		return query.toString();
+		return "DELETE FROM registrations WHERE id = :id";
 	}
 
 }
