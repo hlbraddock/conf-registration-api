@@ -12,10 +12,9 @@ import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.errors.BadRequest;
 import org.cru.crs.api.process.ConferenceFetchProcess;
-import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.UnauthorizedException;
-import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
@@ -66,7 +65,7 @@ public class ConferenceResourceFunctionalTest
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
-        sql = new SqlConnectionProducer().getSqlConnection();
+        sql = new SqlConnectionProducer().getTestSqlConnection();
         answerService = new AnswerService(sql);
         blockService = new BlockService(sql, answerService);
         pageService = new PageService(sql,blockService);
@@ -281,11 +280,12 @@ public class ConferenceResourceFunctionalTest
 	{
 		Page newPage = createFakePage();
 
-		@SuppressWarnings("rawtypes")
 		ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"), UserInfo.AuthCode.TestUser);
 
+		BadRequest badRequestError = (BadRequest)response.getEntity(BadRequest.class);
 		//status code, 400-Bad Request
-		Assert.assertEquals(response.getStatus(), 400);
+		Assert.assertEquals(response.getStatus(), 200);
+		Assert.assertEquals(badRequestError.getStatusCode(), 400);
 	}
 
 	@Test(groups="functional-tests")
@@ -296,7 +296,6 @@ public class ConferenceResourceFunctionalTest
 		try
 		{
 			UUID userIdUUID = UserInfo.Id.Ryan;
-			CrsApplicationUser crsUser = new CrsApplicationUser(userIdUUID,AuthenticationProviderType.RELAY,"");
 
 			Registration newRegistration = createRegistration(registrationId, userIdUUID);
 

@@ -12,9 +12,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Block;
+import org.cru.crs.api.model.errors.NotFound;
+import org.cru.crs.api.model.errors.ServerError;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.service.BlockService;
@@ -37,10 +38,20 @@ public class BlockResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getBlock(@PathParam(value="blockId") UUID blockId)
 	{
-		BlockEntity requestedBlock = blockService.fetchBlockBy(blockId);
+		try
+		{
+			BlockEntity requestedBlock = blockService.fetchBlockBy(blockId);
 
-		if(requestedBlock == null) return Response.status(Status.NOT_FOUND).build();
+			if(requestedBlock == null)
+			{
+				return Response.ok(new NotFound()).build();
+			}
 
-		return Response.ok(Block.fromJpa(requestedBlock)).build();
+			return Response.ok(Block.fromJpa(requestedBlock)).build();
+		}
+		catch(Exception e)
+		{
+			return Response.ok(new ServerError(e)).build();
+		}
 	}
 }

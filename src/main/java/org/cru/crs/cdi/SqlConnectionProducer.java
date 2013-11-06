@@ -17,4 +17,9 @@ public class SqlConnectionProducer
 	{
 		return new Sql2o(properties.getProperty("databaseUrl"), properties.getProperty("databaseUsername"), properties.getProperty("databasePassword"), QuirksMode.PostgreSQL);
 	}
+	
+	public Sql2o getTestSqlConnection()
+	{
+		return new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser", QuirksMode.PostgreSQL);
+	}
 }

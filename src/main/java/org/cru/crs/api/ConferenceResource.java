@@ -23,7 +23,12 @@ import javax.ws.rs.core.Response.Status;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.errors.BadRequest;
+import org.cru.crs.api.model.errors.NotFound;
+import org.cru.crs.api.model.errors.ServerError;
+import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.api.process.ConferenceFetchProcess;
 import org.cru.crs.api.process.ConferenceUpdateProcess;
 import org.cru.crs.api.process.RegistrationFetchProcess;
@@ -107,7 +112,11 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -126,22 +135,32 @@ public class ConferenceResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getConference(@PathParam(value = "conferenceId") UUID conferenceId)
 	{
-		logger.info("get conference entity " + conferenceId);
-		
-		Conference requestedConference = ConferenceFetchProcess.buildConference(conferenceId, conferenceService, conferenceCostsService, pageService, blockService);
-		
-		if(requestedConference == null) return Response.status(Status.NOT_FOUND).build();
-        
-        /*
-         * Set these fields based on the server's time, not the client's.  The client could be in
-         * any timezone..
-         */
-        RegistrationWindowCalculator.setRegistrationOpenFieldOn(requestedConference, clock);
-        RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(requestedConference, clock);
+		try
+		{
+			logger.info("get conference entity " + conferenceId);
 
-        Simply.logObject(requestedConference, ConferenceResource.class);
+			Conference requestedConference = ConferenceFetchProcess.buildConference(conferenceId, conferenceService, conferenceCostsService, pageService, blockService);
 
-        return Response.ok(requestedConference).build();
+			if(requestedConference == null) 
+			{
+				return Response.ok(new NotFound()).build();
+			}
+
+			/*
+			 * Set these fields based on the server's time, not the client's.  The client could be in
+			 * any timezone..
+			 */
+			RegistrationWindowCalculator.setRegistrationOpenFieldOn(requestedConference, clock);
+			RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(requestedConference, clock);
+
+			Simply.logObject(requestedConference, ConferenceResource.class);
+
+			return Response.ok(requestedConference).build();
+		}
+		catch(Exception e)
+		{
+			return Response.ok(new ServerError(e)).build();
+		}
 	}
 
 	/**
@@ -195,7 +214,11 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -227,7 +250,7 @@ public class ConferenceResource
 			/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
 			if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				return Response.ok(new BadRequest()).build();
 			}
 
 			if(conferenceId == null)
@@ -248,7 +271,11 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -282,7 +309,7 @@ public class ConferenceResource
 			/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
 			if(conferencePageBelongsTo == null)
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				return Response.ok(new BadRequest()).build();
 			}
 			
 			if(newPage.getId() == null)
@@ -306,7 +333,11 @@ public class ConferenceResource
 		} 
 		catch (UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -340,7 +371,7 @@ public class ConferenceResource
 			ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
 			if(conference == null)
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				return Response.ok(new BadRequest()).build();
 			}
 
             RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
@@ -358,22 +389,32 @@ public class ConferenceResource
             {			
             	if(conferenceCostsService.fetchBy(conference.getConferenceCostsId()).isAcceptCreditCards())
             	{
-            		PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(newRegistration.getId());
+            		PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(newRegistrationEntity.getId());
             		paymentService.createPaymentRecord(newPayment);
+            		newRegistration.setCurrentPayment(Payment.fromJpa(paymentService.fetchPaymentBy(newPayment.getId())));
             	}
             }
             
             /*now perform a deep update to ensure that any answers or other payments are properly saved*/
             new RegistrationUpdateProcess(registrationService,answerService,paymentService,conferenceService).performDeepUpdate(newRegistration);
             
-			return Response.status(Status.CREATED)
-								.location(new URI("/pages/" + newRegistration.getId()))
-								.entity(newRegistration)
+            Registration freshCopyOfNewRegistraiton = RegistrationFetchProcess.buildRegistration(newRegistrationEntity.getId(),
+            																						registrationService,
+            																						paymentService,
+            																						answerService);
+			
+            return Response.status(Status.CREATED)
+								.location(new URI("/pages/" + freshCopyOfNewRegistraiton.getId()))
+								.entity(freshCopyOfNewRegistraiton)
 								.build();
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -424,7 +465,11 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 	
@@ -444,7 +489,10 @@ public class ConferenceResource
 
 			RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
 
-			if(registrationEntity == null) return Response.status(Status.NOT_FOUND).build();
+			if(registrationEntity == null)
+			{
+				return Response.ok(new NotFound()).build();
+			}
 			
 			Registration registration = RegistrationFetchProcess.buildRegistration(registrationEntity.getId(), registrationService, paymentService, answerService);
 			
@@ -454,7 +502,11 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build(); 
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
