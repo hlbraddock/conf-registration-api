@@ -17,50 +17,24 @@ public class PaymentQueries implements BasicQueries
 	@Override
 	public String update()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("UPDATE payments SET ")
-				.append("registration_id = :registrationId,")
-				.append("authnet_transaction_id = :authnetTransactionId,")
-				.append("cc_name_on_card = :ccNameOnCard,")
-				.append("cc_expiration_month = :ccExpirationMonth,")
-				.append("cc_expiration_year = :ccExpirationYear,")
-				.append("cc_last_four_digits = :ccLastFourDigits,")
-				.append("amount = :amount,")
-				.append("transaction_timestamp = :transactionTimestamp")
-				.append(" WHERE ")
-				.append("id = :id");
-						
-				
-		return query.toString();
+		return "UPDATE payments SET " +
+				 "registration_id = :registrationId, " +
+				 "authnet_transaction_id = :authnetTransactionId, " +
+				 "cc_name_on_card = :ccNameOnCard, " +
+				 "cc_expiration_month = :ccExpirationMonth, " +
+				 "cc_expiration_year = :ccExpirationYear, " +
+				 "cc_last_four_digits = :ccLastFourDigits, " +
+				 "amount = :amount, " +
+				 "transaction_timestamp = :transactionTimestamp " +
+				 " WHERE  " +
+				 "id = :id";
 	}
 
 	@Override
 	public String insert()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("INSERT INTO payments(")
-				.append("id,")
-				.append("registration_id,")
-				.append("authnet_transaction_id,")
-				.append("cc_name_on_card,")
-				.append("cc_expiration_month,")
-				.append("cc_expiration_year,")
-				.append("cc_last_four_digits,")
-				.append("amount,")
-				.append("transaction_timestamp")
-				.append(") VALUES (")
-				.append(":id,")
-				.append(":registrationId,")
-				.append(":authnetTransactionId,")
-				.append(":ccNameOnCard,")
-				.append(":ccExpirationMonth,")
-				.append(":ccExpirationYear,")
-				.append(":ccLastFourDigits,")
-				.append(":amount,")
-				.append(":transactionTimestamp")
-				.append(")");
-						
-		return query.toString();
+		return "INSERT INTO payments(id, registration_id, authnet_transaction_id, cc_name_on_card, cc_expiration_month, cc_expiration_year, cc_last_four_digits, amount, transaction_timestamp) " + 
+			   "VALUES (:id, :registrationId, :authnetTransactionId, :ccNameOnCard, :ccExpirationMonth, :ccExpirationYear, :ccLastFourDigits, :amount, :transactionTimestamp)";
 
 	}
 

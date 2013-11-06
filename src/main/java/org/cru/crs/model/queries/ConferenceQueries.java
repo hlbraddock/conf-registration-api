@@ -7,91 +7,47 @@ public class ConferenceQueries implements BasicQueries
 	
 	public String selectById()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM conferences WHERE id = :id");
-		
-		return query.toString();
+		return "SELECT * FROM conferences WHERE id = :id";
 	}
 	
 	public String selectAllForUser()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM conferences WHERE contact_person_id = :contactPersonId");
-		
-		return query.toString();
+		return "SELECT * FROM conferences WHERE contact_person_id = :contactPersonId";
 	}
 	
 	public String insert()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("INSERT INTO conferences (")
-			 .append("id,")
-			 .append("name,")
-			 .append("description,")
-			 .append("event_start_time,")
-			 .append("event_end_time,")
-			 .append("registration_start_time,")
-			 .append("registration_end_time,")
-			 .append("total_slots,")
-			 .append("contact_person_id,")
-			 .append("contact_person_name,")
-			 .append("contact_person_email,")
-			 .append("contact_person_phone,")
-			 .append("conference_costs_id,")
-			 .append("location_name,")
-			 .append("location_address,")
-			 .append("location_city,")
-			 .append("location_state,")
-			 .append("location_zip_code")
-			 .append(") VALUES(")
-			 .append(":id,")
-			 .append(":name,")
-			 .append(":description,")
-			 .append(":eventStartTime,")
-			 .append(":eventEndTime,")
-			 .append(":registrationStartTime,")
-			 .append(":registrationEndTime,")
-			 .append(":totalSlots,")
-			 .append(":contactPersonId,")
-			 .append(":contactPersonName,")
-			 .append(":contactPersonEmail,")
-			 .append(":contactPersonPhone,")
-			 .append(":conferenceCostsId,")
-			 .append(":locationName,")
-			 .append(":locationAddress,")
-			 .append(":locationCity,")
-			 .append(":locationState,")
-			 .append(":locationZipCode")
-			 .append(")");
+		return "INSERT INTO conferences (id, name, description, event_start_time, event_end_time, registration_start_time, registration_end_time, total_slots," +
+			 	"contact_person_id, contact_person_name, contact_person_email, contact_person_phone, conference_costs_id, location_name, location_address, location_city, " +
+			 	"location_state, location_zip_code) " +
+			 	"VALUES(:id, :name, :description, :eventStartTime, :eventEndTime, :registrationStartTime, :registrationEndTime, :totalSlots," +
+			 	":contactPersonId, :contactPersonName, :contactPersonEmail, :contactPersonPhone, :conferenceCostsId, :locationName, :locationAddress, :locationCity, " +
+			 	":locationState, :locationZipCode)";
 		
-		return query.toString();
 	}
 	
 	public String update()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("UPDATE conferences SET ")
-			 .append("name = :name,")
-			 .append("description = :description,")
-			 .append("event_start_time = :eventStartTime,")
-			 .append("event_end_time = :eventEndTime,")
-			 .append("registration_start_time = :registrationStartTime,")
-			 .append("registration_end_time = :registrationEndTime,")
-			 .append("total_slots = :totalSlots,")
-			 .append("contact_person_id = :contactPersonId,")
-			 .append("contact_person_name = :contactPersonName,")
-			 .append("contact_person_email = :contactPersonEmail,")
-			 .append("contact_person_phone = :contactPersonPhone,")
-			 .append("conference_costs_id = :conferenceCostsId,")
-			 .append("location_name = :locationName,")
-			 .append("location_address = :locationAddress,")
-			 .append("location_city = :locationCity,")
-			 .append("location_state = :locationState,")
-			 .append("location_zip_code = :locationZipCode")
-			 .append(" WHERE ")
-			 .append("id = :id");
-
-		return query.toString();
+		return "UPDATE conferences SET  " +
+			  "name = :name, " +
+			  "description = :description, " +
+			  "event_start_time = :eventStartTime, " +
+			  "event_end_time = :eventEndTime, " +
+			  "registration_start_time = :registrationStartTime, " +
+			  "registration_end_time = :registrationEndTime, " +
+			  "total_slots = :totalSlots, " +
+			  "contact_person_id = :contactPersonId, " +
+			  "contact_person_name = :contactPersonName, " +
+			  "contact_person_email = :contactPersonEmail, " +
+			  "contact_person_phone = :contactPersonPhone, " +
+			  "conference_costs_id = :conferenceCostsId, " +
+			  "location_name = :locationName, " +
+			  "location_address = :locationAddress, " +
+			  "location_city = :locationCity, " +
+			  "location_state = :locationState, " +
+			  "location_zip_code = :locationZipCode " +
+			  " WHERE " +
+			  "id = :id ";
 	}
 	
 	public String delete()

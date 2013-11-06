@@ -6,74 +6,40 @@ public class BlockQueries implements BasicQueries
 	@Override
 	public String selectById()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM blocks WHERE id = :id");
-		
-		return query.toString();
+		return "SELECT * FROM blocks WHERE id = :id";
 	}
 
 	public String selectAllForPage()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT * FROM blocks WHERE page_id = :pageId");
-		
-		return query.toString();
+		return "SELECT * FROM blocks WHERE page_id = :pageId";
 	}
 	
 	@Override
 	public String update()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("UPDATE blocks SET ")
-				.append("page_id = :pageId,")
-				.append("position = :position,")
-				.append("block_type = :blockType,")
-				.append("admin_only = :adminOnly,")
-				.append("required = :required,")
-				.append("title = :title,")
-				.append("content = :content")
-				.append(" WHERE " )
-				.append("id = :id");
-		
-		return query.toString();
+		return "UPDATE blocks SET " +
+				 "page_id = :pageId, " +
+				 "position = :position, " +
+				 "block_type = :blockType, " +
+				 "admin_only = :adminOnly, " +
+				 "required = :required, " +
+				 "title = :title, " +
+				 "content = :content " +
+				 " WHERE " +
+				 "id = :id";
 	}
 
 	@Override
 	public String insert()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("INSERT INTO blocks(")
-				.append("id,")
-				.append("page_id,")
-				.append("position,")
-				.append("block_type,")
-				.append("admin_only,")
-				.append("required,")
-				.append("title,")
-				.append("content")
-				.append(") VALUES (")
-				.append(":id,")
-				.append(":pageId,")
-				.append(":position,")
-				.append(":blockType,")
-				.append(":adminOnly,")
-				.append(":required,")
-				.append(":title,")
-				.append(":content")
-				.append(")");
-		
-		return query.toString();
-		
-		
+		return "INSERT INTO blocks(id, page_id, position, block_type, admin_only, required, title, content) " +
+				"VALUES (:id, :pageId, :position, :blockType, :adminOnly, :required, :title, :content)";
 	}
 
 	@Override
 	public String delete()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("DELETE FROM blocks WHERE id = :id");
-		
-		return query.toString();
+		return "DELETE FROM blocks WHERE id = :id";
 	}
 
 }

@@ -22,34 +22,18 @@ public class AnswerQueries implements BasicQueries
 	@Override
 	public String update()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("UPDATE answers SET ")
-				.append("registration_id = :registrationId,")
-				.append("block_id = :blockId,")
-				.append("answer = :answer")
-				.append(" WHERE ")
-				.append("id = :id");
-		
-		return query.toString();
+		return "UPDATE answers SET " +
+				"registration_id = :registrationId, " +
+				"block_id = :blockId, " +
+				"answer = :answer " +
+				" WHERE " +
+				"id = :id";
 	}
 
 	@Override
 	public String insert()
 	{
-		StringBuilder query = new StringBuilder();
-		query.append("INSERT INTO answers(")
-				.append("id,")
-				.append("registration_id,")
-				.append("block_id,")
-				.append("answer")
-				.append(") VALUES (")
-				.append(":id,")
-				.append(":registrationId,")
-				.append(":blockId,")
-				.append(":answer")
-				.append(")");
-		
-		return query.toString();
+		return "INSERT INTO answers(id, registration_id, block_id, answer) VALUES(:id, :registrationId, :blockId, :answer)";
 	}
 
 	@Override

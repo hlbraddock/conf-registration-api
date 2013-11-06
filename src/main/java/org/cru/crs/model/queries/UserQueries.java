@@ -12,38 +12,19 @@ public class UserQueries implements BasicQueries
 	@Override
 	public String update()
 	{
-		StringBuilder query = new StringBuilder();
-		
-		query.append("UPDATE users SET ")
-				.append("first_name = :firstName")
-				.append("last_name = :lastName")
-				.append("phone_number = phoneNumber")
-				.append("email_address = emailAddress")
-				.append(" WHERE ")
-				.append("id = :id");
-		
-		return query.toString();
+		return "UPDATE users SET " +
+				 "first_name = :firstName " +
+				 "last_name = :lastName " +
+				 "phone_number = phoneNumber " +
+				 "email_address = emailAddress " +
+				 " WHERE " +
+				 "id = :id";
 	}
 
 	@Override
 	public String insert()
 	{
-		StringBuilder query = new StringBuilder();
-		
-		query.append("INSERT INTO users( ")
-				.append("id,")
-				.append("first_name,")
-				.append("last_name,")
-				.append("phone_number,")
-				.append("email_address,")
-				.append(") VALUES ( ")
-				.append(":id,")
-				.append(":firstName")
-				.append(":lastName")
-				.append(":phoneNumber")
-				.append(":emailAddress");
-		
-		return query.toString();
+		return "INSERT INTO users(id, first_name, last_name, phone_number, email_address) VALUES (:id, :firstName, :lastName, :phoneNumber, :emailAddress)";
 	}
 
 	@Override
