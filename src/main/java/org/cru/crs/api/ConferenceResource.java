@@ -359,7 +359,7 @@ public class ConferenceResource
             	if(conferenceCostsService.fetchBy(conference.getConferenceCostsId()).isAcceptCreditCards())
             	{
             		PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(newRegistration.getId());
-            		paymentService.createPaymentRecord(newPayment, crsLoggedInUser);
+            		paymentService.createPaymentRecord(newPayment);
             	}
             }
             

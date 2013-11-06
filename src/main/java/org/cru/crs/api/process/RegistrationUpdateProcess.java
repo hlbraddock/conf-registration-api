@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.RegistrationEntity;
@@ -53,6 +54,10 @@ public class RegistrationUpdateProcess
 			}
 		}
 		
+		updateOrInsertCurrentPayment(registration.getCurrentPayment());
+		
+		//TODO: think about if the past payments need updated here
+		
 		registrationService.updateRegistration(registration.toDbRegistrationEntity());
 	}
 
@@ -85,5 +90,17 @@ public class RegistrationUpdateProcess
 		Set<AnswerEntity> answers = Sets.newHashSet();
 		answers.addAll(answerService.getAllAnswersForRegistration(registration.getId()));
 		return answers;
+	}
+	
+	private void updateOrInsertCurrentPayment(Payment payment)
+	{
+		if(paymentService.fetchPaymentBy(payment.getId()) == null)
+		{
+			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+		}
+		else
+		{
+			paymentService.updatePayment(payment.toJpaPaymentEntity());
+		}
 	}
 }
