@@ -203,7 +203,7 @@ public class RegistrationResource
 				{
 					Simply.logObject(registration.getCurrentPayment(), this.getClass());
 					logger.error("Error processing payment", e);
-					return Response.ok(new BadGateway()).build();
+					return Response.ok(new BadGateway().setCustomErrorMessage("Error processing transaction with authorize.net")).build();
 				}
 			}
 
