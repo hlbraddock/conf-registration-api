@@ -51,6 +51,7 @@ public class BlockResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}

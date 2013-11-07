@@ -102,6 +102,7 @@ public class AnswerResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -183,6 +184,7 @@ public class AnswerResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -224,6 +226,7 @@ public class AnswerResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}

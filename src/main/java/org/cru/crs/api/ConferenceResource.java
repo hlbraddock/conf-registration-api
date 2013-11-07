@@ -116,6 +116,7 @@ public class ConferenceResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -159,6 +160,7 @@ public class ConferenceResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -218,6 +220,7 @@ public class ConferenceResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -275,6 +278,7 @@ public class ConferenceResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -337,6 +341,7 @@ public class ConferenceResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -414,6 +419,7 @@ public class ConferenceResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -506,6 +512,7 @@ public class ConferenceResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}

@@ -114,7 +114,7 @@ public class RegistrationResource
 		}
 		catch(Exception e)
 		{
-			logger.error(e);
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -222,7 +222,7 @@ public class RegistrationResource
 		}
 		catch(Exception e)
 		{
-			logger.error(e);
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -271,7 +271,7 @@ public class RegistrationResource
 		}
 		catch(Exception e)
 		{
-			logger.error(e);
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -332,7 +332,7 @@ public class RegistrationResource
 		}
 		catch(Exception e)
 		{
-			logger.error(e);
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
@@ -384,7 +384,7 @@ public class RegistrationResource
 		}
 		catch(Exception e)
 		{
-			logger.error(e);
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
     }

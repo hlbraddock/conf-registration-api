@@ -48,6 +48,7 @@ public class PageResource
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
