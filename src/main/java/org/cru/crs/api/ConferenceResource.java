@@ -389,19 +389,9 @@ public class ConferenceResource
             Simply.logObject(newRegistration, ConferenceResource.class);
 
             registrationService.createNewRegistration(newRegistrationEntity);
-
-            if(conference.getConferenceCostsId() != null)
-            {			
-            	if(conferenceCostsService.fetchBy(conference.getConferenceCostsId()).isAcceptCreditCards())
-            	{
-            		PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(newRegistrationEntity.getId());
-            		paymentService.createPaymentRecord(newPayment);
-            		newRegistration.setCurrentPayment(Payment.fromJpa(paymentService.fetchPaymentBy(newPayment.getId())));
-            	}
-            }
             
             /*now perform a deep update to ensure that any answers or other payments are properly saved*/
-            new RegistrationUpdateProcess(registrationService,answerService,paymentService,conferenceService).performDeepUpdate(newRegistration);
+            new RegistrationUpdateProcess(registrationService,answerService,conferenceService).performDeepUpdate(newRegistration);
             
             Registration freshCopyOfNewRegistraiton = RegistrationFetchProcess.buildRegistration(newRegistrationEntity.getId(),
             																						registrationService,
