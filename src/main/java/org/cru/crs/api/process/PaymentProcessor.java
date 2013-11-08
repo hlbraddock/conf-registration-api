@@ -1,6 +1,9 @@
 package org.cru.crs.api.process;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -61,11 +64,34 @@ public class PaymentProcessor
     		payment.setTransactionDatetime(clock.currentDateTime());
 
     		paymentService.updatePayment(payment.toJpaPaymentEntity());
+    		
+    		if(!conferenceWasPaidInFull(payment.getRegistrationId(), dbConferenceCosts))
+    		{
+    			/*if there is still a balance to be paid, the create a new payment record to capture it.*/
+    			paymentService.createPaymentRecord(new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(payment.getRegistrationId()));
+    		}
     	}
     	
     	return null;
     }
 
+
+	private boolean conferenceWasPaidInFull(UUID registrationId, ConferenceCostsEntity dbConferenceCosts)
+	{
+		List<PaymentEntity> paymentsForCurrentRegistration = paymentService.fetchPaymentsForRegistration(registrationId);
+		
+		BigDecimal totalPaid = new BigDecimal(0);
+		
+		for(PaymentEntity payment : paymentsForCurrentRegistration)
+		{
+			if(payment.getAuthnetTransactionId() != null)
+			{
+				totalPaid = totalPaid.add(payment.getAmount());
+			}
+		}
+		
+		return totalPaid.compareTo(dbConferenceCosts.getBaseCost()) >= 0;
+	}
 
 	private org.cru.crs.api.model.Error validatePaymentReadiness(Payment payment)
 	{

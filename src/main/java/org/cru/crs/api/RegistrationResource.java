@@ -145,16 +145,11 @@ public class RegistrationResource
 
 			/*If the path registration id and the entity's registration id are both not null and different, then this is a bad request.
 			 * Malicious or not, we don't really know what the user wants to do.*/
-			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
+			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()) || registration.getId() == null || registrationId == null)
 			{
 				return Response.ok(new BadRequest()).build();
 			}
-			
-			if(registration.getId() == null || registrationId == null)
-			{
-				return Response.ok(new BadRequest()).build();
-			}
-			
+
 			/*Find the conference that this registration is for.  If we can't find it, then this is a bad request*/
 			ConferenceEntity conferenceEntityForUpdatedRegistration = conferenceService.fetchConferenceBy(registration.getConferenceId());
 
@@ -186,22 +181,36 @@ public class RegistrationResource
 					throw new UnauthorizedException();
 				}
 				
+				/*save the registration to the DB*/
 				registrationService.createNewRegistration(registrationEntity);
+				
+				/*if this conference accepts online payments, then create an initial payment record*/
+				if(conferenceEntityForUpdatedRegistration.getConferenceCostsId() != null)
+	            {			
+	            	if(conferenceCostsService.fetchBy(conferenceEntityForUpdatedRegistration.getConferenceCostsId()).isAcceptCreditCards())
+	            	{
+	            		PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(registrationEntity.getId());
+	            		/*save the payment to the database*/
+	            		paymentService.createPaymentRecord(newPayment);
+	            		/*set the payment as the current payment for this registration*/
+	            		registration.setCurrentPayment(Payment.fromJpa(paymentService.fetchPaymentBy(newPayment.getId())));
+	            	}
+	            }
 			}
 
 			authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
+			
 			new RegistrationUpdateProcess(registrationService, answerService, paymentService, conferenceService).performDeepUpdate(registration);
 			
 			/*if this update tells us the payment is ready to process, then the payment will be processed*/
 			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
-			{	
+			{
 				try
 				{
 					paymentProcess.process(registration.getCurrentPayment(), crsLoggedInUser);
 				}
 				catch(Exception e)
 				{
-					Simply.logObject(registration.getCurrentPayment(), this.getClass());
 					logger.error("Error processing payment", e);
 					return Response.ok(new BadGateway().setCustomErrorMessage("Error processing transaction with authorize.net")).build();
 				}
