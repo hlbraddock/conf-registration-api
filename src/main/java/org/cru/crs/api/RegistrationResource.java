@@ -23,7 +23,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
-import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.errors.BadGateway;
 import org.cru.crs.api.model.errors.BadRequest;
@@ -39,7 +38,6 @@ import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.ConferenceCostsService;
@@ -332,56 +330,4 @@ public class RegistrationResource
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
-
-	/**
-	 * Returns a payment resource specified by @param paymentId
-	 * 
-	 * Possible Outcomes:
-	 * 	200 Ok - found payment specified by @param paymentId and the user specified by @param authCode has read access to the registration specified by @param registrationId
-	 *  404 Not Found - no payment resource specified by @param paymentId
-	 *  401 Unauthorized - user specified by @param authCode is expired, doesn't exist or doesn't have read access to the registration specifed by @param registrationId.
-	 *  
-	 * @param authCode
-	 * @return
-	 */
-	@GET
-    @Path("/payment/{paymentId}")
-	@Produces(MediaType.APPLICATION_JSON)
-    public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
-    {
-		try
-		{
-			logger.info("get payment entity " + paymentId + " and auth code " + authCode);
-			
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
-
-			PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
-			
-			if(paymentEntity == null)
-			{
-				return Response.ok(new NotFound()).build();
-			}
-
-			RegistrationEntity registrationEntityForRequestedPayment = registrationService.getRegistrationBy(registrationId);
-			
-			/*If the user has read access to the registration this payment goes with, then they also have read access to the payment*/
-			authorizationService.authorize(registrationEntityForRequestedPayment,
-											conferenceService.fetchConferenceBy(registrationEntityForRequestedPayment.getConferenceId()),
-											OperationType.READ,
-											crsLoggedInUser);
-											
-			Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
-
-			return Response.ok(Payment.fromJpa(paymentEntity)).build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.ok(new Unauthorized()).build();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
-		}
-    }
 }
