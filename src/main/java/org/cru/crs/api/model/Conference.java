@@ -378,11 +378,13 @@ public class Conference implements java.io.Serializable
         this.earlyRegistrationAmount = earlyRegistrationAmount;
     }
 
+    @JsonSerialize(using=JsonStandardDateTimeSerializer.class)
     public DateTime getEarlyRegistrationCutoff()
     {
         return earlyRegistrationCutoff;
     }
 
+    @JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
     public void setEarlyRegistrationCutoff(DateTime earlyRegistrationCutoff)
     {
         this.earlyRegistrationCutoff = earlyRegistrationCutoff;

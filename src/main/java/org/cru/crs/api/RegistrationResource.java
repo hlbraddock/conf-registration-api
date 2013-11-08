@@ -24,13 +24,11 @@ import javax.ws.rs.core.Response.Status;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.model.errors.BadGateway;
 import org.cru.crs.api.model.errors.BadRequest;
 import org.cru.crs.api.model.errors.NotFound;
 import org.cru.crs.api.model.errors.ServerError;
 import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.api.model.utils.RegistrationAssembler;
-import org.cru.crs.api.process.PaymentProcessor;
 import org.cru.crs.api.process.RegistrationUpdateProcess;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
@@ -60,7 +58,6 @@ public class RegistrationResource
     @Inject AnswerService answerService;
     
     @Inject AuthorizationService authorizationService;
-    @Inject PaymentProcessor paymentProcess;
     
     @Inject Clock clock; 
         
@@ -184,23 +181,9 @@ public class RegistrationResource
 			}
 
 			authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
-			
-			new RegistrationUpdateProcess(registrationService, answerService, conferenceService).performDeepUpdate(registration);
-			
-			/*if this update tells us the payment is ready to process, then the payment will be processed*/
-			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
-			{
-				try
-				{
-					paymentProcess.process(registration.getCurrentPayment(), crsLoggedInUser);
-				}
-				catch(Exception e)
-				{
-					logger.error("Error processing payment", e);
-					return Response.ok(new BadGateway().setCustomErrorMessage("Error processing transaction with authorize.net")).build();
-				}
-			}
 
+			new RegistrationUpdateProcess(registrationService, answerService, conferenceService, conferenceCostsService, clock).performDeepUpdate(registration);
+			
 			if(createdNewRegistration)
 			{
 				return Response.status(Status.CREATED)
@@ -220,7 +203,7 @@ public class RegistrationResource
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
-
+	
 	/**
 	 * Deletes registration resource specified by @param registrationId
 	 * 

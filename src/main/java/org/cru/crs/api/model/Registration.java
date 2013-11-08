@@ -1,14 +1,20 @@
 package org.cru.crs.api.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
+import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.joda.time.DateTime;
 import org.testng.collections.Lists;
 import org.testng.internal.annotations.Sets;
 
@@ -19,7 +25,10 @@ public class Registration implements java.io.Serializable
     private UUID id;
 	private UUID userId;
 	private UUID conferenceId;
+	private BigDecimal totalDue;
     private Boolean completed;
+    private DateTime completedTimestamp;
+    
     private Payment currentPayment;
     
     private Set<Answer> answers = new HashSet<Answer>();
@@ -40,7 +49,9 @@ public class Registration implements java.io.Serializable
 		webRegistration.id = dbRegistration.getId();
         webRegistration.userId = dbRegistration.getUserId();
 		webRegistration.conferenceId = dbRegistration.getConferenceId();
+		webRegistration.totalDue = dbRegistration.getTotalDue();
         webRegistration.completed = dbRegistration.getCompleted();
+        webRegistration.completedTimestamp = dbRegistration.getCompletedTimestamp();
         
         return webRegistration;
 	}
@@ -86,14 +97,16 @@ public class Registration implements java.io.Serializable
 	
 	public RegistrationEntity toDbRegistrationEntity()
 	{
-		RegistrationEntity jpaRegistration = new RegistrationEntity();
+		RegistrationEntity dbRegistration = new RegistrationEntity();
 		
-		jpaRegistration.setId(id);
-		jpaRegistration.setUserId(userId);
-        jpaRegistration.setCompleted(completed);
-        jpaRegistration.setConferenceId(conferenceId);
-        
-		return jpaRegistration;
+		dbRegistration.setId(id);
+		dbRegistration.setUserId(userId);
+		/*total due is omitted b/c that value would never come from the client*/
+		dbRegistration.setCompleted(completed);
+		dbRegistration.setConferenceId(conferenceId);
+        /*completed timestamp is omitted b/c that value would never come from the client*/
+		
+		return dbRegistration;
 	}
 	
 	public UUID getId()
@@ -164,6 +177,28 @@ public class Registration implements java.io.Serializable
 	public void setCurrentPayment(Payment currentPayment)
 	{
 		this.currentPayment = currentPayment;
+	}
+
+	public BigDecimal getTotalDue()
+	{
+		return totalDue;
+	}
+
+	public void setTotalDue(BigDecimal totalDue)
+	{
+		this.totalDue = totalDue;
+	}
+
+	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
+	public DateTime getCompletedTimestamp()
+	{
+		return completedTimestamp;
+	}
+	
+	@JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
+	public void setCompletedTimestamp(DateTime completedTimestamp)
+	{
+		this.completedTimestamp = completedTimestamp;
 	}
 
 }

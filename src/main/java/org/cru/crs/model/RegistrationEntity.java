@@ -1,7 +1,10 @@
 package org.cru.crs.model;
 
 
+import java.math.BigDecimal;
 import java.util.UUID;
+
+import org.joda.time.DateTime;
 
 public class RegistrationEntity implements java.io.Serializable
 {
@@ -10,31 +13,58 @@ public class RegistrationEntity implements java.io.Serializable
 	private UUID id;
 	private UUID conferenceId;
 	private UUID userId;
+	private BigDecimal totalDue;
     private Boolean completed;
+    private DateTime completedTimestamp;
     
-	public UUID getId() {
+	public UUID getId()
+	{
 		return id;
 	}
-	public void setId(UUID id) {
+	public void setId(UUID id)
+	{
 		this.id = id;
 	}
-	public UUID getConferenceId() {
+	public UUID getConferenceId()
+	{
 		return conferenceId;
 	}
-	public void setConferenceId(UUID conferenceId) {
+	public void setConferenceId(UUID conferenceId)
+	{
 		this.conferenceId = conferenceId;
 	}
-	public UUID getUserId() {
+	public UUID getUserId()
+	{
 		return userId;
 	}
-	public void setUserId(UUID userId) {
+	public void setUserId(UUID userId)
+	{
 		this.userId = userId;
 	}
-	public Boolean getCompleted() {
+	public Boolean getCompleted()
+	{
 		return completed;
 	}
-	public void setCompleted(Boolean completed) {
+	public void setCompleted(Boolean completed)
+	{
 		this.completed = completed;
 	}
+	public BigDecimal getTotalDue()
+	{
+		return totalDue;
+	}
+	public void setTotalDue(BigDecimal totalDue)
+	{
+		this.totalDue = totalDue;
+	}
+	public DateTime getCompletedTimestamp() 
+	{
+		return completedTimestamp;
+	}
+	public void setCompletedTimestamp(DateTime completedTimestamp) 
+	{
+		this.completedTimestamp = completedTimestamp;
+	}
+	
 
 }

@@ -389,7 +389,7 @@ public class ConferenceResource
             registrationService.createNewRegistration(newRegistrationEntity);
             
             /*now perform a deep update to ensure that any answers or other payments are properly saved*/
-            new RegistrationUpdateProcess(registrationService,answerService,conferenceService).performDeepUpdate(newRegistration);
+            new RegistrationUpdateProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock).performDeepUpdate(newRegistration);
             
             Registration freshCopyOfNewRegistraiton = RegistrationFetchProcess.buildRegistration(newRegistrationEntity.getId(),
             																						registrationService,
@@ -411,6 +411,7 @@ public class ConferenceResource
 			return Response.ok(new ServerError(e)).build();
 		}
 	}
+	
 
 	/**
 	 * Gets all the registration resources associated to the conference specified by @param conferenceId

@@ -4,11 +4,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
+import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.CollectionUtils;
@@ -20,15 +23,19 @@ public class RegistrationUpdateProcess
 	RegistrationService registrationService;
 	AnswerService answerService;
 	ConferenceService conferenceService;
+	ConferenceCostsService conferenceCostsService;
+	Clock clock;
 	
 	RegistrationEntity originalRegistrationEntity;
 	Set<AnswerEntity> originalAnswerEntitySet;
 	
-	public RegistrationUpdateProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService)
+	public RegistrationUpdateProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock)
 	{
 		this.registrationService = registrationService;
 		this.answerService = answerService;
 		this.conferenceService = conferenceService;
+		this.conferenceCostsService = conferenceCostsService;
+		this.clock = clock;
 	}
 	
 	public void performDeepUpdate(Registration registration)
@@ -50,7 +57,14 @@ public class RegistrationUpdateProcess
 			}
 		}
 
-		registrationService.updateRegistration(registration.toDbRegistrationEntity());
+		/*switch to a RegistrationEntity now b/c we're going to do some calculations the client
+		 * cannot influence to determine total cost and completed timestamp*/
+		RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
+
+		recordCompletedTimestampIfThisUpdateCompletesRegistration(registrationEntity);
+		setTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(registrationEntity);
+		
+		registrationService.updateRegistration(registrationEntity);
 	}
 
 	private void handleMissingAnswers(Registration registration)
@@ -82,5 +96,43 @@ public class RegistrationUpdateProcess
 		Set<AnswerEntity> answers = Sets.newHashSet();
 		answers.addAll(answerService.getAllAnswersForRegistration(registration.getId()));
 		return answers;
+	}
+	
+	private void recordCompletedTimestampIfThisUpdateCompletesRegistration(RegistrationEntity registration)
+	{
+		if(registration.getCompleted() == null) return;
+		if(originalRegistrationEntity == null) return;
+		if(originalRegistrationEntity.getCompleted() == null) return;
+		
+		if(registration.getCompleted() && !originalRegistrationEntity.getCompleted())
+		{
+			registration.setCompletedTimestamp(clock.currentDateTime());
+		}
+	}
+	
+	/**
+	 * If the conference is completed, let's check 
+	 * @param registration
+	 */
+	private void setTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(RegistrationEntity registration)
+	{
+		// if the registration is not completed yet, no reason to proceed
+		if(registration.getCompleted() == null) return;
+		if(originalRegistrationEntity == null) return;
+		if(originalRegistrationEntity.getCompleted() == null) return;
+		
+		ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(registration.getConferenceId());
+		
+		if(conferenceCostsEntity.isAcceptCreditCards())
+		{
+			if(conferenceCostsEntity.isEarlyRegistrationDiscount() && registration.getCompletedTimestamp().isBefore(conferenceCostsEntity.getEarlyRegistrationCutoff()))
+			{
+				registration.setTotalDue(conferenceCostsEntity.getBaseCost().subtract(conferenceCostsEntity.getEarlyRegistrationAmount()));
+			}
+			else
+			{
+				registration.setTotalDue(conferenceCostsEntity.getBaseCost());
+			}
+		}
 	}
 }
