@@ -6,9 +6,6 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
-
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.AnswerResourceClient;
@@ -17,11 +14,17 @@ import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.errors.BadRequest;
+import org.cru.crs.api.model.errors.NotFound;
+import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.service.PaymentService;
 import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
+import org.sql2o.QuirksMode;
+import org.sql2o.Sql2o;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -37,6 +40,8 @@ public class RegistrationResourceFunctionalTest
 	RegistrationResourceClient registrationClient;
 	AnswerResourceClient answerClient;
 
+	PaymentService paymentService;
+	
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 	private UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 	private UUID paymentUUID = UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91957");
@@ -48,6 +53,8 @@ public class RegistrationResourceFunctionalTest
         answerClient = ProxyFactory.create(AnswerResourceClient.class, restApiBaseUrl);
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
 		conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
+		
+		paymentService = new PaymentService(new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser",QuirksMode.PostgreSQL));
 	}
 
 	/**
@@ -111,24 +118,24 @@ public class RegistrationResourceFunctionalTest
 
         Assert.assertEquals(registration.getPastPayments().size(), 2);
 
-//        Payment payment1 = registration.getPastPayments().get(0);
-//        Payment payment2 = registration.getPastPayments().get(1);
-//
-//        Assert.assertEquals(payment1.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91958"));
-//        Assert.assertEquals(payment1.getAmount(), new BigDecimal(20f));
-//        Assert.assertEquals(payment1.getCreditCardNameOnCard(),"Billy User");
-//        Assert.assertEquals(payment1.getCreditCardExpirationMonth(), "04");
-//        Assert.assertEquals(payment1.getCreditCardExpirationYear(), "2014");
-//        Assert.assertEquals(payment1.getCreditCardNumber(), "****1111");
-//        Assert.assertEquals(payment1.getRegistrationId(), UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111"));
-//
-//        Assert.assertEquals(payment2.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91959"));
-//        Assert.assertEquals(payment2.getAmount(), new BigDecimal(55f));
-//        Assert.assertEquals(payment2.getCreditCardNameOnCard(),"Billy User");
-//        Assert.assertEquals(payment2.getCreditCardExpirationMonth(), "04");
-//        Assert.assertEquals(payment2.getCreditCardExpirationYear(), "2014");
-//        Assert.assertEquals(payment2.getCreditCardNumber(), "****1111");
-//        Assert.assertEquals(payment2.getRegistrationId(), UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111"));
+        Payment payment1 = registration.getPastPayments().get(0);
+        Payment payment2 = registration.getPastPayments().get(1);
+
+        Assert.assertEquals(payment1.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91958"));
+        Assert.assertEquals(payment1.getAmount(), new BigDecimal(20f));
+        Assert.assertEquals(payment1.getCreditCardNameOnCard(),"Billy User");
+        Assert.assertEquals(payment1.getCreditCardExpirationMonth(), "04");
+        Assert.assertEquals(payment1.getCreditCardExpirationYear(), "2014");
+        Assert.assertEquals(payment1.getCreditCardNumber(), "****1111");
+        Assert.assertEquals(payment1.getRegistrationId(), UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111"));
+
+        Assert.assertEquals(payment2.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91959"));
+        Assert.assertEquals(payment2.getAmount(), new BigDecimal(55f));
+        Assert.assertEquals(payment2.getCreditCardNameOnCard(),"Billy User");
+        Assert.assertEquals(payment2.getCreditCardExpirationMonth(), "04");
+        Assert.assertEquals(payment2.getCreditCardExpirationYear(), "2014");
+        Assert.assertEquals(payment2.getCreditCardNumber(), "****1111");
+        Assert.assertEquals(payment2.getRegistrationId(), UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111"));
     }
 	
 	/**
@@ -141,9 +148,12 @@ public class RegistrationResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getRegistrationNotFound()
 	{
-		ClientResponse<Registration> response = registrationClient.getRegistration(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"), UserInfo.AuthCode.TestUser);
+		ClientResponse response = registrationClient.getRegistration(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"), UserInfo.AuthCode.TestUser);
 		
-		Assert.assertEquals(response.getStatus(), 404);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		NotFound notFoundError = (NotFound)response.getEntity(NotFound.class);
+		Assert.assertEquals(notFoundError.getStatusCode(), 404);
 	}
 	
 	/**
@@ -186,6 +196,8 @@ public class RegistrationResourceFunctionalTest
 	{
 		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
 		
+		PaymentEntity processedPayment = null;
+		
 		Assert.assertEquals(response.getStatus(), 200);
 
 		Registration registration = response.getEntity();
@@ -193,34 +205,33 @@ public class RegistrationResourceFunctionalTest
 		registration.getCurrentPayment().setCreditCardCVVNumber("822");
 		registration.getCurrentPayment().setReadyToProcess(true);
 		
-		ClientResponse updateResponse = registrationClient.updateRegistration(registration, registration.getId(), UserInfo.AuthCode.TestUser);
-		
-		Assert.assertEquals(updateResponse.getStatus(), 204);
-		
-		EntityManager em = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME).createEntityManager();
-		PaymentEntity processedPayment = em.find(PaymentEntity.class, registration.getCurrentPayment().getId());
-		
-		Assert.assertNotNull(processedPayment.getAuthnetTransactionId());
-		Assert.assertNotNull(processedPayment.getTransactionDatetime());
-				
-		ClientResponse<Registration> subsequentResponse = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
-		Registration regstrationAfterPayment = subsequentResponse.getEntity();
-		
 		try
 		{
+
+			ClientResponse updateResponse = registrationClient.updateRegistration(registration, registration.getId(), UserInfo.AuthCode.TestUser);
+
+			Assert.assertEquals(updateResponse.getStatus(), 204);
+
+			processedPayment = paymentService.fetchPaymentBy(registration.getCurrentPayment().getId());
+
+			Assert.assertNotNull(processedPayment.getAuthnetTransactionId());
+			Assert.assertNotNull(processedPayment.getTransactionTimestamp());
+
+			ClientResponse<Registration> subsequentResponse = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
+			Registration regstrationAfterPayment = subsequentResponse.getEntity();
+
 			Assert.assertNull(regstrationAfterPayment.getCurrentPayment());
 			Assert.assertEquals(regstrationAfterPayment.getPastPayments().size(), 1);
 			Assert.assertEquals(regstrationAfterPayment.getPastPayments().get(0).getId(), processedPayment.getId());
 		}
 		finally
 		{
-			processedPayment.setAuthnetTransactionId(null);
-			processedPayment.setTransactionDatetime(null);
-
-			em.getTransaction().begin();
-			em.merge(processedPayment);
-			em.getTransaction().commit();
-			em.close();
+			if(processedPayment != null)
+			{
+				processedPayment.setAuthnetTransactionId(null);
+				processedPayment.setTransactionTimestamp(null);
+				paymentService.updatePayment(processedPayment);
+			}
 		}
 
 	}
@@ -268,8 +279,11 @@ public class RegistrationResourceFunctionalTest
 		Registration createRegistration = createRegistration(registrationIdUUID, userIdUUID, conferenceUUID);
 
 		// create registration through update
-		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.TestUser);
-		Assert.assertEquals(response.getStatus(), 401);
+		ClientResponse response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.TestUser);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		Unauthorized unauthorizedError = (Unauthorized) response.getEntity(Unauthorized.class);
+		Assert.assertEquals(unauthorizedError.getStatusCode(), 401);
 	}
 
 	/**
@@ -288,9 +302,12 @@ public class RegistrationResourceFunctionalTest
 		UUID randomRegistrationUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0face");
 		Registration registration = createRegistration(randomRegistrationUUID, UserInfo.Id.Ryan, conferenceUUID);
 
-		ClientResponse<Registration> response = registrationClient.updateRegistration(registration, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"), UserInfo.AuthCode.TestUser);
+		ClientResponse response = registrationClient.updateRegistration(registration, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"), UserInfo.AuthCode.TestUser);
 
-		Assert.assertEquals(response.getStatus(), 400);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		BadRequest badRequestError = (BadRequest) response.getEntity(BadRequest.class);
+		Assert.assertEquals(badRequestError.getStatusCode(), 400);
 	}
 
 	/**
@@ -327,6 +344,7 @@ public class RegistrationResourceFunctionalTest
 		UUID createBlockUUID = UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EE");
 		JsonNode createAnswerValue = jsonNodeFromString("{\"Name\": \"Alex Solz\"}");
 		Answer answer = createAnswer(null, registrationUUID, createBlockUUID, createAnswerValue);
+		
 		ClientResponse<Answer> registrationResponse = registrationClient.createAnswer(answer, registrationUUID, UserInfo.AuthCode.TestUser);
 
         Assert.assertEquals(registrationResponse.getStatus(), 201);
@@ -339,12 +357,10 @@ public class RegistrationResourceFunctionalTest
 
         // get answer
 
-		ClientResponse<Answer> response = null;
-		response = answerClient.getAnswer(answerIdUUID, UserInfo.AuthCode.TestUser);
+		ClientResponse<Answer> response = answerClient.getAnswer(answerIdUUID, UserInfo.AuthCode.TestUser);
 
 		gotAnswer = response.getEntity();
 		Assert.assertEquals(response.getStatus(), 200);
-
 
 		Assert.assertNotNull(gotAnswer);
 		Assert.assertEquals(gotAnswer.getId(), answerIdUUID);
@@ -393,7 +409,10 @@ public class RegistrationResourceFunctionalTest
 	{
 		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.Expired);
 
-		Assert.assertEquals(response.getStatus(), 401);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		Unauthorized unauthorizedError = (Unauthorized) response.getEntity(Unauthorized.class);
+		Assert.assertEquals(unauthorizedError.getStatusCode(), 401);
 	}
 
 	private static JsonNode jsonNodeFromString(String jsonString)

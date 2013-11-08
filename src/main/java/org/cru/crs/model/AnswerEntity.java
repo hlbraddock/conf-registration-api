@@ -1,36 +1,40 @@
 package org.cru.crs.model;
 
-import org.codehaus.jackson.JsonNode;
-import org.hibernate.annotations.Type;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.UUID;
 
-@Entity
-@Table(name = "ANSWERS")
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.codehaus.jackson.JsonNode;
+
 public class AnswerEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	@Column(name = "ID")
-	@Type(type = "pg-uuid")
 	private UUID id;
-
-	@Column(name = "REGISTRATION_ID", insertable = false, updatable = false)
-	@Type(type = "pg-uuid")
 	private UUID registrationId;
-
-	@Column(name = "BLOCK_ID")
-	@Type(type = "pg-uuid")
 	private UUID blockId;
-
-	@Column(name = "ANSWER")
-	@Type(type="org.cru.crs.utils.JsonUserType")
 	private JsonNode answer;
+
+	@Override
+	public int hashCode()
+	{
+		return new HashCodeBuilder(29, 79). // two randomly chosen prime numbers
+				append(id).
+				toHashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj == null) return false;
+		if (obj == this) return true;
+		if (!(obj instanceof AnswerEntity)) return false;
+
+		AnswerEntity rhs = (AnswerEntity) obj;
+		return new EqualsBuilder().
+				append(id, rhs.id).
+				isEquals();
+	}
 
 	public UUID getId()
 	{

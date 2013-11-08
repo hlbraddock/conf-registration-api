@@ -5,64 +5,99 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
-import org.cru.crs.auth.UnauthorizedException;
-import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.PaymentEntity;
-import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.model.queries.PaymentQueries;
+import org.sql2o.Sql2o;
 
 import com.google.common.base.Preconditions;
 
 
 public class PaymentService
 {
-    EntityManager em;
-
+	Sql2o sql;
+	
+    PaymentQueries paymentQueries;
+    
     @Inject
-    public PaymentService(EntityManager em)
+    public PaymentService(Sql2o sql)
     {
-        this.em = em;
+    	this.sql = sql;
+    	
+        this.paymentQueries = new PaymentQueries();
     }
 
-    public PaymentEntity fetchPaymentBy(UUID id, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+    public PaymentEntity fetchPaymentBy(UUID id)
     {
-        PaymentEntity payment = em.find(PaymentEntity.class, id);
-        if(payment != null)
-        {
-        	ensureUserHasPermissionsForPayment(crsLoggedInUser, payment);
-        }
-        
-        return payment;
+        return sql.createQuery(paymentQueries.selectById())
+        							.addParameter("id", id)
+        							.setAutoDeriveColumnNames(true)
+        							.executeAndFetchFirst(PaymentEntity.class);
     }
 
-    public void createPaymentRecord(PaymentEntity payment, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+    public void createPaymentRecord(PaymentEntity payment)
     {
     	Preconditions.checkNotNull(payment.getRegistrationId());
-    	ensureUserHasPermissionsForPayment(crsLoggedInUser, payment);
-        em.persist(payment);
+        sql.createQuery(paymentQueries.insert())
+        		.addParameter("id", payment.getId())
+        		.addParameter("registrationId", payment.getRegistrationId())
+        		.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
+        		.addParameter("ccNameOnCard", payment.getCcNameOnCard())
+        		.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
+        		.addParameter("ccExpirationYear", payment.getCcExpirationYear())
+        		.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
+        		.addParameter("amount", payment.getAmount())
+        		.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
+        		.executeUpdate();
     }
     
-    public void updatePayment(PaymentEntity payment, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+    public void updatePayment(PaymentEntity payment)
     {
     	Preconditions.checkNotNull(payment.getRegistrationId());
-    	ensureUserHasPermissionsForPayment(crsLoggedInUser, payment);
-    	em.merge(payment);
+    	sql.createQuery(paymentQueries.update())
+				.addParameter("id", payment.getId())
+				.addParameter("registrationId", payment.getRegistrationId())
+				.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
+				.addParameter("ccNameOnCard", payment.getCcNameOnCard())
+				.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
+				.addParameter("ccExpirationYear", payment.getCcExpirationYear())
+				.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
+				.addParameter("amount", payment.getAmount())
+				.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
+				.executeUpdate();
     }
     
     public List<PaymentEntity> fetchPaymentsForRegistration(UUID registrationId)
     {
-        return em.createQuery("SELECT p FROM PaymentEntity p WHERE p.registrationId = :registrationId ORDER BY p.transactionDatetime", PaymentEntity.class)
-                .setParameter("registrationId", registrationId)
-                .getResultList();
+        return sql.createQuery(paymentQueries.selectAllForRegistration())
+        			.addParameter("registrationId", registrationId)
+        			.setAutoDeriveColumnNames(true)
+        			.executeAndFetch(PaymentEntity.class);
     }
     
-	private void ensureUserHasPermissionsForPayment(CrsApplicationUser crsLoggedInUser, PaymentEntity payment) throws UnauthorizedException
-	{
-		RegistrationEntity registrationForCurrentPayment = em.find(RegistrationEntity.class, payment.getRegistrationId());
-		if(!registrationForCurrentPayment.getUserId().equals(crsLoggedInUser.getId()))
-		{
-			throw new UnauthorizedException();
-		}
-	}
+    /**
+     * Useful when a registration is going to be deleted, at a minimum we should keep the payment record around.
+     * @param paymentId
+     */
+    public void disassociatePaymentsFromRegistration(UUID registrationId)
+    {
+    	List<PaymentEntity> payments = fetchPaymentsForRegistration(registrationId);
+
+    	if(payments == null) return;
+    	
+    	for(PaymentEntity payment : payments)
+    	{
+    		sql.createQuery(paymentQueries.update())
+    				.addParameter("id", payment.getId())
+    				.addParameter("registrationId", (UUID)null)
+    				.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
+    				.addParameter("ccNameOnCard", payment.getCcNameOnCard())
+    				.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
+    				.addParameter("ccExpirationYear", payment.getCcExpirationYear())
+    				.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
+    				.addParameter("amount", payment.getAmount())
+    				.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
+    				.executeUpdate();
+    	}
+    }
 }

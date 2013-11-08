@@ -36,17 +36,17 @@ public class Payment implements Serializable
         jpaPayment.setId(id);
         jpaPayment.setRegistrationId(registrationId);
         jpaPayment.setAmount(amount);
-        jpaPayment.setCreditCardExpirationMonth(creditCardExpirationMonth);
-        jpaPayment.setCreditCardExpirationYear(creditCardExpirationYear);
-        jpaPayment.setCreditCardNameOnCard(creditCardNameOnCard);
+        jpaPayment.setCcExpirationMonth(creditCardExpirationMonth);
+        jpaPayment.setCcExpirationYear(creditCardExpirationYear);
+        jpaPayment.setCcNameOnCard(creditCardNameOnCard);
         
         if(creditCardNumber != null)
         {
-            jpaPayment.setCreditCardLastFourDigits(creditCardNumber.substring(Math.max(0, creditCardNumber.length() - 4)));
+            jpaPayment.setCcLastFourDigits(creditCardNumber.substring(Math.max(0, creditCardNumber.length() - 4)));
         }
 
         jpaPayment.setAuthnetTransactionId(authnetTransactionId);
-        jpaPayment.setTransactionDatetime(transactionDatetime);
+        jpaPayment.setTransactionTimestamp(transactionDatetime);
         return jpaPayment;
     }
 	
@@ -59,14 +59,14 @@ public class Payment implements Serializable
 		payment.registrationId = jpaPayment.getRegistrationId();
 		payment.amount = jpaPayment.getAmount();
 
-		payment.creditCardExpirationMonth = jpaPayment.getCreditCardExpirationMonth();
-		payment.creditCardExpirationYear = jpaPayment.getCreditCardExpirationYear();
-		payment.creditCardNameOnCard = jpaPayment.getCreditCardNameOnCard();
+		payment.creditCardExpirationMonth = jpaPayment.getCcExpirationMonth();
+		payment.creditCardExpirationYear = jpaPayment.getCcExpirationYear();
+		payment.creditCardNameOnCard = jpaPayment.getCcNameOnCard();
 		payment.authnetTransactionId = jpaPayment.getAuthnetTransactionId();
-		payment.creditCardLastFourDigits = jpaPayment.getCreditCardLastFourDigits();
-		payment.transactionDatetime = jpaPayment.getTransactionDatetime();
+		payment.creditCardLastFourDigits = jpaPayment.getCcLastFourDigits();
+		payment.transactionDatetime = jpaPayment.getTransactionTimestamp();
 		
-		if(jpaPayment.getCreditCardLastFourDigits() != null) payment.creditCardNumber = "****" + jpaPayment.getCreditCardLastFourDigits();
+		if(jpaPayment.getCcLastFourDigits() != null) payment.creditCardNumber = "****" + jpaPayment.getCcLastFourDigits();
 				
 		return payment;
 	}

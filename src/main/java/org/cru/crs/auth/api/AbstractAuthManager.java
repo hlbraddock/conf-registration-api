@@ -35,7 +35,7 @@ public abstract class AbstractAuthManager
 
 	protected void persistIdentityAndAuthProviderRecordsIfNecessary(AuthenticationProviderUser user)
 	{
-		if (authenticationProviderService.findAuthProviderIdentityByAuthProviderId(user.getId()) == null)
+		if (authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId(user.getId()) == null)
 		{
 			authenticationProviderService.createIdentityAndAuthProviderRecords(user);
 		}
@@ -44,17 +44,18 @@ public abstract class AbstractAuthManager
 	protected SessionEntity persistSession(AuthenticationProviderUser authenticationProviderUser)
 	{
 		AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity =
-				authenticationProviderService.findAuthProviderIdentityByAuthProviderId(authenticationProviderUser.getId());
+				authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId(authenticationProviderUser.getId());
 
 		if(authenticationProviderIdentityEntity == null)
+		{
 			throw new RuntimeException("could not get authentication provider identity for user " + authenticationProviderUser.getUsername());
-
+		}
 		return getSession(authenticationProviderIdentityEntity);
 	}
 
 	private SessionEntity getSession(AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity)
 	{
-		SessionEntity sessionEntity = getActiveSession(authenticationProviderIdentityEntity.getUserAuthProviderId());
+		SessionEntity sessionEntity = getActiveSession(authenticationProviderIdentityEntity.getId());
 
 		if(sessionEntity != null)
 		{
@@ -75,7 +76,7 @@ public abstract class AbstractAuthManager
 
 		sessionEntity.setId(UUID.randomUUID());
 		sessionEntity.setAuthCode(AuthCodeGenerator.generate());
-		sessionEntity.setAuthenticationProviderIdentityEntity(authenticationProviderIdentityEntity);
+		sessionEntity.setAuthProviderId(authenticationProviderIdentityEntity.getId());
 		sessionEntity.setExpiration(clock.currentDateTime().plusHours(getMaxSessionLength()));
 
 		sessionService.create(sessionEntity);
@@ -83,9 +84,9 @@ public abstract class AbstractAuthManager
 		return sessionEntity;
 	}
 
-	private SessionEntity getActiveSession(String userAuthProviderId)
+	private SessionEntity getActiveSession(UUID authProviderId)
 	{
-		List<SessionEntity> sessionEntities = sessionService.fetchSessionsByUserAuthProviderId(userAuthProviderId);
+		List<SessionEntity> sessionEntities = sessionService.fetchSessionsByUserAuthProviderId(authProviderId);
 
 		DateTime expired = clock.currentDateTime().minusHours(getMaxSessionLength());
 

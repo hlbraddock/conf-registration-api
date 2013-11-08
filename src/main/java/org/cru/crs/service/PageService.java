@@ -1,132 +1,102 @@
 package org.cru.crs.service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
-import org.cru.crs.api.model.Block;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
-import org.cru.crs.utils.CollectionUtils;
+import org.cru.crs.model.queries.PageQueries;
+import org.sql2o.Sql2o;
 
 public class PageService
 {
-	EntityManager em;
-	ConferenceService conferenceService;
-	AnswerService answerService;
-
+	Sql2o sql;
+	
+	BlockService blockService;
+	
+	PageQueries pageQueries;
+	
 	@Inject
-	public PageService(EntityManager em, ConferenceService conferenceService, AnswerService answerService)
+	public PageService(Sql2o sql, BlockService blockService)
 	{
-		this.em = em;
-		this.conferenceService = conferenceService;
-		this.answerService = answerService;
+		this.sql = sql;
+		
+		this.blockService = blockService;
+		
+		this.pageQueries = new PageQueries();
 	}
 	
 	public PageEntity fetchPageBy(UUID id)
 	{
-		return em.find(PageEntity.class, id);
+		return sql.createQuery(pageQueries.selectById(), false)
+						.addParameter("id", id)
+						.setAutoDeriveColumnNames(true)
+						.executeAndFetchFirst(PageEntity.class);	
 	}
 
-	public void updatePage(PageEntity pageToUpdate, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	public List<PageEntity> fetchPagesForConference(UUID conferenceId)
 	{
-		updatePage(pageToUpdate, crsLoggedInUser, true);
+		return sql.createQuery(pageQueries.selectAllForConference(), false)
+						.addParameter("conferenceId", conferenceId)
+						.setAutoDeriveColumnNames(true)
+						.executeAndFetch(PageEntity.class);
 	}
-
-	public void updatePage(PageEntity pageToUpdate, CrsApplicationUser crsLoggedInUser, boolean withAnswerDeletion) throws UnauthorizedException
+	
+	public void savePage(PageEntity pageToSave)
 	{
-		verifyUserIdHasAccessToModifyThisPagesConference(pageToUpdate, crsLoggedInUser.getId());
-
-		if(withAnswerDeletion)
-			deleteAnswersOnPageUpdate(pageToUpdate);
-
-		em.merge(pageToUpdate);
+		/*content and conferenceCostsBlocksId omitted for now*/
+		sql.createQuery(pageQueries.insert(),false)
+				.addParameter("id", pageToSave.getId())
+				.addParameter("conferenceId", pageToSave.getConferenceId())
+				.addParameter("position", pageToSave.getPosition())
+				.addParameter("title", pageToSave.getTitle())
+				.executeUpdate();
+	}
+	
+	public void updatePage(PageEntity pageToUpdate)
+	{
+		/*content and conferenceCostsBlocksId omitted for now*/
+		sql.createQuery(pageQueries.update(),false)
+				.addParameter("id", pageToUpdate.getId())
+				.addParameter("conferenceId", pageToUpdate.getConferenceId())
+				.addParameter("position", pageToUpdate.getPosition())
+				.addParameter("title", pageToUpdate.getTitle())
+				.executeUpdate();	
 	}
 
-	/*
-	 * Delete answers associated with any deleted blocks on the updated pages
+	/**
+	 * Deletes the page specified by @param pageId along with any blocks associated with it.
+	 * @param blockId
 	 */
-	public void deleteAnswersOnPagesUpdate(List<PageEntity> currentPages, List<PageEntity> updatePages)
+	public void deletePage(UUID pageId)
 	{
-		Set<Block> blocksInUpdatedPages = new HashSet<Block>();
+		for(BlockEntity blockToDelete : blockService.fetchBlocksForPage(pageId))
+		{
+			blockService.deleteBlock(blockToDelete.getId());
+		}
 
-		for(PageEntity page : updatePages)
-			blocksInUpdatedPages.addAll(Block.fromJpa(page.getBlocks()));
-
-		Set<Block> blocksInCurrentPages = new HashSet<Block>();
-		for(PageEntity page : currentPages)
-			blocksInCurrentPages.addAll(Block.fromJpa(page.getBlocks()));
-
-		// get all current page blocks not found in update pages
-		Set<Block> blocksToDelete = CollectionUtils.firstNotFoundInSecond(blocksInCurrentPages, blocksInUpdatedPages);
-
-		// delete each (to be) deleted blocks associated answers (since we no longer rely on jpa to automatically do so)
-		for(Block block : blocksToDelete)
-			answerService.deleteAnswersByBlockId(block.getId());
+		sql.createQuery(pageQueries.delete(),false)
+			.addParameter("id", pageId)
+			.executeUpdate();
 	}
 
-	/*
-	 * Delete answers associated with any deleted blocks on the updated page
-	 */
-	private void deleteAnswersOnPageUpdate(PageEntity updatePage) throws UnauthorizedException
-	{
-		List<BlockEntity> currentBlocks = fetchPageBy(updatePage.getId()).getBlocks();
-
-		// get all current page blocks not found in update page
-		Set<BlockEntity> deleteBlocks = CollectionUtils.firstNotFoundInSecond(new HashSet<BlockEntity>(currentBlocks), new HashSet<BlockEntity>(updatePage.getBlocks()));
-
-		// delete each blocks associated answers (since we no longer rely on jpa to automatically do so)
-		for(BlockEntity blockEntity : deleteBlocks)
-			answerService.deleteAnswersByBlockId(blockEntity.getId());
-	}
-
-	public void deletePage(UUID pageId, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
-	{
-		PageEntity pageToDelete = em.find(PageEntity.class, pageId);
-
-		verifyUserIdHasAccessToModifyThisPagesConference(pageToDelete, crsLoggedInUser.getId());
-
-		// delete each blocks associated answers (since we no longer rely on jpa to automatically do so)
-		for(BlockEntity blockEntity : pageToDelete.getBlocks())
-			answerService.deleteAnswersByBlockId(blockEntity.getId());
-
-		em.remove(pageToDelete);
-	}
-
-	public void addBlockToPage(PageEntity pageToAddBlockTo, BlockEntity blockToAdd, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
-	{
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageToAddBlockTo.getConferenceId());
-		
+	public void addBlockToPage(ConferenceEntity owningConference, PageEntity pageToAddBlockTo, BlockEntity blockToAdd, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	{		
 		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
-		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferencePageBelongsTo.getContactUser()))
+		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(owningConference.getContactPersonId()))
 		{
 			throw new UnauthorizedException();
 		}
 		
 		/*create a block id if the client didn't*/
 		if(blockToAdd.getId() == null) blockToAdd.setId(UUID.randomUUID());
-		
-		pageToAddBlockTo.getBlocks().add(blockToAdd.setPageId(pageToAddBlockTo.getId()));
+		blockToAdd.setPageId(pageToAddBlockTo.getId());
+		blockService.saveBlock(blockToAdd);
 	}
 
-	private void verifyUserIdHasAccessToModifyThisPagesConference(PageEntity pageToDelete, UUID crsAppUserId)
-			throws UnauthorizedException
-	{
-		ConferenceEntity conferencePageBelongsTo = conferenceService.fetchConferenceBy(pageToDelete.getConferenceId());
-		
-		/*This could NPE if the conference is null, I considered adding an extra check here, but
-		 * the end result would only be that a different exception be thrown.  Either way it
-		 * will end up as a 500 to the client.*/
-		if(crsAppUserId == null || !crsAppUserId.equals(conferencePageBelongsTo.getContactUser()))
-		{
-			throw new UnauthorizedException();
-		}
-	}
 }

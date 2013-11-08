@@ -1,137 +1,110 @@
 package org.cru.crs.service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
-import org.cru.crs.api.model.Page;
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
-import org.cru.crs.model.UserEntity;
-import org.cru.crs.utils.CollectionUtils;
+import org.cru.crs.model.queries.ConferenceQueries;
+import org.sql2o.Sql2o;
 
 public class ConferenceService
 {
-	EntityManager em;
+	Sql2o sql;
+	
+	ConferenceCostsService conferenceCostsService;
+	PageService pageService;
     UserService userService;
-	AnswerService answerService;
-
+    
+    ConferenceQueries conferenceQueries;
+    
     @Inject
-	public ConferenceService(EntityManager em, UserService userService, AnswerService answerService)
+	public ConferenceService(Sql2o sql, ConferenceCostsService conferenceCostsService, PageService pageService, UserService userService)
 	{
-		this.em = em;
+		this.sql = sql;
+		
+		this.conferenceCostsService = conferenceCostsService;
+		this.pageService = pageService;
         this.userService = userService;
-		this.answerService = answerService;
+        this.conferenceQueries = new ConferenceQueries();
 	}
 
 	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
 	{
-		return em.createQuery("SELECT conf FROM ConferenceEntity conf " +
-								"WHERE conf.contactUser = :crsAppUserId", ConferenceEntity.class)
-							.setParameter("crsAppUserId", crsLoggedInUser.getId())
-				 			.getResultList();
+		return sql.createQuery(conferenceQueries.selectAllForUser())
+					.addParameter("contactPersonId", crsLoggedInUser.getId())
+					.setAutoDeriveColumnNames(true)
+					.executeAndFetch(ConferenceEntity.class);
 	}
 
 	public ConferenceEntity fetchConferenceBy(UUID id)
 	{
-        return em.find(ConferenceEntity.class, id);
+		return sql.createQuery(conferenceQueries.selectById())
+					.addParameter("id", id)
+					.setAutoDeriveColumnNames(true)
+					.executeAndFetchFirst(ConferenceEntity.class);
     }
 	
-	public void createNewConference(ConferenceEntity newConference, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
-	{
-		if(crsLoggedInUser == null || crsLoggedInUser.isCrsAuthenticatedOnly())
-		{
-			throw new UnauthorizedException();
-		}
+	public void createNewConference(ConferenceEntity newConference, ConferenceCostsEntity newConferenceCosts)
+	{   
+		conferenceCostsService.saveNew(newConferenceCosts);
 		
-		newConference.setContactUser(crsLoggedInUser.getId());
-
-        newConference = setInitialContactPersonDetailsBasedOn(crsLoggedInUser, newConference);
-
-		em.persist(newConference);
+        sql.createQuery(conferenceQueries.insert())
+        		.addParameter("id", newConference.getId())
+        		.addParameter("name", newConference.getName())
+        		.addParameter("description", newConference.getDescription())
+        		.addParameter("totalSlots", newConference.getTotalSlots())
+        		.addParameter("conferenceCostsId", newConference.getConferenceCostsId())
+        		.addParameter("eventStartTime", newConference.getEventStartTime())
+        		.addParameter("eventEndTime", newConference.getEventEndTime())
+        		.addParameter("registrationStartTime", newConference.getRegistrationStartTime())
+        		.addParameter("registrationEndTime", newConference.getRegistrationEndTime())
+        		.addParameter("contactPersonId", newConference.getContactPersonId())
+        		.addParameter("contactPersonName", newConference.getContactPersonName())
+        		.addParameter("contactPersonEmail", newConference.getContactPersonEmail())
+        		.addParameter("contactPersonPhone", newConference.getContactPersonPhone())
+        		.addParameter("locationName", newConference.getLocationName())
+        		.addParameter("locationAddress", newConference.getLocationAddress())
+        		.addParameter("locationCity", newConference.getLocationCity())
+        		.addParameter("locationState", newConference.getLocationState())
+        		.addParameter("locationZipCode", newConference.getLocationZipCode())
+        		.executeUpdate();
 	}
 
-    private ConferenceEntity setInitialContactPersonDetailsBasedOn(CrsApplicationUser crsLoggedInUser, ConferenceEntity newConference)
-    {
-        UserEntity user = userService.fetchUserBy(crsLoggedInUser.getId());
-        newConference.setContactPersonName(user.getFirstName() + " " + user.getLastName());
-        newConference.setContactPersonEmail(user.getEmailAddress());
-        newConference.setContactPersonPhone(user.getPhoneNumber());
-
-        return newConference;
-    }
-
-    public void updateConference(ConferenceEntity conferenceToUpdate,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+    public void updateConference(ConferenceEntity conferenceToUpdate)
 	{
-		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferenceToUpdate.getContactUser()))
-		{
-			throw new UnauthorizedException();
-		}
-        ConferenceEntity originalConference = em.find(ConferenceEntity.class,conferenceToUpdate.getId());
-
-        /*
-         * The updating of pages below will cause an exception at the database level if a new page is added.  This is
-         * because JPA says that conference ID on a page is not insertable/updatable, so when it tries to insert
-         * a new page, postgres complains b/c it has a null value on a foreign key.
-         */
-
-        Set<Page> pagesOnOriginalConference = new HashSet<Page>();
-        pagesOnOriginalConference.addAll(Page.fromJpa(originalConference.getPages()));
-
-        Set<Page> pagesOnUpdatedConference = new HashSet<Page>();
-        pagesOnUpdatedConference.addAll(Page.fromJpa(conferenceToUpdate.getPages()));
-
-        Set<Page> addedPages = CollectionUtils.firstNotFoundInSecond(pagesOnUpdatedConference, pagesOnOriginalConference);
-
-        for(Page page : addedPages)
-        {
-            addPageToConference(originalConference, page.toJpaPageEntity(), crsLoggedInUser);
-        }
-
-        /*
-         * So that blocks don't get deleting when moving them to a preceding page, update pages
-         * one by one and flush to the database between moving them.  See Github issue 39 and PR 42 for context
-         */
-        //can't inject a PageService, because PageService injects this class.
-        PageService pageService = new PageService(em,this, new AnswerService(em));
-
-		// delete answers on pages update
-		ConferenceEntity currentConference = fetchConferenceBy(conferenceToUpdate.getId());
-		pageService.deleteAnswersOnPagesUpdate(currentConference.getPages(), conferenceToUpdate.getPages());
-
-		for(PageEntity page : conferenceToUpdate.getPages())
-        {
-			//While it's true that the conferenceId of a page can't be altered by updating the page
-			//it's possible the client did not set the conference of the page, and a verification 
-			//call inside the service will puke w/o its being set.
-			page.setConferenceId(conferenceToUpdate.getId());
-            pageService.updatePage(page, crsLoggedInUser, false);
-            em.flush();
-        }
-
-		em.merge(conferenceToUpdate);
+		sql.createQuery(conferenceQueries.update())
+				.addParameter("id", conferenceToUpdate.getId())
+				.addParameter("name", conferenceToUpdate.getName())
+				.addParameter("description", conferenceToUpdate.getDescription())
+        		.addParameter("totalSlots", conferenceToUpdate.getTotalSlots())
+        		.addParameter("conferenceCostsId", conferenceToUpdate.getConferenceCostsId())
+        		.addParameter("eventStartTime", conferenceToUpdate.getEventStartTime())
+        		.addParameter("eventEndTime", conferenceToUpdate.getEventEndTime())
+        		.addParameter("registrationStartTime", conferenceToUpdate.getRegistrationStartTime())
+        		.addParameter("registrationEndTime", conferenceToUpdate.getRegistrationEndTime())
+        		.addParameter("contactPersonId", conferenceToUpdate.getContactPersonId())
+        		.addParameter("contactPersonName", conferenceToUpdate.getContactPersonName())
+        		.addParameter("contactPersonEmail", conferenceToUpdate.getContactPersonEmail())
+        		.addParameter("contactPersonPhone", conferenceToUpdate.getContactPersonPhone())
+        		.addParameter("locationName", conferenceToUpdate.getLocationName())
+        		.addParameter("locationAddress", conferenceToUpdate.getLocationAddress())
+        		.addParameter("locationCity", conferenceToUpdate.getLocationCity())
+        		.addParameter("locationState", conferenceToUpdate.getLocationState())
+        		.addParameter("locationZipCode", conferenceToUpdate.getLocationZipCode())
+				.executeUpdate();
 	}
 
-	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd,  CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
+	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd)
 	{
-		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
-		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(conferenceToAddPageTo.getContactUser()))
-		{
-			throw new UnauthorizedException();
-		}
-		
 		/*create a page id if the client didn't*/
 		if(pageToAdd.getId() == null) pageToAdd.setId(UUID.randomUUID());
-		
-		conferenceToAddPageTo.getPages().add(pageToAdd.setConferenceId(conferenceToAddPageTo.getId()));
-
-        em.flush();
+		pageToAdd.setConferenceId(conferenceToAddPageTo.getId());
+		pageService.savePage(pageToAdd);
 	}
 
 }

@@ -1,52 +1,32 @@
 package org.cru.crs.model;
 
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Entity
-@Table(name = "PAYMENTS")
+import org.joda.time.DateTime;
+
 public class PaymentEntity implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "ID")
-    @Type(type="pg-uuid")
     private UUID id;
 
-    @Column(name = "REGISTRATION_ID", insertable = false, updatable = false)
-    @Type(type="pg-uuid")
     private UUID registrationId;
 
-    @Column(name = "AUTHNET_TRANSACTION_ID")
     private Long authnetTransactionId;
 
-    @Column(name = "CC_NAME_ON_CARD")
-    private String creditCardNameOnCard;
+    private String ccNameOnCard;
 
-    @Column(name = "CC_EXPIRATION_MONTH")
-    private String creditCardExpirationMonth;
+    private String ccExpirationMonth;
 
-    @Column(name = "CC_EXPIRATION_YEAR")
-    private String creditCardExpirationYear;
+    private String ccExpirationYear;
 
-    @Column(name = "CC_LAST_FOUR_DIGITS")
-    private String creditCardLastFourDigits;
+    private String ccLastFourDigits;
 
-    @Column(name = "AMOUNT")
     BigDecimal amount;
 
-    @Column(name = "TRANSACTION_TIMESTAMP")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime transactionDatetime;
+    private DateTime transactionTimestamp;
 
     public UUID getId()
     {
@@ -64,9 +44,10 @@ public class PaymentEntity implements Serializable
         return registrationId;
     }
 
-    public void setRegistrationId(UUID registrationId)
+    public PaymentEntity setRegistrationId(UUID registrationId)
     {
         this.registrationId = registrationId;
+        return this;
     }
 
     public Long getAuthnetTransactionId()
@@ -79,44 +60,44 @@ public class PaymentEntity implements Serializable
         this.authnetTransactionId = authnetTransactionId;
     }
 
-    public String getCreditCardNameOnCard()
+    public String getCcNameOnCard()
     {
-        return creditCardNameOnCard;
+        return ccNameOnCard;
     }
 
-    public void setCreditCardNameOnCard(String creditCardNameOnCard)
+    public void setCcNameOnCard(String ccNameOnCard)
     {
-        this.creditCardNameOnCard = creditCardNameOnCard;
+        this.ccNameOnCard = ccNameOnCard;
     }
 
-    public String getCreditCardExpirationMonth()
+    public String getCcExpirationMonth()
     {
-        return creditCardExpirationMonth;
+        return ccExpirationMonth;
     }
 
-    public void setCreditCardExpirationMonth(String creditCardExpirationMonth)
+    public void setCcExpirationMonth(String ccExpirationMonth)
     {
-        this.creditCardExpirationMonth = creditCardExpirationMonth;
+        this.ccExpirationMonth = ccExpirationMonth;
     }
 
-    public String getCreditCardExpirationYear()
+    public String getCcExpirationYear()
     {
-        return creditCardExpirationYear;
+        return ccExpirationYear;
     }
 
-    public void setCreditCardExpirationYear(String creditCardExpirationYear)
+    public void setCcExpirationYear(String ccExpirationYear)
     {
-        this.creditCardExpirationYear = creditCardExpirationYear;
+        this.ccExpirationYear = ccExpirationYear;
     }
 
-    public String getCreditCardLastFourDigits()
+    public String getCcLastFourDigits()
     {
-        return creditCardLastFourDigits;
+        return ccLastFourDigits;
     }
 
-    public void setCreditCardLastFourDigits(String creditCardLastFourDigits)
+    public void setCcLastFourDigits(String ccLastFourDigits)
     {
-        this.creditCardLastFourDigits = creditCardLastFourDigits;
+        this.ccLastFourDigits = ccLastFourDigits;
     }
 
     public BigDecimal getAmount()
@@ -129,13 +110,13 @@ public class PaymentEntity implements Serializable
         this.amount = amount;
     }
 
-    public DateTime getTransactionDatetime()
+    public DateTime getTransactionTimestamp()
     {
-        return transactionDatetime;
+        return transactionTimestamp;
     }
 
-    public void setTransactionDatetime(DateTime transactionDatetime)
+    public void setTransactionTimestamp(DateTime transactionTimestamp)
     {
-        this.transactionDatetime = transactionDatetime;
+        this.transactionTimestamp = transactionTimestamp;
     }
 }

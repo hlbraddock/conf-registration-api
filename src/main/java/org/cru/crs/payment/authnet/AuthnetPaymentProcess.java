@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
-import org.cru.crs.api.model.Registration;
 import org.cru.crs.payment.authnet.model.CreditCard;
 import org.cru.crs.payment.authnet.model.GatewayConfiguration;
 import org.cru.crs.payment.authnet.model.Invoice;
@@ -16,6 +15,7 @@ import org.cru.crs.payment.authnet.transaction.AuthCapture;
 import org.cru.crs.utils.CrsProperties;
 import org.joda.time.DateTime;
 
+@Authnet
 public class AuthnetPaymentProcess
 {
 	private CrsProperties crsProperties;
