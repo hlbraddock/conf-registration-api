@@ -200,7 +200,7 @@ public class RegistrationResource
 
 			authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
 			
-			new RegistrationUpdateProcess(registrationService, answerService, paymentService, conferenceService).performDeepUpdate(registration);
+			new RegistrationUpdateProcess(registrationService, answerService, conferenceService).performDeepUpdate(registration);
 			
 			/*if this update tells us the payment is ready to process, then the payment will be processed*/
 			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
