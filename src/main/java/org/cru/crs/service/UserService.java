@@ -1,10 +1,12 @@
 package org.cru.crs.service;
 
-import org.cru.crs.model.UserEntity;
+import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import java.util.UUID;
+
+import org.cru.crs.model.UserEntity;
+import org.cru.crs.model.queries.UserQueries;
+import org.sql2o.Sql2o;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,18 +17,38 @@ import java.util.UUID;
  */
 public class UserService
 {
-    EntityManager em;
-
+    
+	Sql2o sql;
+	
+	UserQueries userQueries = new UserQueries();
+	
     @Inject
-    public UserService(EntityManager em)
+    public UserService(Sql2o sql)
     {
-        this.em = em;
-
+    	this.sql = sql;
     }
 
     public UserEntity fetchUserBy(UUID userId)
     {
-        return em.find(UserEntity.class, userId);
+        return sql.createQuery(userQueries.selectById())
+        			.addParameter("id", userId)
+        			.setAutoDeriveColumnNames(true)
+        			.executeAndFetchFirst(UserEntity.class);
     }
 
+    public void createUser(UserEntity userToSave)
+    {
+    	if(userToSave.getId() == null)
+    	{
+    		userToSave.setId(UUID.randomUUID());
+    	}
+    	
+    	sql.createQuery(userQueries.insert())
+    			.addParameter(":id", userToSave.getId())
+    			.addParameter(":firstName", userToSave.getFirstName())
+    			.addParameter("lastName", userToSave.getLastName())
+    			.addParameter("emailAddress", userToSave.getEmailAddress())
+    			.addParameter(":phoneNumber", userToSave.getPhoneNumber())
+    			.executeUpdate();
+    }
 }

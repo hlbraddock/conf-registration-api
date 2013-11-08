@@ -1,6 +1,7 @@
 package org.cru.crs.auth;
 
 import junit.framework.Assert;
+
 import org.ccci.util.time.Clock;
 import org.cru.crs.auth.api.TestAuthManager;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
@@ -13,22 +14,18 @@ import org.cru.crs.utils.ClockImpl;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.CrsPropertiesFactory;
 import org.joda.time.DateTime;
-import org.testng.annotations.AfterMethod;
+import org.sql2o.Sql2o;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  * User: lee.braddock
  */
 public class CrsUserServiceTest
 {
-	private static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
-	private EntityManagerFactory emFactory;
-	private EntityManager em;
+//	private static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
+//	private EntityManagerFactory emFactory;
+//	private EntityManager em;
 
 	private CrsUserService crsUserService;
 	private SessionService sessionService;
@@ -39,11 +36,8 @@ public class CrsUserServiceTest
 	@BeforeMethod
 	public void setup()
 	{
-		emFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-		em = emFactory.createEntityManager();
 
-		sessionService = new SessionService(em);
-		authenticationProviderService = new AuthenticationProviderService(em);
+		sessionService = new SessionService(new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser"));
 		crsProperties = new CrsPropertiesFactory().get();
 		clock = new ClockImpl();
 
@@ -52,13 +46,6 @@ public class CrsUserServiceTest
 		crsUserService.authenticationProviderService = authenticationProviderService;
 		crsUserService.crsProperties = crsProperties;
 		crsUserService.clock = clock;
-	}
-
-	@AfterMethod
-	public void cleanup()
-	{
-		em.close();
-		emFactory.close();
 	}
 
 	private String userEmail = "user@cru.org";
@@ -70,7 +57,6 @@ public class CrsUserServiceTest
 
 		AuthenticationProviderUser authenticationProviderUser = BasicNoAuthUser.fromAuthIdAndEmail(AuthCodeGenerator.generate(), userEmail);
 
-		em.getTransaction().begin();
 
 		String authCode = testAuthManager.login(authenticationProviderUser);
 
@@ -78,7 +64,6 @@ public class CrsUserServiceTest
 
 		Assert.assertTrue(crsApplicationUser.getAuthProviderUsername().equals(userEmail));
 
-		em.getTransaction().rollback();
 	}
 
 	@Test(groups = "db-integration-tests", expectedExceptions = UnauthorizedException.class)
@@ -88,15 +73,11 @@ public class CrsUserServiceTest
 
 		AuthenticationProviderUser authenticationProviderUser = BasicNoAuthUser.fromAuthIdAndEmail(AuthCodeGenerator.generate(), userEmail);
 
-		em.getTransaction().begin();
-
 		String authCode = testAuthManager.login(authenticationProviderUser);
 
 		CrsApplicationUser crsApplicationUser = crsUserService.getLoggedInUser(authCode);
 
 		Assert.assertTrue(crsApplicationUser.getAuthProviderUsername().equals(userEmail));
-
-		em.getTransaction().rollback();
 	}
 
 	@Test(groups = "db-integration-tests")
@@ -105,8 +86,6 @@ public class CrsUserServiceTest
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(3));
 
 		AuthenticationProviderUser authenticationProviderUser = BasicNoAuthUser.fromAuthIdAndEmail(AuthCodeGenerator.generate(), userEmail);
-
-		em.getTransaction().begin();
 
 		String authCode = testAuthManager.login(authenticationProviderUser);
 
@@ -117,8 +96,6 @@ public class CrsUserServiceTest
 		crsApplicationUser = crsUserService.getLoggedInUser(authCode);
 
 		Assert.assertTrue(crsApplicationUser.getAuthProviderUsername().equals(userEmail));
-
-		em.getTransaction().rollback();
 	}
 
 	@Test(groups = "db-integration-tests", expectedExceptions = UnauthorizedException.class)
@@ -127,8 +104,6 @@ public class CrsUserServiceTest
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock);
 
 		AuthenticationProviderUser authenticationProviderUser = BasicNoAuthUser.fromAuthIdAndEmail(AuthCodeGenerator.generate(), userEmail);
-
-		em.getTransaction().begin();
 
 		String authCode = testAuthManager.login(authenticationProviderUser);
 
@@ -154,7 +129,6 @@ public class CrsUserServiceTest
 		{
 			// restore clock
 			crsUserService.clock = clock;
-			em.getTransaction().rollback();
 		}
 	}
 

@@ -7,9 +7,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.cru.crs.model.AnswerEntity;
-import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.testng.collections.Lists;
+import org.testng.internal.annotations.Sets;
 
 public class Registration implements java.io.Serializable
 {
@@ -30,64 +31,67 @@ public class Registration implements java.io.Serializable
 	 * @param jpaRegistration
 	 * @return
 	 */
-	public static Registration fromJpa(RegistrationEntity jpaRegistration)
+	public static Registration fromDb(RegistrationEntity dbRegistration)
 	{
+		if(dbRegistration == null) return null;
+		
 		Registration webRegistration = new Registration();
 		
-		webRegistration.id = jpaRegistration.getId();
-        webRegistration.userId = jpaRegistration.getUserId();
-		webRegistration.conferenceId = jpaRegistration.getConference().getId();
-        webRegistration.answers = Answer.fromJpa(jpaRegistration.getAnswers());
-        webRegistration.completed = jpaRegistration.getCompleted();
-        
-        for(PaymentEntity jpaPayment : jpaRegistration.getPayments())
-        {
-        	if(jpaPayment.getTransactionDatetime() == null || jpaPayment.getAuthnetTransactionId() == null)
-        	{
-        		webRegistration.currentPayment = Payment.fromJpa(jpaPayment);
-        	}
-        	else
-        	{
-        		webRegistration.pastPayments.add(Payment.fromJpa(jpaPayment));
-        	}
-        }
+		webRegistration.id = dbRegistration.getId();
+        webRegistration.userId = dbRegistration.getUserId();
+		webRegistration.conferenceId = dbRegistration.getConferenceId();
+        webRegistration.completed = dbRegistration.getCompleted();
         
         return webRegistration;
 	}
 	
-	public static Set<Registration> fromJpa(Set<RegistrationEntity> jpaRegistrations)
+	public static Registration fromDb(RegistrationEntity dbRegistration, List<AnswerEntity> dbAnswers, List<PaymentEntity> dbPastPayments, PaymentEntity dbCurrentPayment)
+	{
+		Registration webRegistration = fromDb(dbRegistration);
+		
+		if(webRegistration == null) return null;
+		
+		if(dbAnswers != null)
+		{
+			webRegistration.answers = Sets.newHashSet();
+			for(AnswerEntity dbAnswer : dbAnswers)
+			{
+				webRegistration.answers.add(Answer.fromDb(dbAnswer));
+			}
+		}
+		if(dbPastPayments != null)
+		{
+			webRegistration.pastPayments = Lists.newArrayList();
+			for(PaymentEntity dbPastPayment : dbPastPayments)
+			{
+				webRegistration.pastPayments.add(Payment.fromJpa(dbPastPayment));
+			}
+		}
+		webRegistration.currentPayment = Payment.fromJpa(dbCurrentPayment);
+		
+		return webRegistration;
+	}
+	
+	public static Set<Registration> fromDb(Set<RegistrationEntity> dbRegistrations)
 	{
 		Set<Registration> registrations = new HashSet<Registration>();
 		
-		for(RegistrationEntity jpaRegistration : jpaRegistrations)
+		for(RegistrationEntity dbRegistration : dbRegistrations)
 		{
-			registrations.add(fromJpa(jpaRegistration));
+			registrations.add(fromDb(dbRegistration));
 		}
 		
 		return registrations;
 	}
 	
-	public RegistrationEntity toJpaRegistrationEntity(ConferenceEntity conferenceEntity)
+	public RegistrationEntity toDbRegistrationEntity()
 	{
 		RegistrationEntity jpaRegistration = new RegistrationEntity();
 		
 		jpaRegistration.setId(id);
 		jpaRegistration.setUserId(userId);
-        jpaRegistration.setConference(conferenceEntity);
         jpaRegistration.setCompleted(completed);
-
-        jpaRegistration.setAnswers(new HashSet<AnswerEntity>());
-        for (Answer answer : getAnswers())
-        {
-            jpaRegistration.getAnswers().add(answer.toJpaAnswerEntity());
-        }
-        
-        for(Payment payment : pastPayments)
-        {
-        	jpaRegistration.getPayments().add(payment.toJpaPaymentEntity());
-        }
-        
-        if(currentPayment != null) jpaRegistration.getPayments().add(currentPayment.toJpaPaymentEntity());
+        jpaRegistration.setConferenceId(conferenceId);
         
 		return jpaRegistration;
 	}

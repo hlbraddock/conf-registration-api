@@ -18,6 +18,7 @@ public class Block implements java.io.Serializable
 	private String title;
 	private String type;
 	private boolean required;
+	private int position;
 	private JsonNode content;
 	
 	public static Block fromJpa(BlockEntity jpaBlock)
@@ -29,11 +30,12 @@ public class Block implements java.io.Serializable
 		block.type = jpaBlock.getBlockType();
 		block.content = jpaBlock.getContent();
 		block.pageId = jpaBlock.getPageId();
+		block.position = jpaBlock.getPosition();
 		block.required = jpaBlock.isRequired();
 		return block;
 	}
 
-	public static List<Block> fromJpa(List<BlockEntity> jpaBlocks)
+	public static List<Block> fromDb(List<BlockEntity> jpaBlocks)
 	{
 		List<Block> webBlocks = new ArrayList<Block>();
 
@@ -48,7 +50,7 @@ public class Block implements java.io.Serializable
 		return webBlocks;
 	}
 
-	public BlockEntity toJpaBlockEntity()
+	public BlockEntity toDbBlockEntity()
 	{
 		BlockEntity jpaBlock = new BlockEntity();
 		
@@ -57,6 +59,7 @@ public class Block implements java.io.Serializable
 		jpaBlock.setBlockType(type);
 		jpaBlock.setContent(content);
 		jpaBlock.setTitle(title);
+		jpaBlock.setPosition(position);
 		jpaBlock.setRequired(required);
 		
 		return jpaBlock;
@@ -134,5 +137,15 @@ public class Block implements java.io.Serializable
 		return new EqualsBuilder().
 				append(id, rhs.id).
 				isEquals();
+	}
+
+	public int getPosition()
+	{
+		return position;
+	}
+
+	public void setPosition(int position)
+	{
+		this.position = position;
 	}
 }

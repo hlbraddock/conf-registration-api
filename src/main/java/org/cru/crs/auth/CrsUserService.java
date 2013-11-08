@@ -41,22 +41,24 @@ public class CrsUserService
 			Simply.logObject(sessionEntity, CrsApplicationUser.class);
 
 			if(sessionEntity == null)
+			{
 				throw new UnauthorizedException();
-
+			}
+			
 			logger.info("getLoggedInUser() is expired " + Session.fromJpa(sessionEntity).isExpired());
 			if(Session.fromJpa(sessionEntity).isExpired())
+			{
 				throw new UnauthorizedException();
-
-			String userAuthProviderId = sessionEntity.getAuthenticationProviderIdentityEntity().getUserAuthProviderId();
-			logger.info("getLoggedInUser() auth provider id " + userAuthProviderId);
-
-			AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderId(userAuthProviderId);
+			}
+			
+			AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityById(sessionEntity.getAuthProviderId());
 
 			logger.info("getLoggedInUser() auth provider " + authProviderEntity);
 			if(authProviderEntity == null)
+			{
 				throw new UnauthorizedException();
-
-			AuthenticationProviderType authProviderType = AuthenticationProviderType.valueOf(authProviderEntity.getAuthenticationProviderName());
+			}
+			AuthenticationProviderType authProviderType = AuthenticationProviderType.valueOf(authProviderEntity.getAuthProviderName());
 
 			logger.info("getLoggedInUser() auth provider type " + authProviderType);
 
@@ -68,7 +70,7 @@ public class CrsUserService
 
 			logger.info("getLoggedInUser() returning crs application user");
 
-			return new CrsApplicationUser(authProviderEntity.getCrsUser().getId(), authProviderType, authProviderEntity.getUsername());
+			return new CrsApplicationUser(authProviderEntity.getCrsId(), authProviderType, authProviderEntity.getUsername());
 		}
 		catch (Exception e)
 		{

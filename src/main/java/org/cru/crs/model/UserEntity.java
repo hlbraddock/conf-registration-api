@@ -2,34 +2,14 @@ package org.cru.crs.model;
 
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.Type;
-
-@Entity
-@Table(name = "USERS")
 public class UserEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	@Column(name = "ID")
-	@Type(type="pg-uuid")
 	private UUID id;
-
-    @Column(name = "FIRST_NAME")
     private String firstName;
-
-    @Column(name = "LAST_NAME")
     private String lastName;
-
-    @Column(name = "CONTACT_EMAIL")
     private String emailAddress;
-
-    @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
 
 	public UUID getId()

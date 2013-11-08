@@ -8,6 +8,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.errors.BadRequest;
+import org.cru.crs.api.model.errors.NotFound;
 import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
@@ -73,9 +75,12 @@ public class AnswerResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getAnswerNotFound()
 	{
-		ClientResponse<Answer> response = answerClient.getAnswer(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"), UserInfo.AuthCode.TestUser);
+		ClientResponse response = answerClient.getAnswer(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"), UserInfo.AuthCode.TestUser);
 		
-		Assert.assertEquals(response.getStatus(), 404);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		NotFound notFoundError = (NotFound)response.getEntity(NotFound.class);
+		Assert.assertEquals(notFoundError.getStatusCode(), 404);
 	}
 	
 	/**
@@ -165,9 +170,12 @@ public class AnswerResourceFunctionalTest
 		JsonNode randomAnswerValue = jsonNodeFromString("{ \"N\": \"Oleg Salvador\"}");
 		Answer answer = createAnswer(randomAnswerUUID, registrationUUID, randomBlockUUID, randomAnswerValue);
 
-		ClientResponse<Answer> response = answerClient.updateAnswer(answer, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cade"), UserInfo.AuthCode.TestUser);
+		ClientResponse response = answerClient.updateAnswer(answer, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cade"), UserInfo.AuthCode.TestUser);
 
-		Assert.assertEquals(response.getStatus(), 400);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		BadRequest badRequestError = (BadRequest)response.getEntity(BadRequest.class);
+		Assert.assertEquals(badRequestError.getStatusCode(), 400);
 	}
 
 	/**

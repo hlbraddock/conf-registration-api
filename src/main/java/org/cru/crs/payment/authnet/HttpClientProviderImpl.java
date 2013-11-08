@@ -22,10 +22,10 @@ import com.google.common.base.Preconditions;
 public class HttpClientProviderImpl implements HttpProvider
 {
 	Logger log = Logger.getLogger(this.getClass());
-	
+
 	private int retries = 3;
 	private CloseableHttpClient httpClient = HttpClients.createDefault();
-	
+
 	public String getContentFromGet(String url) throws IOException
 	{
 		return getContent(new HttpGet(url));
@@ -40,12 +40,12 @@ public class HttpClientProviderImpl implements HttpProvider
 			Preconditions.checkNotNull(parameters.get(key), "parameter referenced by: " + key + " was null");
 			postParams.add(new BasicNameValuePair(key, parameters.get(key)));
 		}
-		
+
 		post.setEntity(new UrlEncodedFormEntity(postParams));
-		
+
 		return getContent(post);
 	}
-	
+
 	// adapted from httpClient tutorial
 	public String getContent(HttpRequestBase requestBase) throws IOException
 	{
@@ -54,15 +54,23 @@ public class HttpClientProviderImpl implements HttpProvider
 		// Execute the method.
 		CloseableHttpResponse response = httpClient.execute(requestBase);
 
-		if (response.getStatusLine().getStatusCode() != 200)
+		try
 		{
-			log.warn("Method failed: #0" + response.getStatusLine());
-
+			if (response.getStatusLine().getStatusCode() != 200)
+			{
+				log.warn("Method failed: #0" + response.getStatusLine());
+			}
+			content = new Scanner(response.getEntity().getContent()).useDelimiter("\\A").next();
 		}
-		content = new Scanner(response.getEntity().getContent()).useDelimiter("\\A").next();
-
-		response.close();
-
+		catch (IOException e)
+		{
+			log.warn("Fatal transport error getting content");
+			throw e;
+		}
+		finally
+		{
+			if(response != null) response.close();
+		}
 		return content;
 	}
 }

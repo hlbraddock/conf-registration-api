@@ -1,59 +1,47 @@
 package org.cru.crs.model;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
-import javax.persistence.*;
-
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.JsonNode;
-import org.hibernate.annotations.Type;
 
-@Entity
-@Table(name = "BLOCKS")
 public class BlockEntity implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	@Column(name = "ID")
-	@Type(type="pg-uuid")
 	private UUID id;
-	
-	@Column(name = "PAGE_ID", insertable = false, updatable = false)
-	@Type(type="pg-uuid")
 	private UUID pageId;
-	
-	@Column(name = "POSITION", insertable = false, updatable = false)
+	private UUID conferenceCostsBlockId;
 	private int position;
 
-	@Column(name = "BLOCK_TYPE")
 	private String blockType;
-	
-	@Column(name = "ADMIN_ONLY")
 	private boolean adminOnly;
-	
-	@Column(name = "REQUIRED")
 	private boolean required;
 	
-	@Column(name = "CONTENT")
-	@Type(type="org.cru.crs.utils.JsonUserType")
 	private JsonNode content;
-	
-	@Column(name = "TITLE")
 	private String title;
 
-    @Transient
-    private Set<AnswerEntity> answers = new HashSet<AnswerEntity>();
+	@Override
+	public int hashCode()
+	{
+		return new HashCodeBuilder(29, 79). // two randomly chosen prime numbers
+				append(id).
+				toHashCode();
+	}
 
-    /* Not ready to properly deal with this code yet, but it's okay to put it in the baseline
-     * but disabled.  Some more design decisions need to be made about how to exactly implement
-     * questions which affect price.  But basic pricing related things need to go into master
-     */
-    @Transient
-    @OneToOne(orphanRemoval = true)
-    @JoinColumn(name = "CONFERENCE_COSTS_BLOCK_ID")
-    ConferenceCostsBlockEntity conferenceCostsDetails;
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj == null) return false;
+		if (obj == this) return true;
+		if (!(obj instanceof BlockEntity)) return false;
+
+		BlockEntity rhs = (BlockEntity) obj;
+		return new EqualsBuilder().
+				append(id, rhs.id).
+				isEquals();
+	}
 
 	public UUID getId()
 	{
@@ -137,13 +125,12 @@ public class BlockEntity implements java.io.Serializable
 		this.required = required;
 	}
 
-    public ConferenceCostsBlockEntity getConferenceCostsDetails()
-    {
-        return conferenceCostsDetails;
-    }
+	public UUID getConferenceCostsBlockId() {
+		return conferenceCostsBlockId;
+	}
 
-    public void setConferenceCostsDetails(ConferenceCostsBlockEntity conferenceCostsDetails)
-    {
-        this.conferenceCostsDetails = conferenceCostsDetails;
-    }
+	public void setConferenceCostsBlockId(UUID conferenceCostsBlockId) {
+		this.conferenceCostsBlockId = conferenceCostsBlockId;
+	}
+
 }
