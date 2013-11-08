@@ -6,9 +6,6 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
-
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.AnswerResourceClient;
@@ -17,6 +14,9 @@ import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.errors.BadRequest;
+import org.cru.crs.api.model.errors.NotFound;
+import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.utils.Environment;
@@ -148,9 +148,12 @@ public class RegistrationResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void getRegistrationNotFound()
 	{
-		ClientResponse<Registration> response = registrationClient.getRegistration(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"), UserInfo.AuthCode.TestUser);
+		ClientResponse response = registrationClient.getRegistration(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"), UserInfo.AuthCode.TestUser);
 		
-		Assert.assertEquals(response.getStatus(), 404);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		NotFound notFoundError = (NotFound)response.getEntity(NotFound.class);
+		Assert.assertEquals(notFoundError.getStatusCode(), 404);
 	}
 	
 	/**
@@ -276,8 +279,11 @@ public class RegistrationResourceFunctionalTest
 		Registration createRegistration = createRegistration(registrationIdUUID, userIdUUID, conferenceUUID);
 
 		// create registration through update
-		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.TestUser);
-		Assert.assertEquals(response.getStatus(), 401);
+		ClientResponse response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.TestUser);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		Unauthorized unauthorizedError = (Unauthorized) response.getEntity(Unauthorized.class);
+		Assert.assertEquals(unauthorizedError.getStatusCode(), 401);
 	}
 
 	/**
@@ -296,9 +302,12 @@ public class RegistrationResourceFunctionalTest
 		UUID randomRegistrationUUID = UUID.fromString("0a00d62c-af29-3723-f949-95a950a0face");
 		Registration registration = createRegistration(randomRegistrationUUID, UserInfo.Id.Ryan, conferenceUUID);
 
-		ClientResponse<Registration> response = registrationClient.updateRegistration(registration, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"), UserInfo.AuthCode.TestUser);
+		ClientResponse response = registrationClient.updateRegistration(registration, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"), UserInfo.AuthCode.TestUser);
 
-		Assert.assertEquals(response.getStatus(), 400);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		BadRequest badRequestError = (BadRequest) response.getEntity(BadRequest.class);
+		Assert.assertEquals(badRequestError.getStatusCode(), 400);
 	}
 
 	/**
@@ -400,7 +409,10 @@ public class RegistrationResourceFunctionalTest
 	{
 		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.Expired);
 
-		Assert.assertEquals(response.getStatus(), 401);
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		Unauthorized unauthorizedError = (Unauthorized) response.getEntity(Unauthorized.class);
+		Assert.assertEquals(unauthorizedError.getStatusCode(), 401);
 	}
 
 	private static JsonNode jsonNodeFromString(String jsonString)

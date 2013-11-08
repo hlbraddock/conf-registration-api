@@ -24,6 +24,11 @@ import javax.ws.rs.core.Response.Status;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.errors.BadRequest;
+import org.cru.crs.api.model.errors.Gone;
+import org.cru.crs.api.model.errors.NotFound;
+import org.cru.crs.api.model.errors.ServerError;
+import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
@@ -68,7 +73,10 @@ public class AnswerResource
 
 			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
-			if(answerEntity == null) return Response.status(Status.NOT_FOUND).build();
+			if(answerEntity == null)
+			{
+				return Response.ok(new NotFound()).build();
+			}
 
 			logger.info("get answer entity");
 
@@ -90,7 +98,12 @@ public class AnswerResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -105,21 +118,21 @@ public class AnswerResource
 
 			if(IdComparer.idsAreNotNullAndDifferent(answerId, answer.getId()))
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				return Response.ok(new BadRequest()).build();
 			}
 			
 			if(answer.getId() == null || answerId == null)
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				return Response.ok(new BadRequest()).build();
 			}
 			
             /*if the block for which this answer is related to has been deleted, then return
             an appropriate error client error message
              */
             if(blockService.fetchBlockBy(answer.getBlockId()) == null)
-            {
-                return Response.status(Status.GONE).build();
-            }
+			{
+				return Response.ok(new Gone()).build();
+			}
 
 			logger.info("update answer");
 
@@ -132,7 +145,10 @@ public class AnswerResource
 			{
 				RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answer.getRegistrationId());
 
-				if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
+				if(registrationEntity == null)
+				{
+					return Response.ok(new BadRequest()).build();
+				}
 
 				authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.CREATE, crsLoggedInUser);
 
@@ -152,8 +168,10 @@ public class AnswerResource
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(currentAnswerEntity.getRegistrationId());
 
 			if(registrationEntity == null)
-				return Response.status(Status.BAD_REQUEST).build();
-
+			{
+				return Response.ok(new BadRequest()).build();
+			}
+			
 			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
 
 			answerService.updateAnswer(answer.toDbAnswerEntity());
@@ -162,7 +180,12 @@ public class AnswerResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -178,14 +201,18 @@ public class AnswerResource
 			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
 			if(answerEntity == null)
-				return Response.status(Status.BAD_REQUEST).build();
-
+			{
+				return Response.ok(new BadRequest()).build();
+			}
+			
 			logObject(answerEntity, logger);
 
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
 
 			if(registrationEntity == null)
-				return Response.status(Status.BAD_REQUEST).build();
+			{
+				return Response.ok(new BadRequest()).build();
+			}
 
 			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
 
@@ -195,7 +222,12 @@ public class AnswerResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 

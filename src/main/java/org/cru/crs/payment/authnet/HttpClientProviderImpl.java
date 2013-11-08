@@ -70,10 +70,13 @@ public class HttpClientProviderImpl implements HttpProvider
 			log.warn("Fatal transport error getting content");
 			throw e;
 		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		finally
 		{
-			response.close();
-			httpClient.close();
+			if(response != null) response.close();
 		}
 		return content;
 	}

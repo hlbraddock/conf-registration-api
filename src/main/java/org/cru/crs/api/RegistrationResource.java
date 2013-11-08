@@ -1,6 +1,5 @@
 package org.cru.crs.api;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -26,6 +25,11 @@ import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.errors.BadGateway;
+import org.cru.crs.api.model.errors.BadRequest;
+import org.cru.crs.api.model.errors.NotFound;
+import org.cru.crs.api.model.errors.ServerError;
+import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.api.model.utils.RegistrationAssembler;
 import org.cru.crs.api.process.PaymentProcessor;
 import org.cru.crs.api.process.RegistrationUpdateProcess;
@@ -89,7 +93,10 @@ public class RegistrationResource
 
 			Registration registration = RegistrationAssembler.buildRegistration(registrationId, registrationService, paymentService, answerService);
 
-			if(registration == null) return Response.status(Status.NOT_FOUND).build();
+			if(registration == null)
+			{
+				return Response.ok(new NotFound()).build();
+			}
 
 			authorizationService.authorize(registration.toDbRegistrationEntity(), 
 												conferenceService.fetchConferenceBy(registration.getConferenceId()), 
@@ -103,7 +110,12 @@ public class RegistrationResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build(); 
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -133,22 +145,17 @@ public class RegistrationResource
 
 			/*If the path registration id and the entity's registration id are both not null and different, then this is a bad request.
 			 * Malicious or not, we don't really know what the user wants to do.*/
-			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()))
+			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()) || registration.getId() == null || registrationId == null)
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				return Response.ok(new BadRequest()).build();
 			}
-			
-			if(registration.getId() == null || registrationId == null)
-			{
-				return Response.status(Status.BAD_REQUEST).build();
-			}
-			
+
 			/*Find the conference that this registration is for.  If we can't find it, then this is a bad request*/
 			ConferenceEntity conferenceEntityForUpdatedRegistration = conferenceService.fetchConferenceBy(registration.getConferenceId());
 
 			if(conferenceEntityForUpdatedRegistration == null)
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				return Response.ok(new BadRequest()).build();
 			}
 			
 			logger.info("update registration");
@@ -167,22 +174,45 @@ public class RegistrationResource
 				logger.info("update registration creating");
 
 				authorizationService.authorize(registrationEntity, conferenceEntityForUpdatedRegistration, OperationType.CREATE, crsLoggedInUser);
+				
+				/*if the user is already registered, don't let them register again*/
+				if(registrationService.getRegistrationByConferenceIdUserId(conferenceEntityForUpdatedRegistration.getId(), crsLoggedInUser.getId()) != null)
+				{
+					throw new UnauthorizedException();
+				}
+				
+				/*save the registration to the DB*/
 				registrationService.createNewRegistration(registrationEntity);
+				
+				/*if this conference accepts online payments, then create an initial payment record*/
+				if(conferenceEntityForUpdatedRegistration.getConferenceCostsId() != null)
+	            {			
+	            	if(conferenceCostsService.fetchBy(conferenceEntityForUpdatedRegistration.getConferenceCostsId()).isAcceptCreditCards())
+	            	{
+	            		PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(registrationEntity.getId());
+	            		/*save the payment to the database*/
+	            		paymentService.createPaymentRecord(newPayment);
+	            		/*set the payment as the current payment for this registration*/
+	            		registration.setCurrentPayment(Payment.fromJpa(paymentService.fetchPaymentBy(newPayment.getId())));
+	            	}
+	            }
 			}
 
 			authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
+			
 			new RegistrationUpdateProcess(registrationService, answerService, paymentService, conferenceService).performDeepUpdate(registration);
 			
 			/*if this update tells us the payment is ready to process, then the payment will be processed*/
 			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
-			{	
+			{
 				try
 				{
 					paymentProcess.process(registration.getCurrentPayment(), crsLoggedInUser);
 				}
-				catch(IOException e)
+				catch(Exception e)
 				{
-					return Response.status(502).build();
+					logger.error("Error processing payment", e);
+					return Response.ok(new BadGateway().setCustomErrorMessage("Error processing transaction with authorize.net")).build();
 				}
 			}
 
@@ -197,7 +227,12 @@ public class RegistrationResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -225,7 +260,7 @@ public class RegistrationResource
 
 			if(registrationEntity == null)
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				return Response.ok(new BadRequest()).build();
 			}
 
 			Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
@@ -241,7 +276,12 @@ public class RegistrationResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -272,7 +312,7 @@ public class RegistrationResource
 			 * malicious or not, we don't really know what they want to do.*/
 			if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
 			{
-				return Response.status(Status.BAD_REQUEST).build();
+				return Response.ok(new BadRequest()).build();
 			}
 
 			/*go find the registration for the new answer.  if it doesn't exist, then this is a bad request*/
@@ -297,7 +337,12 @@ public class RegistrationResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError(e)).build();
 		}
 	}
 
@@ -327,7 +372,7 @@ public class RegistrationResource
 			
 			if(paymentEntity == null)
 			{
-				return Response.status(Status.NOT_FOUND).build();
+				return Response.ok(new NotFound()).build();
 			}
 
 			RegistrationEntity registrationEntityForRequestedPayment = registrationService.getRegistrationBy(registrationId);
@@ -343,8 +388,13 @@ public class RegistrationResource
 			return Response.ok(Payment.fromJpa(paymentEntity)).build();
 		}
 		catch(UnauthorizedException e)
-    	{
-    		return Response.status(Status.UNAUTHORIZED).build();
-    	}
+		{
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError(e)).build();
+		}
     }
 }

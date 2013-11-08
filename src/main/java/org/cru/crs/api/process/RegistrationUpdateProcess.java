@@ -55,8 +55,11 @@ public class RegistrationUpdateProcess
 			}
 		}
 		
-		updateOrInsertCurrentPayment(registration.getCurrentPayment());
-		
+		//TODO: think further about current payment inserts/updates as well
+//		if(registration.getCurrentPayment() != null)
+//		{
+//			updateOrInsertCurrentPayment(registration.getCurrentPayment());
+//		}
 		//TODO: think about if the past payments need updated here
 		
 		registrationService.updateRegistration(registration.toDbRegistrationEntity());

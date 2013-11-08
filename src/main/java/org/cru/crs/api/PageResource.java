@@ -12,9 +12,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Page;
+import org.cru.crs.api.model.errors.NotFound;
+import org.cru.crs.api.model.errors.ServerError;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
@@ -34,10 +35,21 @@ public class PageResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPage(@PathParam(value="pageId") UUID pageId)
 	{
-		PageEntity requestedPage = pageService.fetchPageBy(pageId);
+		try
+		{
+			PageEntity requestedPage = pageService.fetchPageBy(pageId);
 
-		if(requestedPage == null) return Response.status(Status.NOT_FOUND).build();
+			if(requestedPage == null)
+			{
+				return Response.ok(new NotFound()).build();
+			}
 
-		return Response.ok(Page.fromDb(requestedPage)).build();
+			return Response.ok(Page.fromDb(requestedPage)).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError(e)).build();
+		}
 	}
 }
