@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
@@ -7,12 +8,14 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.errors.BadRequest;
@@ -27,7 +30,6 @@ import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
-import org.cru.crs.payment.authnet.Authnet;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
@@ -35,7 +37,7 @@ import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 
-@Path("/payments/{paymentId}")
+@Path("/payments")
 public class PaymentResource
 {
 	@Inject CrsUserService crsUserService;
@@ -45,7 +47,7 @@ public class PaymentResource
 	@Inject RegistrationService registrationService;
 	@Inject ConferenceService conferenceService;
 	
-	@Inject @Authnet PaymentProcessor paymentProcessor;
+	@Inject PaymentProcessor paymentProcessor;
 	
 	private Logger logger = Logger.getLogger(this.getClass());
 	
@@ -61,7 +63,7 @@ public class PaymentResource
 	 * @return
 	 */
 	@GET
-    @Path("/payment/{paymentId}")
+	@Path("/{paymentId}")
 	@Produces(MediaType.APPLICATION_JSON)
     public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
@@ -102,7 +104,7 @@ public class PaymentResource
     }
 	
 	/**
-	 * Updates the payment resource specified by @param paymentId.  If the payment is marked as readyToProcess = true, the server will attempt to process the payment
+	 * Creates payment resource.  If the payment is marked as readyToProcess = true, the server will attempt to process the payment
 	 * against upstream payment processor (authorize.net or other).
 	 * 
 	 * Possible Outcomes:
@@ -116,24 +118,22 @@ public class PaymentResource
 	 * @param authCode
 	 * @return
 	 */
-	@PUT
+	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updatePayment(@PathParam(value = "paymentId") UUID paymentId, Payment payment, @HeaderParam(value="Authorization") String authCode)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createPayment(Payment payment, @HeaderParam(value="Authorization") String authCode)
 	{
 		try
 		{
-			logger.info("update payment entity " + paymentId + " and auth code " + authCode);
-			
+			logger.info("create payment entity with auth code " + authCode);
+		
 			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
-			
+		
+			if(payment.getId() == null) payment.setId(UUID.randomUUID());
+
 			if(payment.getRegistrationId() == null)
 			{
 				return Response.ok(new BadRequest().setCustomErrorMessage("Payment must have a registration ID.")).build();
-			}
-			
-			if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
-			{
-				return Response.ok(new BadRequest().setCustomErrorMessage("Path and entity payment IDs did not match.  Cannot proceed.")).build();
 			}
 			
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
@@ -150,7 +150,77 @@ public class PaymentResource
 			}
 			else
 			{
-				paymentService.updatePayment(payment.toJpaPaymentEntity());
+				return Response.ok(new BadRequest().setCustomErrorMessage("Payment record with ID " + payment.getId() + " already exists.")).build();
+			}
+			
+			if(payment.isReadyToProcess())
+			{
+				org.cru.crs.api.model.Error processingError = paymentProcessor.process(payment, loggedInUser);
+				if(processingError != null) return Response.ok(processingError).build();
+			}
+			
+			return Response.status(Status.CREATED)
+					.location(new URI("/conferences/" + payment.getId()))
+					.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId()))).build();
+		}
+		catch(UnauthorizedException e)
+		{
+			return Response.ok(new Unauthorized()).build();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return Response.ok(new ServerError()).build();
+		}
+	}
+	
+	/**
+	 * Updates the payment resource specified by @param paymentId.  However the only "valid updating" of a payment is processing it.  Otherwise the client
+	 * has no business updating a stored payment.
+	 * 
+	 * Possible Outcomes:
+	 * 	200 Ok - found payment specified by @param paymentId and the user specified by @param authCode has read access to the registration specified by @param registrationId
+	 *  204 No Content - payment was created/updated successfully
+	 *  400 Bad Request - the payment does not have a registration ID, the registration ID does not map to a registration in the system, or the path and entity
+	 *                    have different payment ID's and proceeding could be dangerous.
+	 *  401 Unauthorized - user specified by @param authCode is expired, doesn't exist or doesn't have update access to the registration that owns the specified payment
+	 *  500 Server Error - something, unrelated to payment processing, went wrong
+	 *  502 Bad Gateway - something related to talking to the upstream payment server went wrong.  payment was not processed.
+	 * @param authCode
+	 * @return
+	 */
+	@PUT
+	@Path("/{paymentId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response updatePayment(Payment payment, @PathParam("paymentId") UUID paymentId, @HeaderParam(value="Authorization") String authCode)
+	{
+		try
+		{
+			logger.info("update payment entity " + paymentId + " with auth code " + authCode);
+		
+			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
+		
+			if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
+			{
+				return Response.ok(new BadRequest().setCustomErrorMessage("Path and entity payment IDs are different.  Cannot proceed")).build();
+			}
+			
+			if(payment.getRegistrationId() == null)
+			{
+				return Response.ok(new BadRequest().setCustomErrorMessage("Payment must have a registration ID.")).build();
+			}
+			
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
+			
+			authorizationService.authorize(registrationEntity, 
+											conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+											OperationType.UPDATE,
+											loggedInUser);
+			
+			if(paymentService.fetchPaymentBy(payment.getId()) == null)
+			{
+				if(payment.getId() == null) payment.setId(UUID.randomUUID());
+				paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
 			}
 			
 			if(payment.isReadyToProcess())

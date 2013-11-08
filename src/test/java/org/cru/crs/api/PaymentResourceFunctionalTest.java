@@ -67,7 +67,7 @@ public class PaymentResourceFunctionalTest
 		
 		try
 		{
-			ClientResponse updateResponse = paymentClient.updatePayment(paymentUUID, registration.getCurrentPayment(), UserInfo.AuthCode.TestUser);
+			ClientResponse updateResponse = paymentClient.updatePayment(registration.getCurrentPayment(), paymentUUID, UserInfo.AuthCode.TestUser);
 
 			Assert.assertEquals(updateResponse.getStatus(), 204);
 
