@@ -76,18 +76,6 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(registration.getId(), registrationUUID);
 		Assert.assertEquals(registration.getUserId(), UserInfo.Id.TestUser);
 		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
-		Assert.assertNotNull(registration.getCurrentPayment());
-		
-		Payment payment = registration.getCurrentPayment();
-		
-		Assert.assertEquals(payment.getId(), paymentUUID);
-		Assert.assertEquals(payment.getAmount(), new BigDecimal(50f));
-		Assert.assertEquals(payment.getCreditCardNameOnCard(),"Joe User");
-		Assert.assertEquals(payment.getCreditCardExpirationMonth(), "11");
-		Assert.assertEquals(payment.getCreditCardExpirationYear(), "2015");
-		Assert.assertEquals(payment.getCreditCardNumber(), "****1111");
-		Assert.assertEquals(payment.getRegistrationId(), registrationUUID);
-		Assert.assertFalse(payment.isReadyToProcess());
 	}
 	
 	@Test(groups="functional-tests")
@@ -120,7 +108,7 @@ public class RegistrationResourceFunctionalTest
         Payment payment1 = registration.getPastPayments().get(0);
         Payment payment2 = registration.getPastPayments().get(1);
 
-        Assert.assertEquals(payment1.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91958"));
+        Assert.assertEquals(payment1.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB22222"));
         Assert.assertEquals(payment1.getAmount(), new BigDecimal(20f));
         Assert.assertEquals(payment1.getCreditCardNameOnCard(),"Billy User");
         Assert.assertEquals(payment1.getCreditCardExpirationMonth(), "04");
@@ -128,7 +116,7 @@ public class RegistrationResourceFunctionalTest
         Assert.assertEquals(payment1.getCreditCardNumber(), "****1111");
         Assert.assertEquals(payment1.getRegistrationId(), UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111"));
 
-        Assert.assertEquals(payment2.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91959"));
+        Assert.assertEquals(payment2.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB33333"));
         Assert.assertEquals(payment2.getAmount(), new BigDecimal(55f));
         Assert.assertEquals(payment2.getCreditCardNameOnCard(),"Billy User");
         Assert.assertEquals(payment2.getCreditCardExpirationMonth(), "04");
