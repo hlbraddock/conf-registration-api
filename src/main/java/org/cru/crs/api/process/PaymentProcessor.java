@@ -1,15 +1,13 @@
 package org.cru.crs.api.process;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
 
 import javax.inject.Inject;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
+import org.cru.crs.api.model.errors.BadGateway;
 import org.cru.crs.api.model.errors.BadRequest;
 import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -57,41 +55,24 @@ public class PaymentProcessor
     		
     		ConferenceEntity dbConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId()).getConferenceId());
     		ConferenceCostsEntity dbConferenceCosts = conferenceCostsService.fetchBy(dbConference.getConferenceCostsId());
-    		
-    		Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromDb(dbConference, dbConferenceCosts), payment);
 
-    		payment.setAuthnetTransactionId(transactionId);
-    		payment.setTransactionDatetime(clock.currentDateTime());
-
-    		paymentService.updatePayment(payment.toJpaPaymentEntity());
-    		
-    		if(!conferenceWasPaidInFull(payment.getRegistrationId(), dbConferenceCosts))
+    		try
     		{
-    			/*if there is still a balance to be paid, the create a new payment record to capture it.*/
-    			paymentService.createPaymentRecord(new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(payment.getRegistrationId()));
+    			Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromDb(dbConference, dbConferenceCosts), payment);
+
+    			payment.setAuthnetTransactionId(transactionId);
+    			payment.setTransactionDatetime(clock.currentDateTime());
     		}
+    		catch(Exception e)
+    		{
+    			return new BadGateway().setCustomErrorMessage("Error processing authorize.net transaction");
+    		}
+    		
+    		paymentService.updatePayment(payment.toJpaPaymentEntity());
     	}
     	
     	return null;
     }
-
-
-	private boolean conferenceWasPaidInFull(UUID registrationId, ConferenceCostsEntity dbConferenceCosts)
-	{
-		List<PaymentEntity> paymentsForCurrentRegistration = paymentService.fetchPaymentsForRegistration(registrationId);
-		
-		BigDecimal totalPaid = new BigDecimal(0);
-		
-		for(PaymentEntity payment : paymentsForCurrentRegistration)
-		{
-			if(payment.getAuthnetTransactionId() != null)
-			{
-				totalPaid = totalPaid.add(payment.getAmount());
-			}
-		}
-		
-		return totalPaid.compareTo(dbConferenceCosts.getBaseCost()) >= 0;
-	}
 
 	private org.cru.crs.api.model.Error validatePaymentReadiness(Payment payment)
 	{

@@ -17,7 +17,6 @@ import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.errors.BadRequest;
 import org.cru.crs.api.model.errors.NotFound;
 import org.cru.crs.api.model.errors.Unauthorized;
-import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
@@ -191,50 +190,7 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 	
-	@Test(groups="functional-tests")
-	public void updateRegistrationProcessPayment()
-	{
-		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
-		
-		PaymentEntity processedPayment = null;
-		
-		Assert.assertEquals(response.getStatus(), 200);
-
-		Registration registration = response.getEntity();
-		registration.getCurrentPayment().setCreditCardNumber("4111111111111111");
-		registration.getCurrentPayment().setCreditCardCVVNumber("822");
-		registration.getCurrentPayment().setReadyToProcess(true);
-		
-		try
-		{
-
-			ClientResponse updateResponse = registrationClient.updateRegistration(registration, registration.getId(), UserInfo.AuthCode.TestUser);
-
-			Assert.assertEquals(updateResponse.getStatus(), 204);
-
-			processedPayment = paymentService.fetchPaymentBy(registration.getCurrentPayment().getId());
-
-			Assert.assertNotNull(processedPayment.getAuthnetTransactionId());
-			Assert.assertNotNull(processedPayment.getTransactionTimestamp());
-
-			ClientResponse<Registration> subsequentResponse = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
-			Registration regstrationAfterPayment = subsequentResponse.getEntity();
-
-			Assert.assertNull(regstrationAfterPayment.getCurrentPayment());
-			Assert.assertEquals(regstrationAfterPayment.getPastPayments().size(), 1);
-			Assert.assertEquals(regstrationAfterPayment.getPastPayments().get(0).getId(), processedPayment.getId());
-		}
-		finally
-		{
-			if(processedPayment != null)
-			{
-				processedPayment.setAuthnetTransactionId(null);
-				processedPayment.setTransactionTimestamp(null);
-				paymentService.updatePayment(processedPayment);
-			}
-		}
-
-	}
+	
 
 	@Test(groups="functional-tests")
 	public void createRegistrationOnUpdate() throws URISyntaxException
