@@ -183,19 +183,6 @@ public class RegistrationResource
 				
 				/*save the registration to the DB*/
 				registrationService.createNewRegistration(registrationEntity);
-				
-				/*if this conference accepts online payments, then create an initial payment record*/
-				if(conferenceEntityForUpdatedRegistration.getConferenceCostsId() != null)
-	            {			
-	            	if(conferenceCostsService.fetchBy(conferenceEntityForUpdatedRegistration.getConferenceCostsId()).isAcceptCreditCards())
-	            	{
-	            		PaymentEntity newPayment = new PaymentEntity().setId(UUID.randomUUID()).setRegistrationId(registrationEntity.getId());
-	            		/*save the payment to the database*/
-	            		paymentService.createPaymentRecord(newPayment);
-	            		/*set the payment as the current payment for this registration*/
-	            		registration.setCurrentPayment(Payment.fromJpa(paymentService.fetchPaymentBy(newPayment.getId())));
-	            	}
-	            }
 			}
 
 			authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
