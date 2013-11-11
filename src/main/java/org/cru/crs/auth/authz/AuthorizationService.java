@@ -2,15 +2,15 @@ package org.cru.crs.auth.authz;
 
 import java.util.UUID;
 
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.jboss.resteasy.spi.UnauthorizedException;
 
 public class AuthorizationService
 {
 	
-	public void authorizeConference(ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	public void authorizeConference(ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser)
 	{
 		if(conferenceEntity == null) return;
 		
@@ -28,7 +28,7 @@ public class AuthorizationService
 		}
 	}
 	
-	public void authorize(RegistrationEntity registrationEntity, ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser) throws UnauthorizedException
+	public void authorize(RegistrationEntity registrationEntity, ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser)
 	{
 		if(registrationEntity == null) return;
 		

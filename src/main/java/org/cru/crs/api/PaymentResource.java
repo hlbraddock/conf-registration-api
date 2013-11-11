@@ -18,13 +18,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Payment;
-import org.cru.crs.api.model.errors.BadRequest;
-import org.cru.crs.api.model.errors.NotFound;
-import org.cru.crs.api.model.errors.ServerError;
-import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.api.process.PaymentProcessor;
 import org.cru.crs.auth.CrsUserService;
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -36,6 +31,10 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.UnauthorizedException;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 @Path("/payments")
 public class PaymentResource
@@ -94,12 +93,12 @@ public class PaymentResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
     }
 	
@@ -133,7 +132,7 @@ public class PaymentResource
 
 			if(payment.getRegistrationId() == null)
 			{
-				return Response.ok(new BadRequest().setCustomErrorMessage("Payment must have a registration ID.")).build();
+				throw new BadRequestException("Payment's registration id was null");
 			}
 			
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
@@ -150,13 +149,13 @@ public class PaymentResource
 			}
 			else
 			{
-				return Response.ok(new BadRequest().setCustomErrorMessage("Payment record with ID " + payment.getId() + " already exists.")).build();
+				throw new BadRequestException("Payment with id: " + payment.getId() + " already exists.");
 			}
 			
 			if(payment.isReadyToProcess())
 			{
-				org.cru.crs.api.model.Error processingError = paymentProcessor.process(payment, loggedInUser);
-				if(processingError != null) return Response.ok(processingError).build();
+				paymentProcessor.process(payment, loggedInUser);
+				
 			}
 			
 			return Response.status(Status.CREATED)
@@ -165,12 +164,12 @@ public class PaymentResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError()).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 	
@@ -202,12 +201,12 @@ public class PaymentResource
 		
 			if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
 			{
-				return Response.ok(new BadRequest().setCustomErrorMessage("Path and entity payment IDs are different.  Cannot proceed")).build();
+				throw new BadRequestException("Path id " + paymentId + " and entity payment id " + payment.getId() + " do not match.");
 			}
 			
 			if(payment.getRegistrationId() == null)
 			{
-				return Response.ok(new BadRequest().setCustomErrorMessage("Payment must have a registration ID.")).build();
+				throw new BadRequestException("Payment's registration id was null");
 			}
 			
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
@@ -225,20 +224,19 @@ public class PaymentResource
 			
 			if(payment.isReadyToProcess())
 			{
-				org.cru.crs.api.model.Error processingError = paymentProcessor.process(payment, loggedInUser);
-				if(processingError != null) return Response.ok(processingError).build();
+				paymentProcessor.process(payment, loggedInUser);
 			}
 			
 			return Response.noContent().build();
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError()).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 }

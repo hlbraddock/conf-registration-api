@@ -1,5 +1,7 @@
 package org.cru.crs.auth;
 
+import javax.inject.Inject;
+
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Session;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -10,9 +12,8 @@ import org.cru.crs.service.SessionService;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
-
-import javax.inject.Inject;
 
 public class CrsUserService
 {
@@ -30,7 +31,7 @@ public class CrsUserService
 
 	private Logger logger = Logger.getLogger(CrsUserService.class);
 
-	public CrsApplicationUser getLoggedInUser(String authCode) throws UnauthorizedException
+	public CrsApplicationUser getLoggedInUser(String authCode)
 	{
 		try
 		{

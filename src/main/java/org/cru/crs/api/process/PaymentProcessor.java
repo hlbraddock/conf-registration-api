@@ -3,13 +3,11 @@ package org.cru.crs.api.process;
 import java.io.IOException;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
-import org.cru.crs.api.model.errors.BadGateway;
-import org.cru.crs.api.model.errors.BadRequest;
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
@@ -20,6 +18,7 @@ import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
+import org.jboss.resteasy.spi.BadRequestException;
 
 public class PaymentProcessor
 {
@@ -44,14 +43,13 @@ public class PaymentProcessor
 		this.paymentProcess = paymentProcess;
 	}
 
-	public org.cru.crs.api.model.Error process(Payment payment, CrsApplicationUser loggedInUser) throws IOException, UnauthorizedException
+	public org.cru.crs.api.model.Error process(Payment payment, CrsApplicationUser loggedInUser) throws IOException
     {
     	/*make sure the payment is not processed twice in case the client didn't record the fact it was processed*/
     	PaymentEntity copyOfPaymentFromDatabase = paymentService.fetchPaymentBy(payment.getId());
     	if(copyOfPaymentFromDatabase.getTransactionTimestamp() == null && copyOfPaymentFromDatabase.getAuthnetTransactionId() == null)
     	{
-    		org.cru.crs.api.model.Error errorMessage = validatePaymentReadiness(payment);
-    		if(errorMessage != null) return errorMessage;
+    		validatePaymentReadiness(payment);
     		
     		ConferenceEntity dbConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId()).getConferenceId());
     		ConferenceCostsEntity dbConferenceCosts = conferenceCostsService.fetchBy(dbConference.getConferenceCostsId());
@@ -65,7 +63,7 @@ public class PaymentProcessor
     		}
     		catch(Exception e)
     		{
-    			return new BadGateway().setCustomErrorMessage("Error processing authorize.net transaction");
+    			throw new WebApplicationException(e, 502);
     		}
     		
     		paymentService.updatePayment(payment.toJpaPaymentEntity());
@@ -74,28 +72,26 @@ public class PaymentProcessor
     	return null;
     }
 
-	private org.cru.crs.api.model.Error validatePaymentReadiness(Payment payment)
+	private void validatePaymentReadiness(Payment payment)
 	{
 		if(payment.getCreditCardCVVNumber() == null)
 		{
-			return new BadRequest().setCustomErrorMessage("CVV is missing.  Please enter your card security code.");
+			throw new BadRequestException("CVV is missing.  Please enter your card security code.");
 		}
 		
 		if(payment.getCreditCardNumber() == null)
 		{
-			return new BadRequest().setCustomErrorMessage("Credit card number is missing.  Please enter your credit card number.");
+			throw new BadRequestException("Credit card number is missing.  Please enter your credit card number.");
 		}
 		
 		if(payment.getCreditCardExpirationMonth() == null)
 		{
-			return new BadRequest().setCustomErrorMessage("Credit card expiration month is missing.  Please enter your card's expiration month.");
+			throw new BadRequestException("Credit card expiration month is missing.  Please enter your card's expiration month.");
 		}
 		
 		if(payment.getCreditCardExpirationMonth() == null)
 		{
-			return new BadRequest().setCustomErrorMessage("Credit card expiration year is missing.  Please enter your card's expiration year.");
+			throw new BadRequestException("Credit card expiration year is missing.  Please enter your card's expiration year.");
 		}
-		
-		return null;
 	}
 }
