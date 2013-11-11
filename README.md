@@ -1,5 +1,7 @@
 conf-registration-api
 
+Current project status: https://trello.com/b/i7500iKQ/new-crs
+
 To run the API in your development environment, the following steps need to be taken:
 
 * Download and Install jboss v7.1.x.FINAL or v7.2.x.FINAL
