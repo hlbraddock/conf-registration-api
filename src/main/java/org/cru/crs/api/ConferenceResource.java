@@ -371,8 +371,7 @@ public class ConferenceResource
 			CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 			/*if the registration this conference is supposed to belong to doesn't exist, then this is a bad request*/
-			ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
-			if(conference == null)
+			if(conferenceService.fetchConferenceBy(conferenceId) == null)
 			{
 				return Response.ok(new BadRequest()).build();
 			}
@@ -391,6 +390,7 @@ public class ConferenceResource
             /*now perform a deep update to ensure that any answers or other payments are properly saved*/
             new RegistrationUpdateProcess(registrationService,answerService,conferenceService).performDeepUpdate(newRegistration);
             
+            /*finally grab a fresh copy of the registration from the DB to return to the client*/
             Registration freshCopyOfNewRegistraiton = RegistrationFetchProcess.buildRegistration(newRegistrationEntity.getId(),
             																						registrationService,
             																						paymentService,
@@ -467,6 +467,17 @@ public class ConferenceResource
 		}
 	}
 	
+	/**
+	 * Gets all the registration resource associated to the conference specified by @param conferenceId and the user specifed by @param authCode.
+	 * 
+	 * Possible outcomes:
+	 * 	200 Ok - registration resources were found and returned
+	 *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist.
+	 *  404 Not Found - user specified by @param authCode doesn't have a registration for conference specifed by @param conferenceId
+	 * 
+	 * @param conference
+	 * @return
+	 */
 	@GET
 	@Path("/{conferenceId}/registrations/current")
 	@Produces(MediaType.APPLICATION_JSON)
