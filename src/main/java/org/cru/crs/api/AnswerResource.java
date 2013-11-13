@@ -24,13 +24,7 @@ import javax.ws.rs.core.Response.Status;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.model.errors.BadRequest;
-import org.cru.crs.api.model.errors.Gone;
-import org.cru.crs.api.model.errors.NotFound;
-import org.cru.crs.api.model.errors.ServerError;
-import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.auth.CrsUserService;
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -42,6 +36,10 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.UnauthorizedException;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 /**
  * User: lee.braddock
@@ -98,12 +96,12 @@ public class AnswerResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -116,14 +114,9 @@ public class AnswerResource
 		{
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-			if(IdComparer.idsAreNotNullAndDifferent(answerId, answer.getId()))
+			if(answer.getId() == null || answerId == null || IdComparer.idsAreNotNullAndDifferent(answerId, answer.getId()))
 			{
-				return Response.ok(new BadRequest()).build();
-			}
-			
-			if(answer.getId() == null || answerId == null)
-			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("The path answer id: " + answerId + " and entity answer id: " + answer.getId() + " were either null or don't match");
 			}
 			
             /*if the block for which this answer is related to has been deleted, then return
@@ -131,7 +124,7 @@ public class AnswerResource
              */
             if(blockService.fetchBlockBy(answer.getBlockId()) == null)
 			{
-				return Response.ok(new Gone()).build();
+				return Response.status(Status.GONE).build();
 			}
 
 			logger.info("update answer");
@@ -140,16 +133,16 @@ public class AnswerResource
 
 			AnswerEntity currentAnswerEntity = answerService.getAnswerBy(answerId);
 
+			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answer.getRegistrationId());
+
+			if(registrationEntity == null)
+			{
+				throw new BadRequestException("The answer being updated belongs to a registration that does not exist");
+			}
+			
 			// create the answer if none yet exists for the given answer id
 			if(currentAnswerEntity == null)
 			{
-				RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answer.getRegistrationId());
-
-				if(registrationEntity == null)
-				{
-					return Response.ok(new BadRequest()).build();
-				}
-
 				authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.CREATE, crsLoggedInUser);
 
 				logger.info("create answer with registration entity");
@@ -164,13 +157,6 @@ public class AnswerResource
 			logger.info("update current answer entity");
 
 			logObject(currentAnswerEntity, logger);
-
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(currentAnswerEntity.getRegistrationId());
-
-			if(registrationEntity == null)
-			{
-				return Response.ok(new BadRequest()).build();
-			}
 			
 			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
 
@@ -180,12 +166,12 @@ public class AnswerResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -202,7 +188,7 @@ public class AnswerResource
 
 			if(answerEntity == null)
 			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("The answer specifed by: " + answerId + " does not exist");
 			}
 			
 			logObject(answerEntity, logger);
@@ -211,7 +197,7 @@ public class AnswerResource
 
 			if(registrationEntity == null)
 			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("The answer being deleted belongs to a registration which does not exist");
 			}
 
 			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
@@ -222,12 +208,12 @@ public class AnswerResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 

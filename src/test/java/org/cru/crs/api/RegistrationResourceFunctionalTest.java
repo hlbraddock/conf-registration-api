@@ -14,9 +14,6 @@ import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.model.errors.BadRequest;
-import org.cru.crs.api.model.errors.NotFound;
-import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
@@ -137,10 +134,7 @@ public class RegistrationResourceFunctionalTest
 	{
 		ClientResponse response = registrationClient.getRegistration(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0dddd"), UserInfo.AuthCode.TestUser);
 		
-		Assert.assertEquals(response.getStatus(), 200);
-		
-		NotFound notFoundError = (NotFound)response.getEntity(NotFound.class);
-		Assert.assertEquals(notFoundError.getStatusCode(), 404);
+		Assert.assertEquals(response.getStatus(), 404);
 	}
 	
 	/**
@@ -224,10 +218,7 @@ public class RegistrationResourceFunctionalTest
 
 		// create registration through update
 		ClientResponse response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.TestUser);
-		Assert.assertEquals(response.getStatus(), 200);
-		
-		Unauthorized unauthorizedError = (Unauthorized) response.getEntity(Unauthorized.class);
-		Assert.assertEquals(unauthorizedError.getStatusCode(), 401);
+		Assert.assertEquals(response.getStatus(), 401);
 	}
 
 	/**
@@ -248,10 +239,7 @@ public class RegistrationResourceFunctionalTest
 
 		ClientResponse response = registrationClient.updateRegistration(registration, UUID.fromString("0a00d62c-af29-3723-f949-95a950a0eeee"), UserInfo.AuthCode.TestUser);
 
-		Assert.assertEquals(response.getStatus(), 200);
-		
-		BadRequest badRequestError = (BadRequest) response.getEntity(BadRequest.class);
-		Assert.assertEquals(badRequestError.getStatusCode(), 400);
+		Assert.assertEquals(response.getStatus(), 400);
 	}
 
 	/**
@@ -353,10 +341,7 @@ public class RegistrationResourceFunctionalTest
 	{
 		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.Expired);
 
-		Assert.assertEquals(response.getStatus(), 200);
-		
-		Unauthorized unauthorizedError = (Unauthorized) response.getEntity(Unauthorized.class);
-		Assert.assertEquals(unauthorizedError.getStatusCode(), 401);
+		Assert.assertEquals(response.getStatus(), 401);
 	}
 
 	private static JsonNode jsonNodeFromString(String jsonString)

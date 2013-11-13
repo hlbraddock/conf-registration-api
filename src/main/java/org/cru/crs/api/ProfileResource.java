@@ -12,8 +12,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.auth.CrsUserService;
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.jboss.resteasy.spi.UnauthorizedException;
 
 @Path("/profile")
 public class ProfileResource
