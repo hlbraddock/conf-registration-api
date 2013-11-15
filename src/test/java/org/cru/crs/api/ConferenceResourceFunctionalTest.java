@@ -12,9 +12,7 @@ import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.model.errors.BadRequest;
 import org.cru.crs.api.process.ConferenceFetchProcess;
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
@@ -287,14 +285,12 @@ public class ConferenceResourceFunctionalTest
 
 		ClientResponse response = conferenceClient.createPage(newPage, UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb699"), UserInfo.AuthCode.TestUser);
 
-		BadRequest badRequestError = (BadRequest)response.getEntity(BadRequest.class);
 		//status code, 400-Bad Request
-		Assert.assertEquals(response.getStatus(), 200);
-		Assert.assertEquals(badRequestError.getStatusCode(), 400);
+		Assert.assertEquals(response.getStatus(), 400);
 	}
 
 	@Test(groups="functional-tests")
-	public void addRegistrationToConference() throws URISyntaxException,UnauthorizedException
+	public void addRegistrationToConference() throws URISyntaxException
 	{
 		UUID registrationId = null;
 		UUID paymentId = null;

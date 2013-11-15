@@ -13,6 +13,7 @@ import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.ClockImpl;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.CrsPropertiesFactory;
+import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
 import org.sql2o.Sql2o;
 import org.testng.annotations.BeforeMethod;
@@ -51,7 +52,7 @@ public class CrsUserServiceTest
 	private String userEmail = "user@cru.org";
 
 	@Test(groups = "db-integration-tests")
-	public void testLogin() throws UnauthorizedException
+	public void testLogin()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock);
 
@@ -67,7 +68,7 @@ public class CrsUserServiceTest
 	}
 
 	@Test(groups = "db-integration-tests", expectedExceptions = UnauthorizedException.class)
-	public void testLoginThenExpiredSession() throws UnauthorizedException
+	public void testLoginThenExpiredSession()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(8));
 
@@ -81,7 +82,7 @@ public class CrsUserServiceTest
 	}
 
 	@Test(groups = "db-integration-tests")
-	public void testLoginThenGetLoggedInTwiceToCheckExtendedSession() throws UnauthorizedException
+	public void testLoginThenGetLoggedInTwiceToCheckExtendedSession()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(3));
 
@@ -99,7 +100,7 @@ public class CrsUserServiceTest
 	}
 
 	@Test(groups = "db-integration-tests", expectedExceptions = UnauthorizedException.class)
-	public void testLoginExpiredSessionAfterFirstRequest() throws UnauthorizedException
+	public void testLoginExpiredSessionAfterFirstRequest()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock);
 

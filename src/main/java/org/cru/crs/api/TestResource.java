@@ -3,15 +3,15 @@ package org.cru.crs.api;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
-import org.cru.crs.api.model.errors.BadGateway;
-import org.cru.crs.api.model.errors.BadRequest;
-import org.cru.crs.api.model.errors.Gone;
-import org.cru.crs.api.model.errors.NotFound;
-import org.cru.crs.api.model.errors.ServerError;
-import org.cru.crs.api.model.errors.Unauthorized;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.NotFoundException;
+import org.jboss.resteasy.spi.UnauthorizedException;
 
 @Path("/error-testing")
 public class TestResource
@@ -21,7 +21,7 @@ public class TestResource
 	@Path("/unauthorized")
 	public Response unauthorized()
 	{
-		return Response.ok(new Unauthorized()).build();
+		throw new UnauthorizedException();
 	}
 	
 	@GET
@@ -29,7 +29,7 @@ public class TestResource
 	@Path("/not-found")
 	public Response notFound()
 	{
-		return Response.ok(new NotFound()).build();
+		throw new NotFoundException("resource not found");
 	}
 	
 	@GET
@@ -37,7 +37,7 @@ public class TestResource
 	@Path("/server-error")
 	public Response serverError()
 	{
-		return Response.ok(new ServerError()).build();
+		throw new InternalServerErrorException("server error");
 	}
 	
 	@GET
@@ -45,7 +45,7 @@ public class TestResource
 	@Path("/bad-gateway")
 	public Response badGateway()
 	{
-		return Response.ok(new BadGateway()).build();
+		throw new WebApplicationException(502);
 	}
 	
 	@GET
@@ -53,7 +53,7 @@ public class TestResource
 	@Path("/bad-request")
 	public Response badRequest()
 	{
-		return Response.ok(new BadRequest()).build();
+		throw new BadRequestException("bad request");
 	}
 	
 	@GET
@@ -61,7 +61,7 @@ public class TestResource
 	@Path("/gone")
 	public Response gone()
 	{
-		return Response.ok(new Gone()).build();
+		return Response.status(Status.GONE).build();
 	}
 	
 }

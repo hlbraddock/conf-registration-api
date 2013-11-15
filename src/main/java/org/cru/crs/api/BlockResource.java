@@ -14,13 +14,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cru.crs.api.model.Block;
-import org.cru.crs.api.model.errors.NotFound;
-import org.cru.crs.api.model.errors.ServerError;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.NotFoundException;
 
 @Stateless
 @Path("/blocks/{blockId}")
@@ -44,7 +44,7 @@ public class BlockResource
 
 			if(requestedBlock == null)
 			{
-				return Response.ok(new NotFound()).build();
+				throw new NotFoundException("Requested block was not found");
 			}
 
 			return Response.ok(Block.fromJpa(requestedBlock)).build();
@@ -52,7 +52,7 @@ public class BlockResource
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 }

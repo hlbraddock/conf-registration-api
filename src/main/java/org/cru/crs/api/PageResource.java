@@ -14,12 +14,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.cru.crs.api.model.Page;
-import org.cru.crs.api.model.errors.NotFound;
-import org.cru.crs.api.model.errors.ServerError;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.NotFoundException;
 
 @Stateless
 @Path("/pages/{pageId}")
@@ -41,7 +41,7 @@ public class PageResource
 
 			if(requestedPage == null)
 			{
-				return Response.ok(new NotFound()).build();
+				throw new NotFoundException("Requested page was not found");
 			}
 
 			return Response.ok(Page.fromDb(requestedPage)).build();
@@ -49,7 +49,7 @@ public class PageResource
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 }

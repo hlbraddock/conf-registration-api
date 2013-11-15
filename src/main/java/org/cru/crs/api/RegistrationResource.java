@@ -24,14 +24,9 @@ import javax.ws.rs.core.Response.Status;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.model.errors.BadRequest;
-import org.cru.crs.api.model.errors.NotFound;
-import org.cru.crs.api.model.errors.ServerError;
-import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.api.model.utils.RegistrationAssembler;
 import org.cru.crs.api.process.RegistrationUpdateProcess;
 import org.cru.crs.auth.CrsUserService;
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -45,6 +40,10 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.NotFoundException;
+import org.jboss.resteasy.spi.UnauthorizedException;
 
 @Stateless
 @Path("/registrations/{registrationId}")
@@ -90,7 +89,7 @@ public class RegistrationResource
 
 			if(registration == null)
 			{
-				return Response.ok(new NotFound()).build();
+				throw new NotFoundException("Registration: " + registrationId + " was not found.");
 			}
 
 			authorizationService.authorize(registration.toDbRegistrationEntity(), 
@@ -105,12 +104,12 @@ public class RegistrationResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -142,7 +141,7 @@ public class RegistrationResource
 			 * Malicious or not, we don't really know what the user wants to do.*/
 			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()) || registration.getId() == null || registrationId == null)
 			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("The path registration id: " + registrationId + " and entity registration id: " + registration.getId() + " were either null or don't match");
 			}
 
 			/*Find the conference that this registration is for.  If we can't find it, then this is a bad request*/
@@ -150,7 +149,7 @@ public class RegistrationResource
 
 			if(conferenceEntityForUpdatedRegistration == null)
 			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("The conference this registration should belong to does not exist");
 			}
 			
 			logger.info("update registration");
@@ -195,12 +194,12 @@ public class RegistrationResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 	
@@ -228,7 +227,7 @@ public class RegistrationResource
 
 			if(registrationEntity == null)
 			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("The registration being deleted does not exist");
 			}
 
 			Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
@@ -244,12 +243,12 @@ public class RegistrationResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -280,7 +279,7 @@ public class RegistrationResource
 			 * malicious or not, we don't really know what they want to do.*/
 			if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
 			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("The path registration id: " + registrationId + " and entity registration id: " + newAnswer.getRegistrationId() + " were either null or don't match");
 			}
 
 			/*go find the registration for the new answer.  if it doesn't exist, then this is a bad request*/
@@ -305,12 +304,12 @@ public class RegistrationResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 }

@@ -24,17 +24,11 @@ import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.model.errors.BadRequest;
-import org.cru.crs.api.model.errors.NotFound;
-import org.cru.crs.api.model.errors.ServerError;
-import org.cru.crs.api.model.errors.Unauthorized;
 import org.cru.crs.api.process.ConferenceFetchProcess;
 import org.cru.crs.api.process.ConferenceUpdateProcess;
 import org.cru.crs.api.process.RegistrationFetchProcess;
 import org.cru.crs.api.process.RegistrationUpdateProcess;
-import org.cru.crs.api.utils.RegistrationWindowCalculator;
 import org.cru.crs.auth.CrsUserService;
-import org.cru.crs.auth.UnauthorizedException;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -50,6 +44,10 @@ import org.cru.crs.service.UserService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.UnauthorizedException;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.testng.collections.Lists;
 
 @Stateless
@@ -104,12 +102,12 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -146,7 +144,7 @@ public class ConferenceResource
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -201,12 +199,12 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -238,7 +236,7 @@ public class ConferenceResource
 			/*Check if the conference IDs are both present, and are different.  If so then throw a 400 - Bad Request*/
 			if(IdComparer.idsAreNotNullAndDifferent(conferenceId, conference.getId()))
 			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("Path conference id: " + conferenceId + " does not entity conference id: " + conference.getId());
 			}
 
 			if(conferenceId == null)
@@ -257,12 +255,12 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -296,7 +294,7 @@ public class ConferenceResource
 			/*if there is no conference identified by the passed in id, then return a 400 - bad request*/
 			if(conferencePageBelongsTo == null)
 			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("Conference specified by: " + conferenceId + " does not exist.");
 			}
 			
 			if(newPage.getId() == null)
@@ -318,14 +316,14 @@ public class ConferenceResource
 					.entity(Page.fromDb(createdPage, blockService.fetchBlocksForPage(createdPage.getId())))
 					.build();
 		} 
-		catch (UnauthorizedException e)
+		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -356,10 +354,9 @@ public class ConferenceResource
 			CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 			/*if the registration this conference is supposed to belong to doesn't exist, then this is a bad request*/
-			ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
-			if(conference == null)
+			if(conferenceService.fetchConferenceBy(conferenceId) == null)
 			{
-				return Response.ok(new BadRequest()).build();
+				throw new BadRequestException("Conference specified by: " + conferenceId + " does not exist.");
 			}
 
             RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
@@ -375,8 +372,9 @@ public class ConferenceResource
             
             /*now perform a deep update to ensure that any answers or other payments are properly saved*/
             registrationUpdateProcess.performDeepUpdate(newRegistration);
-            
+
             Registration freshCopyOfNewRegistraiton = registrationFetchProcess.get(newRegistrationEntity.getId());
+
 			
             return Response.status(Status.CREATED)
 								.location(new URI("/pages/" + freshCopyOfNewRegistraiton.getId()))
@@ -385,12 +383,12 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 	
@@ -442,19 +440,31 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
-			return Response.ok(new ServerError(e)).build();
+			e.printStackTrace();
+			throw new InternalServerErrorException(e);
 		}
 	}
 	
+	/**
+	 * Gets all the registration resource associated to the conference specified by @param conferenceId and the user specifed by @param authCode.
+	 * 
+	 * Possible outcomes:
+	 * 	200 Ok - registration resources were found and returned
+	 *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist.
+	 *  404 Not Found - user specified by @param authCode doesn't have a registration for conference specifed by @param conferenceId
+	 * 
+	 * @param conference
+	 * @return
+	 */
 	@GET
 	@Path("/{conferenceId}/registrations/current")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId,
-			@HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+			@HeaderParam(value = "Authorization") String authCode)
 	{
 		try
 		{
@@ -468,7 +478,7 @@ public class ConferenceResource
 
 			if(registrationEntity == null)
 			{
-				return Response.ok(new NotFound()).build();
+				return Response.status(Status.NOT_FOUND).build();
 			}
 			
 			Registration registration = registrationFetchProcess.get(registrationEntity.getId());
@@ -479,12 +489,12 @@ public class ConferenceResource
 		}
 		catch(UnauthorizedException e)
 		{
-			return Response.ok(new Unauthorized()).build();
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			return Response.ok(new ServerError(e)).build();
+			throw new InternalServerErrorException(e);
 		}
 	}
 
