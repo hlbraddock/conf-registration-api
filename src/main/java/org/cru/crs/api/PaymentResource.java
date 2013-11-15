@@ -33,8 +33,7 @@ import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.UnauthorizedException;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
+import org.jboss.resteasy.spi.NotFoundException;
 
 @Path("/payments")
 public class PaymentResource
@@ -76,7 +75,7 @@ public class PaymentResource
 			
 			if(paymentEntity == null)
 			{
-				return Response.ok(new NotFound()).build();
+				throw new NotFoundException("Payment: " + paymentId + " was not found");
 			}
 
 			RegistrationEntity registrationEntityForRequestedPayment = registrationService.getRegistrationBy(paymentEntity.getRegistrationId());
@@ -90,10 +89,6 @@ public class PaymentResource
 			Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
 
 			return Response.ok(Payment.fromJpa(paymentEntity)).build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
@@ -155,16 +150,11 @@ public class PaymentResource
 			if(payment.isReadyToProcess())
 			{
 				paymentProcessor.process(payment, loggedInUser);
-				
 			}
 			
 			return Response.status(Status.CREATED)
 					.location(new URI("/conferences/" + payment.getId()))
 					.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId()))).build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
@@ -228,10 +218,6 @@ public class PaymentResource
 			}
 			
 			return Response.noContent().build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{

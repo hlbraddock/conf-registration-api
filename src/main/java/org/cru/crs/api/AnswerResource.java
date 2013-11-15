@@ -1,11 +1,9 @@
 package org.cru.crs.api;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -21,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.auth.CrsUserService;
@@ -35,16 +32,15 @@ import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
+import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.UnauthorizedException;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
+import org.jboss.resteasy.spi.NotFoundException;
 
 /**
  * User: lee.braddock
  */
-@Stateless
 @Path("/answers/{answerId}")
 public class AnswerResource
 {
@@ -71,32 +67,21 @@ public class AnswerResource
 
 			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
-			if(answerEntity == null)
-			{
-				return Response.ok(new NotFound()).build();
-			}
+			if(answerEntity == null) throw new NotFoundException("Requested answer " + answerId + " not found");
 
-			logger.info("get answer entity");
-
-			logObject(answerEntity, logger);
+			Simply.logObject(answerEntity, this.getClass());
 
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
 
-			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
+			if(registrationEntity == null) throw new BadRequestException("There is no registration for this answer");
 
 			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.READ, crsLoggedInUser);
 
 			Answer answer = Answer.fromDb(answerEntity);
 
-			logger.info("get answer");
-
-			logObject(answer, logger);
+			Simply.logObject(answer, this.getClass());
 
 			return Response.ok(answer).build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
@@ -129,7 +114,7 @@ public class AnswerResource
 
 			logger.info("update answer");
 
-			logObject(answer, logger);
+			Simply.logObject(answer, this.getClass());
 
 			AnswerEntity currentAnswerEntity = answerService.getAnswerBy(answerId);
 
@@ -147,7 +132,7 @@ public class AnswerResource
 
 				logger.info("create answer with registration entity");
 
-				logObject(Registration.fromDb(registrationEntity), logger);
+				Simply.logObject(Registration.fromDb(registrationEntity), this.getClass());
 
 				answerService.insertAnswer(answer.toDbAnswerEntity());
 				
@@ -156,17 +141,13 @@ public class AnswerResource
 
 			logger.info("update current answer entity");
 
-			logObject(currentAnswerEntity, logger);
+			Simply.logObject(currentAnswerEntity, this.getClass());
 			
 			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
 
 			answerService.updateAnswer(answer.toDbAnswerEntity());
 
 			return Response.noContent().build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
@@ -191,7 +172,7 @@ public class AnswerResource
 				throw new BadRequestException("The answer specifed by: " + answerId + " does not exist");
 			}
 			
-			logObject(answerEntity, logger);
+			Simply.logObject(answerEntity, this.getClass());
 
 			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
 
@@ -206,29 +187,10 @@ public class AnswerResource
 
 			return Response.noContent().build();
 		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 			throw new InternalServerErrorException(e);
-		}
-	}
-
-	private void logObject(Object object, Logger logger)
-	{
-		if(object == null)
-			return;
-
-		try
-		{
-			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
 		}
 	}
 }

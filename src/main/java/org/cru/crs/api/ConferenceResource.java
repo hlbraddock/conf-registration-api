@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -20,7 +19,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
@@ -46,11 +44,10 @@ import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.UnauthorizedException;
+import org.jboss.resteasy.spi.NotFoundException;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.testng.collections.Lists;
 
-@Stateless
 @Path("/conferences")
 public class ConferenceResource
 {
@@ -67,8 +64,6 @@ public class ConferenceResource
 	@Inject RegistrationFetchProcess registrationFetchProcess;
 	@Inject RegistrationUpdateProcess registrationUpdateProcess;
 	
-	@Inject Clock clock;
-
 	@Inject CrsUserService crsUserService;
 
 	Logger logger = Logger.getLogger(ConferenceResource.class);
@@ -98,11 +93,7 @@ public class ConferenceResource
             	conferences.add(conferenceFetchProcess.get(databaseConference.getId()));            													            	
             }
 
-			return Response.ok(conferences).build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
+            return Response.ok(conferences).build();
 		}
 		catch(Exception e)
 		{
@@ -197,10 +188,6 @@ public class ConferenceResource
 							.location(new URI("/conferences/" + conference.getId()))
 							.entity(createdConference).build();
 		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -252,10 +239,6 @@ public class ConferenceResource
 			conferenceUpdateProcess.performDeepUpdate(conference);
 
 			return Response.noContent().build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
@@ -315,10 +298,6 @@ public class ConferenceResource
 					.location(new URI("/pages/" + newPage.getId()))
 					.entity(Page.fromDb(createdPage, blockService.fetchBlocksForPage(createdPage.getId())))
 					.build();
-		} 
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
@@ -381,10 +360,6 @@ public class ConferenceResource
 								.entity(freshCopyOfNewRegistraiton)
 								.build();
 		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -438,10 +413,6 @@ public class ConferenceResource
 			
 			return Response.ok(webRegistrationsForConference).build();
 		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -478,7 +449,7 @@ public class ConferenceResource
 
 			if(registrationEntity == null)
 			{
-				return Response.status(Status.NOT_FOUND).build();
+				throw new NotFoundException("registration not found");
 			}
 			
 			Registration registration = registrationFetchProcess.get(registrationEntity.getId());
@@ -486,10 +457,6 @@ public class ConferenceResource
 			Simply.logObject(registration, ConferenceResource.class);
 
 			return Response.ok(registration).build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{

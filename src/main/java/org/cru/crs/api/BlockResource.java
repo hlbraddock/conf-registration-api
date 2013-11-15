@@ -2,7 +2,6 @@ package org.cru.crs.api;
 
 import java.util.UUID;
 
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -22,7 +21,6 @@ import org.cru.crs.service.PageService;
 import org.jboss.resteasy.spi.InternalServerErrorException;
 import org.jboss.resteasy.spi.NotFoundException;
 
-@Stateless
 @Path("/blocks/{blockId}")
 public class BlockResource
 {

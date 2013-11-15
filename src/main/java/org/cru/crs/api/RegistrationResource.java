@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -45,7 +44,6 @@ import org.jboss.resteasy.spi.InternalServerErrorException;
 import org.jboss.resteasy.spi.NotFoundException;
 import org.jboss.resteasy.spi.UnauthorizedException;
 
-@Stateless
 @Path("/registrations/{registrationId}")
 public class RegistrationResource
 {
@@ -101,10 +99,6 @@ public class RegistrationResource
 			Simply.logObject(registration, RegistrationResource.class);
 
 			return Response.ok(registration).build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
@@ -192,10 +186,6 @@ public class RegistrationResource
 			}
 			else return Response.noContent().build();
 		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -241,10 +231,6 @@ public class RegistrationResource
 
 			return Response.noContent().build();
 		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -285,7 +271,7 @@ public class RegistrationResource
 			/*go find the registration for the new answer.  if it doesn't exist, then this is a bad request*/
 			RegistrationEntity registrationEntityForNewAnswer = registrationService.getRegistrationBy(registrationId);
 
-			if(registrationEntityForNewAnswer == null) return Response.status(Status.BAD_REQUEST).build();
+			if(registrationEntityForNewAnswer == null) throw new BadRequestException("The registration for this answer does not exist");
 			
 			/*prep the new answer by ensuring it has an ID set, and that it's registration id is set to the registration id specified
 			 * in the path.  we've already asserted above that the path and entity registraiton id are the same.*/
@@ -301,10 +287,6 @@ public class RegistrationResource
 								.entity(newAnswer)
 								.header("location", new URI("/answers/" + newAnswer.getId()))
 								.build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		catch(Exception e)
 		{
