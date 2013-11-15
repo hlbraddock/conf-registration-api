@@ -38,6 +38,10 @@
 			<param-name>cors.supportedHeaders</param-name>
 			<param-value>Accept,Origin,Content-Type,Authorization</param-value>
 		</init-param>
+		<init-param>
+			<param-name>cors.preserveHeadersAcrossResets</param-name>
+			<param-value>true</param-value>
+		</init-param>
 	</filter>
 	
 	<filter-mapping>
@@ -61,7 +65,7 @@
 		
  	<init-param>
       <param-name>edu.yale.its.tp.cas.client.filter.serverName</param-name>
-      <param-value>ec2-54-235-46-34.compute-1.amazonaws.com:8080</param-value>
+      <param-value>localhost:8080</param-value>
     </init-param>
 	</filter>
 	
