@@ -33,6 +33,8 @@ public class RegistrationUpdateProcessTests
 	AnswerService answerService;
 	PaymentService paymentService;
 	
+	RegistrationFetchProcess registrationFetchProcess;
+	
 	Registration testRegistration;
 	
 	Clock clock;
@@ -51,6 +53,8 @@ public class RegistrationUpdateProcessTests
 		BlockService blockService = new BlockService(sql, answerService);
 		PageService pageService = new PageService(sql, blockService);
 		ConferenceService conferenceService = new ConferenceService(sql,conferenceCostsService,pageService, new UserService(sql));
+		
+		registrationFetchProcess = new RegistrationFetchProcess(registrationService, paymentService, answerService);
 		
 		clock = new Clock(){
 
@@ -82,7 +86,7 @@ public class RegistrationUpdateProcessTests
 			
 			process.performDeepUpdate(testRegistration);
 			
-			Registration updatedRegistration = RegistrationFetchProcess.buildRegistration(testRegistration.getId(), registrationService, paymentService, answerService);
+			Registration updatedRegistration = registrationFetchProcess.get(testRegistration.getId());
 			
 			Assert.assertTrue(updatedRegistration.getCompleted());
 			Assert.assertEquals(new BigDecimal(50.00d).doubleValue(), updatedRegistration.getTotalDue().doubleValue());

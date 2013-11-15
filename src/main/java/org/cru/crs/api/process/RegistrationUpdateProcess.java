@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
@@ -29,6 +31,7 @@ public class RegistrationUpdateProcess
 	RegistrationEntity originalRegistrationEntity;
 	Set<AnswerEntity> originalAnswerEntitySet;
 	
+	@Inject
 	public RegistrationUpdateProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock)
 	{
 		this.registrationService = registrationService;

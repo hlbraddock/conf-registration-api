@@ -27,6 +27,7 @@ import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
+import org.cru.crs.utils.ClockImpl;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
@@ -52,27 +53,31 @@ public class ConferenceResourceFunctionalTest
 	ConferenceResourceClient conferenceClient;
 	
 	Sql2o sql;
-	PaymentService paymentService;
+	
 	ConferenceService conferenceService;
-	ConferenceCostsService conferenceCostsService;
+	PaymentService paymentService;
 	PageService pageService;
-	BlockService blockService;
-	AnswerService answerService;
 	RegistrationService registrationService;
 	
+	ConferenceFetchProcess conferenceFetchProcess;
+
 	@BeforeMethod
 	private void createClient()
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
+        
         sql = new SqlConnectionProducer().getTestSqlConnection();
-        answerService = new AnswerService(sql);
-        blockService = new BlockService(sql, answerService);
+        
+        AnswerService answerService = new AnswerService(sql);
+        BlockService blockService = new BlockService(sql, answerService);
         pageService = new PageService(sql,blockService);
-        conferenceCostsService = new ConferenceCostsService(sql);
+        ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sql);
         conferenceService = new ConferenceService(sql,conferenceCostsService,pageService,new UserService(sql));
         paymentService = new PaymentService(sql);
         registrationService = new RegistrationService(sql,answerService,paymentService);
+        
+        conferenceFetchProcess = new ConferenceFetchProcess(conferenceService, conferenceCostsService, pageService, blockService, new ClockImpl());
 	}
 	
 	/**
@@ -420,12 +425,7 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void moveBlockUpOnePage()
 	{
-		Conference webConference = ConferenceFetchProcess.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
-																			conferenceService, 
-																			conferenceCostsService, 
-																			pageService, 
-																			blockService);
-		
+		Conference webConference = conferenceFetchProcess.get(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
 		
 		Block blockToMove = webConference.getRegistrationPages().get(1).getBlocks().remove(1);
 		webConference.getRegistrationPages().get(0).getBlocks().add(blockToMove);
@@ -433,12 +433,7 @@ public class ConferenceResourceFunctionalTest
 		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
-		Conference updatedWebConference = ConferenceFetchProcess.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
-																			conferenceService, 
-																			conferenceCostsService, 
-																			pageService, 
-																			blockService);
-		
+		Conference updatedWebConference = conferenceFetchProcess.get(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
 		
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().size(), 5);
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().size(), 3);
@@ -449,11 +444,7 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void moveBlockDownOnePage()
 	{
-		Conference webConference = ConferenceFetchProcess.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
-																			conferenceService, 
-																			conferenceCostsService, 
-																			pageService, 
-																			blockService);
+		Conference webConference = conferenceFetchProcess.get(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
 				
 		Block blockToMove = webConference.getRegistrationPages().get(0).getBlocks().remove(1);
 		webConference.getRegistrationPages().get(1).getBlocks().add(blockToMove);
@@ -461,12 +452,8 @@ public class ConferenceResourceFunctionalTest
 		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 		
-		Conference updatedWebConference = ConferenceFetchProcess.buildConference(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"),
-																					conferenceService, 
-																					conferenceCostsService, 
-																					pageService, 
-																					blockService);
-		
+		Conference updatedWebConference = conferenceFetchProcess.get(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
+
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().size(), 3);
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().size(), 5);
 		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().get(4).getId(), 

@@ -36,6 +36,8 @@ public class PaymentResourceFunctionalTest
 	AnswerService answerService;
 	RegistrationService registrationService;
 	
+	RegistrationFetchProcess registrationFetchProcess;
+	
 	Sql2o sql;
 	
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
@@ -54,6 +56,8 @@ public class PaymentResourceFunctionalTest
         paymentService = new PaymentService(sql);
         answerService = new AnswerService(sql);
 		registrationService = new RegistrationService(sql,answerService,paymentService);
+		
+		registrationFetchProcess = new RegistrationFetchProcess(registrationService, paymentService, answerService);
 	}
 
 	@Test(groups="functional-tests")
@@ -61,7 +65,7 @@ public class PaymentResourceFunctionalTest
 	{
 		PaymentEntity processedPayment = null;
 		
-		Registration registration = RegistrationFetchProcess.buildRegistration(registrationUUID, registrationService, paymentService, answerService);
+		Registration registration = registrationFetchProcess.get(registrationUUID);
 		
 		addCurrentPaymentToRegistration(registration);
 		

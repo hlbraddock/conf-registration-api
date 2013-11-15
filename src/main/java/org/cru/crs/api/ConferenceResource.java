@@ -42,12 +42,9 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.UserEntity;
-import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
-import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
-import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
 import org.cru.crs.utils.IdComparer;
@@ -60,15 +57,17 @@ import org.testng.collections.Lists;
 public class ConferenceResource
 {
 	@Inject ConferenceService conferenceService;
-	@Inject ConferenceCostsService conferenceCostsService;
 	@Inject RegistrationService registrationService;
 	@Inject PageService pageService;
 	@Inject BlockService blockService;
-	@Inject PaymentService paymentService;
-	@Inject AnswerService answerService;
 	@Inject UserService userService;
 	
 	@Inject AuthorizationService authorizationService;
+	
+	@Inject ConferenceFetchProcess conferenceFetchProcess;
+	@Inject ConferenceUpdateProcess conferenceUpdateProcess;
+	@Inject RegistrationFetchProcess registrationFetchProcess;
+	@Inject RegistrationUpdateProcess registrationUpdateProcess;
 	
 	@Inject Clock clock;
 
@@ -98,12 +97,7 @@ public class ConferenceResource
             
             for(ConferenceEntity databaseConference : conferenceService.fetchAllConferences(loggedInUser))
             {
-            	Conference webConference = ConferenceFetchProcess.buildConference(databaseConference.getId(), conferenceService, conferenceCostsService, pageService, blockService);
-            													            	
-            	RegistrationWindowCalculator.setRegistrationOpenFieldOn(webConference, clock);
-                RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(webConference, clock);
-                
-                conferences.add(webConference);
+            	conferences.add(conferenceFetchProcess.get(databaseConference.getId()));            													            	
             }
 
 			return Response.ok(conferences).build();
@@ -138,19 +132,12 @@ public class ConferenceResource
 		{
 			logger.info("get conference entity " + conferenceId);
 
-			Conference requestedConference = ConferenceFetchProcess.buildConference(conferenceId, conferenceService, conferenceCostsService, pageService, blockService);
+			Conference requestedConference = conferenceFetchProcess.get(conferenceId);
 
 			if(requestedConference == null) 
 			{
 				return Response.ok(new NotFound()).build();
 			}
-
-			/*
-			 * Set these fields based on the server's time, not the client's.  The client could be in
-			 * any timezone..
-			 */
-			RegistrationWindowCalculator.setRegistrationOpenFieldOn(requestedConference, clock);
-			RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(requestedConference, clock);
 
 			Simply.logObject(requestedConference, ConferenceResource.class);
 
@@ -201,10 +188,10 @@ public class ConferenceResource
 			conferenceService.createNewConference(conference.toDbConferenceEntity(),conference.toDbConferenceCostsEntity());
 			
 			/*perform a deep update to ensure all the fields are saved.*/
-			new ConferenceUpdateProcess(conferenceService, conferenceCostsService, pageService, blockService, answerService, userService).performDeepUpdate(conference);
+			conferenceUpdateProcess.performDeepUpdate(conference);
 			
 			/*fetch the created conference so a nice pretty conference object can be returned to client*/
-			Conference createdConference = ConferenceFetchProcess.buildConference(conference.getId(), conferenceService, conferenceCostsService, pageService, blockService);
+			Conference createdConference = conferenceFetchProcess.get(conference.getId());
 			
 			/*return a response with status 201 - Created and a location header to fetch the conference.
 			 * a copy of the entity is also returned.*/
@@ -264,8 +251,6 @@ public class ConferenceResource
 
 			authorizationService.authorizeConference(conference.toDbConferenceEntity(), OperationType.UPDATE, loggedInUser);
 			
-			ConferenceUpdateProcess conferenceUpdateProcess = new ConferenceUpdateProcess(conferenceService, conferenceCostsService, pageService,
-																						blockService, answerService, userService);
 			conferenceUpdateProcess.performDeepUpdate(conference);
 
 			return Response.noContent().build();
@@ -389,12 +374,9 @@ public class ConferenceResource
             registrationService.createNewRegistration(newRegistrationEntity);
             
             /*now perform a deep update to ensure that any answers or other payments are properly saved*/
-            new RegistrationUpdateProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock).performDeepUpdate(newRegistration);
+            registrationUpdateProcess.performDeepUpdate(newRegistration);
             
-            Registration freshCopyOfNewRegistraiton = RegistrationFetchProcess.buildRegistration(newRegistrationEntity.getId(),
-            																						registrationService,
-            																						paymentService,
-            																						answerService);
+            Registration freshCopyOfNewRegistraiton = registrationFetchProcess.get(newRegistrationEntity.getId());
 			
             return Response.status(Status.CREATED)
 								.location(new URI("/pages/" + freshCopyOfNewRegistraiton.getId()))
@@ -441,7 +423,7 @@ public class ConferenceResource
 			
 			for(RegistrationEntity databaseRegistration: databaseRegistrationsForConferece)
 			{	
-				webRegistrationsForConference.add(RegistrationFetchProcess.buildRegistration(databaseRegistration.getId(), registrationService, paymentService, answerService));
+				webRegistrationsForConference.add(registrationFetchProcess.get(databaseRegistration.getId()));
 			}
 			
 			/*if there are any registrations to return, check the first one to ensure the user has read access.  since they're all
@@ -489,7 +471,7 @@ public class ConferenceResource
 				return Response.ok(new NotFound()).build();
 			}
 			
-			Registration registration = RegistrationFetchProcess.buildRegistration(registrationEntity.getId(), registrationService, paymentService, answerService);
+			Registration registration = registrationFetchProcess.get(registrationEntity.getId());
 			
 			Simply.logObject(registration, ConferenceResource.class);
 
