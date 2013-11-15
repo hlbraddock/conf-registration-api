@@ -25,7 +25,7 @@ public class Conference implements java.io.Serializable
 
     private String description;
 
-	private List<Page> registrationPages;
+	private List<Page> registrationPages = Lists.newArrayList();
 	
 	private DateTime eventStartTime;
 	private DateTime eventEndTime;

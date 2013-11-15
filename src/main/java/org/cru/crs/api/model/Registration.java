@@ -1,6 +1,5 @@
 package org.cru.crs.api.model;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,8 +21,8 @@ public class Registration implements java.io.Serializable
     private Boolean completed;
     private Payment currentPayment;
     
-    private Set<Answer> answers = new HashSet<Answer>();
-    private List<Payment> pastPayments = new ArrayList<Payment>();
+    private Set<Answer> answers = Sets.newHashSet();
+    private List<Payment> pastPayments = Lists.newArrayList();
     
 	/**
 	 * Creates a web api friendly registration

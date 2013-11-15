@@ -43,7 +43,7 @@ public class PaymentProcessor
 		this.paymentProcess = paymentProcess;
 	}
 
-	public org.cru.crs.api.model.Error process(Payment payment, CrsApplicationUser loggedInUser) throws IOException
+	public void process(Payment payment, CrsApplicationUser loggedInUser) throws IOException
     {
     	/*make sure the payment is not processed twice in case the client didn't record the fact it was processed*/
     	PaymentEntity copyOfPaymentFromDatabase = paymentService.fetchPaymentBy(payment.getId());
@@ -68,8 +68,6 @@ public class PaymentProcessor
     		
     		paymentService.updatePayment(payment.toJpaPaymentEntity());
     	}
-    	
-    	return null;
     }
 
 	private void validatePaymentReadiness(Payment payment)
