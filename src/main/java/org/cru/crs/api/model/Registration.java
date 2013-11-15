@@ -1,7 +1,6 @@
 package org.cru.crs.api.model;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,8 +14,11 @@ import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.joda.time.DateTime;
-import org.testng.collections.Lists;
-import org.testng.internal.annotations.Sets;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+
 
 public class Registration implements java.io.Serializable
 {
@@ -31,8 +33,8 @@ public class Registration implements java.io.Serializable
     
     private Payment currentPayment;
     
-    private Set<Answer> answers = new HashSet<Answer>();
-    private List<Payment> pastPayments = new ArrayList<Payment>();
+    private Set<Answer> answers = Sets.newHashSet();
+    private List<Payment> pastPayments = Lists.newArrayList();
     
 	/**
 	 * Creates a web api friendly registration

@@ -67,7 +67,7 @@ public class PaymentProcessor
     		}
     		
     		paymentService.updatePayment(payment.toJpaPaymentEntity());
-    	}    	
+    	}
     }
 
 	private void validatePaymentReadiness(Payment payment)
