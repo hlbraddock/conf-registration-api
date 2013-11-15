@@ -103,38 +103,36 @@ public class RegistrationUpdateProcess
 	
 	private void recordCompletedTimestampIfThisUpdateCompletesRegistration(RegistrationEntity registration)
 	{
-		if(registration.getCompleted() == null) return;
-		if(originalRegistrationEntity == null) return;
-		if(originalRegistrationEntity.getCompleted() == null) return;
-		
-		if(registration.getCompleted() && !originalRegistrationEntity.getCompleted())
+		/*this should only be done once, that's when the updated registration is completed by the version
+		stored in the database is not*/
+		if(registration.nullSafeIsCompleted() && !originalRegistrationEntity.nullSafeIsCompleted())
 		{
 			registration.setCompletedTimestamp(clock.currentDateTime());
 		}
 	}
 	
 	/**
-	 * If the conference is completed, let's check 
+	 * If the registration is completed, let's check 
 	 * @param registration
 	 */
-	private void setTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(RegistrationEntity registration)
+	private void setTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(RegistrationEntity updatedRegistration)
 	{
-		// if the registration is not completed yet, no reason to proceed
-		if(registration.getCompleted() == null) return;
-		if(originalRegistrationEntity == null) return;
-		if(originalRegistrationEntity.getCompleted() == null) return;
-		
-		ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(registration.getConferenceId());
-		
-		if(conferenceCostsEntity.isAcceptCreditCards())
+		/*this should only be done once, that's when the updated registration is completed by the version
+		stored in the database is not*/
+		if(updatedRegistration.nullSafeIsCompleted() && !originalRegistrationEntity.nullSafeIsCompleted())
 		{
-			if(conferenceCostsEntity.isEarlyRegistrationDiscount() && registration.getCompletedTimestamp().isBefore(conferenceCostsEntity.getEarlyRegistrationCutoff()))
+			ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(updatedRegistration.getConferenceId());
+
+			if(conferenceCostsEntity.isAcceptCreditCards())
 			{
-				registration.setTotalDue(conferenceCostsEntity.getBaseCost().subtract(conferenceCostsEntity.getEarlyRegistrationAmount()));
-			}
-			else
-			{
-				registration.setTotalDue(conferenceCostsEntity.getBaseCost());
+				if(conferenceCostsEntity.isEarlyRegistrationDiscount() && updatedRegistration.getCompletedTimestamp().isBefore(conferenceCostsEntity.getEarlyRegistrationCutoff()))
+				{
+					updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost().subtract(conferenceCostsEntity.getEarlyRegistrationAmount()));
+				}
+				else
+				{
+					updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost());
+				}
 			}
 		}
 	}

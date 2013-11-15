@@ -17,6 +17,11 @@ public class RegistrationEntity implements java.io.Serializable
     private Boolean completed;
     private DateTime completedTimestamp;
     
+    public Boolean nullSafeIsCompleted()
+    {
+    	return completed != null && completed;
+    }
+    
 	public UUID getId()
 	{
 		return id;
