@@ -10,6 +10,8 @@ import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.NotFoundException;
 import org.jboss.resteasy.spi.UnauthorizedException;
 
+import com.google.common.base.Throwables;
+
 /**
  * IMO RestEasy stupidly wraps all application code exceptions in an instance InternalServerErrorExcpeion
  * All InternalServerErrorExcpeion will return a 500 Server Error. This wrapping is nice for things like NPE's 
@@ -27,35 +29,44 @@ import org.jboss.resteasy.spi.UnauthorizedException;
 public class ApplicationExceptionMapper implements ExceptionMapper<ApplicationException>
 {
 
+	/**
+	 * This code will look at the application exception and look at it's cause to see if it's 
+	 * an exception that should return a status code 4xx or 5xx other than 500.  It will
+	 * look at the cause of the ApplicationException and continually check up the chain of
+	 * exceptions until either we reach the root cause..  
+	 */
 	@Override
 	public Response toResponse(ApplicationException e)
 	{
-		//Not sure if this is possible as RestEasy claims to wrap all exceptions but might as well check for safety.
-		if(e.getCause() == null) return Response.serverError().entity(e).build();
+		Throwable cause = e;
+		Throwable rootCause = Throwables.getRootCause(e);
 		
-		//First get the internalServerError out
-		Throwable internalServerErrorException = e.getCause();
-		
-		if(internalServerErrorException.getCause() == null) return Response.serverError().entity(internalServerErrorException).build();
-		
-		else if(internalServerErrorException.getCause() instanceof BadRequestException)
+		while(true)
 		{
-			return Response.status(Status.BAD_REQUEST).entity(internalServerErrorException.getCause().getMessage()).build();
-		}
+			if(cause instanceof BadRequestException)
+			{
+				return Response.status(Status.BAD_REQUEST).entity(cause.getMessage()).build();
+			}
 
-		else if(internalServerErrorException.getCause() instanceof UnauthorizedException)
-		{
-			return Response.status(Status.UNAUTHORIZED).entity(internalServerErrorException.getCause().getMessage()).build();
-		}
-		
-		else if(internalServerErrorException.getCause() instanceof NotFoundException)
-		{
-			return Response.status(Status.NOT_FOUND).entity(internalServerErrorException.getCause().getMessage()).build();
-		}
+			else if(cause instanceof UnauthorizedException)
+			{
+				return Response.status(Status.UNAUTHORIZED).entity(cause.getMessage()).build();
+			}
 
-		//if it's anything else, just treat it as a server error.
-		else return Response.serverError().entity(internalServerErrorException.getCause().getMessage()).build();
- 
+			else if(cause instanceof NotFoundException)
+			{
+				return Response.status(Status.NOT_FOUND).entity(cause.getMessage()).build();
+			}
+			
+			/*if we haven't found one of the above types and we're at the root cause, then just agree that it's a server error and move on*/
+			else if(cause == rootCause)
+			{
+				return Response.serverError().entity(e).build();
+			}
+
+			//now head up the chain to get the cause's cause
+			cause = cause.getCause();
+		}
 	}
 
 }
