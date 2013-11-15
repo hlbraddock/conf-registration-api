@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
+import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
+import org.cru.crs.api.utils.RegistrationWindowCalculator;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
@@ -19,11 +23,28 @@ import org.testng.collections.Maps;
 
 public class ConferenceFetchProcess
 {
+	ConferenceService conferenceService;
+	ConferenceCostsService conferenceCostsService;
+	PageService pageService;
+	BlockService blockService;
+	Clock clock;
+	
+	@Inject
+	public ConferenceFetchProcess(ConferenceService conferenceService,
+			ConferenceCostsService conferenceCostsService,
+			PageService pageService, BlockService blockService, Clock clock)
+	{
+		this.conferenceService = conferenceService;
+		this.conferenceCostsService = conferenceCostsService;
+		this.pageService = pageService;
+		this.blockService = blockService;
+		this.clock = clock;
+	}
 
 	/**
 	 * Takes in a conference ID and the following services and returns a fully built out conference
 	 */
-	public static Conference buildConference(UUID conferenceId, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, PageService pageService, BlockService blockService)
+	public Conference get(UUID conferenceId)
 	{
 		ConferenceEntity databaseConference = conferenceService.fetchConferenceBy(conferenceId);
 		ConferenceCostsEntity databaseConferenceCosts = conferenceCostsService.fetchBy(conferenceId);
@@ -35,10 +56,15 @@ public class ConferenceFetchProcess
 			databaseBlocks.put(page.getId(), orderBlocksByPosition(blockService.fetchBlocksForPage(page.getId())));
 		}
 		
-		return Conference.fromDb(databaseConference, databaseConferenceCosts, databasePages, databaseBlocks);
+		Conference apiConference =  Conference.fromDb(databaseConference, databaseConferenceCosts, databasePages, databaseBlocks);
+		
+		RegistrationWindowCalculator.setRegistrationOpenFieldOn(apiConference, clock);
+        RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(apiConference, clock);
+
+        return apiConference;
 	}
 	
-	private static List<PageEntity> orderPagesByPosition(List<PageEntity> pages)
+	private List<PageEntity> orderPagesByPosition(List<PageEntity> pages)
 	{
 		if(pages == null) return pages;
 		
@@ -53,7 +79,7 @@ public class ConferenceFetchProcess
 		return pages;
 	}
 	
-	private static List<BlockEntity> orderBlocksByPosition(List<BlockEntity> blocks)
+	private List<BlockEntity> orderBlocksByPosition(List<BlockEntity> blocks)
 	{
 		if(blocks == null) return blocks;
 		

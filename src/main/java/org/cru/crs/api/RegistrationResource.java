@@ -24,8 +24,7 @@ import javax.ws.rs.core.Response.Status;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.model.utils.RegistrationAssembler;
-import org.cru.crs.api.process.PaymentProcessor;
+import org.cru.crs.api.process.RegistrationFetchProcess;
 import org.cru.crs.api.process.RegistrationUpdateProcess;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.authz.AuthorizationService;
@@ -34,9 +33,7 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
-import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
-import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
@@ -52,13 +49,13 @@ public class RegistrationResource
 {
 	@Inject RegistrationService registrationService;
 	@Inject ConferenceService conferenceService;
-	@Inject ConferenceCostsService conferenceCostsService;
 	@Inject CrsUserService userService;
-    @Inject PaymentService paymentService;
     @Inject AnswerService answerService;
     
     @Inject AuthorizationService authorizationService;
-    @Inject PaymentProcessor paymentProcess;
+    
+    @Inject RegistrationFetchProcess registrationFetchProcess;
+    @Inject RegistrationUpdateProcess registrationUpdateProcess;
     
     @Inject Clock clock; 
         
@@ -87,7 +84,7 @@ public class RegistrationResource
 
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-			Registration registration = RegistrationAssembler.buildRegistration(registrationId, registrationService, paymentService, answerService);
+			Registration registration = registrationFetchProcess.get(registrationId);
 
 			if(registration == null)
 			{
@@ -182,23 +179,9 @@ public class RegistrationResource
 			}
 
 			authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
-			
-			new RegistrationUpdateProcess(registrationService, answerService, conferenceService).performDeepUpdate(registration);
-			
-			/*if this update tells us the payment is ready to process, then the payment will be processed*/
-			if(registration.getCurrentPayment() != null && registration.getCurrentPayment().isReadyToProcess())
-			{
-				try
-				{
-					paymentProcess.process(registration.getCurrentPayment(), crsLoggedInUser);
-				}
-				catch(Exception e)
-				{
-					logger.error("Error processing payment", e);
-					return Response.status(502).build();
-				}
-			}
 
+			registrationUpdateProcess.performDeepUpdate(registration);
+			
 			if(createdNewRegistration)
 			{
 				return Response.status(Status.CREATED)
@@ -218,7 +201,7 @@ public class RegistrationResource
 			throw new InternalServerErrorException(e);
 		}
 	}
-
+	
 	/**
 	 * Deletes registration resource specified by @param registrationId
 	 * 

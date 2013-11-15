@@ -72,7 +72,9 @@ public class RegistrationService
 				.addParameter("id", registrationEntity.getId())
 				.addParameter("conferenceId", registrationEntity.getConferenceId())
 				.addParameter("userId", registrationEntity.getUserId())
+				.addParameter("totalDue", registrationEntity.getTotalDue())
 				.addParameter("completed", registrationEntity.getCompleted())
+				.addParameter("completedTimestamp", registrationEntity.getCompletedTimestamp())
 				.executeUpdate();
     }
 
@@ -82,7 +84,9 @@ public class RegistrationService
 					.addParameter("id", registrationEntity.getId())
 					.addParameter("conferenceId", registrationEntity.getConferenceId())
 					.addParameter("userId", registrationEntity.getUserId())
+					.addParameter("totalDue", registrationEntity.getTotalDue())
 					.addParameter("completed", registrationEntity.getCompleted())
+					.addParameter("completedTimestamp", registrationEntity.getCompletedTimestamp())
 					.executeUpdate();
     }
 

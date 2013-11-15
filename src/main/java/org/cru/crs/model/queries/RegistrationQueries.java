@@ -25,7 +25,9 @@ public class RegistrationQueries implements BasicQueries
 		return "UPDATE registrations SET " +
 				 "user_id = :userId, " +
 				 "conference_id = :conferenceId, " +
-				 "completed = :completed " +
+				 "total_due = :totalDue, " +
+				 "completed = :completed, " +
+				 "completed_timestamp = :completedTimestamp " +
 				 " WHERE " +
 				 "id = :id";
 	}
@@ -33,7 +35,7 @@ public class RegistrationQueries implements BasicQueries
 	@Override
 	public String insert()
 	{
-		return "INSERT INTO registrations(id, user_id, conference_id, completed) VALUES(:id, :userId, :conferenceId, :completed)";
+		return "INSERT INTO registrations(id, user_id, conference_id, total_due, completed, completed_timestamp) VALUES(:id, :userId, :conferenceId, :totalDue, :completed, :completedTimestamp)";
 	}
 
 	@Override

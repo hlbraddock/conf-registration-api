@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
@@ -38,6 +40,7 @@ public class ConferenceUpdateProcess
 	Map<UUID,List<BlockEntity>> originalBlockEntityMap;
 	Map<UUID,List<AnswerEntity>> originalAnswerEntityMap;
 	
+	@Inject
 	public ConferenceUpdateProcess(ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, 
 								PageService pageService, BlockService blockService, 
 								AnswerService answerService, UserService userService)
