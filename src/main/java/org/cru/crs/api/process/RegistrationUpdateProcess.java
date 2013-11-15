@@ -123,16 +123,13 @@ public class RegistrationUpdateProcess
 		{
 			ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(updatedRegistration.getConferenceId());
 
-			if(conferenceCostsEntity.isAcceptCreditCards())
+			if(conferenceCostsEntity.isEarlyRegistrationDiscount() && updatedRegistration.getCompletedTimestamp().isBefore(conferenceCostsEntity.getEarlyRegistrationCutoff()))
 			{
-				if(conferenceCostsEntity.isEarlyRegistrationDiscount() && updatedRegistration.getCompletedTimestamp().isBefore(conferenceCostsEntity.getEarlyRegistrationCutoff()))
-				{
-					updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost().subtract(conferenceCostsEntity.getEarlyRegistrationAmount()));
-				}
-				else
-				{
-					updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost());
-				}
+				updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost().subtract(conferenceCostsEntity.getEarlyRegistrationAmount()));
+			}
+			else
+			{
+				updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost());
 			}
 		}
 	}
