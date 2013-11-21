@@ -15,8 +15,11 @@ import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.joda.time.DateTime;
-import org.testng.collections.Lists;
-import org.testng.internal.annotations.Sets;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+
 
 public class Registration implements java.io.Serializable
 {
