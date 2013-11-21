@@ -65,7 +65,7 @@
 		
  	<init-param>
       <param-name>edu.yale.its.tp.cas.client.filter.serverName</param-name>
-      <param-value>localhost:8080</param-value>
+      <param-value>ec2-54-235-46-34.compute-1.amazonaws.com:8080</param-value>
     </init-param>
 	</filter>
 	
