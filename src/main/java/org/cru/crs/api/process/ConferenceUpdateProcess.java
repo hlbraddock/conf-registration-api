@@ -203,7 +203,7 @@ public class ConferenceUpdateProcess
 	private List<PageEntity> convertWebPagesToPageEntities(List<Page> webPages)
 	{
 		List<PageEntity> pageEntities = Lists.newArrayList();
-		
+				
 		for(Page webPage : webPages)
 		{
 			pageEntities.add(webPage.toDbPageEntity());			
@@ -215,7 +215,7 @@ public class ConferenceUpdateProcess
 	private List<BlockEntity> convertWebBlocksToBlockEntities(List<Block> blocks)
 	{
 		List<BlockEntity> blockEntites = Lists.newArrayList();
-		
+				
 		for(Block webBlock : blocks)
 		{
 			blockEntites.add(webBlock.toDbBlockEntity());
@@ -227,9 +227,7 @@ public class ConferenceUpdateProcess
 	private Map<UUID,List<BlockEntity>> getBlockEntityMapFromDb(Conference conference)
 	{
 		Map<UUID,List<BlockEntity>> blockMap = Maps.newHashMap();
-		
-		if(conference.getRegistrationPages() == null) return blockMap;
-		
+				
 		for(Page page : conference.getRegistrationPages())
 		{
 			if(page.getBlocks() == null) continue;
@@ -242,9 +240,7 @@ public class ConferenceUpdateProcess
 	private Map<UUID,List<AnswerEntity>> getAnswerEntityMapFromDb(Conference conference)
 	{
 		Map<UUID,List<AnswerEntity>> answerMap = Maps.newHashMap();
-		
-		if(conference.getRegistrationPages() == null) return answerMap;
-		
+				
 		for(Page page : conference.getRegistrationPages())
 		{
 			if(page.getBlocks() == null) continue;

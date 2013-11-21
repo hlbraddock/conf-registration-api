@@ -3,10 +3,13 @@ package org.cru.crs.api.model;
 import java.util.List;
 import java.util.UUID;
 
+import javassist.expr.NewArray;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
+import org.testng.collections.Lists;
 
 public class Page implements java.io.Serializable
 {
@@ -17,7 +20,7 @@ public class Page implements java.io.Serializable
 	
 	private String title;
 	private int position;
-	private List<Block> blocks;
+	private List<Block> blocks = Lists.newArrayList();
 	
 	public static Page fromDb(PageEntity dbPage)
 	{

@@ -83,6 +83,8 @@ public class ConferenceResource
 	{
 		CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 
+		String str = null; str.hashCode();
+		
 		List<Conference> conferences = Lists.newArrayList();
 
 		for(ConferenceEntity databaseConference : conferenceService.fetchAllConferences(loggedInUser))
