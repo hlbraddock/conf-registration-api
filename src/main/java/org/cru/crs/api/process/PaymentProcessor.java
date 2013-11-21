@@ -43,7 +43,7 @@ public class PaymentProcessor
 		this.paymentProcess = paymentProcess;
 	}
 
-	public void process(Payment payment, CrsApplicationUser loggedInUser) throws IOException
+	public void process(Payment payment, CrsApplicationUser loggedInUser)
     {
     	/*make sure the payment is not processed twice in case the client didn't record the fact it was processed*/
     	PaymentEntity copyOfPaymentFromDatabase = paymentService.fetchPaymentBy(payment.getId());

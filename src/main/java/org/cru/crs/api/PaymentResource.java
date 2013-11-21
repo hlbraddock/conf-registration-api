@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -32,8 +34,6 @@ import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.NotFoundException;
 
 @Path("/payments")
 public class PaymentResource
@@ -65,36 +65,28 @@ public class PaymentResource
 	@Produces(MediaType.APPLICATION_JSON)
     public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
     {
-		try
+		logger.info("get payment entity " + paymentId + " and auth code " + authCode);
+
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
+
+		PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
+
+		if(paymentEntity == null)
 		{
-			logger.info("get payment entity " + paymentId + " and auth code " + authCode);
-			
-			CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
-
-			PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
-			
-			if(paymentEntity == null)
-			{
-				throw new NotFoundException("Payment: " + paymentId + " was not found");
-			}
-
-			RegistrationEntity registrationEntityForRequestedPayment = registrationService.getRegistrationBy(paymentEntity.getRegistrationId());
-			
-			/*If the user has read access to the registration this payment goes with, then they also have read access to the payment*/
-			authorizationService.authorize(registrationEntityForRequestedPayment,
-											conferenceService.fetchConferenceBy(registrationEntityForRequestedPayment.getConferenceId()),
-											OperationType.READ,
-											crsLoggedInUser);
-											
-			Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
-
-			return Response.ok(Payment.fromJpa(paymentEntity)).build();
+			throw new NotFoundException("Payment: " + paymentId + " was not found");
 		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
+
+		RegistrationEntity registrationEntityForRequestedPayment = registrationService.getRegistrationBy(paymentEntity.getRegistrationId());
+
+		/*If the user has read access to the registration this payment goes with, then they also have read access to the payment*/
+		authorizationService.authorize(registrationEntityForRequestedPayment,
+				conferenceService.fetchConferenceBy(registrationEntityForRequestedPayment.getConferenceId()),
+				OperationType.READ,
+				crsLoggedInUser);
+
+		Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
+
+		return Response.ok(Payment.fromJpa(paymentEntity)).build();
     }
 	
 	/**
@@ -111,56 +103,49 @@ public class PaymentResource
 	 *  502 Bad Gateway - something related to talking to the upstream payment server went wrong.  payment was not processed.
 	 * @param authCode
 	 * @return
+	 * @throws URISyntaxException 
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createPayment(Payment payment, @HeaderParam(value="Authorization") String authCode)
+	public Response createPayment(Payment payment, @HeaderParam(value="Authorization") String authCode) throws URISyntaxException
 	{
-		try
-		{
-			logger.info("create payment entity with auth code " + authCode);
-		
-			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
-		
-			if(payment.getId() == null) payment.setId(UUID.randomUUID());
+		logger.info("create payment entity with auth code " + authCode);
 
-			if(payment.getRegistrationId() == null)
-			{
-				throw new BadRequestException("Payment's registration id was null");
-			}
-			
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
-			
-			authorizationService.authorize(registrationEntity, 
-											conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
-											OperationType.UPDATE,
-											loggedInUser);
-			
-			if(paymentService.fetchPaymentBy(payment.getId()) == null)
-			{
-				if(payment.getId() == null) payment.setId(UUID.randomUUID());
-				paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
-			}
-			else
-			{
-				throw new BadRequestException("Payment with id: " + payment.getId() + " already exists.");
-			}
-			
-			if(payment.isReadyToProcess())
-			{
-				paymentProcessor.process(payment, loggedInUser);
-			}
-			
-			return Response.status(Status.CREATED)
-					.location(new URI("/conferences/" + payment.getId()))
-					.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId()))).build();
-		}
-		catch(Exception e)
+		CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
+
+		if(payment.getId() == null) payment.setId(UUID.randomUUID());
+
+		if(payment.getRegistrationId() == null)
 		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
+			throw new BadRequestException("Payment's registration id was null");
 		}
+
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
+
+		authorizationService.authorize(registrationEntity, 
+				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+				OperationType.UPDATE,
+				loggedInUser);
+
+		if(paymentService.fetchPaymentBy(payment.getId()) == null)
+		{
+			if(payment.getId() == null) payment.setId(UUID.randomUUID());
+			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+		}
+		else
+		{
+			throw new BadRequestException("Payment with id: " + payment.getId() + " already exists.");
+		}
+
+		if(payment.isReadyToProcess())
+		{
+			paymentProcessor.process(payment, loggedInUser);
+		}
+
+		return Response.status(Status.CREATED)
+				.location(new URI("/conferences/" + payment.getId()))
+				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId()))).build();
 	}
 	
 	/**
@@ -177,52 +162,45 @@ public class PaymentResource
 	 *  502 Bad Gateway - something related to talking to the upstream payment server went wrong.  payment was not processed.
 	 * @param authCode
 	 * @return
+	 * @throws IOException 
 	 */
 	@PUT
 	@Path("/{paymentId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePayment(Payment payment, @PathParam("paymentId") UUID paymentId, @HeaderParam(value="Authorization") String authCode)
 	{
-		try
+		logger.info("update payment entity " + paymentId + " with auth code " + authCode);
+
+		CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
+
+		if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
 		{
-			logger.info("update payment entity " + paymentId + " with auth code " + authCode);
-		
-			CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
-		
-			if(IdComparer.idsAreNotNullAndDifferent(paymentId, payment.getId()))
-			{
-				throw new BadRequestException("Path id " + paymentId + " and entity payment id " + payment.getId() + " do not match.");
-			}
-			
-			if(payment.getRegistrationId() == null)
-			{
-				throw new BadRequestException("Payment's registration id was null");
-			}
-			
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
-			
-			authorizationService.authorize(registrationEntity, 
-											conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
-											OperationType.UPDATE,
-											loggedInUser);
-			
-			if(paymentService.fetchPaymentBy(payment.getId()) == null)
-			{
-				if(payment.getId() == null) payment.setId(UUID.randomUUID());
-				paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
-			}
-			
-			if(payment.isReadyToProcess())
-			{
-				paymentProcessor.process(payment, loggedInUser);
-			}
-			
-			return Response.noContent().build();
+			throw new BadRequestException("Path id " + paymentId + " and entity payment id " + payment.getId() + " do not match.");
 		}
-		catch(Exception e)
+
+		if(payment.getRegistrationId() == null)
 		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
+			throw new BadRequestException("Payment's registration id was null");
 		}
+
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
+
+		authorizationService.authorize(registrationEntity, 
+				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+				OperationType.UPDATE,
+				loggedInUser);
+
+		if(paymentService.fetchPaymentBy(payment.getId()) == null)
+		{
+			if(payment.getId() == null) payment.setId(UUID.randomUUID());
+			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+		}
+
+		if(payment.isReadyToProcess())
+		{
+			paymentProcessor.process(payment, loggedInUser);
+		}
+
+		return Response.noContent().build();
 	}
 }

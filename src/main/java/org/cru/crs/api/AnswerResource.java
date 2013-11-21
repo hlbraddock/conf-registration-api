@@ -6,10 +6,12 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -34,9 +36,6 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.NotFoundException;
 
 /**
  * User: lee.braddock
@@ -59,35 +58,27 @@ public class AnswerResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAnswer(@PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode)
 	{
-		try
-		{
-			logger.info("get answer by id " + answerId);
+		logger.info("get answer by id " + answerId);
 
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
+		AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
-			if(answerEntity == null) throw new NotFoundException("Requested answer " + answerId + " not found");
+		if(answerEntity == null) throw new NotFoundException("Requested answer " + answerId + " not found");
 
-			Simply.logObject(answerEntity, this.getClass());
+		Simply.logObject(answerEntity, this.getClass());
 
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
 
-			if(registrationEntity == null) throw new BadRequestException("There is no registration for this answer");
+		if(registrationEntity == null) throw new BadRequestException("There is no registration for this answer");
 
-			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.READ, crsLoggedInUser);
+		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.READ, crsLoggedInUser);
 
-			Answer answer = Answer.fromDb(answerEntity);
+		Answer answer = Answer.fromDb(answerEntity);
 
-			Simply.logObject(answer, this.getClass());
+		Simply.logObject(answer, this.getClass());
 
-			return Response.ok(answer).build();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
+		return Response.ok(answer).build();
 	}
 
 	@PUT
@@ -95,8 +86,6 @@ public class AnswerResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response updateAnswer(Answer answer, @PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
-		try
-		{
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			if(answer.getId() == null || answerId == null || IdComparer.idsAreNotNullAndDifferent(answerId, answer.getId()))
@@ -148,49 +137,35 @@ public class AnswerResource
 			answerService.updateAnswer(answer.toDbAnswerEntity());
 
 			return Response.noContent().build();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
 	}
 
 	@DELETE
 	public Response deleteAnswer(@PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode)
 	{
-		try
+		logger.info("delete answer entity");
+
+		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+
+		AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
+
+		if(answerEntity == null)
 		{
-			logger.info("delete answer entity");
-
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
-
-			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
-
-			if(answerEntity == null)
-			{
-				throw new BadRequestException("The answer specifed by: " + answerId + " does not exist");
-			}
-			
-			Simply.logObject(answerEntity, this.getClass());
-
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
-
-			if(registrationEntity == null)
-			{
-				throw new BadRequestException("The answer being deleted belongs to a registration which does not exist");
-			}
-
-			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
-
-			answerService.deleteAnswer(answerEntity);
-
-			return Response.noContent().build();
+			throw new BadRequestException("The answer specifed by: " + answerId + " does not exist");
 		}
-		catch(Exception e)
+
+		Simply.logObject(answerEntity, this.getClass());
+
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
+
+		if(registrationEntity == null)
 		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
+			throw new BadRequestException("The answer being deleted belongs to a registration which does not exist");
 		}
+
+		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
+
+		answerService.deleteAnswer(answerEntity);
+
+		return Response.noContent().build();
 	}
 }
