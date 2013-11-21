@@ -68,7 +68,7 @@
 		<dependency>
 			<groupId>com.thetransactioncompany</groupId>
 			<artifactId>cors-filter</artifactId>
-			<version>1.9-SNAPSHOT</version>
+			<version>1.9-SNAPSHOT-cru-response-reset-fix</version>
 		</dependency>
 		
 		<!-- Import the APIs that we depend on and are included in JBoss AS 7 -->
