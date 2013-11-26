@@ -82,8 +82,6 @@ public class ConferenceResource
 	public Response getConferences(@HeaderParam(value="Authorization") String authCode)
 	{
 		CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
-
-		String str = null; str.hashCode();
 		
 		List<Conference> conferences = Lists.newArrayList();
 
