@@ -4,18 +4,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,11 +40,7 @@ import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.NotFoundException;
-import org.jboss.resteasy.spi.UnauthorizedException;
 
-@Stateless
 @Path("/registrations/{registrationId}")
 public class RegistrationResource
 {
@@ -78,38 +75,26 @@ public class RegistrationResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode)
 	{
-		try
+		logger.info("get registration entity " + registrationId + " and auth code " + authCode);
+
+		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+
+		Registration registration = registrationFetchProcess.get(registrationId);
+
+		if(registration == null)
 		{
-			logger.info("get registration entity " + registrationId + " and auth code " + authCode);
-
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
-
-			Registration registration = registrationFetchProcess.get(registrationId);
-
-			if(registration == null)
-			{
-				throw new NotFoundException("Registration: " + registrationId + " was not found.");
-			}
-
-			authorizationService.authorize(registration.toDbRegistrationEntity(), 
-												conferenceService.fetchConferenceBy(registration.getConferenceId()), 
-												OperationType.READ,
-												crsLoggedInUser);
-
-			logger.info("get registration");
-			Simply.logObject(registration, RegistrationResource.class);
-
-			return Response.ok(registration).build();
+			throw new NotFoundException("Registration: " + registrationId + " was not found.");
 		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
+
+		authorizationService.authorize(registration.toDbRegistrationEntity(), 
+				conferenceService.fetchConferenceBy(registration.getConferenceId()), 
+				OperationType.READ,
+				crsLoggedInUser);
+
+		logger.info("get registration");
+		Simply.logObject(registration, RegistrationResource.class);
+
+		return Response.ok(registration).build();
 	}
 
 	/**
@@ -130,76 +115,65 @@ public class RegistrationResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response updateRegistration(Registration registration, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
-		try
+		logger.info("update registration entity " + registrationId + " and auth code " + authCode);
+
+		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+
+		/*If the path registration id and the entity's registration id are both not null and different, then this is a bad request.
+		 * Malicious or not, we don't really know what the user wants to do.*/
+		if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()) || registration.getId() == null || registrationId == null)
 		{
-			logger.info("update registration entity " + registrationId + " and auth code " + authCode);
-			
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+			throw new BadRequestException("The path registration id: " + registrationId + " and entity registration id: " + registration.getId() + " were either null or don't match");
+		}
 
-			/*If the path registration id and the entity's registration id are both not null and different, then this is a bad request.
-			 * Malicious or not, we don't really know what the user wants to do.*/
-			if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()) || registration.getId() == null || registrationId == null)
-			{
-				throw new BadRequestException("The path registration id: " + registrationId + " and entity registration id: " + registration.getId() + " were either null or don't match");
-			}
+		/*Find the conference that this registration is for.  If we can't find it, then this is a bad request*/
+		ConferenceEntity conferenceEntityForUpdatedRegistration = conferenceService.fetchConferenceBy(registration.getConferenceId());
 
-			/*Find the conference that this registration is for.  If we can't find it, then this is a bad request*/
-			ConferenceEntity conferenceEntityForUpdatedRegistration = conferenceService.fetchConferenceBy(registration.getConferenceId());
+		if(conferenceEntityForUpdatedRegistration == null)
+		{
+			throw new BadRequestException("The conference this registration should belong to does not exist");
+		}
 
-			if(conferenceEntityForUpdatedRegistration == null)
-			{
-				throw new BadRequestException("The conference this registration should belong to does not exist");
-			}
-			
-			logger.info("update registration");
-			Simply.logObject(registration, RegistrationResource.class);
-			
-			boolean createdNewRegistration = false;
-			
-			/*creates on the update endpoint are supported, so if the registration here doesn't exist it will be created, otherwise
-			 * it will be updated*/
-			if(registrationService.getRegistrationBy(registrationId) == null)
-			{
-				createdNewRegistration = true;
-				
-				RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
+		logger.info("update registration");
+		Simply.logObject(registration, RegistrationResource.class);
 
-				logger.info("update registration creating");
+		boolean createdNewRegistration = false;
 
-				authorizationService.authorize(registrationEntity, conferenceEntityForUpdatedRegistration, OperationType.CREATE, crsLoggedInUser);
-				
-				/*if the user is already registered, don't let them register again*/
-				if(registrationService.getRegistrationByConferenceIdUserId(conferenceEntityForUpdatedRegistration.getId(), crsLoggedInUser.getId()) != null)
-				{
-					throw new UnauthorizedException();
-				}
-				
-				/*save the registration to the DB*/
-				registrationService.createNewRegistration(registrationEntity);
-			}
+		/*creates on the update endpoint are supported, so if the registration here doesn't exist it will be created, otherwise
+		 * it will be updated*/
+		if(registrationService.getRegistrationBy(registrationId) == null)
+		{
+			createdNewRegistration = true;
 
-			authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
+			RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
+
+			logger.info("update registration creating");
+
+			authorizationService.authorize(registrationEntity, conferenceEntityForUpdatedRegistration, OperationType.CREATE, crsLoggedInUser);
 
 			registrationUpdateProcess.performDeepUpdate(registration);
 			
 			if(createdNewRegistration)
 			{
-				return Response.status(Status.CREATED)
-						.location(new URI("/registrations/" + registration.getId()))
-						.entity(registration)
-						.build();
+				throw new WebApplicationException(Status.UNAUTHORIZED);
 			}
-			else return Response.noContent().build();
+
+			/*save the registration to the DB*/
+			registrationService.createNewRegistration(registrationEntity);
 		}
-		catch(UnauthorizedException e)
+
+		authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
+
+		registrationUpdateProcess.performDeepUpdate(registration);
+
+		if(createdNewRegistration)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			return Response.status(Status.CREATED)
+					.location(new URI("/registrations/" + registration.getId()))
+					.entity(registration)
+					.build();
 		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
+		else return Response.noContent().build();
 	}
 	
 	/**
@@ -216,39 +190,27 @@ public class RegistrationResource
 	@DELETE
 	public Response deleteRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode)
 	{
-		try
+		logger.info("delete registration entity " + registrationId + " and auth code " + authCode);
+
+		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
+
+		if(registrationEntity == null)
 		{
-			logger.info("delete registration entity " + registrationId + " and auth code " + authCode);
-			
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
-
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
-
-			if(registrationEntity == null)
-			{
-				throw new BadRequestException("The registration being deleted does not exist");
-			}
-
-			Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
-
-			authorizationService.authorize(registrationEntity, 
-											conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), 
-											OperationType.DELETE, 
-											crsLoggedInUser);
-			
-			registrationService.deleteRegistration(registrationEntity);
-
-			return Response.noContent().build();
+			throw new BadRequestException("The registration being deleted does not exist");
 		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
+
+		Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
+
+		authorizationService.authorize(registrationEntity, 
+				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), 
+				OperationType.DELETE, 
+				crsLoggedInUser);
+
+		registrationService.deleteRegistration(registrationEntity);
+
+		return Response.noContent().build();
 	}
 
 	/**
@@ -268,47 +230,35 @@ public class RegistrationResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createAnswer(Answer newAnswer, @PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
-		try
+		logger.info("create answer entity " + registrationId + " and auth code " + authCode);
+
+		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+
+		/*if the path registration id and the entity's registration id are both not null and different, then this is a bad request
+		 * malicious or not, we don't really know what they want to do.*/
+		if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
 		{
-			logger.info("create answer entity " + registrationId + " and auth code " + authCode);
-			
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
-			
-			/*if the path registration id and the entity's registration id are both not null and different, then this is a bad request
-			 * malicious or not, we don't really know what they want to do.*/
-			if(IdComparer.idsAreNotNullAndDifferent(registrationId, newAnswer.getRegistrationId()))
-			{
-				throw new BadRequestException("The path registration id: " + registrationId + " and entity registration id: " + newAnswer.getRegistrationId() + " were either null or don't match");
-			}
-
-			/*go find the registration for the new answer.  if it doesn't exist, then this is a bad request*/
-			RegistrationEntity registrationEntityForNewAnswer = registrationService.getRegistrationBy(registrationId);
-
-			if(registrationEntityForNewAnswer == null) return Response.status(Status.BAD_REQUEST).build();
-			
-			/*prep the new answer by ensuring it has an ID set, and that it's registration id is set to the registration id specified
-			 * in the path.  we've already asserted above that the path and entity registraiton id are the same.*/
-			if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
-			if(newAnswer.getRegistrationId() == null) newAnswer.setRegistrationId(registrationId);
-			
-			Simply.logObject(newAnswer, RegistrationResource.class);
-
-			authorizationService.authorize(registrationEntityForNewAnswer, conferenceService.fetchConferenceBy(registrationEntityForNewAnswer.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
-			answerService.insertAnswer(newAnswer.toDbAnswerEntity());
-
-			return Response.status(Status.CREATED)
-								.entity(newAnswer)
-								.header("location", new URI("/answers/" + newAnswer.getId()))
-								.build();
+			throw new BadRequestException("The path registration id: " + registrationId + " and entity registration id: " + newAnswer.getRegistrationId() + " were either null or don't match");
 		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
+
+		/*go find the registration for the new answer.  if it doesn't exist, then this is a bad request*/
+		RegistrationEntity registrationEntityForNewAnswer = registrationService.getRegistrationBy(registrationId);
+
+		if(registrationEntityForNewAnswer == null) throw new BadRequestException("The registration for this answer does not exist");
+
+		/*prep the new answer by ensuring it has an ID set, and that it's registration id is set to the registration id specified
+		 * in the path.  we've already asserted above that the path and entity registraiton id are the same.*/
+		if(newAnswer.getId() == null) newAnswer.setId(UUID.randomUUID());
+		if(newAnswer.getRegistrationId() == null) newAnswer.setRegistrationId(registrationId);
+
+		Simply.logObject(newAnswer, RegistrationResource.class);
+
+		authorizationService.authorize(registrationEntityForNewAnswer, conferenceService.fetchConferenceBy(registrationEntityForNewAnswer.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
+		answerService.insertAnswer(newAnswer.toDbAnswerEntity());
+
+		return Response.status(Status.CREATED)
+				.entity(newAnswer)
+				.header("location", new URI("/answers/" + newAnswer.getId()))
+				.build();
 	}
 }

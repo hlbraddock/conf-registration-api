@@ -1,17 +1,17 @@
 package org.cru.crs.api;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -21,7 +21,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.auth.CrsUserService;
@@ -35,16 +34,12 @@ import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
+import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.UnauthorizedException;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 /**
  * User: lee.braddock
  */
-@Stateless
 @Path("/answers/{answerId}")
 public class AnswerResource
 {
@@ -63,46 +58,27 @@ public class AnswerResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAnswer(@PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode)
 	{
-		try
-		{
-			logger.info("get answer by id " + answerId);
+		logger.info("get answer by id " + answerId);
 
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
+		AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
 
-			if(answerEntity == null)
-			{
-				return Response.ok(new NotFound()).build();
-			}
+		if(answerEntity == null) throw new NotFoundException("Requested answer " + answerId + " not found");
 
-			logger.info("get answer entity");
+		Simply.logObject(answerEntity, this.getClass());
 
-			logObject(answerEntity, logger);
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
 
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
+		if(registrationEntity == null) throw new BadRequestException("There is no registration for this answer");
 
-			if(registrationEntity == null) return Response.status(Status.BAD_REQUEST).build();
+		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.READ, crsLoggedInUser);
 
-			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.READ, crsLoggedInUser);
+		Answer answer = Answer.fromDb(answerEntity);
 
-			Answer answer = Answer.fromDb(answerEntity);
+		Simply.logObject(answer, this.getClass());
 
-			logger.info("get answer");
-
-			logObject(answer, logger);
-
-			return Response.ok(answer).build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
+		return Response.ok(answer).build();
 	}
 
 	@PUT
@@ -110,8 +86,6 @@ public class AnswerResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response updateAnswer(Answer answer, @PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
 	{
-		try
-		{
 			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
 			if(answer.getId() == null || answerId == null || IdComparer.idsAreNotNullAndDifferent(answerId, answer.getId()))
@@ -129,7 +103,7 @@ public class AnswerResource
 
 			logger.info("update answer");
 
-			logObject(answer, logger);
+			Simply.logObject(answer, this.getClass());
 
 			AnswerEntity currentAnswerEntity = answerService.getAnswerBy(answerId);
 
@@ -147,7 +121,7 @@ public class AnswerResource
 
 				logger.info("create answer with registration entity");
 
-				logObject(Registration.fromDb(registrationEntity), logger);
+				Simply.logObject(Registration.fromDb(registrationEntity), this.getClass());
 
 				answerService.insertAnswer(answer.toDbAnswerEntity());
 				
@@ -156,79 +130,42 @@ public class AnswerResource
 
 			logger.info("update current answer entity");
 
-			logObject(currentAnswerEntity, logger);
+			Simply.logObject(currentAnswerEntity, this.getClass());
 			
 			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
 
 			answerService.updateAnswer(answer.toDbAnswerEntity());
 
 			return Response.noContent().build();
-		}
-		catch(UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
 	}
 
 	@DELETE
 	public Response deleteAnswer(@PathParam(value = "answerId") UUID answerId, @HeaderParam(value = "Authorization") String authCode)
 	{
-		try
+		logger.info("delete answer entity");
+
+		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+
+		AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
+
+		if(answerEntity == null)
 		{
-			logger.info("delete answer entity");
-
-			CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
-
-			AnswerEntity answerEntity = answerService.getAnswerBy(answerId);
-
-			if(answerEntity == null)
-			{
-				throw new BadRequestException("The answer specifed by: " + answerId + " does not exist");
-			}
-			
-			logObject(answerEntity, logger);
-
-			RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
-
-			if(registrationEntity == null)
-			{
-				throw new BadRequestException("The answer being deleted belongs to a registration which does not exist");
-			}
-
-			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
-
-			answerService.deleteAnswer(answerEntity);
-
-			return Response.noContent().build();
+			throw new BadRequestException("The answer specifed by: " + answerId + " does not exist");
 		}
-		catch(UnauthorizedException e)
+
+		Simply.logObject(answerEntity, this.getClass());
+
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(answerEntity.getRegistrationId());
+
+		if(registrationEntity == null)
 		{
-			return Response.status(Status.UNAUTHORIZED).build();
+			throw new BadRequestException("The answer being deleted belongs to a registration which does not exist");
 		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			throw new InternalServerErrorException(e);
-		}
-	}
 
-	private void logObject(Object object, Logger logger)
-	{
-		if(object == null)
-			return;
+		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
 
-		try
-		{
-			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
+		answerService.deleteAnswer(answerEntity);
+
+		return Response.noContent().build();
 	}
 }

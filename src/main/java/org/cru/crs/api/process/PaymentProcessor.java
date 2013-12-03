@@ -1,7 +1,5 @@
 package org.cru.crs.api.process;
 
-import java.io.IOException;
-
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 
@@ -43,31 +41,31 @@ public class PaymentProcessor
 		this.paymentProcess = paymentProcess;
 	}
 
-	public void process(Payment payment, CrsApplicationUser loggedInUser) throws IOException
+	public void process(Payment payment, CrsApplicationUser loggedInUser)
     {
-    	/*make sure the payment is not processed twice in case the client didn't record the fact it was processed*/
-    	PaymentEntity copyOfPaymentFromDatabase = paymentService.fetchPaymentBy(payment.getId());
-    	if(copyOfPaymentFromDatabase.getTransactionTimestamp() == null && copyOfPaymentFromDatabase.getAuthnetTransactionId() == null)
-    	{
-    		validatePaymentReadiness(payment);
-    		
-    		ConferenceEntity dbConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId()).getConferenceId());
-    		ConferenceCostsEntity dbConferenceCosts = conferenceCostsService.fetchBy(dbConference.getConferenceCostsId());
+		/*make sure the payment is not processed twice in case the client didn't record the fact it was processed*/
+		PaymentEntity copyOfPaymentFromDatabase = paymentService.fetchPaymentBy(payment.getId());
+		if(copyOfPaymentFromDatabase.getTransactionTimestamp() == null && copyOfPaymentFromDatabase.getAuthnetTransactionId() == null)
+		{
+			validatePaymentReadiness(payment);
 
-    		try
-    		{
-    			Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromDb(dbConference, dbConferenceCosts), payment);
+			ConferenceEntity dbConference = conferenceService.fetchConferenceBy(registrationService.getRegistrationBy(payment.getRegistrationId()).getConferenceId());
+			ConferenceCostsEntity dbConferenceCosts = conferenceCostsService.fetchBy(dbConference.getConferenceCostsId());
 
-    			payment.setAuthnetTransactionId(transactionId);
-    			payment.setTransactionDatetime(clock.currentDateTime());
-    		}
-    		catch(Exception e)
-    		{
-    			throw new WebApplicationException(e, 502);
-    		}
-    		
-    		paymentService.updatePayment(payment.toJpaPaymentEntity());
-    	}
+			try
+			{
+				Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromDb(dbConference, dbConferenceCosts), payment);
+
+				payment.setAuthnetTransactionId(transactionId);
+				payment.setTransactionDatetime(clock.currentDateTime());
+			}
+			catch(Exception e)
+			{
+				throw new WebApplicationException(e, 502);
+			}
+
+			paymentService.updatePayment(payment.toJpaPaymentEntity());
+		}
     }
 
 	private void validatePaymentReadiness(Payment payment)

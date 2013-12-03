@@ -1,6 +1,8 @@
 package org.cru.crs.auth;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Session;
@@ -43,13 +45,13 @@ public class CrsUserService
 
 			if(sessionEntity == null)
 			{
-				throw new UnauthorizedException();
+				throw new WebApplicationException(Status.UNAUTHORIZED);
 			}
 			
 			logger.info("getLoggedInUser() is expired " + Session.fromJpa(sessionEntity).isExpired());
 			if(Session.fromJpa(sessionEntity).isExpired())
 			{
-				throw new UnauthorizedException();
+				throw new WebApplicationException(Status.UNAUTHORIZED);
 			}
 			
 			AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityById(sessionEntity.getAuthProviderId());
@@ -76,7 +78,7 @@ public class CrsUserService
 		catch (Exception e)
 		{
 			logger.info(e);
-			throw new UnauthorizedException(e);
+			throw new WebApplicationException(Status.UNAUTHORIZED);
 		}
 	}
 }
