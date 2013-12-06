@@ -16,7 +16,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -135,45 +134,38 @@ public class RegistrationResource
 		}
 
 		logger.info("update registration");
+
 		Simply.logObject(registration, RegistrationResource.class);
 
-		boolean createdNewRegistration = false;
+		RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
 
-		/*creates on the update endpoint are supported, so if the registration here doesn't exist it will be created, otherwise
-		 * it will be updated*/
-		if(registrationService.getRegistrationBy(registrationId) == null)
+		boolean createRegistration = registrationService.getRegistrationBy(registrationId) == null;
+
+		authorizationService.authorize(registrationEntity, conferenceEntityForUpdatedRegistration, createRegistration ? OperationType.CREATE : OperationType.UPDATE, crsLoggedInUser);
+
+		// support creation on call to update
+		if(createRegistration)
 		{
-			createdNewRegistration = true;
-
-			RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
-
-			logger.info("update registration creating");
-
-			authorizationService.authorize(registrationEntity, conferenceEntityForUpdatedRegistration, OperationType.CREATE, crsLoggedInUser);
-
-			registrationUpdateProcess.performDeepUpdate(registration);
-			
-			if(createdNewRegistration)
-			{
-				throw new WebApplicationException(Status.UNAUTHORIZED);
-			}
+			logger.info("update registration :: creating");
 
 			/*save the registration to the DB*/
 			registrationService.createNewRegistration(registrationEntity);
-		}
 
-		authorizationService.authorize(registration.toDbRegistrationEntity(), conferenceEntityForUpdatedRegistration, OperationType.UPDATE, crsLoggedInUser);
+			registrationUpdateProcess.performDeepUpdate(registration);
 
-		registrationUpdateProcess.performDeepUpdate(registration);
-
-		if(createdNewRegistration)
-		{
 			return Response.status(Status.CREATED)
 					.location(new URI("/registrations/" + registration.getId()))
 					.entity(registration)
 					.build();
 		}
-		else return Response.noContent().build();
+		else
+		{
+			logger.info("update registration :: updating");
+
+			registrationUpdateProcess.performDeepUpdate(registration);
+
+			return Response.noContent().build();
+		}
 	}
 	
 	/**
