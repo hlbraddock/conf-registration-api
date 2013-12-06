@@ -1,19 +1,20 @@
 package org.cru.crs.payment.authnet;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.jboss.logging.Logger;
 
@@ -23,13 +24,7 @@ public class HttpClientProviderImpl implements HttpProvider
 {
 	Logger log = Logger.getLogger(this.getClass());
 
-	private int retries = 3;
-	private CloseableHttpClient httpClient = HttpClients.createDefault();
-
-	public String getContentFromGet(String url) throws IOException
-	{
-		return getContent(new HttpGet(url));
-	}
+	private HttpClient httpClient = new DefaultHttpClient();
 
 	public String getContentFromPost(String url, Map<String, String> parameters) throws IOException
 	{
@@ -51,16 +46,21 @@ public class HttpClientProviderImpl implements HttpProvider
 	{
 		String content = null;
 
-		// Execute the method.
-		CloseableHttpResponse response = httpClient.execute(requestBase);
+		InputStream inputStream = null;
 
 		try
 		{
+			// Execute the method.
+			HttpResponse response = httpClient.execute(requestBase);
+
 			if (response.getStatusLine().getStatusCode() != 200)
 			{
 				log.warn("Method failed: #0" + response.getStatusLine());
 			}
-			content = new Scanner(response.getEntity().getContent()).useDelimiter("\\A").next();
+
+			inputStream = response.getEntity().getContent();
+
+			content = new Scanner(inputStream).useDelimiter("\\A").next();
 		}
 		catch (IOException e)
 		{
@@ -69,8 +69,17 @@ public class HttpClientProviderImpl implements HttpProvider
 		}
 		finally
 		{
-			if(response != null) response.close();
+			try
+			{
+				if(inputStream != null)
+					inputStream.close();
+			}
+			catch (IOException ioException)
+			{
+				log.warn("Could not close input stream");
+			}
 		}
+
 		return content;
 	}
 }
