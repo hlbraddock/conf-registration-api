@@ -39,9 +39,21 @@
 			<groupId>org.sql2o</groupId>
 			<artifactId>sql2o</artifactId>
 			<version>1.1.9-SNAPSHOT</version>
-		</dependency>		
-		
-		<dependency>
+		</dependency>
+
+        <!--
+            explicitly defining slf4j dependency (test scope)
+            prevents sql2o and rest easy transitive dependency conflict
+            at time of functional test run
+        -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.8</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
 		    <groupId>org.jadira.usertype</groupId>
 		    <artifactId>usertype.core</artifactId>
 		    <version>3.0.0.GA</version>
