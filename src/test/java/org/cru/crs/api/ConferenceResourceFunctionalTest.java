@@ -306,7 +306,7 @@ public class ConferenceResourceFunctionalTest
 
 			Assert.assertEquals(response.getStatus(), 201);
 
-			registrationId = getIdFromResponseLocation(response.getLocation().toString());
+			registrationId = response.getEntity().getId();
 
 			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId);
 			List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(registrationId);
@@ -538,12 +538,5 @@ public class ConferenceResourceFunctionalTest
 						.addParameter("id", registrationId)
 						.executeUpdate();
 		}
-	}
-	
-	private UUID getIdFromResponseLocation(String location)
-	{
-		location = location.substring(1, location.length()-1);
-
-		return UUID.fromString(location.substring(location.lastIndexOf("/")).substring(1));
 	}
 }
