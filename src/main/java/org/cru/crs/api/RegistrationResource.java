@@ -148,24 +148,17 @@ public class RegistrationResource
 		{
 			logger.info("update registration :: creating");
 
-			/*save the registration to the DB*/
+			/*save the new registration to the DB*/
 			registrationService.createNewRegistration(registrationEntity);
-
-			registrationUpdateProcess.performDeepUpdate(registration);
-
-			return Response.status(Status.CREATED)
-					.location(new URI("/registrations/" + registration.getId()))
-					.entity(registration)
-					.build();
 		}
-		else
-		{
-			logger.info("update registration :: updating");
 
-			registrationUpdateProcess.performDeepUpdate(registration);
+		registrationUpdateProcess.performDeepUpdate(registration);
 
-			return Response.noContent().build();
-		}
+		return createRegistration ?
+				Response.status(Status.CREATED)
+						.location(new URI("/registrations/" + registration.getId()))
+						.entity(registration)
+						.build() : Response.noContent().build();
 	}
 	
 	/**
