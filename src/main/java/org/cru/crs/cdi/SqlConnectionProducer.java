@@ -22,4 +22,16 @@ public class SqlConnectionProducer
 	{
 		return new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser", QuirksMode.PostgreSQL);
 	}
+	
+	@Produces
+	public org.sql2o.Connection getSql2oConnection()
+	{
+		return getSqlConnection().beginTransaction();
+	}
+
+	public org.sql2o.Connection getTestSql2oConnection()
+	{
+		return getTestSqlConnection().beginTransaction();
+	}
+
 }
