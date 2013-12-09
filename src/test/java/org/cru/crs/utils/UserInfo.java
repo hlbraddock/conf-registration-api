@@ -2,6 +2,9 @@ package org.cru.crs.utils;
 
 import java.util.UUID;
 
+import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.auth.model.CrsApplicationUser;
+
 public class UserInfo
 {
 	public static class Id
@@ -17,5 +20,11 @@ public class UserInfo
 		public static String Email = "488aca23cecd6e5b8ac406bf74a46723dd853273";
 		public static String Expired = "488aca23cecd6e5b8ac406bf74a46723dd853273";
 		public static String TestUser = "11eac4a91ccb730509cd82d822b5b4dd202de7ff";
+	}
+	
+	public static class Users
+	{
+		public static CrsApplicationUser TestUser = new CrsApplicationUser(UserInfo.Id.TestUser,AuthenticationProviderType.RELAY, "crs.testuser@crue.org");
+		public static CrsApplicationUser Ryan = new CrsApplicationUser(UserInfo.Id.Ryan,AuthenticationProviderType.RELAY, "ryan.t.carlson@cru.org");
 	}
 }

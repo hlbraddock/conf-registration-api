@@ -71,7 +71,7 @@ public class ConferenceResourceFunctionalTest
         BlockService blockService = new BlockService(sql, answerService);
         pageService = new PageService(sql,blockService);
         ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sql);
-        conferenceService = new ConferenceService(sql,conferenceCostsService,pageService,new UserService(sql));
+        conferenceService = new ConferenceService(sql.beginTransaction(),conferenceCostsService,pageService,new UserService(sql));
         paymentService = new PaymentService(sql);
         registrationService = new RegistrationService(sql,answerService,paymentService);
         

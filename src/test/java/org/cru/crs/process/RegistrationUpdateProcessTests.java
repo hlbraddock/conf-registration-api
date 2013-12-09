@@ -52,7 +52,7 @@ public class RegistrationUpdateProcessTests
 		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sql);
 		BlockService blockService = new BlockService(sql, answerService);
 		PageService pageService = new PageService(sql, blockService);
-		ConferenceService conferenceService = new ConferenceService(sql,conferenceCostsService,pageService, new UserService(sql));
+		ConferenceService conferenceService = new ConferenceService(sql.beginTransaction(),conferenceCostsService,pageService, new UserService(sql));
 		
 		registrationFetchProcess = new RegistrationFetchProcess(registrationService, paymentService, answerService);
 		
