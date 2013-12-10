@@ -11,12 +11,9 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.queries.ConferenceQueries;
 import org.sql2o.Connection;
-import org.sql2o.Sql2o;
 
 public class ConferenceService
 {
-	Sql2o sql;
-	
 	org.sql2o.Connection connection;
 	
 	ConferenceCostsService conferenceCostsService;
