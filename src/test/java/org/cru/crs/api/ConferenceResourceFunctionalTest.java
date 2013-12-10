@@ -293,7 +293,6 @@ public class ConferenceResourceFunctionalTest
 	public void addRegistrationToConference() throws URISyntaxException
 	{
 		UUID registrationId = null;
-		UUID paymentId = null;
 		try
 		{
 			UUID userIdUUID = UserInfo.Id.Ryan;
@@ -315,12 +314,10 @@ public class ConferenceResourceFunctionalTest
 
 			Assert.assertEquals(registration.getId(), registrationId);
 			Assert.assertEquals(registration.getUserId(), newRegistration.getUserId());
-			Assert.assertEquals(payments.size(), 1);
-			paymentId = payments.get(0).getId();
+			Assert.assertEquals(payments.size(), 0);
 		}
 		finally
 		{
-			deletePaymentForNextTests(paymentId);
 			deleteRegistrationForNextTests(registrationId);
 		}
 
