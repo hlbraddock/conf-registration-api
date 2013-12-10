@@ -5,12 +5,10 @@ import java.util.UUID;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
-import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.UnauthorizedException;
 
 public class AuthorizationService
 {
-
 	public void authorizeConference(ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser)
 	{
 		if(conferenceEntity == null) return;
@@ -29,19 +27,14 @@ public class AuthorizationService
 		}
 	}
 
-	private Logger logger = Logger.getLogger(AuthorizationService.class);
-
 	public void authorize(RegistrationEntity registrationEntity, ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser)
 	{
-		logger.info("authorize");
 		if(registrationEntity == null) return;
 
 		if(crsApplicationUser == null)
 		{
 			throw new UnauthorizedException();
 		}
-
-		logger.info("authorize");
 
 		if(OperationType.CRUDSet.contains(operationType) && !operationType.equals(OperationType.DELETE))
 		{
