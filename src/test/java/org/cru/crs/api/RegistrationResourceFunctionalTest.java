@@ -285,7 +285,9 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
-        UUID answerIdUUID = registrationResponse.getEntity().getId();
+		String returnedLocationHeader = registrationResponse.getHeaderAsLink("Location").getHref();
+
+		UUID answerIdUUID = UUID.fromString(returnedLocationHeader.substring("/answers/".length()));
 
         // get answer
 
