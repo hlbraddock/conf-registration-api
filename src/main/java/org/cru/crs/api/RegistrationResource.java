@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -149,6 +151,9 @@ public class RegistrationResource
 		{
 			logger.info("update registration :: creating");
 
+			if (registrationService.isUserRegistered(conferenceEntityForUpdatedRegistration.getId(), crsLoggedInUser.getId()))
+				throw new WebApplicationException(HttpURLConnection.HTTP_UNAUTHORIZED);
+
 			/*save the new registration to the DB*/
 			registrationService.createNewRegistration(registrationEntity);
 		}
@@ -161,7 +166,7 @@ public class RegistrationResource
 						.entity(registration)
 						.build() : Response.noContent().build();
 	}
-	
+
 	/**
 	 * Deletes registration resource specified by @param registrationId
 	 * 
