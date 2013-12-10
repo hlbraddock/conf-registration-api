@@ -306,7 +306,9 @@ public class ConferenceResourceFunctionalTest
 
 			Assert.assertEquals(response.getStatus(), 201);
 
-			registrationId = response.getEntity().getId();
+			String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
+			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/pages/";
+			registrationId =  UUID.fromString(returnedLocationHeader.substring(resourceFullPathWithoutId.length()));
 
 			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId);
 			List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(registrationId);
