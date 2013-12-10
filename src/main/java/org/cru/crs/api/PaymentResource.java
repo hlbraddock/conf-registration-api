@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -33,7 +34,6 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.BadRequestException;
 
 @Path("/payments")
 public class PaymentResource

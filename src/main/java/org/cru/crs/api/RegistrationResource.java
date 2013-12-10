@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -38,7 +39,6 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.BadRequestException;
 
 @Path("/registrations/{registrationId}")
 public class RegistrationResource
@@ -85,8 +85,8 @@ public class RegistrationResource
 			throw new NotFoundException("Registration: " + registrationId + " was not found.");
 		}
 
-		authorizationService.authorize(registration.toDbRegistrationEntity(), 
-				conferenceService.fetchConferenceBy(registration.getConferenceId()), 
+		authorizationService.authorize(registration.toDbRegistrationEntity(),
+				conferenceService.fetchConferenceBy(registration.getConferenceId()),
 				OperationType.READ,
 				crsLoggedInUser);
 
@@ -122,6 +122,7 @@ public class RegistrationResource
 		 * Malicious or not, we don't really know what the user wants to do.*/
 		if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()) || registration.getId() == null || registrationId == null)
 		{
+			logger.info("bad request");
 			throw new BadRequestException("The path registration id: " + registrationId + " and entity registration id: " + registration.getId() + " were either null or don't match");
 		}
 
@@ -188,9 +189,9 @@ public class RegistrationResource
 
 		Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
 
-		authorizationService.authorize(registrationEntity, 
-				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), 
-				OperationType.DELETE, 
+		authorizationService.authorize(registrationEntity,
+				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+				OperationType.DELETE,
 				crsLoggedInUser);
 
 		registrationService.deleteRegistration(registrationEntity);

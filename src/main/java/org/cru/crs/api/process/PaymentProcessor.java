@@ -1,6 +1,7 @@
 package org.cru.crs.api.process;
 
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.WebApplicationException;
 
 import org.ccci.util.time.Clock;
@@ -16,7 +17,6 @@ import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
-import org.jboss.resteasy.spi.BadRequestException;
 
 public class PaymentProcessor
 {
