@@ -126,7 +126,8 @@ public class AnswerResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
-		UUID answerIdUUID = answerResponse.getEntity().getId();
+		String returnedLocationHeader = answerResponse.getHeaderAsLink("Location").getHref();
+		UUID answerIdUUID = UUID.fromString(returnedLocationHeader.substring("/answers/".length()));
 
 		// get answer
 

@@ -27,11 +27,14 @@ public class RegistrationService
 	
 	RegistrationQueries registrationQueries = new RegistrationQueries();
 	
+<<<<<<< HEAD
 	private Logger logger = Logger.getLogger(RegistrationService.class);
 
 	/*required for Weld*/
 	public RegistrationService(){ }
 	
+=======
+>>>>>>> functional-tests-fix
 	@Inject
     public RegistrationService(Connection sqlConnection, AnswerService answerService, PaymentService paymentService)
     {
@@ -104,4 +107,9 @@ public class RegistrationService
 						.addParameter("id", registrationEntity.getId())
 						.executeUpdate();
     }
+
+	public boolean isUserRegistered(UUID conferenceId, UUID userId)
+	{
+		return getRegistrationByConferenceIdUserId(conferenceId, userId) != null;
+	}
 }

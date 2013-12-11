@@ -1,11 +1,13 @@
 package org.cru.crs.api;
 
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -16,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -38,7 +41,6 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.BadRequestException;
 
 @Path("/registrations/{registrationId}")
 public class RegistrationResource extends TransactionalResource
@@ -85,8 +87,8 @@ public class RegistrationResource extends TransactionalResource
 			throw new NotFoundException("Registration: " + registrationId + " was not found.");
 		}
 
-		authorizationService.authorize(registration.toDbRegistrationEntity(), 
-				conferenceService.fetchConferenceBy(registration.getConferenceId()), 
+		authorizationService.authorize(registration.toDbRegistrationEntity(),
+				conferenceService.fetchConferenceBy(registration.getConferenceId()),
 				OperationType.READ,
 				crsLoggedInUser);
 
@@ -122,6 +124,7 @@ public class RegistrationResource extends TransactionalResource
 		 * Malicious or not, we don't really know what the user wants to do.*/
 		if(IdComparer.idsAreNotNullAndDifferent(registrationId, registration.getId()) || registration.getId() == null || registrationId == null)
 		{
+			logger.info("bad request");
 			throw new BadRequestException("The path registration id: " + registrationId + " and entity registration id: " + registration.getId() + " were either null or don't match");
 		}
 
@@ -148,6 +151,9 @@ public class RegistrationResource extends TransactionalResource
 		{
 			logger.info("update registration :: creating");
 
+			if (registrationService.isUserRegistered(conferenceEntityForUpdatedRegistration.getId(), crsLoggedInUser.getId()))
+				throw new WebApplicationException(HttpURLConnection.HTTP_UNAUTHORIZED);
+
 			/*save the new registration to the DB*/
 			registrationService.createNewRegistration(registrationEntity);
 		}
@@ -160,7 +166,7 @@ public class RegistrationResource extends TransactionalResource
 						.entity(registration)
 						.build() : Response.noContent().build();
 	}
-	
+
 	/**
 	 * Deletes registration resource specified by @param registrationId
 	 * 
@@ -188,9 +194,9 @@ public class RegistrationResource extends TransactionalResource
 
 		Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
 
-		authorizationService.authorize(registrationEntity, 
-				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), 
-				OperationType.DELETE, 
+		authorizationService.authorize(registrationEntity,
+				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+				OperationType.DELETE,
 				crsLoggedInUser);
 
 		registrationService.deleteRegistration(registrationEntity);

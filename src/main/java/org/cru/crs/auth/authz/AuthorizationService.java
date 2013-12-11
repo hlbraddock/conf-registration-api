@@ -9,11 +9,10 @@ import org.jboss.resteasy.spi.UnauthorizedException;
 
 public class AuthorizationService
 {
-	
 	public void authorizeConference(ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser)
 	{
 		if(conferenceEntity == null) return;
-		
+
 		if(crsApplicationUser == null)
 		{
 			throw new UnauthorizedException();
@@ -27,11 +26,11 @@ public class AuthorizationService
 			}
 		}
 	}
-	
+
 	public void authorize(RegistrationEntity registrationEntity, ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser)
 	{
 		if(registrationEntity == null) return;
-		
+
 		if(crsApplicationUser == null)
 		{
 			throw new UnauthorizedException();
