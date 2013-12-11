@@ -27,7 +27,7 @@ public class ConferenceServiceTest
 	@BeforeMethod
 	private ConferenceService getConferenceService()
 	{	
-		sqlConnection = new SqlConnectionProducer().getTestSql2oConnection();
+		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		
 		return new ConferenceService(sqlConnection,
 										new ConferenceCostsService(sqlConnection),

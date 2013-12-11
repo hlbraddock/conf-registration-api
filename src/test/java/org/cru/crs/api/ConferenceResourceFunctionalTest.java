@@ -64,7 +64,7 @@ public class ConferenceResourceFunctionalTest
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
         
-        sqlConnection = new SqlConnectionProducer().getTestSql2oConnection();
+        sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
         
         AnswerService answerService = new AnswerService(sqlConnection);
         BlockService blockService = new BlockService(sqlConnection, answerService);

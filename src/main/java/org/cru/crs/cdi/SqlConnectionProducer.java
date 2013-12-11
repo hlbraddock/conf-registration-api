@@ -10,6 +10,8 @@ import org.cru.crs.utils.CrsProperties;
 import org.sql2o.QuirksMode;
 import org.sql2o.Sql2o;
 
+import com.google.common.base.Throwables;
+
 /**
  * So this class presents an interesting little 'hack' using the CDI session scope to enable database transactions to work.
  * Normally, I found that injecting an instance of Sql2o for every service that needs one makes a new connection each time.
@@ -33,7 +35,7 @@ public class SqlConnectionProducer
 	private org.sql2o.Connection sqlConnection;
 
 	@Produces
-	public org.sql2o.Connection getSqlConnection() throws SQLException
+	public org.sql2o.Connection getSqlConnection()
 	{
 		if(sqlConnection == null)
 		{
@@ -42,8 +44,18 @@ public class SqlConnectionProducer
 		return sqlConnection;
 	}
 
-	public org.sql2o.Connection getTestSql2oConnection()
+	public org.sql2o.Connection getTestSqlConnection()
 	{
+		
+		org.sql2o.Connection sqlConnection = new org.sql2o.Connection(new Sql2o("jdbc:postgresql://localhost/crsdb","crsuser","crsuser",QuirksMode.PostgreSQL));
+		
+		try {
+			sqlConnection.getJdbcConnection().setAutoCommit(false);
+		}
+		catch(SQLException e) { /*come on... really*/
+			Throwables.propagate(e);
+		}
+		
 		return sqlConnection;
 	}
 

@@ -33,7 +33,7 @@ public class CrsUserServiceTest
 	@BeforeMethod
 	public void setup()
 	{
-		sessionService = new SessionService(new SqlConnectionProducer().getTestSql2oConnection());
+		sessionService = new SessionService(new SqlConnectionProducer().getTestSqlConnection());
 		crsProperties = new CrsPropertiesFactory().get();
 		clock = new ClockImpl();
 

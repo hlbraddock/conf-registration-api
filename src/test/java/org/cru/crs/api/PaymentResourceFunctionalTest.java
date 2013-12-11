@@ -51,7 +51,7 @@ public class PaymentResourceFunctionalTest
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
         paymentClient = ProxyFactory.create(PaymentResourceClient.class, restApiBaseUrl);
         
-        sqlConnection = new SqlConnectionProducer().getTestSql2oConnection();
+        sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		
         paymentService = new PaymentService(sqlConnection);
         answerService = new AnswerService(sqlConnection);

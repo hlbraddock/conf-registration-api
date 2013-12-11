@@ -43,7 +43,7 @@ public class RegistrationUpdateProcessTests
 	@BeforeMethod
 	public void setup()
 	{
-		sqlConnection = new SqlConnectionProducer().getTestSql2oConnection();
+		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		
 		answerService = new AnswerService(sqlConnection);
 		paymentService = new PaymentService(sqlConnection);
