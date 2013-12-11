@@ -8,7 +8,6 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.UserInfo;
-import org.sql2o.Sql2o;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -23,19 +22,16 @@ import org.testng.annotations.Test;
 public class ConferenceServiceTest
 {
 
-	Sql2o sql2o;
-	org.sql2o.Connection sql2oConnection;
+	org.sql2o.Connection sqlConnection;
 	
 	@BeforeMethod
 	private ConferenceService getConferenceService()
 	{	
-		sql2o = new SqlConnectionProducer().getTestSqlConnection();
-		sql2oConnection = new SqlConnectionProducer().getTestSql2oConnection();
+		sqlConnection = new SqlConnectionProducer().getTestSql2oConnection();
 		
-		return new ConferenceService(sql2oConnection, 
-										new ConferenceCostsService(sql2o),
-										new PageService(sql2o, new BlockService(sql2o, new AnswerService(sql2o))),
-										new UserService(sql2o));
+		return new ConferenceService(sqlConnection,
+										new ConferenceCostsService(sqlConnection),
+										new PageService(sqlConnection, new BlockService(sqlConnection, new AnswerService(sqlConnection))), new UserService(sqlConnection));
 	}
 	
 	@Test
@@ -120,7 +116,7 @@ public class ConferenceServiceTest
 		}
 		finally
 		{
-			sql2oConnection.rollback();
+			sqlConnection.rollback();
 		}
 	}
 	
@@ -146,7 +142,7 @@ public class ConferenceServiceTest
 		}
 		finally
 		{
-			sql2oConnection.rollback();
+			sqlConnection.rollback();
 		}
 	}
 	
@@ -175,7 +171,7 @@ public class ConferenceServiceTest
 		}
 		finally
 		{
-			sql2oConnection.rollback();
+			sqlConnection.rollback();
 		}
 	}
 }

@@ -3,6 +3,7 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -11,20 +12,24 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.queries.PageQueries;
 import org.jboss.resteasy.spi.UnauthorizedException;
-import org.sql2o.Sql2o;
+import org.sql2o.Connection;
 
+@RequestScoped
 public class PageService
 {
-	Sql2o sql;
+	org.sql2o.Connection sqlConnection;
 	
 	BlockService blockService;
 	
 	PageQueries pageQueries;
 	
+	/*required for Weld*/
+	public PageService(){ }
+	
 	@Inject
-	public PageService(Sql2o sql, BlockService blockService)
+	public PageService(Connection sqlConnection, BlockService blockService)
 	{
-		this.sql = sql;
+		this.sqlConnection = sqlConnection;
 		
 		this.blockService = blockService;
 		
@@ -33,7 +38,7 @@ public class PageService
 	
 	public PageEntity fetchPageBy(UUID id)
 	{
-		return sql.createQuery(pageQueries.selectById(), false)
+		return sqlConnection.createQuery(pageQueries.selectById(), false)
 						.addParameter("id", id)
 						.setAutoDeriveColumnNames(true)
 						.executeAndFetchFirst(PageEntity.class);	
@@ -41,7 +46,7 @@ public class PageService
 
 	public List<PageEntity> fetchPagesForConference(UUID conferenceId)
 	{
-		return sql.createQuery(pageQueries.selectAllForConference(), false)
+		return sqlConnection.createQuery(pageQueries.selectAllForConference(), false)
 						.addParameter("conferenceId", conferenceId)
 						.setAutoDeriveColumnNames(true)
 						.executeAndFetch(PageEntity.class);
@@ -50,7 +55,7 @@ public class PageService
 	public void savePage(PageEntity pageToSave)
 	{
 		/*content and conferenceCostsBlocksId omitted for now*/
-		sql.createQuery(pageQueries.insert(),false)
+		sqlConnection.createQuery(pageQueries.insert(),false)
 				.addParameter("id", pageToSave.getId())
 				.addParameter("conferenceId", pageToSave.getConferenceId())
 				.addParameter("position", pageToSave.getPosition())
@@ -61,7 +66,7 @@ public class PageService
 	public void updatePage(PageEntity pageToUpdate)
 	{
 		/*content and conferenceCostsBlocksId omitted for now*/
-		sql.createQuery(pageQueries.update(),false)
+		sqlConnection.createQuery(pageQueries.update(),false)
 				.addParameter("id", pageToUpdate.getId())
 				.addParameter("conferenceId", pageToUpdate.getConferenceId())
 				.addParameter("position", pageToUpdate.getPosition())
@@ -80,7 +85,7 @@ public class PageService
 			blockService.deleteBlock(blockToDelete.getId());
 		}
 
-		sql.createQuery(pageQueries.delete(),false)
+		sqlConnection.createQuery(pageQueries.delete(),false)
 			.addParameter("id", pageId)
 			.executeUpdate();
 	}

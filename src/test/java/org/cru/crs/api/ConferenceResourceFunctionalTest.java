@@ -31,7 +31,6 @@ import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
-import org.sql2o.Sql2o;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -50,7 +49,7 @@ public class ConferenceResourceFunctionalTest
 
 	ConferenceResourceClient conferenceClient;
 	
-	Sql2o sql;
+	org.sql2o.Connection sqlConnection;
 	
 	ConferenceService conferenceService;
 	PaymentService paymentService;
@@ -65,15 +64,15 @@ public class ConferenceResourceFunctionalTest
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
         
-        sql = new SqlConnectionProducer().getTestSqlConnection();
+        sqlConnection = new SqlConnectionProducer().getTestSql2oConnection();
         
-        AnswerService answerService = new AnswerService(sql);
-        BlockService blockService = new BlockService(sql, answerService);
-        pageService = new PageService(sql,blockService);
-        ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sql);
-        conferenceService = new ConferenceService(sql.beginTransaction(),conferenceCostsService,pageService,new UserService(sql));
-        paymentService = new PaymentService(sql);
-        registrationService = new RegistrationService(sql,answerService,paymentService);
+        AnswerService answerService = new AnswerService(sqlConnection);
+        BlockService blockService = new BlockService(sqlConnection, answerService);
+        pageService = new PageService(sqlConnection,blockService);
+        ConferenceCostsService conferenceCostsService = new ConferenceCostsService(null);
+        conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, new UserService(sqlConnection));
+        paymentService = new PaymentService(sqlConnection);
+        registrationService = new RegistrationService(sqlConnection, answerService,paymentService);
         
         conferenceFetchProcess = new ConferenceFetchProcess(conferenceService, conferenceCostsService, pageService, blockService, new ClockImpl());
 	}
@@ -504,9 +503,9 @@ public class ConferenceResourceFunctionalTest
 	{
 		if(conferenceId != null)
 		{
-			sql.createQuery("DELETE FROM conferences WHERE id = :id")
-						.addParameter("id", conferenceId)
-						.executeUpdate();
+			sqlConnection.createQuery("DELETE FROM conferences WHERE id = :id")
+								.addParameter("id", conferenceId)
+								.executeUpdate();
 		}
 	}
 	
@@ -514,9 +513,9 @@ public class ConferenceResourceFunctionalTest
 	{
 		if(pageId != null)
 		{
-			sql.createQuery("DELETE FROM pages WHERE id = :id")
-						.addParameter("id", pageId)
-						.executeUpdate();
+			sqlConnection.createQuery("DELETE FROM pages WHERE id = :id")
+							.addParameter("id", pageId)
+							.executeUpdate();
 		}
 	}
 	
@@ -524,9 +523,9 @@ public class ConferenceResourceFunctionalTest
 	{
 		if(paymentId != null)
 		{
-			sql.createQuery("DELETE FROM payments WHERE id = :id")
-						.addParameter("id", paymentId)
-						.executeUpdate();
+			sqlConnection.createQuery("DELETE FROM payments WHERE id = :id")
+							.addParameter("id", paymentId)
+							.executeUpdate();
 		}
 	}
 	
@@ -534,9 +533,9 @@ public class ConferenceResourceFunctionalTest
 	{
 		if(registrationId != null)
 		{
-			sql.createQuery("DELETE FROM registrations WHERE id = :id")
-						.addParameter("id", registrationId)
-						.executeUpdate();
+			sqlConnection.createQuery("DELETE FROM registrations WHERE id = :id")
+								.addParameter("id", registrationId)
+								.executeUpdate();
 		}
 	}
 }

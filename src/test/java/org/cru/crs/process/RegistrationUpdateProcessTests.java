@@ -20,13 +20,12 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.joda.time.DateTime;
-import org.sql2o.Sql2o;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class RegistrationUpdateProcessTests
 {
-	Sql2o sql;
+	org.sql2o.Connection sqlConnection;
 	
 	RegistrationUpdateProcess process;
 	RegistrationService registrationService;
@@ -44,15 +43,17 @@ public class RegistrationUpdateProcessTests
 	@BeforeMethod
 	public void setup()
 	{
-		sql = new SqlConnectionProducer().getTestSqlConnection();
+		sqlConnection = new SqlConnectionProducer().getTestSql2oConnection();
 		
-		answerService = new AnswerService(sql);
-		paymentService = new PaymentService(sql);
-		registrationService = new RegistrationService(sql, answerService, paymentService);
-		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sql);
-		BlockService blockService = new BlockService(sql, answerService);
-		PageService pageService = new PageService(sql, blockService);
-		ConferenceService conferenceService = new ConferenceService(sql.beginTransaction(),conferenceCostsService,pageService, new UserService(sql));
+		answerService = new AnswerService(sqlConnection);
+		paymentService = new PaymentService(sqlConnection);
+		registrationService = new RegistrationService(sqlConnection, answerService, paymentService);
+		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
+		BlockService blockService = new BlockService(sqlConnection, answerService);
+		ConferenceService conferenceService = new ConferenceService(sqlConnection,
+													new ConferenceCostsService(sqlConnection),
+													new PageService(sqlConnection, new BlockService(sqlConnection, new AnswerService(sqlConnection))), 
+													new UserService(sqlConnection));
 		
 		registrationFetchProcess = new RegistrationFetchProcess(registrationService, paymentService, answerService);
 		

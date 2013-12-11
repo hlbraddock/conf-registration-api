@@ -7,6 +7,7 @@ import org.cru.crs.auth.api.TestAuthManager;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.auth.model.BasicNoAuthUser;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.service.SessionService;
 import org.cru.crs.utils.AuthCodeGenerator;
@@ -15,7 +16,6 @@ import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.CrsPropertiesFactory;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
-import org.sql2o.Sql2o;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -24,10 +24,6 @@ import org.testng.annotations.Test;
  */
 public class CrsUserServiceTest
 {
-//	private static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
-//	private EntityManagerFactory emFactory;
-//	private EntityManager em;
-
 	private CrsUserService crsUserService;
 	private SessionService sessionService;
 	private AuthenticationProviderService authenticationProviderService;
@@ -37,8 +33,7 @@ public class CrsUserServiceTest
 	@BeforeMethod
 	public void setup()
 	{
-
-		sessionService = new SessionService(new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser"));
+		sessionService = new SessionService(new SqlConnectionProducer().getTestSql2oConnection());
 		crsProperties = new CrsPropertiesFactory().get();
 		clock = new ClockImpl();
 

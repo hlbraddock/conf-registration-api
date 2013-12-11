@@ -14,6 +14,7 @@ import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
@@ -50,7 +51,7 @@ public class RegistrationResourceFunctionalTest
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
 		conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
 		
-		paymentService = new PaymentService(new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser",QuirksMode.PostgreSQL));
+		paymentService = new PaymentService(new SqlConnectionProducer().getTestSql2oConnection());
 	}
 
 	/**
