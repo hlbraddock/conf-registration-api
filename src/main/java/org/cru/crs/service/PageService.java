@@ -6,12 +6,9 @@ import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.BlockEntity;
-import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.queries.PageQueries;
-import org.jboss.resteasy.spi.UnauthorizedException;
 import org.sql2o.Connection;
 
 @RequestScoped
@@ -89,19 +86,4 @@ public class PageService
 			.addParameter("id", pageId)
 			.executeUpdate();
 	}
-
-	public void addBlockToPage(ConferenceEntity owningConference, PageEntity pageToAddBlockTo, BlockEntity blockToAdd, CrsApplicationUser crsLoggedInUser) throws UnauthorizedException
-	{		
-		/*if there is no user ID, or the conference belongs to a different user, the return a 401 - Unauthorized*/
-		if(crsLoggedInUser == null || !crsLoggedInUser.getId().equals(owningConference.getContactPersonId()))
-		{
-			throw new UnauthorizedException();
-		}
-		
-		/*create a block id if the client didn't*/
-		if(blockToAdd.getId() == null) blockToAdd.setId(UUID.randomUUID());
-		blockToAdd.setPageId(pageToAddBlockTo.getId());
-		blockService.saveBlock(blockToAdd);
-	}
-
 }

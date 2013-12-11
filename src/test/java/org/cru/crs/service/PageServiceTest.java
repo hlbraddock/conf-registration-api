@@ -66,13 +66,64 @@ public class PageServiceTest
 	@Test
 	public void testSaveNewPage()
 	{
+		PageService pageService = getPageService();
 		
+		PageEntity newPage = new PageEntity();
+		UUID id = UUID.randomUUID();
+		
+		newPage.setId(id);
+		newPage.setConferenceId(ConferenceInfo.Id.NorthernMichigan);
+		newPage.setPosition(3);
+		newPage.setTitle("Brand new page");
+		
+		try
+		{
+			pageService.savePage(newPage);
+			
+			PageEntity savedPage = pageService.fetchPageBy(id);
+			
+			Assert.assertNotNull(savedPage);
+			Assert.assertEquals(savedPage.getId(), id);
+			Assert.assertEquals(savedPage.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);
+			Assert.assertEquals(savedPage.getPosition(), 3);
+			Assert.assertEquals(savedPage.getTitle(), "Brand new page");
+			
+			Assert.assertEquals(pageService.fetchPagesForConference(ConferenceInfo.Id.NorthernMichigan).size(), 4);
+		}
+		finally
+		{
+			sqlConnection.rollback();
+		}
 	}
 	
 	@Test
 	public void updateAboutYouPage()
 	{
-
+		PageService pageService = getPageService();
+		
+		PageEntity updatedAboutYouPage = new PageEntity();
+		
+		updatedAboutYouPage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+		updatedAboutYouPage.setConferenceId(ConferenceInfo.Id.NorthernMichigan);
+		updatedAboutYouPage.setPosition(0);
+		updatedAboutYouPage.setTitle("About someone else");
+		
+		try
+		{
+			pageService.updatePage(updatedAboutYouPage);
+			
+			PageEntity updatedPage = pageService.fetchPageBy(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+			
+			Assert.assertNotNull(updatedPage);
+			Assert.assertEquals(updatedPage.getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+			Assert.assertEquals(updatedPage.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);
+			Assert.assertEquals(updatedPage.getPosition(), 0);
+			Assert.assertEquals(updatedPage.getTitle(), "About someone else");
+		}
+		finally
+		{
+			sqlConnection.rollback();
+		}
 	}
 	
 	@Test
@@ -85,17 +136,10 @@ public class PageServiceTest
 			
 			Assert.assertNull(pageService.fetchPageBy(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5")));
 			Assert.assertEquals(pageService.fetchPagesForConference(ConferenceInfo.Id.NorthernMichigan).size(), 2);
-		
 		}
 		finally
 		{
 			sqlConnection.rollback();
 		}
-	}
-	
-	@Test
-	public void addBlockToAboutYourCatPage()
-	{
-		
 	}
 }

@@ -104,12 +104,4 @@ public class ConferenceService
     					.addParameter("locationZipCode", conferenceToUpdate.getLocationZipCode())
     					.executeUpdate();
 	}
-
-	public void addPageToConference(ConferenceEntity conferenceToAddPageTo, PageEntity pageToAdd)
-	{
-		/*create a page id if the client didn't*/
-		if(pageToAdd.getId() == null) pageToAdd.setId(UUID.randomUUID());
-		pageToAdd.setConferenceId(conferenceToAddPageTo.getId());
-		pageService.savePage(pageToAdd);
-	}
 }
