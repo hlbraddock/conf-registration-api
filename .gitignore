@@ -4,8 +4,5 @@ target/
 test-output/
 src/main/db/logs/*
 
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/artifacts
-.idea/libraries
+.idea/
 *.iml
