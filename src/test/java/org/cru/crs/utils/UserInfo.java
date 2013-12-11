@@ -15,7 +15,7 @@ public class UserInfo
 	{
 		public static String Ryan = "fd33c83b97b59dc3884454b7c2b861db03d5399c";
 		public static String Email = "488aca23cecd6e5b8ac406bf74a46723dd853273";
-		public static String Expired = "488aca23cecd6e5b8ac406bf74a46723dd853273";
+		public static String Expired = "123aca23cecd6e5b8ac406bf74a46723dd853273";
 		public static String TestUser = "11eac4a91ccb730509cd82d822b5b4dd202de7ff";
 	}
 }

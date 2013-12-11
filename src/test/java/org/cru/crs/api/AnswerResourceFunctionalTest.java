@@ -126,7 +126,8 @@ public class AnswerResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
-		UUID answerIdUUID = getIdFromResponseLocation(answerResponse.getLocation().toString());
+		String returnedLocationHeader = answerResponse.getHeaderAsLink("Location").getHref();
+		UUID answerIdUUID = UUID.fromString(returnedLocationHeader.substring("/answers/".length()));
 
 		// get answer
 
@@ -212,13 +213,6 @@ public class AnswerResourceFunctionalTest
 		answer.setValue(value);
 
 		return answer;
-	}
-
-	private UUID getIdFromResponseLocation(String location)
-	{
-		location = location.substring(1, location.length()-1);
-
-		return UUID.fromString(location.substring(location.lastIndexOf("/")).substring(1));
 	}
 
 	private static JsonNode jsonNodeFromString(String jsonString)

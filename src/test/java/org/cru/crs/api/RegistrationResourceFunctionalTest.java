@@ -285,7 +285,9 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(gotAnswer.getBlockId(), createBlockUUID);
 		Assert.assertEquals(gotAnswer.getValue(), createAnswerValue);
 
-        UUID answerIdUUID = getIdFromResponseLocation(registrationResponse.getLocation().toString());
+		String returnedLocationHeader = registrationResponse.getHeaderAsLink("Location").getHref();
+
+		UUID answerIdUUID = UUID.fromString(returnedLocationHeader.substring("/answers/".length()));
 
         // get answer
 
@@ -302,13 +304,6 @@ public class RegistrationResourceFunctionalTest
 		answer.setId(answerIdUUID);
 		response = answerClient.deleteAnswer(answerIdUUID, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
-	}
-
-	private UUID getIdFromResponseLocation(String location)
-	{
-		location = location.substring(1, location.length()-1);
-
-		return UUID.fromString(location.substring(location.lastIndexOf("/")).substring(1));
 	}
 
 	private Registration createRegistration(UUID registrationUUID, UUID userUUID, UUID conferenceUUID)

@@ -25,8 +25,6 @@ public class RegistrationService
 	
 	RegistrationQueries registrationQueries = new RegistrationQueries();
 	
-	private Logger logger = Logger.getLogger(RegistrationService.class);
-
 	@Inject
     public RegistrationService(Sql2o sql, AnswerService answerService, PaymentService paymentService)
     {
@@ -99,4 +97,9 @@ public class RegistrationService
 				.addParameter("id", registrationEntity.getId())
 				.executeUpdate();
     }
+
+	public boolean isUserRegistered(UUID conferenceId, UUID userId)
+	{
+		return getRegistrationByConferenceIdUserId(conferenceId, userId) != null;
+	}
 }
