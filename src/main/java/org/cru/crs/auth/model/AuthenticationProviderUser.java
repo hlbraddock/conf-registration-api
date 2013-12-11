@@ -35,4 +35,29 @@ public abstract class AuthenticationProviderUser
 	{
 		return accessToken;
 	}
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+	public void setFirstName(String firstName)
+	{
+		this.firstName = firstName;
+	}
+	public void setLastName(String lastName) 
+	{
+		this.lastName = lastName;
+	}
+	public void setUsername(String username)
+	{
+		this.username = username;
+	}
+	public void setAccessToken(String accessToken)
+	{
+		this.accessToken = accessToken;
+	}
+	public void setAuthenticationProviderType(AuthenticationProviderType authenticationProviderType)
+	{
+		this.authenticationProviderType = authenticationProviderType;
+	}
+	
 }

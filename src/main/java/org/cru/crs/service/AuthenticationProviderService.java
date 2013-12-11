@@ -25,7 +25,7 @@ public class AuthenticationProviderService
 	public AuthenticationProviderService(){ }
 	
 	@Inject
-	public AuthenticationProviderService(Connection sqlConnection, UserService userService, AuthenticationProviderQueries authenticationProviderQueries)
+	public AuthenticationProviderService(Connection sqlConnection, UserService userService)
 	{
 		this.sqlConnection = sqlConnection;
 		
@@ -77,7 +77,9 @@ public class AuthenticationProviderService
 	public void createIdentityAndAuthProviderRecords(AuthenticationProviderUser user)
 	{
 		UserEntity newUser = new UserEntity().setId(UUID.randomUUID());
-
+		
+		setUserFields(user, newUser);
+		
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
 		authProviderIdentityEntity.setCrsId(newUser.getId());
@@ -100,6 +102,13 @@ public class AuthenticationProviderService
 						.addParameter("firstName", authProviderIdentityEntity.getFirstName())
 						.addParameter("lastName", authProviderIdentityEntity.getLastName())
 						.executeUpdate();
+	}
+
+	private void setUserFields(AuthenticationProviderUser user, UserEntity newUser)
+	{
+		if(user.getAuthenticationProviderType() == AuthenticationProviderType.RELAY) newUser.setEmailAddress(user.getUsername());
+		newUser.setFirstName(user.getFirstName());
+		newUser.setLastName(user.getLastName());
 	}
 	
 	/**

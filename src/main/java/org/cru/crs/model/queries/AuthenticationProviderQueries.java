@@ -44,7 +44,7 @@ public class AuthenticationProviderQueries implements BasicQueries
 	public String insert()
 	{
 		return "INSERT INTO auth_provider_identities(id, crs_id, user_auth_provider_id, auth_provider_user_access_token, auth_provider_name, username, first_name, last_name) " +
-				 "VALUES(:id, :crsId, :userAuthProviderId, :authProviderUserAccessToken, :authProviderName, :username, :firstName, :lastName";
+				 "VALUES(:id, :crsId, :userAuthProviderId, :authProviderUserAccessToken, :authProviderName, :username, :firstName, :lastName)";
 		
 	}
 
