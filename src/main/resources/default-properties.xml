@@ -16,9 +16,6 @@
 
     <entry key="crsEmail">donotreply@cru.org</entry>
 
-    <!-- used for debug purposes -->
-    <entry key="mode"></entry>
-
     <!-- user logged in session length (in hours) -->
     <entry key="maxSessionLength">4</entry>
 
