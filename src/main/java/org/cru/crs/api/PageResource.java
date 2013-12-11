@@ -20,7 +20,7 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 
 @Path("/pages/{pageId}")
-public class PageResource
+public class PageResource extends TransactionalResource
 {
 	@Inject PageService pageService;
     @Inject ConferenceService conferenceService;

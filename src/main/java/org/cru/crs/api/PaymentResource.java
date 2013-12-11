@@ -36,7 +36,7 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.BadRequestException;
 
 @Path("/payments")
-public class PaymentResource
+public class PaymentResource extends TransactionalResource
 {
 	@Inject CrsUserService crsUserService;
 	

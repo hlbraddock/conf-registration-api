@@ -41,7 +41,7 @@ import org.jboss.logging.Logger;
  * User: lee.braddock
  */
 @Path("/answers/{answerId}")
-public class AnswerResource
+public class AnswerResource extends TransactionalResource
 {
 	@Inject AnswerService answerService;
 	@Inject RegistrationService registrationService;

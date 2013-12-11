@@ -41,7 +41,7 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.spi.BadRequestException;
 
 @Path("/registrations/{registrationId}")
-public class RegistrationResource
+public class RegistrationResource extends TransactionalResource
 {
 	@Inject RegistrationService registrationService;
 	@Inject ConferenceService conferenceService;

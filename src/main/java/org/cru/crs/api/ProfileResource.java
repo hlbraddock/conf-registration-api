@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -16,10 +17,14 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.jboss.resteasy.spi.UnauthorizedException;
 
 @Path("/profile")
-public class ProfileResource
+@RequestScoped
+public class ProfileResource extends TransactionalResource
 {
 	@Context HttpServletRequest request;
 	@Inject CrsUserService userService;
+	
+	/*required for Weld*/
+	public ProfileResource(){ }
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -27,8 +32,10 @@ public class ProfileResource
 	{
 		try
 		{
+			System.out.println("Beginning profile request");
 			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 			
+			System.out.println("Ending profile request");
 			return Response.ok().entity(loggedInUser).build();
 		} 
 		catch (UnauthorizedException e)
