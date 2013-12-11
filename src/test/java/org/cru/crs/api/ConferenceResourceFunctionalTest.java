@@ -420,45 +420,55 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void moveBlockUpOnePage()
 	{
-		Conference webConference = conferenceFetchProcess.get(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
-		
-		Block blockToMove = webConference.getRegistrationPages().get(1).getBlocks().remove(1);
-		webConference.getRegistrationPages().get(0).getBlocks().add(blockToMove);
-		
-		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
-		Assert.assertEquals(updateResponse.getStatus(), 204);
-		
-		Conference updatedWebConference = conferenceFetchProcess.get(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
-		
-		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().size(), 5);
-		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().size(), 3);
-		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().get(4).getId(), 
-									UUID.fromString("A728C555-6989-F658-7C29-B3DD034F6FDB"));
+		moveBlock(1, 0, 1, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
 	}
 
 	@Test(groups="functional-tests")
 	public void moveBlockDownOnePage()
 	{
-		Conference webConference = conferenceFetchProcess.get(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
-				
-		Block blockToMove = webConference.getRegistrationPages().get(0).getBlocks().remove(1);
-		webConference.getRegistrationPages().get(1).getBlocks().add(blockToMove);
-		
+		moveBlock(0, 1, 1, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
+	}
+
+	private void moveBlock(int sourcePageIndex, int destinationPageIndex, int blockToRemoveIndex, UUID conferenceUUID)
+	{
+		// retrieve conference & pages
+		Conference webConference = conferenceFetchProcess.get(conferenceUUID);
+
+		List<Block> sourceBlocks = webConference.getRegistrationPages().get(sourcePageIndex).getBlocks();
+		List<Block> destinationBlocks = webConference.getRegistrationPages().get(destinationPageIndex).getBlocks();
+
+		// record original block size
+		int sourceBlocksSize = sourceBlocks.size();
+		int destinationBlocksSize = destinationBlocks.size();
+
+		// move block from source to destination page
+		Block blockToMove = sourceBlocks.remove(blockToRemoveIndex);
+		destinationBlocks.add(blockToMove);
+
+		// update conference pages
 		ClientResponse updateResponse = conferenceClient.updateConference(webConference, webConference.getId(), UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(updateResponse.getStatus(), 204);
-		
-		Conference updatedWebConference = conferenceFetchProcess.get(UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
 
-		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(0).getBlocks().size(), 3);
-		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().size(), 5);
-		Assert.assertEquals(updatedWebConference.getRegistrationPages().get(1).getBlocks().get(4).getId(), 
-									UUID.fromString("A229C555-6989-F658-7C29-B3DD034F6FDB"));
-		
-		
-				
+		// retrieve conference & pages
+		Conference updatedWebConference = conferenceFetchProcess.get(conferenceUUID);
+
+		List<Block> updatedSourceBlocks = updatedWebConference.getRegistrationPages().get(sourcePageIndex).getBlocks();
+		List<Block> updatedDestinationBlocks = updatedWebConference.getRegistrationPages().get(destinationPageIndex).getBlocks();
+
+		// ensure block moved
+		Assert.assertEquals(updatedSourceBlocks.size(), sourceBlocksSize-1);
+		Assert.assertEquals(updatedDestinationBlocks.size(), destinationBlocksSize+1);
+		Assert.assertTrue(updatedDestinationBlocks.contains(blockToMove));
+		Assert.assertEquals(updatedDestinationBlocks.get(updatedDestinationBlocks.size()-1), blockToMove);
+
+		// restore block to original page
+		updatedDestinationBlocks.remove(blockToMove);
+		updatedSourceBlocks.add(blockToMove);
+
+		conferenceClient.updateConference(updatedWebConference, webConference.getId(), UserInfo.AuthCode.Ryan);
 	}
-	
-	 //**********************************************************************
+
+	//**********************************************************************
 	 // Helper methods
 	 //**********************************************************************
 	
