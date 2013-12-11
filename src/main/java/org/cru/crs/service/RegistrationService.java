@@ -27,14 +27,11 @@ public class RegistrationService
 	
 	RegistrationQueries registrationQueries = new RegistrationQueries();
 	
-<<<<<<< HEAD
 	private Logger logger = Logger.getLogger(RegistrationService.class);
 
 	/*required for Weld*/
 	public RegistrationService(){ }
-	
-=======
->>>>>>> functional-tests-fix
+
 	@Inject
     public RegistrationService(Connection sqlConnection, AnswerService answerService, PaymentService paymentService)
     {
