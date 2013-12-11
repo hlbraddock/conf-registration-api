@@ -49,7 +49,6 @@ public class RegistrationUpdateProcessTests
 		paymentService = new PaymentService(sqlConnection);
 		registrationService = new RegistrationService(sqlConnection, answerService, paymentService);
 		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
-		BlockService blockService = new BlockService(sqlConnection, answerService);
 		ConferenceService conferenceService = new ConferenceService(sqlConnection,
 													new ConferenceCostsService(sqlConnection),
 													new PageService(sqlConnection, new BlockService(sqlConnection, new AnswerService(sqlConnection))), 
@@ -95,7 +94,7 @@ public class RegistrationUpdateProcessTests
 		}
 		finally
 		{
-
+			sqlConnection.rollback();
 		}
 	}
 

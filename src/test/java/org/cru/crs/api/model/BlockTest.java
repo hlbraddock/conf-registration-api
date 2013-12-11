@@ -15,7 +15,7 @@ public class BlockTest
 		return Block.fromJpa(blockEntity);
 	}
 
-	@Test(groups="db-integration-tests")
+	@Test(groups="unittest")
 	public void testBlockEquality()
 	{
 		UUID uuid1 = UUID.randomUUID();

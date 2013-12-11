@@ -19,7 +19,7 @@ public class CollectionUtilsTest
 		return Block.fromJpa(blockEntity);
 	}
 
-	@Test(groups="db-integration-tests")
+	@Test(groups="unittest")
 	public void testNotFoundBlock()
 	{
 		UUID uuid0 = UUID.randomUUID();
@@ -37,7 +37,7 @@ public class CollectionUtilsTest
 			Assert.assertTrue(block.getId().equals(uuid1) || block.getId().equals(uuid0));
 	}
 
-	@Test(groups="db-integration-tests")
+	@Test(groups="unittest")
 	public void testNotFound()
 	{
 		Set<String> first = new HashSet<String>(Arrays.asList("one", "two", "twohalf", "three"));
@@ -49,7 +49,7 @@ public class CollectionUtilsTest
 			Assert.assertTrue(string.equals("one") || string.equals("twohalf"));
 	}
 
-	@Test(groups="db-integration-tests")
+	@Test(groups="unittest")
 	public void testNotFound2()
 	{
 		Set<String> first = new HashSet<String>(Arrays.asList("one", "two", "twohalf", "three"));
