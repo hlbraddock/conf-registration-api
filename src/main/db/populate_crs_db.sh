@@ -1,4 +1,4 @@
-!/bin/sh
+#!/bin/sh
 
 DIR=files
 CREATE_SCRIPTS="users.sql auth_provider_identities.sql conference_costs.sql conference_costs_blocks.sql conferences.sql registrations.sql payments.sql pages.sql blocks.sql answers.sql authorizations.sql sessions.sql"

@@ -1,3 +1,5 @@
+#!/bin/sh
+
 echo 'WARNING!  This command will drop and recreate the entire crsdb database and roles'
 printf '\n'
 echo 'Do you want to continue? (Y/N) '
