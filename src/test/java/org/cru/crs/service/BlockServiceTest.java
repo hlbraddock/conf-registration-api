@@ -5,15 +5,11 @@ import java.util.UUID;
 
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.BlockEntity;
+import org.cru.crs.utils.JsonNodeHelper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-/**
- * TODO: figure out how to test JSON node
- * @author ryancarlson
- *
- */
 public class BlockServiceTest
 {
 	org.sql2o.Connection sqlConnection;
@@ -27,7 +23,7 @@ public class BlockServiceTest
 	}
 	
 	@Test
-	public void testFetchYearInSchoolBlock()
+	public void testFetchYearInSchoolBlock() throws Exception
 	{
 		BlockEntity yearInSchoolBlock = getBlockService().fetchBlockBy(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1"));
 		
@@ -40,6 +36,7 @@ public class BlockServiceTest
 		Assert.assertTrue(yearInSchoolBlock.isRequired());
 		Assert.assertEquals(yearInSchoolBlock.getTitle(), "Year in school");
 		Assert.assertEquals(yearInSchoolBlock.getPosition(), 3);
+		Assert.assertEquals(yearInSchoolBlock.getContent(), JsonNodeHelper.toJsonNode("{\"choices\" : [\"Freshman\",\"Sophomore\",\"Junior\",\"Senior\",\"Super Senior\",\"Grad Student\",\"Do not plan on graduating\"]}"));
 	}
 	
 	@Test
@@ -116,8 +113,6 @@ public class BlockServiceTest
 	@Test
 	public void testUpdateCatsNameBlock()
 	{
-		//DDA45720-DE87-C419-933A-0187-12B152DC
-		
 		BlockService blockService = getBlockService();
 		
 		BlockEntity updatedCatsNameBlock = new BlockEntity();
