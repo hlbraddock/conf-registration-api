@@ -44,11 +44,11 @@ public class UserService
     	}
     	
     	sql.createQuery(userQueries.insert())
-    			.addParameter(":id", userToSave.getId())
-    			.addParameter(":firstName", userToSave.getFirstName())
+    			.addParameter("id", userToSave.getId())
+    			.addParameter("firstName", userToSave.getFirstName())
     			.addParameter("lastName", userToSave.getLastName())
     			.addParameter("emailAddress", userToSave.getEmailAddress())
-    			.addParameter(":phoneNumber", userToSave.getPhoneNumber())
+    			.addParameter("phoneNumber", userToSave.getPhoneNumber())
     			.executeUpdate();
     }
 }
