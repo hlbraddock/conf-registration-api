@@ -95,13 +95,13 @@ public class RegistrationService
 						.executeUpdate();
     }
 
-    public void deleteRegistration(RegistrationEntity registrationEntity)
+    public void deleteRegistration(UUID registrationId)
 	{
-    	answerService.deleteAnswersByRegistrationId(registrationEntity.getId());
-    	paymentService.disassociatePaymentsFromRegistration(registrationEntity.getId());
+    	answerService.deleteAnswersByRegistrationId(registrationId);
+    	paymentService.disassociatePaymentsFromRegistration(registrationId);
     	
     	sqlConnection.createQuery(registrationQueries.delete())
-						.addParameter("id", registrationEntity.getId())
+						.addParameter("id", registrationId)
 						.executeUpdate();
     }
 

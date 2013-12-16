@@ -199,7 +199,7 @@ public class RegistrationResource extends TransactionalResource
 				OperationType.DELETE,
 				crsLoggedInUser);
 
-		registrationService.deleteRegistration(registrationEntity);
+		registrationService.deleteRegistration(registrationEntity.getId());
 
 		return Response.noContent().build();
 	}
