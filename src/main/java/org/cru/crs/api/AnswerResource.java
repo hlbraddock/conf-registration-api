@@ -164,7 +164,7 @@ public class AnswerResource extends TransactionalResource
 
 		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
 
-		answerService.deleteAnswer(answerEntity);
+		answerService.deleteAnswer(answerEntity.getId());
 
 		return Response.noContent().build();
 	}

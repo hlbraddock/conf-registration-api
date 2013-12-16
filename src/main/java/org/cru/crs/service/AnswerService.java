@@ -75,10 +75,10 @@ public class AnswerService
         				.executeUpdate();
     }
     
-	public void deleteAnswer(AnswerEntity answerToDelete)
+	public void deleteAnswer(UUID answerId)
 	{
 		sqlConnection.createQuery(answerQueries.delete())
-						.addParameter("id", answerToDelete.getId())
+						.addParameter("id", answerId)
 						.executeUpdate();
 	}
 
@@ -86,7 +86,7 @@ public class AnswerService
 	{
 		for(AnswerEntity answerEntity : getAllAnswersForBlock(blockId))
 		{
-			deleteAnswer(answerEntity);
+			deleteAnswer(answerEntity.getId());
 		}
 	}
 	
@@ -94,7 +94,7 @@ public class AnswerService
 	{
 		for(AnswerEntity answerEntity : getAllAnswersForRegistration(registrationId))
 		{
-			deleteAnswer(answerEntity);
+			deleteAnswer(answerEntity.getId());
 		}
 	}
 }
