@@ -15,19 +15,19 @@ import org.testng.annotations.Test;
 public class ConferenceCostsServiceTest
 {
 	org.sql2o.Connection sqlConnection;
+	ConferenceCostsService conferenceCostsService;
 	
 	@BeforeMethod
-	private ConferenceCostsService getConferenceCostsService()
+	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
-		return new ConferenceCostsService(sqlConnection);
+		conferenceCostsService = new ConferenceCostsService(sqlConnection);
 	}
 	
 	@Test
 	public void testGetConferenceCosts()
 	{
-		ConferenceCostsEntity conferenceCostsEntity = getConferenceCostsService().fetchBy(ConferenceInfo.Id.NorthernMichigan);
+		ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(ConferenceInfo.Id.NorthernMichigan);
 		
 		Assert.assertNotNull(conferenceCostsEntity);
 		Assert.assertEquals(conferenceCostsEntity.getId(), ConferenceInfo.Id.NorthernMichigan);
@@ -41,7 +41,7 @@ public class ConferenceCostsServiceTest
 	@Test
 	public void testGetConferenceCostsWithEarlyRegistrationDiscount()
 	{
-		ConferenceCostsEntity conferenceCostsEntity = getConferenceCostsService().fetchBy(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+		ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
 		
 		Assert.assertNotNull(conferenceCostsEntity);
 		Assert.assertEquals(conferenceCostsEntity.getId(), UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
@@ -55,7 +55,6 @@ public class ConferenceCostsServiceTest
 	@Test
 	public void testSaveConferenceCosts()
 	{
-		ConferenceCostsService conferenceCostsService = getConferenceCostsService();
 		UUID id = UUID.randomUUID();
 		
 		try
@@ -95,8 +94,6 @@ public class ConferenceCostsServiceTest
 	@Test
 	public void testUpdateConfernenceCosts()
 	{
-		ConferenceCostsService conferenceCostsService = getConferenceCostsService();
-		
 		DateTime currentDateTime = new DateTime();
 		
 		ConferenceCostsEntity conferenceCostsEntityToUpdate = new ConferenceCostsEntity();

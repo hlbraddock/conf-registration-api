@@ -8,6 +8,7 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.UserInfo;
+import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -21,24 +22,22 @@ import org.testng.annotations.Test;
  */
 public class ConferenceServiceTest
 {
-
-	org.sql2o.Connection sqlConnection;
+	Connection sqlConnection;
+	ConferenceService conferenceService;
 	
 	@BeforeMethod
-	private ConferenceService getConferenceService()
+	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		
-		return new ConferenceService(sqlConnection,
+		conferenceService = new ConferenceService(sqlConnection,
 										new ConferenceCostsService(sqlConnection),
 										new PageService(sqlConnection, new BlockService(sqlConnection, new AnswerService(sqlConnection))), new UserService(sqlConnection));
 	}
 	
 	@Test
 	public void testFetchAllConferencesTestUser()
-	{
-		ConferenceService conferenceService = getConferenceService();
-		
+	{		
 		List<ConferenceEntity> conferences = conferenceService.fetchAllConferences(UserInfo.Users.TestUser);
 		
 		Assert.assertEquals(conferences.size(), 2);
@@ -46,9 +45,7 @@ public class ConferenceServiceTest
 	
 	@Test
 	public void testFetchAllConferencesRyan()
-	{
-		ConferenceService conferenceService = getConferenceService();
-		
+	{		
 		List<ConferenceEntity> conferences = conferenceService.fetchAllConferences(UserInfo.Users.Ryan);
 		
 		Assert.assertEquals(conferences.size(), 2);
@@ -56,9 +53,7 @@ public class ConferenceServiceTest
 	
 	@Test
 	public void testFetchNorthernMichiganConference()
-	{
-		ConferenceService conferenceService = getConferenceService();
-		
+	{		
 		ConferenceEntity northernMichiganConference = conferenceService.fetchConferenceBy(ConferenceInfo.Id.NorthernMichigan);
 		
 		Assert.assertNotNull(northernMichiganConference);
@@ -87,9 +82,7 @@ public class ConferenceServiceTest
 			ConferenceEntity conference = ConferenceInfo.createFakeConference();
 			ConferenceCostsEntity conferenceCosts = new ConferenceCostsEntity();
 			conferenceCosts.setId(conference.getId());
-			
-			ConferenceService conferenceService = getConferenceService();
-			
+						
 			conferenceService.createNewConference(conference, conferenceCosts);
 			
 			ConferenceEntity retrievedConference = conferenceService.fetchConferenceBy(conference.getId());
@@ -124,9 +117,7 @@ public class ConferenceServiceTest
 	public void testUpdateConferenceNameAndDescription()
 	{
 		try
-		{
-			ConferenceService conferenceService = getConferenceService();
-			
+		{			
 			ConferenceEntity northernMichiganConference = conferenceService.fetchConferenceBy(ConferenceInfo.Id.NorthernMichigan);
 
 			Assert.assertNotEquals(northernMichiganConference.getName(), "Northern Michigan what's a conference?");
@@ -156,9 +147,7 @@ public class ConferenceServiceTest
 	public void testUpdateConferenceEventTimes()
 	{
 		try
-		{
-			ConferenceService conferenceService = getConferenceService();
-			
+		{			
 			ConferenceEntity northernMichiganConference = conferenceService.fetchConferenceBy(ConferenceInfo.Id.NorthernMichigan);
 
 			Assert.assertNotEquals(northernMichiganConference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2014, 10, 2, 16, 15, 22));

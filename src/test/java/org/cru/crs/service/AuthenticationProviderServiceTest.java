@@ -8,6 +8,7 @@ import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.utils.UserInfo;
+import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -20,20 +21,20 @@ import org.testng.annotations.Test;
  */
 public class AuthenticationProviderServiceTest
 {
-	org.sql2o.Connection sqlConnection;
+	Connection sqlConnection;
+	AuthenticationProviderService authenticationProviderService;
 	
 	@BeforeMethod
-	private AuthenticationProviderService getAuthenticationProviderService()
+	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
-		return new AuthenticationProviderService(sqlConnection,new UserService(sqlConnection));
+		authenticationProviderService = new AuthenticationProviderService(sqlConnection,new UserService(sqlConnection));
 	}
 	
 	@Test
 	public void testFindAuthProviderEntityById()
 	{
-		AuthenticationProviderIdentityEntity authProviderIdentityEntity = getAuthenticationProviderService().findAuthProviderIdentityById(UserInfo.AuthProviderId.TestUser);
+		AuthenticationProviderIdentityEntity authProviderIdentityEntity = authenticationProviderService.findAuthProviderIdentityById(UserInfo.AuthProviderId.TestUser);
 		
 		Assert.assertNotNull(authProviderIdentityEntity);
 		Assert.assertEquals(authProviderIdentityEntity.getAuthProviderName(), UserInfo.Users.TestUser.getAuthProviderType().name());
@@ -48,7 +49,7 @@ public class AuthenticationProviderServiceTest
 	@Test
 	public void testFindAuthProviderEntityUserByAuthProviderId()
 	{
-		AuthenticationProviderIdentityEntity authProviderIdentityEntity = getAuthenticationProviderService().findAuthProviderIdentityByUserAuthProviderId("05218422-6bbf-47fb-897c-371c91f87076");
+		AuthenticationProviderIdentityEntity authProviderIdentityEntity = authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId("05218422-6bbf-47fb-897c-371c91f87076");
 		
 		Assert.assertNotNull(authProviderIdentityEntity);
 		Assert.assertEquals(authProviderIdentityEntity.getAuthProviderName(), UserInfo.Users.TestUser.getAuthProviderType().name());
@@ -63,7 +64,7 @@ public class AuthenticationProviderServiceTest
 	@Test
 	public void testFindAuthProviderEntityByUsernameAndType()
 	{
-		AuthenticationProviderIdentityEntity authProviderIdentityEntity = getAuthenticationProviderService().findAuthProviderIdentityByAuthProviderUsernameAndType("crs.testuser@crue.org", AuthenticationProviderType.RELAY);
+		AuthenticationProviderIdentityEntity authProviderIdentityEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderUsernameAndType("crs.testuser@crue.org", AuthenticationProviderType.RELAY);
 		
 		Assert.assertNotNull(authProviderIdentityEntity);
 		Assert.assertEquals(authProviderIdentityEntity.getAuthProviderName(), UserInfo.Users.TestUser.getAuthProviderType().name());
@@ -78,8 +79,6 @@ public class AuthenticationProviderServiceTest
 	@Test
 	public void testCreateUserAndAuthProviderEntities()
 	{
-		AuthenticationProviderService authProviderService = getAuthenticationProviderService();
-		
 		RelayUser newRelayUser = new RelayUser();
 
 		String relayId = UUID.randomUUID().toString();
@@ -92,9 +91,9 @@ public class AuthenticationProviderServiceTest
 		
 		try
 		{
-			authProviderService.createIdentityAndAuthProviderRecords(newRelayUser);
+			authenticationProviderService.createIdentityAndAuthProviderRecords(newRelayUser);
 			
-			AuthenticationProviderIdentityEntity authProviderEntity = authProviderService.findAuthProviderIdentityByUserAuthProviderId(relayId);
+			AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId(relayId);
 			UserEntity userEntity = new UserService(sqlConnection).fetchUserBy(authProviderEntity.getCrsId());
 			
 			Assert.assertNotNull(authProviderEntity);

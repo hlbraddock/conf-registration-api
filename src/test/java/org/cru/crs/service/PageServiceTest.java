@@ -6,26 +6,27 @@ import java.util.UUID;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.ConferenceInfo;
+import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class PageServiceTest
 {
-	org.sql2o.Connection sqlConnection;
+	Connection sqlConnection;
+	PageService pageService;
 	
 	@BeforeMethod
-	private PageService getPageService()
+	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
-		return new PageService(sqlConnection,new BlockService(sqlConnection, new AnswerService(sqlConnection)));
+		pageService = new PageService(sqlConnection,new BlockService(sqlConnection, new AnswerService(sqlConnection)));
 	}
 	
 	@Test
 	public void testFetchAboutYourCatPage()
 	{
-		PageEntity pageEntity = getPageService().fetchPageBy(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+		PageEntity pageEntity = pageService.fetchPageBy(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 		
 		Assert.assertNotNull(pageEntity);
 		Assert.assertEquals(pageEntity.getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
@@ -37,7 +38,7 @@ public class PageServiceTest
 	@Test
 	public void testFetchPagesForNorthernMichiganConference()
 	{
-		List<PageEntity> pagesForNorthernMichigan = getPageService().fetchPagesForConference(ConferenceInfo.Id.NorthernMichigan);
+		List<PageEntity> pagesForNorthernMichigan = pageService.fetchPagesForConference(ConferenceInfo.Id.NorthernMichigan);
 		
 		Assert.assertNotNull(pagesForNorthernMichigan);
 		Assert.assertEquals(pagesForNorthernMichigan.size(), 3);
@@ -66,8 +67,6 @@ public class PageServiceTest
 	@Test
 	public void testSaveNewPage()
 	{
-		PageService pageService = getPageService();
-		
 		PageEntity newPage = new PageEntity();
 		UUID id = UUID.randomUUID();
 		
@@ -99,8 +98,6 @@ public class PageServiceTest
 	@Test
 	public void updateAboutYouPage()
 	{
-		PageService pageService = getPageService();
-		
 		PageEntity updatedAboutYouPage = new PageEntity();
 		
 		updatedAboutYouPage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
@@ -131,7 +128,6 @@ public class PageServiceTest
 	{
 		try
 		{
-			PageService pageService = getPageService();
 			pageService.deletePage(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
 			
 			Assert.assertNull(pageService.fetchPageBy(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5")));

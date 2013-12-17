@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.utils.UserInfo;
+import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -12,20 +13,20 @@ import org.testng.annotations.Test;
 public class UserServiceTest
 {
 
-	org.sql2o.Connection sqlConnection;
+	Connection sqlConnection;
+	UserService userService;
 	
 	@BeforeMethod
-	private UserService getUserService()
+	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
-		return new UserService(sqlConnection);
+		userService = new UserService(sqlConnection);
 	}
 	
 	@Test
 	public void testGetUser()
 	{
-		UserEntity testUser = getUserService().fetchUserBy(UserInfo.Id.TestUser);
+		UserEntity testUser = userService.fetchUserBy(UserInfo.Id.TestUser);
 		
 		Assert.assertNotNull(testUser);
 		Assert.assertEquals(testUser.getId(), UserInfo.Id.TestUser);
@@ -38,8 +39,6 @@ public class UserServiceTest
 	@Test
 	public void testCreateUser()
 	{
-		UserService userService = getUserService();
-		
 		UserEntity newUserEntity = new UserEntity();
 		UUID id = UUID.randomUUID();
 		

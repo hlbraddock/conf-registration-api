@@ -6,26 +6,27 @@ import java.util.UUID;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.utils.JsonNodeHelper;
+import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class BlockServiceTest
 {
-	org.sql2o.Connection sqlConnection;
+	Connection sqlConnection;
+	BlockService blockService;
 	
 	@BeforeMethod
-	private BlockService getBlockService()
+	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
-		return new BlockService(sqlConnection,new AnswerService(sqlConnection));
+		blockService = new BlockService(sqlConnection,new AnswerService(sqlConnection));
 	}
 	
 	@Test
 	public void testFetchYearInSchoolBlock() throws Exception
 	{
-		BlockEntity yearInSchoolBlock = getBlockService().fetchBlockBy(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1"));
+		BlockEntity yearInSchoolBlock = blockService.fetchBlockBy(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1"));
 		
 		Assert.assertNotNull(yearInSchoolBlock);
 		
@@ -42,7 +43,7 @@ public class BlockServiceTest
 	@Test
 	public void testFetchBlocksForAboutYourCatPage()
 	{
-		List<BlockEntity> blocksForAboutYourCat = getBlockService().fetchBlocksForPage(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+		List<BlockEntity> blocksForAboutYourCat = blockService.fetchBlocksForPage(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 		
 		Assert.assertNotNull(blocksForAboutYourCat);
 		
@@ -74,8 +75,6 @@ public class BlockServiceTest
 	@Test
 	public void testSaveNewBlockToAboutYourCatPage()
 	{
-		BlockService blockService = getBlockService();
-		
 		BlockEntity newBlock = new BlockEntity();
 		UUID id = UUID.randomUUID();
 		
@@ -113,8 +112,6 @@ public class BlockServiceTest
 	@Test
 	public void testUpdateCatsNameBlock()
 	{
-		BlockService blockService = getBlockService();
-		
 		BlockEntity updatedCatsNameBlock = new BlockEntity();
 		
 		updatedCatsNameBlock.setId(UUID.fromString("dda45720-de87-c419-933a-018712b152dc"));
@@ -151,7 +148,6 @@ public class BlockServiceTest
 	{
 		try
 		{
-			BlockService blockService = getBlockService();
 			blockService.deleteBlock(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1"));
 			
 			Assert.assertNull(blockService.fetchBlockBy(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1")));
