@@ -55,5 +55,6 @@ public class UserService
     					.addParameter("emailAddress", userToSave.getEmailAddress())
     					.addParameter("phoneNumber", userToSave.getPhoneNumber())
     					.executeUpdate();
+
     }
 }
