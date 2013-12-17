@@ -128,7 +128,10 @@ public class ConferenceServiceTest
 			ConferenceService conferenceService = getConferenceService();
 			
 			ConferenceEntity northernMichiganConference = conferenceService.fetchConferenceBy(ConferenceInfo.Id.NorthernMichigan);
-			
+
+			Assert.assertNotEquals(northernMichiganConference.getName(), "Northern Michigan what's a conference?");
+			Assert.assertNotEquals(northernMichiganConference.getDescription(), "Someone is running a test...");
+
 			northernMichiganConference.setName("Northern Michigan what's a conference?");
 			northernMichiganConference.setDescription("Someone is running a test...");
 			
@@ -157,7 +160,10 @@ public class ConferenceServiceTest
 			ConferenceService conferenceService = getConferenceService();
 			
 			ConferenceEntity northernMichiganConference = conferenceService.fetchConferenceBy(ConferenceInfo.Id.NorthernMichigan);
-			
+
+			Assert.assertNotEquals(northernMichiganConference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2014, 10, 2, 16, 15, 22));
+			Assert.assertNotEquals(northernMichiganConference.getEventEndTime(), DateTimeCreaterHelper.createDateTime(2014, 10, 6, 5, 33, 2));
+
 			northernMichiganConference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2014, 10, 2, 16, 15, 22));
 			northernMichiganConference.setEventEndTime(DateTimeCreaterHelper.createDateTime(2014, 10, 6, 5, 33, 2));
 			
