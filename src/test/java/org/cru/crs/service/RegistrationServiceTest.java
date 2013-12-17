@@ -76,12 +76,12 @@ public class RegistrationServiceTest
 			RegistrationEntity retrievedRegistration = registrationService.getRegistrationBy(id);
 			
 			Assert.assertNotNull(retrievedRegistration);
-			Assert.assertEquals(newRegistration.getId(),id);
-			Assert.assertEquals(newRegistration.getUserId(),UserInfo.Id.Email);
-			Assert.assertEquals(newRegistration.getConferenceId(),ConferenceInfo.Id.NorthernMichigan);
-			Assert.assertTrue(newRegistration.getCompleted());
-			Assert.assertEquals(newRegistration.getCompletedTimestamp(),completed);
-			Assert.assertEquals(newRegistration.getTotalDue(),new BigDecimal("48.12"));
+			Assert.assertEquals(retrievedRegistration.getId(),id);
+			Assert.assertEquals(retrievedRegistration.getUserId(),UserInfo.Id.Email);
+			Assert.assertEquals(retrievedRegistration.getConferenceId(),ConferenceInfo.Id.NorthernMichigan);
+			Assert.assertTrue(retrievedRegistration.getCompleted());
+			Assert.assertEquals(retrievedRegistration.getCompletedTimestamp(),completed);
+			Assert.assertEquals(retrievedRegistration.getTotalDue(),new BigDecimal("48.12"));
 		}
 		finally
 		{
