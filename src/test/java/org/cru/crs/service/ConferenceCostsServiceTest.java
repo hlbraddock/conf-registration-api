@@ -116,15 +116,15 @@ public class ConferenceCostsServiceTest
 			
 			Assert.assertNotNull(retrievedConferenceCosts);
 			
-			Assert.assertEquals(conferenceCostsEntityToUpdate.getId(), ConferenceInfo.Id.NorthernMichigan);
-			Assert.assertTrue(conferenceCostsEntityToUpdate.isEarlyRegistrationDiscount());
-			Assert.assertEquals(conferenceCostsEntityToUpdate.getEarlyRegistrationAmount(), new BigDecimal("20.00"));
-			Assert.assertEquals(conferenceCostsEntityToUpdate.getEarlyRegistrationCutoff(), currentDateTime);
-			Assert.assertEquals(conferenceCostsEntityToUpdate.getAuthnetId(), "123456789");
-			Assert.assertEquals(conferenceCostsEntityToUpdate.getAuthnetToken(), "132490784098023");
-			Assert.assertTrue(conferenceCostsEntityToUpdate.isAcceptCreditCards());
-			Assert.assertEquals(conferenceCostsEntityToUpdate.getBaseCost(), new BigDecimal("75.00"));
-			Assert.assertEquals(conferenceCostsEntityToUpdate.getMinimumDeposit(), new BigDecimal("0.00"));
+			Assert.assertEquals(retrievedConferenceCosts.getId(), ConferenceInfo.Id.NorthernMichigan);
+			Assert.assertTrue(retrievedConferenceCosts.isEarlyRegistrationDiscount());
+			Assert.assertEquals(retrievedConferenceCosts.getEarlyRegistrationAmount(), new BigDecimal("20.00"));
+			Assert.assertEquals(retrievedConferenceCosts.getEarlyRegistrationCutoff(), currentDateTime);
+			Assert.assertEquals(retrievedConferenceCosts.getAuthnetId(), "123456789");
+			Assert.assertEquals(retrievedConferenceCosts.getAuthnetToken(), "132490784098023");
+			Assert.assertTrue(retrievedConferenceCosts.isAcceptCreditCards());
+			Assert.assertEquals(retrievedConferenceCosts.getBaseCost(), new BigDecimal("75.00"));
+			Assert.assertEquals(retrievedConferenceCosts.getMinimumDeposit(), new BigDecimal("0.00"));
 		}
 		finally
 		{
