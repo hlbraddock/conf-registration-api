@@ -9,10 +9,8 @@ import javax.inject.Inject;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.queries.ConferenceQueries;
 import org.sql2o.Connection;
-import org.sql2o.Sql2o;
 
 @RequestScoped
 public class ConferenceService
