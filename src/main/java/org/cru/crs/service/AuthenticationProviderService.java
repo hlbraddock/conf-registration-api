@@ -65,7 +65,7 @@ public class AuthenticationProviderService
 	{
 		return sqlConnection.createQuery(authenticationProviderQueries.selectByUsernameAuthProviderName())
 								.addParameter("username", username)
-								.addParameter("authProviderName", authenticationProviderType.getSessionIdentifierName())
+								.addParameter("authProviderName", authenticationProviderType.name())
 								.setAutoDeriveColumnNames(true)
 								.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
