@@ -69,8 +69,6 @@ public class ConferenceResource extends TransactionalResource
 
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
-	/*required for Weld*/
-	public ConferenceResource(){ }
 	/**
 	 * Returns all conference resources that the user specified by @param registrationId has access to
 	 * 
