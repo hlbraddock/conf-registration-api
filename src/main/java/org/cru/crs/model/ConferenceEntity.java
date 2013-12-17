@@ -38,6 +38,7 @@ public class ConferenceEntity implements java.io.Serializable
     private String locationState;
     private String locationZipCode;
     
+	private boolean requireLogin;
 	
 	public UUID getId()
 	{
@@ -218,5 +219,15 @@ public class ConferenceEntity implements java.io.Serializable
 	public void setLocationZipCode(String locationZipCode)
 	{
 		this.locationZipCode = locationZipCode;
+	}
+
+	public boolean getRequireLogin()
+	{
+		return requireLogin;
+	}
+
+	public void setRequireLogin(boolean requireLogin)
+	{
+		this.requireLogin = requireLogin;
 	}
 }

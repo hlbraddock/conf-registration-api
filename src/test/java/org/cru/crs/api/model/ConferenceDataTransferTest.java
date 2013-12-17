@@ -38,6 +38,7 @@ public class ConferenceDataTransferTest
         conference.setLocationCity("Farmville");
 		conference.setLocationState("TX");
         conference.setLocationZipCode("23451");
+        conference.setRequireLogin(true);
 
         ConferenceEntity jpaConference = conference.toDbConferenceEntity();
 		
@@ -55,6 +56,7 @@ public class ConferenceDataTransferTest
         Assert.assertEquals(jpaConference.getLocationCity(), "Farmville");
         Assert.assertEquals(jpaConference.getLocationState(), "TX");
         Assert.assertEquals(jpaConference.getLocationZipCode(), "23451");
+        Assert.assertTrue(jpaConference.getRequireLogin());
 	}
 	
 	@Test(groups="unittest")
@@ -70,6 +72,7 @@ public class ConferenceDataTransferTest
 		conference.setRegistrationEndTime(DateTimeCreaterHelper.createDateTime(2013, 8, 30, 12, 0, 0));
 		conference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 8, 12, 17, 30, 10));
 		conference.setTotalSlots(150);
+		conference.setRequireLogin(false);
 		
 		Conference webConference = Conference.fromDb(conference, null);
 		
@@ -82,6 +85,7 @@ public class ConferenceDataTransferTest
 		Assert.assertEquals(webConference.getRegistrationEndTime(), DateTimeCreaterHelper.createDateTime(2013, 8, 30, 12, 0, 0));
 		Assert.assertEquals(webConference.getRegistrationStartTime(), DateTimeCreaterHelper.createDateTime(2013, 8, 12, 17, 30, 10));
 		Assert.assertEquals(webConference.getTotalSlots(), 150);
+		Assert.assertFalse(webConference.isRequireLogin());
 	}
 	
 	@Test(groups="unittest")
