@@ -32,10 +32,8 @@ public class ProfileResource extends TransactionalResource
 	{
 		try
 		{
-			System.out.println("Beginning profile request");
 			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
 			
-			System.out.println("Ending profile request");
 			return Response.ok().entity(loggedInUser).build();
 		} 
 		catch (UnauthorizedException e)
