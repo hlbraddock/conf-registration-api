@@ -77,6 +77,7 @@ public class ConferenceServiceTest
 		Assert.assertEquals(northernMichiganConference.getLocationCity(), "Marquette");
 		Assert.assertEquals(northernMichiganConference.getLocationState(), "MI");
 		Assert.assertEquals(northernMichiganConference.getLocationZipCode(), "42302");
+		Assert.assertFalse(northernMichiganConference.getRequireLogin());
 	}
 	
 	@Test
@@ -113,6 +114,7 @@ public class ConferenceServiceTest
 			Assert.assertEquals(retrievedConference.getEventStartTime(), conference.getEventStartTime());
 			Assert.assertEquals(retrievedConference.getEventEndTime(), conference.getEventEndTime());
 			Assert.assertEquals(retrievedConference.getTotalSlots(), conference.getTotalSlots());
+			Assert.assertTrue(retrievedConference.getRequireLogin());
 		}
 		finally
 		{
