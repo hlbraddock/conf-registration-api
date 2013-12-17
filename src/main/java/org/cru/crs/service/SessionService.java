@@ -17,7 +17,7 @@ public class SessionService
 
 	SessionQueries sessionQueries;
 	
-	/*required for Weld*/
+	/*Weld requires a default no args constructor to proxy this object*/
 	public SessionService(){ }
 	
 	@Inject

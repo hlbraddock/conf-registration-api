@@ -16,7 +16,7 @@ public class ConferenceCostsService
 
 	ConferenceCostsQueries conferenceCostsQueries;
 	
-	/*required for Weld*/
+	/*Weld requires a default no args constructor to proxy this object*/
 	public ConferenceCostsService(){ }
 	
 	@Inject

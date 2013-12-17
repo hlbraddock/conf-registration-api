@@ -20,7 +20,7 @@ public class PageService
 	
 	PageQueries pageQueries;
 	
-	/*required for Weld*/
+	/*Weld requires a default no args constructor to proxy this object*/
 	public PageService(){ }
 	
 	@Inject

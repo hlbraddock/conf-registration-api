@@ -21,7 +21,7 @@ public class AnswerService
 	
 	AnswerQueries answerQueries = new AnswerQueries();
 	
-	/*required for Weld*/
+	/*Weld requires a default no args constructor to proxy this object*/
 	public AnswerService(){ }
 	
     @Inject

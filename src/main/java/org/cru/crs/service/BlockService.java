@@ -19,7 +19,7 @@ public class BlockService
 
 	BlockQueries blockQueries;
 	
-	/*required for Weld*/
+	/*Weld requires a default no args constructor to proxy this object*/
 	public BlockService(){ }
 	
     @Inject
