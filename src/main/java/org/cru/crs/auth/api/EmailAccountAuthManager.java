@@ -5,11 +5,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.ejb.Stateless;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.cru.crs.auth.AuthenticationProviderType;
@@ -28,7 +26,9 @@ public class EmailAccountAuthManager extends AbstractAuthManager
 		/**The "No-auth" provider should have already saved a row with this code as the auth_id and type "No-auth".
 		 * Now that the user is logging back in via email address, we should update the type to "Email-Account".
 		 */
-		AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity = authenticationProviderService.updateAuthProviderType(authId, AuthenticationProviderType.EMAIL_ACCOUNT);
+		authenticationProviderService.updateAuthProviderType(authId, AuthenticationProviderType.EMAIL_ACCOUNT);
+
+		AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity = authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId(authId);
 
 		if(authenticationProviderIdentityEntity == null)
 		{
