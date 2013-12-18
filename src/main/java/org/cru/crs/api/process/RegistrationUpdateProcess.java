@@ -77,7 +77,7 @@ public class RegistrationUpdateProcess
 		
 		for(AnswerEntity answerToDelete : deletedAnswerEntites)
 		{
-			answerService.deleteAnswer(answerToDelete);
+			answerService.deleteAnswer(answerToDelete.getId());
 		}
 	}
 

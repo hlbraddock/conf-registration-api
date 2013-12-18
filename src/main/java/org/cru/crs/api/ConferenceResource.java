@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -48,7 +50,7 @@ import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.testng.collections.Lists;
 
 @Path("/conferences")
-public class ConferenceResource
+public class ConferenceResource extends TransactionalResource
 {
 	@Inject ConferenceService conferenceService;
 	@Inject RegistrationService registrationService;
@@ -136,6 +138,7 @@ public class ConferenceResource
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public Response createConference(Conference conference, @HeaderParam(value="Authorization") String authCode) throws URISyntaxException
 	{
 		logger.info("create conference auth code" + authCode);

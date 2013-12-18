@@ -41,7 +41,7 @@ import org.jboss.logging.Logger;
  * User: lee.braddock
  */
 @Path("/answers/{answerId}")
-public class AnswerResource
+public class AnswerResource extends TransactionalResource
 {
 	@Inject AnswerService answerService;
 	@Inject RegistrationService registrationService;
@@ -164,7 +164,7 @@ public class AnswerResource
 
 		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
 
-		answerService.deleteAnswer(answerEntity);
+		answerService.deleteAnswer(answerEntity.getId());
 
 		return Response.noContent().build();
 	}

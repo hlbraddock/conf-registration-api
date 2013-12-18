@@ -43,7 +43,7 @@ import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 
 @Path("/registrations/{registrationId}")
-public class RegistrationResource
+public class RegistrationResource extends TransactionalResource
 {
 	@Inject RegistrationService registrationService;
 	@Inject ConferenceService conferenceService;
@@ -199,7 +199,7 @@ public class RegistrationResource
 				OperationType.DELETE,
 				crsLoggedInUser);
 
-		registrationService.deleteRegistration(registrationEntity);
+		registrationService.deleteRegistration(registrationEntity.getId());
 
 		return Response.noContent().build();
 	}

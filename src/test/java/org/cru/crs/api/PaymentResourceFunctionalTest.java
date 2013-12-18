@@ -38,7 +38,7 @@ public class PaymentResourceFunctionalTest
 	
 	RegistrationFetchProcess registrationFetchProcess;
 	
-	Sql2o sql;
+	org.sql2o.Connection sqlConnection;
 	
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 	private UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
@@ -51,11 +51,11 @@ public class PaymentResourceFunctionalTest
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
         paymentClient = ProxyFactory.create(PaymentResourceClient.class, restApiBaseUrl);
         
-        sql = new SqlConnectionProducer().getTestSqlConnection();
+        sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		
-        paymentService = new PaymentService(sql);
-        answerService = new AnswerService(sql);
-		registrationService = new RegistrationService(sql,answerService,paymentService);
+        paymentService = new PaymentService(sqlConnection);
+        answerService = new AnswerService(sqlConnection);
+		registrationService = new RegistrationService(sqlConnection,answerService,paymentService);
 		
 		registrationFetchProcess = new RegistrationFetchProcess(registrationService, paymentService, answerService);
 	}
@@ -91,9 +91,9 @@ public class PaymentResourceFunctionalTest
 		{
 			if(processedPayment != null && processedPayment.getId() != null)
 			{
-				sql.createQuery("DELETE FROM payments WHERE id = :id")
-					.addParameter("id", processedPayment.getId())
-					.executeUpdate();
+				sqlConnection.createQuery("DELETE FROM payments WHERE id = :id")
+									.addParameter("id", processedPayment.getId())
+									.executeUpdate();
 			}
 		}
 

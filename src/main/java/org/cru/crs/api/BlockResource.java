@@ -21,7 +21,7 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 
 @Path("/blocks/{blockId}")
-public class BlockResource
+public class BlockResource extends TransactionalResource
 {
 	
 	@Inject ConferenceService conferenceService;

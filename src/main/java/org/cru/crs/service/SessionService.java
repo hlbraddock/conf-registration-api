@@ -3,48 +3,53 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.model.queries.SessionQueries;
-import org.sql2o.Sql2o;
+import org.sql2o.Connection;
 
+@RequestScoped
 public class SessionService
 {
+	org.sql2o.Connection sqlConnection;
 
-	Sql2o sql;
 	SessionQueries sessionQueries;
 	
+	/*Weld requires a default no args constructor to proxy this object*/
+	public SessionService(){ }
+	
 	@Inject
-	public SessionService(Sql2o sql)
+	public SessionService(Connection sqlConnection)
 	{
-		this.sql = sql;
+		this.sqlConnection = sqlConnection;
 		this.sessionQueries = new SessionQueries();
 	}
 
 	public SessionEntity getSessionByAuthCode(String authCode)
 	{
-		return sql.createQuery(sessionQueries.selectByAuthCode(), false)
-					.addParameter("authCode", authCode)
-					.setAutoDeriveColumnNames(true)
-					.executeAndFetchFirst(SessionEntity.class);
+		return sqlConnection.createQuery(sessionQueries.selectByAuthCode(), false)
+								.addParameter("authCode", authCode)
+								.setAutoDeriveColumnNames(true)
+								.executeAndFetchFirst(SessionEntity.class);
 	}
 
 	public List<SessionEntity> fetchSessionsByUserAuthProviderId(UUID authProviderId)
 	{
-		return sql.createQuery(sessionQueries.selectByAuthProviderId())
-					.addParameter("authProviderId", authProviderId)
-					.setAutoDeriveColumnNames(true)
-					.executeAndFetch(SessionEntity.class);
+		return sqlConnection.createQuery(sessionQueries.selectByAuthProviderId())
+								.addParameter("authProviderId", authProviderId)
+								.setAutoDeriveColumnNames(true)
+								.executeAndFetch(SessionEntity.class);
 	}
 
 	public void create(SessionEntity sessionEntity)
 	{
-		sql.createQuery(sessionQueries.insert(), false)
-					.addParameter("id", sessionEntity.getId())
-					.addParameter("authProviderId", sessionEntity.getAuthProviderId())
-					.addParameter("authCode", sessionEntity.getAuthCode())
-					.addParameter("expiration", sessionEntity.getExpiration())
-					.executeUpdate();
+		sqlConnection.createQuery(sessionQueries.insert(), false)
+						.addParameter("id", sessionEntity.getId())
+						.addParameter("authProviderId", sessionEntity.getAuthProviderId())
+						.addParameter("authCode", sessionEntity.getAuthCode())
+						.addParameter("expiration", sessionEntity.getExpiration())
+						.executeUpdate();
 	}
 }

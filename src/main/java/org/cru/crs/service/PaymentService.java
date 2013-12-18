@@ -4,32 +4,36 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.queries.PaymentQueries;
-import org.sql2o.Sql2o;
+import org.sql2o.Connection;
 
 import com.google.common.base.Preconditions;
 
-
+@RequestScoped
 public class PaymentService
 {
-	Sql2o sql;
+	org.sql2o.Connection sqlConnection;
 	
     PaymentQueries paymentQueries;
     
+	/*Weld requires a default no args constructor to proxy this object*/
+    public PaymentService(){ }
+    
     @Inject
-    public PaymentService(Sql2o sql)
+    public PaymentService(Connection sqlConnection)
     {
-    	this.sql = sql;
+    	this.sqlConnection = sqlConnection;
     	
         this.paymentQueries = new PaymentQueries();
     }
 
     public PaymentEntity fetchPaymentBy(UUID id)
     {
-        return sql.createQuery(paymentQueries.selectById())
+        return sqlConnection.createQuery(paymentQueries.selectById())
         							.addParameter("id", id)
         							.setAutoDeriveColumnNames(true)
         							.executeAndFetchFirst(PaymentEntity.class);
@@ -38,38 +42,38 @@ public class PaymentService
     public void createPaymentRecord(PaymentEntity payment)
     {
     	Preconditions.checkNotNull(payment.getRegistrationId());
-        sql.createQuery(paymentQueries.insert())
-        		.addParameter("id", payment.getId())
-        		.addParameter("registrationId", payment.getRegistrationId())
-        		.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
-        		.addParameter("ccNameOnCard", payment.getCcNameOnCard())
-        		.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
-        		.addParameter("ccExpirationYear", payment.getCcExpirationYear())
-        		.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
-        		.addParameter("amount", payment.getAmount())
-        		.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
-        		.executeUpdate();
+    	sqlConnection.createQuery(paymentQueries.insert())
+        				.addParameter("id", payment.getId())
+        				.addParameter("registrationId", payment.getRegistrationId())
+        				.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
+        				.addParameter("ccNameOnCard", payment.getCcNameOnCard())
+        				.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
+        				.addParameter("ccExpirationYear", payment.getCcExpirationYear())
+        				.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
+        				.addParameter("amount", payment.getAmount())
+        				.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
+        				.executeUpdate();
     }
     
     public void updatePayment(PaymentEntity payment)
     {
     	Preconditions.checkNotNull(payment.getRegistrationId());
-    	sql.createQuery(paymentQueries.update())
-				.addParameter("id", payment.getId())
-				.addParameter("registrationId", payment.getRegistrationId())
-				.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
-				.addParameter("ccNameOnCard", payment.getCcNameOnCard())
-				.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
-				.addParameter("ccExpirationYear", payment.getCcExpirationYear())
-				.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
-				.addParameter("amount", payment.getAmount())
-				.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
-				.executeUpdate();
+    	sqlConnection.createQuery(paymentQueries.update())
+    					.addParameter("id", payment.getId())
+    					.addParameter("registrationId", payment.getRegistrationId())
+    					.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
+    					.addParameter("ccNameOnCard", payment.getCcNameOnCard())
+    					.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
+    					.addParameter("ccExpirationYear", payment.getCcExpirationYear())
+    					.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
+    					.addParameter("amount", payment.getAmount())
+    					.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
+    					.executeUpdate();
     }
     
     public List<PaymentEntity> fetchPaymentsForRegistration(UUID registrationId)
     {
-        return sql.createQuery(paymentQueries.selectAllForRegistration())
+        return sqlConnection.createQuery(paymentQueries.selectAllForRegistration())
         			.addParameter("registrationId", registrationId)
         			.setAutoDeriveColumnNames(true)
         			.executeAndFetch(PaymentEntity.class);
@@ -87,17 +91,17 @@ public class PaymentService
     	
     	for(PaymentEntity payment : payments)
     	{
-    		sql.createQuery(paymentQueries.update())
-    				.addParameter("id", payment.getId())
-    				.addParameter("registrationId", (UUID)null)
-    				.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
-    				.addParameter("ccNameOnCard", payment.getCcNameOnCard())
-    				.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
-    				.addParameter("ccExpirationYear", payment.getCcExpirationYear())
-    				.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
-    				.addParameter("amount", payment.getAmount())
-    				.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
-    				.executeUpdate();
+    		sqlConnection.createQuery(paymentQueries.update())
+    						.addParameter("id", payment.getId())
+    						.addParameter("registrationId", (UUID)null)
+    						.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
+    						.addParameter("ccNameOnCard", payment.getCcNameOnCard())
+    						.addParameter("ccExpirationMonth", payment.getCcExpirationMonth())
+    						.addParameter("ccExpirationYear", payment.getCcExpirationYear())
+    						.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
+    						.addParameter("amount", payment.getAmount())
+    						.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
+    						.executeUpdate();
     	}
     }
 }

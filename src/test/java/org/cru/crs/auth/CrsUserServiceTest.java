@@ -1,13 +1,11 @@
 package org.cru.crs.auth;
 
-import junit.framework.Assert;
-
 import org.ccci.util.time.Clock;
 import org.cru.crs.auth.api.TestAuthManager;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.auth.model.BasicNoAuthUser;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.queries.AuthenticationProviderQueries;
+import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.service.SessionService;
 import org.cru.crs.service.UserService;
@@ -17,9 +15,11 @@ import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.CrsPropertiesFactory;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
-import org.sql2o.Sql2o;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+
 
 /**
  * User: lee.braddock
@@ -35,13 +35,13 @@ public class CrsUserServiceTest
 	@BeforeMethod
 	public void setup()
 	{
-		Sql2o sql2o = new Sql2o("jdbc:postgresql://localhost/crsdb", "crsuser", "crsuser");
+		org.sql2o.Connection sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+		sessionService = new SessionService(sqlConnection);
 
-		sessionService = new SessionService(sql2o);
 		crsProperties = new CrsPropertiesFactory().get();
 		clock = new ClockImpl();
 
-		authenticationProviderService = new AuthenticationProviderService(sql2o, new UserService(sql2o), new AuthenticationProviderQueries());
+		authenticationProviderService = new AuthenticationProviderService(sqlConnection, new UserService(sqlConnection));
 		crsUserService = new CrsUserService();
 		crsUserService.sessionService = sessionService;
 		crsUserService.authenticationProviderService = authenticationProviderService;

@@ -2,6 +2,7 @@ package org.cru.crs.service;
 
 import java.util.UUID;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.cru.crs.auth.AuthenticationProviderType;
@@ -9,20 +10,24 @@ import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.model.queries.AuthenticationProviderQueries;
-import org.sql2o.Sql2o;
+import org.sql2o.Connection;
 
+@RequestScoped
 public class AuthenticationProviderService
 {
-
-	Sql2o sql;
+	org.sql2o.Connection sqlConnection;
+	
 	UserService userService;
 	
 	AuthenticationProviderQueries authenticationProviderQueries;
 	
+	/*Weld requires a default no args constructor to proxy this object*/
+	public AuthenticationProviderService(){ }
+	
 	@Inject
-	public AuthenticationProviderService(Sql2o sql, UserService userService, AuthenticationProviderQueries authenticationProviderQueries)
+	public AuthenticationProviderService(Connection sqlConnection, UserService userService)
 	{
-		this.sql = sql;
+		this.sqlConnection = sqlConnection;
 		
 		this.userService = userService;
 		
@@ -36,10 +41,10 @@ public class AuthenticationProviderService
 	 */
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityById(UUID id)
 	{
-		return sql.createQuery(authenticationProviderQueries.selectById())
-						.addParameter("id", id)
-						.setAutoDeriveColumnNames(true)
-						.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
+		return sqlConnection.createQuery(authenticationProviderQueries.selectById())
+								.addParameter("id", id)
+								.setAutoDeriveColumnNames(true)
+								.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 
 	/**
@@ -50,7 +55,7 @@ public class AuthenticationProviderService
 	 */
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByUserAuthProviderId(String userAuthProviderId)
 	{
-		return sql.createQuery(authenticationProviderQueries.selectByUserAuthProviderId())
+		return sqlConnection.createQuery(authenticationProviderQueries.selectByUserAuthProviderId())
 					.addParameter("userAuthProviderId", userAuthProviderId)
 					.setAutoDeriveColumnNames(true)
 					.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
@@ -58,11 +63,11 @@ public class AuthenticationProviderService
 	
 	public AuthenticationProviderIdentityEntity findAuthProviderIdentityByAuthProviderUsernameAndType(String username, AuthenticationProviderType authenticationProviderType)
 	{
-		return sql.createQuery(authenticationProviderQueries.selectByUsernameAuthProviderName())
-					.addParameter("username", username)
-					.addParameter("authProviderName", authenticationProviderType.getSessionIdentifierName())
-					.setAutoDeriveColumnNames(true)
-					.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
+		return sqlConnection.createQuery(authenticationProviderQueries.selectByUsernameAuthProviderName())
+								.addParameter("username", username)
+								.addParameter("authProviderName", authenticationProviderType.name())
+								.setAutoDeriveColumnNames(true)
+								.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 
 	/**
@@ -72,7 +77,9 @@ public class AuthenticationProviderService
 	public void createIdentityAndAuthProviderRecords(AuthenticationProviderUser user)
 	{
 		UserEntity newUser = new UserEntity().setId(UUID.randomUUID());
-
+		
+		setUserFields(user, newUser);
+		
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
 		authProviderIdentityEntity.setId(UUID.randomUUID());
 		authProviderIdentityEntity.setCrsId(newUser.getId());
@@ -85,16 +92,23 @@ public class AuthenticationProviderService
 		
 		userService.createUser(newUser);
 		
-		sql.createQuery(authenticationProviderQueries.insert(),false)
-				.addParameter("id", authProviderIdentityEntity.getId())
-				.addParameter("crsId", authProviderIdentityEntity.getCrsId())
-				.addParameter("userAuthProviderId", authProviderIdentityEntity.getUserAuthProviderId())
-				.addParameter("authProviderUserAccessToken", authProviderIdentityEntity.getAuthProviderUserAccessToken())
-				.addParameter("authProviderName", authProviderIdentityEntity.getAuthProviderName())
-				.addParameter("username", authProviderIdentityEntity.getUsername())
-				.addParameter("firstName", authProviderIdentityEntity.getFirstName())
-				.addParameter("lastName", authProviderIdentityEntity.getLastName())
-				.executeUpdate();
+		sqlConnection.createQuery(authenticationProviderQueries.insert(),false)
+						.addParameter("id", authProviderIdentityEntity.getId())
+						.addParameter("crsId", authProviderIdentityEntity.getCrsId())
+						.addParameter("userAuthProviderId", authProviderIdentityEntity.getUserAuthProviderId())
+						.addParameter("authProviderUserAccessToken", authProviderIdentityEntity.getAuthProviderUserAccessToken())
+						.addParameter("authProviderName", authProviderIdentityEntity.getAuthProviderName())
+						.addParameter("username", authProviderIdentityEntity.getUsername())
+						.addParameter("firstName", authProviderIdentityEntity.getFirstName())
+						.addParameter("lastName", authProviderIdentityEntity.getLastName())
+						.executeUpdate();
+	}
+
+	private void setUserFields(AuthenticationProviderUser user, UserEntity newUser)
+	{
+		if(user.getAuthenticationProviderType() == AuthenticationProviderType.RELAY) newUser.setEmailAddress(user.getUsername());
+		newUser.setFirstName(user.getFirstName());
+		newUser.setLastName(user.getLastName());
 	}
 	
 	/**
@@ -102,13 +116,11 @@ public class AuthenticationProviderService
 	 * @param authProviderId
 	 * @param newAuthProviderType
 	 */
-	public AuthenticationProviderIdentityEntity updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
+	public void updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
 	{
-		sql.createQuery(authenticationProviderQueries.updateAuthProviderType())
-				.addParameter("authProviderName", newAuthProviderType.getSessionIdentifierName())
-				.addParameter("userAuthProviderId", authProviderId)
-				.executeUpdate();
-		
-		return findAuthProviderIdentityByUserAuthProviderId(authProviderId);
+		sqlConnection.createQuery(authenticationProviderQueries.updateAuthProviderType())
+						.addParameter("authProviderName", newAuthProviderType.getSessionIdentifierName())
+						.addParameter("userAuthProviderId", authProviderId)
+						.executeUpdate();
 	}
 }

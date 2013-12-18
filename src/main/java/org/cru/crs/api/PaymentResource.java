@@ -36,7 +36,7 @@ import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 
 @Path("/payments")
-public class PaymentResource
+public class PaymentResource extends TransactionalResource
 {
 	@Inject CrsUserService crsUserService;
 	
