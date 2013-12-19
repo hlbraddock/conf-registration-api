@@ -16,14 +16,14 @@ public class PageServiceTest
 	Connection sqlConnection;
 	PageService pageService;
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		pageService = new PageService(sqlConnection,new BlockService(sqlConnection, new AnswerService(sqlConnection)));
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFetchAboutYourCatPage()
 	{
 		PageEntity pageEntity = pageService.fetchPageBy(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
@@ -35,7 +35,7 @@ public class PageServiceTest
 		Assert.assertEquals(pageEntity.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFetchPagesForNorthernMichiganConference()
 	{
 		List<PageEntity> pagesForNorthernMichigan = pageService.fetchPagesForConference(ConferenceInfo.Id.NorthernMichigan);
@@ -64,7 +64,7 @@ public class PageServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testSaveNewPage()
 	{
 		PageEntity newPage = new PageEntity();
@@ -95,7 +95,7 @@ public class PageServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void updateAboutYouPage()
 	{
 		PageEntity updatedAboutYouPage = new PageEntity();
@@ -123,7 +123,7 @@ public class PageServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void deleteHobbiesPage()
 	{
 		try

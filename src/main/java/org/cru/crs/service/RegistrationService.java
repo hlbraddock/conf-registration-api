@@ -70,7 +70,6 @@ public class RegistrationService
 
     public void createNewRegistration(RegistrationEntity registrationEntity)
 	{
-        registrationEntity.setCompleted(false); //they're just starting, so clearly it's not complete
 		if(registrationEntity.getId() == null) registrationEntity.setId(UUID.randomUUID());
 			
 		sqlConnection.createQuery(registrationQueries.insert())

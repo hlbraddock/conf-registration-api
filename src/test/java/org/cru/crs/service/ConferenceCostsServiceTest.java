@@ -8,6 +8,7 @@ import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -17,14 +18,14 @@ public class ConferenceCostsServiceTest
 	org.sql2o.Connection sqlConnection;
 	ConferenceCostsService conferenceCostsService;
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		conferenceCostsService = new ConferenceCostsService(sqlConnection);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testGetConferenceCosts()
 	{
 		ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(ConferenceInfo.Id.NorthernMichigan);
@@ -38,7 +39,7 @@ public class ConferenceCostsServiceTest
 		Assert.assertNull(conferenceCostsEntity.getEarlyRegistrationCutoff());
 	}
 
-	@Test
+	@Test(groups="dbtest")
 	public void testGetConferenceCostsWithEarlyRegistrationDiscount()
 	{
 		ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
@@ -49,10 +50,10 @@ public class ConferenceCostsServiceTest
 		Assert.assertEquals(conferenceCostsEntity.getMinimumDeposit(), new BigDecimal("0.00"));
 		Assert.assertTrue(conferenceCostsEntity.isEarlyRegistrationDiscount());
 		Assert.assertEquals(conferenceCostsEntity.getEarlyRegistrationAmount(), new BigDecimal("15.00"));
-		Assert.assertEquals(conferenceCostsEntity.getEarlyRegistrationCutoff(), DateTimeCreaterHelper.createDateTime(2013, 3, 31, 23, 59, 59));
+		Assert.assertEquals(conferenceCostsEntity.getEarlyRegistrationCutoff(), DateTimeCreaterHelper.createDateTime(2014, 3, 31, 23, 59, 59));
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testSaveConferenceCosts()
 	{
 		UUID id = UUID.randomUUID();
@@ -91,10 +92,10 @@ public class ConferenceCostsServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testUpdateConfernenceCosts()
 	{
-		DateTime currentDateTime = new DateTime();
+		DateTime currentDateTime = new DateTime(DateTimeZone.UTC);
 		
 		ConferenceCostsEntity conferenceCostsEntityToUpdate = new ConferenceCostsEntity();
 		

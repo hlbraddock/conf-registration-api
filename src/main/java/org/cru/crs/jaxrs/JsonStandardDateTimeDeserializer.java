@@ -12,7 +12,7 @@ import org.joda.time.format.ISODateTimeFormat;
 
 public class JsonStandardDateTimeDeserializer extends JsonDeserializer<DateTime> 
 {
-	private static final DateTimeFormatter iso8601Formatter = ISODateTimeFormat.dateTime();
+	private static final DateTimeFormatter iso8601Formatter = ISODateTimeFormat.dateTime().withZoneUTC();
 	
 	@Override
 	public DateTime deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException, JsonProcessingException

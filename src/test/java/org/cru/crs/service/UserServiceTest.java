@@ -16,14 +16,14 @@ public class UserServiceTest
 	Connection sqlConnection;
 	UserService userService;
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		userService = new UserService(sqlConnection);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testGetUser()
 	{
 		UserEntity testUser = userService.fetchUserBy(UserInfo.Id.TestUser);
@@ -36,7 +36,7 @@ public class UserServiceTest
 		Assert.assertNull(testUser.getLastName());
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testCreateUser()
 	{
 		UserEntity newUserEntity = new UserEntity();

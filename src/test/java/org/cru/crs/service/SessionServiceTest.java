@@ -26,14 +26,14 @@ public class SessionServiceTest
 	Connection sqlConnection;
 	SessionService sessionService;
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		sessionService = new SessionService(sqlConnection);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testGetSessionByAuthCodeForTestUser()
 	{
 		SessionEntity session = sessionService.getSessionByAuthCode(UserInfo.AuthCode.TestUser);
@@ -45,7 +45,7 @@ public class SessionServiceTest
 		Assert.assertEquals(session.getExpiration(), DateTimeCreaterHelper.createDateTime(2014, 10, 2, 2, 43, 14));
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testGetSessionByAuthCodeNotFound()
 	{
 		SessionEntity session = sessionService.getSessionByAuthCode("you won't find me");
@@ -53,7 +53,7 @@ public class SessionServiceTest
 		Assert.assertNull(session);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFetchSessionsByUserAuthProviderId()
 	{
 		List<SessionEntity> sessions = sessionService.fetchSessionsByUserAuthProviderId(UUID.fromString("f8f8c217-f977-4503-b3b3-85016f988342"));
@@ -62,7 +62,7 @@ public class SessionServiceTest
 		Assert.assertEquals(sessions.size(), 3);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testCreateSessionForEmailUser()
 	{
 		SessionEntity newSession = new SessionEntity();

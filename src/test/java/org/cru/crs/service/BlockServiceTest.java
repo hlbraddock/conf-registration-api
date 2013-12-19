@@ -16,14 +16,14 @@ public class BlockServiceTest
 	Connection sqlConnection;
 	BlockService blockService;
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		blockService = new BlockService(sqlConnection,new AnswerService(sqlConnection));
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFetchYearInSchoolBlock() throws Exception
 	{
 		BlockEntity yearInSchoolBlock = blockService.fetchBlockBy(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1"));
@@ -40,7 +40,7 @@ public class BlockServiceTest
 		Assert.assertEquals(yearInSchoolBlock.getContent(), JsonNodeHelper.toJsonNode("{\"choices\" : [\"Freshman\",\"Sophomore\",\"Junior\",\"Senior\",\"Super Senior\",\"Grad Student\",\"Do not plan on graduating\"]}"));
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFetchBlocksForAboutYourCatPage()
 	{
 		List<BlockEntity> blocksForAboutYourCat = blockService.fetchBlocksForPage(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
@@ -72,7 +72,7 @@ public class BlockServiceTest
 		
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testSaveNewBlockToAboutYourCatPage()
 	{
 		BlockEntity newBlock = new BlockEntity();
@@ -109,7 +109,7 @@ public class BlockServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testUpdateCatsNameBlock()
 	{
 		BlockEntity updatedCatsNameBlock = new BlockEntity();
@@ -143,7 +143,7 @@ public class BlockServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testDeleteYearInSchoolBlock()
 	{
 		try
