@@ -1,5 +1,6 @@
 package org.cru.crs.api.process;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -9,14 +10,20 @@ import javax.inject.Inject;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.domain.ProfileAttribute;
 import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.AnswerService;
+import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
+import org.cru.crs.service.UserService;
 import org.cru.crs.utils.CollectionUtils;
+import org.jboss.logging.Logger;
 import org.testng.collections.Lists;
 import org.testng.internal.annotations.Sets;
 
@@ -26,19 +33,25 @@ public class RegistrationUpdateProcess
 	AnswerService answerService;
 	ConferenceService conferenceService;
 	ConferenceCostsService conferenceCostsService;
+	BlockService blockService;
+	UserService userService;
 	Clock clock;
 	
 	RegistrationEntity originalRegistrationEntity;
 	Set<AnswerEntity> originalAnswerEntitySet;
-	
+
+	Logger logger = Logger.getLogger(RegistrationUpdateProcess.class);
+
 	@Inject
-	public RegistrationUpdateProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock)
+	public RegistrationUpdateProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock, BlockService blockService, UserService userService)
 	{
 		this.registrationService = registrationService;
 		this.answerService = answerService;
 		this.conferenceService = conferenceService;
 		this.conferenceCostsService = conferenceCostsService;
 		this.clock = clock;
+		this.blockService = blockService;
+		this.userService = userService;
 	}
 	
 	public void performDeepUpdate(Registration registration)
@@ -59,6 +72,8 @@ public class RegistrationUpdateProcess
 				answerService.insertAnswer(updatedOrNewAnswer.toDbAnswerEntity());
 			}
 		}
+
+		captureUserProfile(registration);
 
 		/*switch to a RegistrationEntity now b/c we're going to do some calculations the client
 		 * cannot influence to determine total cost and completed timestamp*/
@@ -113,7 +128,6 @@ public class RegistrationUpdateProcess
 	
 	/**
 	 * If the registration is completed, let's check 
-	 * @param registration
 	 */
 	private void setTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(RegistrationEntity updatedRegistration)
 	{
@@ -132,5 +146,41 @@ public class RegistrationUpdateProcess
 				updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost());
 			}
 		}
+	}
+
+	private void captureUserProfile(Registration registration)
+	{
+		UserEntity userEntity = userService.fetchUserBy(registration.getUserId());
+
+		if(userEntity == null)
+		{
+			logger.error("Could not capture user profile information, user entity is null for id " + registration.getUserId());
+
+			return;
+		}
+
+		List<ProfileAttribute> profileAttributes = profileAttributesFromAnswers(registration.getAnswers());
+
+		userEntity.setProfileAttributes(profileAttributes);
+
+		userService.updateUser(userEntity);
+	}
+
+	private List<ProfileAttribute> profileAttributesFromAnswers(Set<Answer> answers)
+	{
+		List<ProfileAttribute> profileAttributes = new ArrayList<ProfileAttribute>();
+
+		for (Answer answer : answers)
+		{
+			BlockEntity blockEntity = blockService.fetchBlockBy(answer.getBlockId());
+
+			if (blockEntity.getProfileType() != null &&
+					!blockEntity.getProfileType().equals(ProfileAttribute.Type.None))
+			{
+				profileAttributes.add(new ProfileAttribute(blockEntity.getProfileType(), answer.getValue().getTextValue()));
+			}
+		}
+
+		return profileAttributes;
 	}
 }
