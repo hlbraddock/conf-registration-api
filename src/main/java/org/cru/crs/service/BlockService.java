@@ -60,6 +60,7 @@ public class BlockService
 						.addParameter("required", blockToSave.isRequired())
 						.addParameter("title", blockToSave.getTitle())
 						.addParameter("content", blockToSave.getContent())
+						.addParameter("profileType", blockToSave.getProfileType())
 						.executeUpdate();
 	}
 	
@@ -75,12 +76,12 @@ public class BlockService
 						.addParameter("required", blockToUpdate.isRequired())
 						.addParameter("title", blockToUpdate.getTitle())
 						.addParameter("content", blockToUpdate.getContent())
+						.addParameter("profileType", blockToUpdate.getProfileType())
 						.executeUpdate();
 	}
 
 	/**
 	 * Deletes the block specified by @param blockId along with any answers associated with it.
-	 * @param owningConference
 	 * @param blockId
 	 */
 	public void deleteBlock(UUID blockId)

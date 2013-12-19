@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.JsonNode;
+import org.cru.crs.domain.ProfileAttribute;
 import org.cru.crs.model.BlockEntity;
 
 public class Block implements java.io.Serializable
@@ -20,6 +21,7 @@ public class Block implements java.io.Serializable
 	private boolean required;
 	private int position;
 	private JsonNode content;
+	private ProfileAttribute.Type profileType;
 	
 	public static Block fromJpa(BlockEntity jpaBlock)
 	{
@@ -32,6 +34,8 @@ public class Block implements java.io.Serializable
 		block.pageId = jpaBlock.getPageId();
 		block.position = jpaBlock.getPosition();
 		block.required = jpaBlock.isRequired();
+		block.profileType = jpaBlock.getProfileType();
+
 		return block;
 	}
 
@@ -61,6 +65,7 @@ public class Block implements java.io.Serializable
 		jpaBlock.setTitle(title);
 		jpaBlock.setPosition(position);
 		jpaBlock.setRequired(required);
+		jpaBlock.setProfileType(profileType);
 		
 		return jpaBlock;
 	}
@@ -147,5 +152,15 @@ public class Block implements java.io.Serializable
 	public void setPosition(int position)
 	{
 		this.position = position;
+	}
+
+	public ProfileAttribute.Type getProfileType()
+	{
+		return profileType;
+	}
+
+	public void setProfileType(ProfileAttribute.Type profileType)
+	{
+		this.profileType = profileType;
 	}
 }

@@ -9,7 +9,8 @@ CREATE TABLE blocks (
   required boolean,
   position integer,
   title text,
-  content json
+  content json,
+  profile_type text
 );
 
 INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('AF60D878-4741-4F21-9D25-231D-B86E43EE','7A52AF36-2F3C-5E45-9F76-0AF1-0FF50BB8','paragraphContent',false, false, 0, 'About the conference','"This is a paragraph of text describing this conference."');
