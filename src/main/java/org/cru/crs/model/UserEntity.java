@@ -1,8 +1,5 @@
 package org.cru.crs.model;
 
-import org.cru.crs.domain.ProfileAttribute;
-
-import java.util.List;
 import java.util.UUID;
 
 public class UserEntity implements java.io.Serializable
@@ -69,27 +66,4 @@ public class UserEntity implements java.io.Serializable
         this.phoneNumber = phoneNumber;
         return this;
     }
-
-	public void setProfileAttributes(List<ProfileAttribute> profileAttributes)
-	{
-		for (ProfileAttribute profileAttribute : profileAttributes)
-		{
-			switch(profileAttribute.getType())
-			{
-				case firstName:
-					setFirstName(profileAttribute.getValue());
-					break;
-				case lastName:
-					setLastName(profileAttribute.getValue());
-					break;
-				case email:
-					setEmailAddress(profileAttribute.getValue());
-					break;
-				case phone:
-					setPhoneNumber(profileAttribute.getValue());
-					break;
-				default:
-			}
-		}
-	}
 }
