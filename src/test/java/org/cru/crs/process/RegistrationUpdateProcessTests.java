@@ -7,6 +7,7 @@ import junit.framework.Assert;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RegistrationFetchProcess;
 import org.cru.crs.api.process.RegistrationUpdateProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
@@ -16,6 +17,7 @@ import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
+import org.cru.crs.service.ProfileService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
 import org.cru.crs.utils.DateTimeCreaterHelper;
@@ -51,6 +53,8 @@ public class RegistrationUpdateProcessTests
 		PageService pageService = new PageService(sqlConnection, blockService);
 		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
 		ConferenceService conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, userService);
+		ProfileService profileService = new ProfileService();
+		ProfileProcess profileProcess = new ProfileProcess(blockService, profileService);
 
 		registrationService = new RegistrationService(sqlConnection, answerService, paymentService);
 
@@ -65,7 +69,7 @@ public class RegistrationUpdateProcessTests
 			}
 		};
 
-		process = new RegistrationUpdateProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock, blockService, userService);
+		process = new RegistrationUpdateProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock, profileProcess);
 	}
 	
 	@BeforeMethod(alwaysRun=true)
