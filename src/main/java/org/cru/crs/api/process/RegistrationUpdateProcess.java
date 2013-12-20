@@ -177,7 +177,7 @@ public class RegistrationUpdateProcess
 			if (blockEntity.getProfileType() != null &&
 					!blockEntity.getProfileType().equals(ProfileAttribute.Type.none))
 			{
-				profileAttributes.add(new ProfileAttribute(blockEntity.getProfileType(), answer.getValue().getTextValue()));
+				profileAttributes.add(new ProfileAttribute(blockEntity.getProfileType(), answer.getValue().toString()));
 			}
 		}
 
