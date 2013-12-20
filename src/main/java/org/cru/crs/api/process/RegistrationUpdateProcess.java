@@ -175,7 +175,7 @@ public class RegistrationUpdateProcess
 			BlockEntity blockEntity = blockService.fetchBlockBy(answer.getBlockId());
 
 			if (blockEntity.getProfileType() != null &&
-					!blockEntity.getProfileType().equals(ProfileAttribute.Type.None))
+					!blockEntity.getProfileType().equals(ProfileAttribute.Type.none))
 			{
 				profileAttributes.add(new ProfileAttribute(blockEntity.getProfileType(), answer.getValue().getTextValue()));
 			}
