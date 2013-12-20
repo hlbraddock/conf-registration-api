@@ -1,6 +1,7 @@
 package org.cru.crs.domain;
 
 import org.ccci.util.ValueObject;
+import org.codehaus.jackson.JsonNode;
 
 /**
  * @ lee.braddock
@@ -9,22 +10,16 @@ public class ProfileAttribute extends ValueObject
 {
 	public enum Type
 	{
-		none, email, firstName, lastName, phone, address, birthDate, gender, campusUniversity, graduationDate, dormName, dormRoom
+		email, name, phone, address, birthDate, gender, campus, graduation, dormitory
 	}
 
 	private Type type;
-	private String value;
+	private JsonNode value;
 
-	public ProfileAttribute(Type type, String value)
+	public ProfileAttribute(Type type, JsonNode value)
 	{
 		this.type = type;
 		this.value = value;
-	}
-
-	@Override
-	protected Object[] getComponents()
-	{
-		return new Object[]{type, value};
 	}
 
 	public Type getType()
@@ -32,8 +27,14 @@ public class ProfileAttribute extends ValueObject
 		return type;
 	}
 
-	public String getValue()
+	public JsonNode getValue()
 	{
 		return value;
+	}
+
+	@Override
+	protected Object[] getComponents()
+	{
+		return new Object[]{type, value};
 	}
 }
