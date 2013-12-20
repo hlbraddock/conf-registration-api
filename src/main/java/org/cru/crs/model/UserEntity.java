@@ -76,16 +76,16 @@ public class UserEntity implements java.io.Serializable
 		{
 			switch(profileAttribute.getType())
 			{
-				case FirstName:
+				case firstName:
 					setFirstName(profileAttribute.getValue());
 					break;
-				case LastName:
+				case lastName:
 					setLastName(profileAttribute.getValue());
 					break;
-				case Email:
+				case email:
 					setEmailAddress(profileAttribute.getValue());
 					break;
-				case Phone:
+				case phone:
 					setPhoneNumber(profileAttribute.getValue());
 					break;
 				default:
