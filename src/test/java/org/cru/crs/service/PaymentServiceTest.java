@@ -13,21 +13,20 @@ import org.testng.annotations.Test;
 
 public class PaymentServiceTest
 {
-	
 	org.sql2o.Connection sqlConnection;
+	PaymentService paymentService;
 	
 	@BeforeMethod
-	private PaymentService getPaymentService()
+	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
-		return new PaymentService(sqlConnection);
+		paymentService = new PaymentService(sqlConnection);
 	}
 	
 	@Test
 	public void testGetPayment()
 	{
-		PaymentEntity payment = getPaymentService().fetchPaymentBy(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
+		PaymentEntity payment = paymentService.fetchPaymentBy(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
 		
 		Assert.assertNotNull(payment);
 		
@@ -44,7 +43,6 @@ public class PaymentServiceTest
 	@Test
 	public void testSavePayment()
 	{
-		PaymentService paymentService = getPaymentService();
 		UUID id = UUID.randomUUID();
 		
 		PaymentEntity newPayment = new PaymentEntity();
@@ -84,9 +82,7 @@ public class PaymentServiceTest
 	
 	@Test
 	public void testUpdatePayment()
-	{
-		PaymentService paymentService = getPaymentService();
-		
+	{		
 		PaymentEntity paymentToUpdate = new PaymentEntity();
 		
 		paymentToUpdate.setId(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
@@ -126,7 +122,7 @@ public class PaymentServiceTest
 	@Test
 	public void testGetPaymentsForRegistration()
 	{
-		List<PaymentEntity> payments = getPaymentService().fetchPaymentsForRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
+		List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
 		
 		Assert.assertNotNull(payments);
 		Assert.assertEquals(payments.size(), 2);
@@ -144,8 +140,6 @@ public class PaymentServiceTest
 	@Test
 	public void testDisassociatePaymentsFromRegistration()
 	{
-		PaymentService paymentService = getPaymentService();
-		
 		try
 		{
 			paymentService.disassociatePaymentsFromRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));

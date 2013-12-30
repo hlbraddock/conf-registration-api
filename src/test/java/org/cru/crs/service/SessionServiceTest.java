@@ -8,6 +8,7 @@ import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.UserInfo;
+import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -22,20 +23,20 @@ import org.testng.annotations.Test;
 public class SessionServiceTest
 {
 	
-	org.sql2o.Connection sqlConnection;
+	Connection sqlConnection;
+	SessionService sessionService;
 	
 	@BeforeMethod
-	private SessionService getSessionService()
+	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
-		return new SessionService(sqlConnection);
+		sessionService = new SessionService(sqlConnection);
 	}
 	
 	@Test
 	public void testGetSessionByAuthCodeForTestUser()
 	{
-		SessionEntity session = getSessionService().getSessionByAuthCode(UserInfo.AuthCode.TestUser);
+		SessionEntity session = sessionService.getSessionByAuthCode(UserInfo.AuthCode.TestUser);
 		
 		Assert.assertNotNull(session);
 		Assert.assertEquals(session.getAuthCode(), UserInfo.AuthCode.TestUser);
@@ -47,7 +48,7 @@ public class SessionServiceTest
 	@Test
 	public void testGetSessionByAuthCodeNotFound()
 	{
-		SessionEntity session = getSessionService().getSessionByAuthCode("you won't find me");
+		SessionEntity session = sessionService.getSessionByAuthCode("you won't find me");
 		
 		Assert.assertNull(session);
 	}
@@ -55,7 +56,7 @@ public class SessionServiceTest
 	@Test
 	public void testFetchSessionsByUserAuthProviderId()
 	{
-		List<SessionEntity> sessions = getSessionService().fetchSessionsByUserAuthProviderId(UUID.fromString("f8f8c217-f977-4503-b3b3-85016f988342"));
+		List<SessionEntity> sessions = sessionService.fetchSessionsByUserAuthProviderId(UUID.fromString("f8f8c217-f977-4503-b3b3-85016f988342"));
 		
 		Assert.assertNotNull(sessions);
 		Assert.assertEquals(sessions.size(), 3);
@@ -64,8 +65,6 @@ public class SessionServiceTest
 	@Test
 	public void testCreateSessionForEmailUser()
 	{
-		SessionService sessionService = getSessionService();
-		
 		SessionEntity newSession = new SessionEntity();
 		String authCode = AuthCodeGenerator.generate();
 		UUID id = UUID.randomUUID();

@@ -116,13 +116,11 @@ public class AuthenticationProviderService
 	 * @param authProviderId
 	 * @param newAuthProviderType
 	 */
-	public AuthenticationProviderIdentityEntity updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
+	public void updateAuthProviderType(String authProviderId, AuthenticationProviderType newAuthProviderType)
 	{
 		sqlConnection.createQuery(authenticationProviderQueries.updateAuthProviderType())
 						.addParameter("authProviderName", newAuthProviderType.getSessionIdentifierName())
 						.addParameter("userAuthProviderId", authProviderId)
 						.executeUpdate();
-		
-		return findAuthProviderIdentityByUserAuthProviderId(authProviderId);
 	}
 }
