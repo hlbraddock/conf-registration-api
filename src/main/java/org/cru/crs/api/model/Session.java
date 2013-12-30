@@ -1,10 +1,11 @@
 package org.cru.crs.api.model;
 
+import java.util.UUID;
+
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.SessionEntity;
 import org.joda.time.DateTime;
-
-import java.util.UUID;
+import org.joda.time.DateTimeZone;
 
 public class Session implements java.io.Serializable
 {
@@ -22,14 +23,13 @@ public class Session implements java.io.Serializable
 		session.id = jpaBlock.getId();
 		session.authCode = jpaBlock.getAuthCode();
 		session.expiration = jpaBlock.getExpiration();
-//		session.authenticationProviderIdentityEntity = jpaBlock.getAuthenticationProviderIdentityEntity();
 
 		return session;
 	}
 
 	public boolean isExpired()
 	{
-		return expiration.isBefore(new DateTime());
+		return expiration.isBefore(new DateTime(DateTimeZone.UTC));
 	}
 
 	public UUID getId()
