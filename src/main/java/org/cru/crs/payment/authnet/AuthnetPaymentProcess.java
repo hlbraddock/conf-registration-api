@@ -14,6 +14,7 @@ import org.cru.crs.payment.authnet.model.Merchant;
 import org.cru.crs.payment.authnet.transaction.AuthCapture;
 import org.cru.crs.utils.CrsProperties;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 @Authnet
 public class AuthnetPaymentProcess
@@ -59,7 +60,7 @@ public class AuthnetPaymentProcess
 		CreditCard creditCard = new CreditCard();
 		
 		creditCard.setCardNumber(payment.getCreditCardNumber());
-		creditCard.setExpirationDate(new DateTime().withYear(Integer.parseInt(payment.getCreditCardExpirationYear()))
+		creditCard.setExpirationDate(new DateTime(DateTimeZone.UTC).withYear(Integer.parseInt(payment.getCreditCardExpirationYear()))
 												   .withMonthOfYear(Integer.parseInt(payment.getCreditCardExpirationMonth()))
 												   .dayOfMonth().withMaximumValue()
 												   .secondOfDay().withMaximumValue()
