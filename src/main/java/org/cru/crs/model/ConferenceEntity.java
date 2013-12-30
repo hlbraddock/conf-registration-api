@@ -221,7 +221,7 @@ public class ConferenceEntity implements java.io.Serializable
 		this.locationZipCode = locationZipCode;
 	}
 
-	public boolean getRequireLogin()
+	public boolean isRequireLogin()
 	{
 		return requireLogin;
 	}

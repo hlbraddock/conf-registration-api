@@ -135,7 +135,7 @@ public class Conference implements java.io.Serializable
         webConference.locationState = dbConference.getLocationState();
         webConference.locationZipCode = dbConference.getLocationZipCode();
 
-        webConference.requireLogin = dbConference.getRequireLogin();
+        webConference.requireLogin = dbConference.isRequireLogin();
         
         if(dbConferenceCosts != null)
         {

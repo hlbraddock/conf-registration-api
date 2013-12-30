@@ -76,7 +76,7 @@ public class ConferenceService
         				.addParameter("locationCity", newConference.getLocationCity())
         				.addParameter("locationState", newConference.getLocationState())
         				.addParameter("locationZipCode", newConference.getLocationZipCode())
-        				.addParameter("requireLogin", newConference.getRequireLogin())
+        				.addParameter("requireLogin", newConference.isRequireLogin())
         				.executeUpdate();
 	}
 
@@ -101,7 +101,7 @@ public class ConferenceService
     					.addParameter("locationCity", conferenceToUpdate.getLocationCity())
     					.addParameter("locationState", conferenceToUpdate.getLocationState())
     					.addParameter("locationZipCode", conferenceToUpdate.getLocationZipCode())
-    					.addParameter("requireLogin", conferenceToUpdate.getRequireLogin())
+    					.addParameter("requireLogin", conferenceToUpdate.isRequireLogin())
     					.executeUpdate();
 	}
 }

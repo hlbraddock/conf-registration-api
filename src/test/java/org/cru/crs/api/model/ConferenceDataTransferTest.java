@@ -56,7 +56,7 @@ public class ConferenceDataTransferTest
         Assert.assertEquals(jpaConference.getLocationCity(), "Farmville");
         Assert.assertEquals(jpaConference.getLocationState(), "TX");
         Assert.assertEquals(jpaConference.getLocationZipCode(), "23451");
-        Assert.assertTrue(jpaConference.getRequireLogin());
+        Assert.assertTrue(jpaConference.isRequireLogin());
 	}
 	
 	@Test(groups="unittest")
