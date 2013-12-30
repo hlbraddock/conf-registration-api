@@ -18,7 +18,8 @@ CREATE TABLE conferences (
   location_address text,
   location_city text,
   location_state text,
-  location_zip_code varchar(5)
+  location_zip_code varchar(5),
+  require_login boolean
 );
 
 INSERT INTO conferences (id,conference_costs_id,name,event_start_time,event_end_time,registration_start_time,registration_end_time,total_slots, contact_person_id, location_name, location_address, location_city, location_state, location_zip_code) VALUES ('42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309','42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309','Northern Michigan Fall Extravaganza','29-Aug-2014 22:30:00 UTC','31-Aug-2014 16:00:00 UTC','11-Apr-2013 01:58:35 UTC','29-Aug-2014 21:00:00 UTC','80','dbc6a808-d7bc-4d92-967c-d82d9d312898', 'Black Bear Camp', '5287 St Rt 17', 'Marquette', 'MI', '42302');

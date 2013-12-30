@@ -47,6 +47,8 @@ public class Conference implements java.io.Serializable
     private String locationState;
     private String locationZipCode;
 
+    private boolean requireLogin; 
+    
     private BigDecimal conferenceCost;
     private BigDecimal minimumDeposit;
     private boolean earlyRegistrationDiscount;
@@ -80,6 +82,8 @@ public class Conference implements java.io.Serializable
         dbConference.setLocationCity(locationCity);
         dbConference.setLocationState(locationState);
         dbConference.setLocationZipCode(locationZipCode);
+        
+        dbConference.setRequireLogin(requireLogin);
 
 		dbConference.setConferenceCostsId(getId());
 
@@ -131,6 +135,8 @@ public class Conference implements java.io.Serializable
         webConference.locationState = dbConference.getLocationState();
         webConference.locationZipCode = dbConference.getLocationZipCode();
 
+        webConference.requireLogin = dbConference.isRequireLogin();
+        
         if(dbConferenceCosts != null)
         {
             webConference.authnetId = dbConferenceCosts.getAuthnetId();
@@ -449,4 +455,14 @@ public class Conference implements java.io.Serializable
     {
         this.earlyRegistrationOpen = earlyRegistrationOpen;
     }
+
+	public boolean isRequireLogin()
+	{
+		return requireLogin;
+	}
+
+	public void setRequireLogin(boolean requireLogin)
+	{
+		this.requireLogin = requireLogin;
+	}
 }
