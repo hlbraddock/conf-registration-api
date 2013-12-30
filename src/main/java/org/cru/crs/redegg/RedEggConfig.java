@@ -9,6 +9,8 @@ import javax.inject.Inject;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.redegg.reporting.errbit.ErrbitConfig;
 
+import com.google.common.collect.ImmutableList;
+
 public class RedEggConfig
 {
 	
@@ -21,6 +23,8 @@ public class RedEggConfig
 		config.setEndpoint(new URI(properties.getProperty("errbitEndpoint")));
 		config.setKey(properties.getProperty("errbitApiKey"));
 		config.setEnvironmentName(properties.getProperty("errbitEnvironment"));
+		
+		config.getApplicationBasePackages().addAll(ImmutableList.of("org.cru.crs"));
 		
 		return config;
 	}
