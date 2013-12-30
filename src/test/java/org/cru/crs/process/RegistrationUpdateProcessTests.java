@@ -40,7 +40,7 @@ public class RegistrationUpdateProcessTests
 	
 	final UUID conferenceId = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
@@ -67,7 +67,7 @@ public class RegistrationUpdateProcessTests
 		process = new RegistrationUpdateProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock);
 	}
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	public void createTestRegistration()
 	{
 		testRegistration = new Registration();
@@ -75,21 +75,21 @@ public class RegistrationUpdateProcessTests
 		testRegistration.setConferenceId(conferenceId);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testSetCompleted()	
 	{
-		testRegistration.setCompleted(true);
-		
 		try
 		{
 			registrationService.createNewRegistration(testRegistration.toDbRegistrationEntity());
-			
+
+			testRegistration.setCompleted(true);
+
 			process.performDeepUpdate(testRegistration);
 			
 			Registration updatedRegistration = registrationFetchProcess.get(testRegistration.getId());
 			
 			Assert.assertTrue(updatedRegistration.getCompleted());
-			Assert.assertEquals(new BigDecimal(50.00d).doubleValue(), updatedRegistration.getTotalDue().doubleValue());
+			Assert.assertEquals(new BigDecimal("50.00"), updatedRegistration.getTotalDue());
 			Assert.assertEquals(clock.currentDateTime(), updatedRegistration.getCompletedTimestamp());
 		}
 		finally

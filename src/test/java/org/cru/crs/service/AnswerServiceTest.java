@@ -22,14 +22,14 @@ public class AnswerServiceTest
 	private static final UUID answerId = UUID.fromString("441ad805-7aa6-4b20-8315-8f1390dc4a9e");
 	private static final UUID registrationId = UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcB982e7");
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void getAnswerService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		answerService = new AnswerService(sqlConnection);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testGetAnswerById() throws JsonProcessingException, IOException
 	{
 		AnswerEntity answer = answerService.getAnswerBy(answerId);
@@ -42,7 +42,7 @@ public class AnswerServiceTest
 		Assert.assertEquals(answer.getAnswer(), JsonNodeHelper.toJsonNode("{ \"Name\": \"Alexander Solzhenitsyn\"}"));
 	}
 
-	@Test
+	@Test(groups="dbtest")
 	public void testGetAllAnswersForRegistration() throws JsonProcessingException, IOException
 	{
 		List<AnswerEntity> answers = answerService.getAllAnswersForRegistration(registrationId);
@@ -56,7 +56,7 @@ public class AnswerServiceTest
 		Assert.assertEquals(answers.get(0).getAnswer(), JsonNodeHelper.toJsonNode("{ \"Name\": \"Alexander Solzhenitsyn\"}"));
 	}
 
-	@Test
+	@Test(groups="dbtest")
 	public void testGetAllAnswersForBlock() throws JsonProcessingException, IOException
 	{
 		List<AnswerEntity> answers = answerService.getAllAnswersForBlock(blockId);
@@ -70,7 +70,7 @@ public class AnswerServiceTest
 		Assert.assertEquals(answers.get(0).getAnswer(), JsonNodeHelper.toJsonNode("{ \"Name\": \"Alexander Solzhenitsyn\"}"));
 	}
 
-	@Test
+	@Test(groups="dbtest")
 	public void testUpdateAnswer() throws JsonProcessingException, IOException
 	{		
 		AnswerEntity answerToUpdate = new AnswerEntity();
@@ -100,7 +100,7 @@ public class AnswerServiceTest
 		}
 	}
 
-	@Test
+	@Test(groups="dbtest")
 	public void testInsertAnswer() throws JsonProcessingException, IOException
 	{
 		AnswerEntity newAnswer = new AnswerEntity();
@@ -132,7 +132,7 @@ public class AnswerServiceTest
 		}
 	}
 
-	@Test
+	@Test(groups="dbtest")
 	public void testDeleteAnswer()
 	{
 		try
@@ -150,7 +150,7 @@ public class AnswerServiceTest
 		
 	}
 
-	@Test
+	@Test(groups="dbtest")
 	public void testDeleteAnswersByBlockId()
 	{
 		try
@@ -167,7 +167,7 @@ public class AnswerServiceTest
 		}
 	}
 
-	@Test
+	@Test(groups="dbtest")
 	public void testDeleteAnswersByRegistrationId()
 	{
 		try

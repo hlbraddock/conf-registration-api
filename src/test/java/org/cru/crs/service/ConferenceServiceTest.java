@@ -25,7 +25,7 @@ public class ConferenceServiceTest
 	Connection sqlConnection;
 	ConferenceService conferenceService;
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
@@ -35,7 +35,7 @@ public class ConferenceServiceTest
 										new PageService(sqlConnection, new BlockService(sqlConnection, new AnswerService(sqlConnection))), new UserService(sqlConnection));
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFetchAllConferencesTestUser()
 	{		
 		List<ConferenceEntity> conferences = conferenceService.fetchAllConferences(UserInfo.Users.TestUser);
@@ -43,7 +43,7 @@ public class ConferenceServiceTest
 		Assert.assertEquals(conferences.size(), 2);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFetchAllConferencesRyan()
 	{		
 		List<ConferenceEntity> conferences = conferenceService.fetchAllConferences(UserInfo.Users.Ryan);
@@ -51,7 +51,7 @@ public class ConferenceServiceTest
 		Assert.assertEquals(conferences.size(), 2);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFetchNorthernMichiganConference()
 	{		
 		ConferenceEntity northernMichiganConference = conferenceService.fetchConferenceBy(ConferenceInfo.Id.NorthernMichigan);
@@ -61,10 +61,10 @@ public class ConferenceServiceTest
 		Assert.assertEquals(northernMichiganConference.getId(), ConferenceInfo.Id.NorthernMichigan);
 		Assert.assertEquals(northernMichiganConference.getConferenceCostsId(), ConferenceInfo.Id.NorthernMichigan);
 		Assert.assertEquals(northernMichiganConference.getName(), "Northern Michigan Fall Extravaganza");
-		Assert.assertEquals(northernMichiganConference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2014, 8, 24, 10, 32, 8));
-		Assert.assertEquals(northernMichiganConference.getEventEndTime(), DateTimeCreaterHelper.createDateTime(2014, 10, 2, 2, 43, 14));
-		Assert.assertEquals(northernMichiganConference.getRegistrationStartTime(), DateTimeCreaterHelper.createDateTime(2013, 4, 10, 21, 58, 35));
-		Assert.assertEquals(northernMichiganConference.getRegistrationEndTime(), DateTimeCreaterHelper.createDateTime(2013, 12, 22, 18, 53, 8));
+		Assert.assertEquals(northernMichiganConference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2014, 8, 29, 22, 30, 0));
+		Assert.assertEquals(northernMichiganConference.getEventEndTime(), DateTimeCreaterHelper.createDateTime(2014, 8, 31, 16, 0, 0));
+		Assert.assertEquals(northernMichiganConference.getRegistrationStartTime(), DateTimeCreaterHelper.createDateTime(2013, 4, 11, 1, 58, 35));
+		Assert.assertEquals(northernMichiganConference.getRegistrationEndTime(), DateTimeCreaterHelper.createDateTime(2014, 8, 29, 21, 0, 0));
 		Assert.assertEquals(northernMichiganConference.getTotalSlots(), 80);
 		Assert.assertEquals(northernMichiganConference.getContactPersonId(), UserInfo.Id.TestUser);
 		Assert.assertEquals(northernMichiganConference.getLocationName(), "Black Bear Camp");
@@ -74,7 +74,7 @@ public class ConferenceServiceTest
 		Assert.assertEquals(northernMichiganConference.getLocationZipCode(), "42302");
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testCreateNewConference()
 	{
 		try
@@ -113,7 +113,7 @@ public class ConferenceServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testUpdateConferenceNameAndDescription()
 	{
 		try
@@ -143,7 +143,7 @@ public class ConferenceServiceTest
 	/**
 	 * This test makes sure that updating date/time/timestamps works correctly.
 	 */
-	@Test
+	@Test(groups="dbtest")
 	public void testUpdateConferenceEventTimes()
 	{
 		try

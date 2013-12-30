@@ -15,6 +15,7 @@ import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.CrsPropertiesFactory;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -137,7 +138,7 @@ public class CrsUserServiceTest
 		@Override
 		public DateTime currentDateTime()
 		{
-			return new DateTime().minusHours(hoursInPast);
+			return new DateTime(DateTimeZone.UTC).minusHours(hoursInPast);
 		}
 	}
 }

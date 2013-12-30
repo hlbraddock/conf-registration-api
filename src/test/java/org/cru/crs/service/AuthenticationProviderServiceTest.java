@@ -24,14 +24,14 @@ public class AuthenticationProviderServiceTest
 	Connection sqlConnection;
 	AuthenticationProviderService authenticationProviderService;
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		authenticationProviderService = new AuthenticationProviderService(sqlConnection,new UserService(sqlConnection));
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFindAuthProviderEntityById()
 	{
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = authenticationProviderService.findAuthProviderIdentityById(UserInfo.AuthProviderId.TestUser);
@@ -46,7 +46,7 @@ public class AuthenticationProviderServiceTest
 		Assert.assertEquals(authProviderIdentityEntity.getId(), UserInfo.AuthProviderId.TestUser);  /*ID unique to this table*/
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFindAuthProviderEntityUserByAuthProviderId()
 	{
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId("05218422-6bbf-47fb-897c-371c91f87076");
@@ -61,7 +61,7 @@ public class AuthenticationProviderServiceTest
 		Assert.assertEquals(authProviderIdentityEntity.getId(), UserInfo.AuthProviderId.TestUser);  /*ID unique to this table*/
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testFindAuthProviderEntityByUsernameAndType()
 	{
 		AuthenticationProviderIdentityEntity authProviderIdentityEntity = authenticationProviderService.findAuthProviderIdentityByAuthProviderUsernameAndType("crs.testuser@crue.org", AuthenticationProviderType.RELAY);
@@ -76,7 +76,7 @@ public class AuthenticationProviderServiceTest
 		Assert.assertEquals(authProviderIdentityEntity.getId(), UserInfo.AuthProviderId.TestUser);  /*ID unique to this table*/
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testCreateUserAndAuthProviderEntities()
 	{
 		RelayUser newRelayUser = new RelayUser();
@@ -119,7 +119,7 @@ public class AuthenticationProviderServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testUpdateAuthProviderType()
 	{
 		/*service method will be deprecated, so I'm not going to write the test*/

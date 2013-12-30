@@ -2,28 +2,15 @@ package org.cru.crs.api.utils;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
-import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.ConferenceEntity;
-import org.cru.crs.service.AnswerService;
-import org.cru.crs.service.ConferenceService;
-import org.cru.crs.service.UserService;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import java.util.UUID;
-
 public class RegistrationWindowCalculatorTest
 {
-    private static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
-
     private Conference testConferenceWithEarlyRegistration;
     private Conference testConferenceWithoutEarlyRegistration;
 
@@ -33,7 +20,7 @@ public class RegistrationWindowCalculatorTest
 
         public TestClock setDateAtFourPM(int month, int day, int year)
         {
-            currentDateTime = new DateTime().withYear(year)
+            currentDateTime = new DateTime(DateTimeZone.UTC).withYear(year)
                                             .withMonthOfYear(month)
                                             .withDayOfMonth(day)
                                             .withHourOfDay(16)
@@ -47,7 +34,7 @@ public class RegistrationWindowCalculatorTest
 
         public TestClock setDateAtNinePM(int month, int day, int year)
         {
-            currentDateTime = new DateTime().withYear(year)
+            currentDateTime = new DateTime(DateTimeZone.UTC).withYear(year)
                     .withMonthOfYear(month)
                     .withDayOfMonth(day)
                     .withHourOfDay(21)

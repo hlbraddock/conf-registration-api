@@ -16,14 +16,14 @@ public class PaymentServiceTest
 	org.sql2o.Connection sqlConnection;
 	PaymentService paymentService;
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		paymentService = new PaymentService(sqlConnection);
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testGetPayment()
 	{
 		PaymentEntity payment = paymentService.fetchPaymentBy(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
@@ -40,7 +40,7 @@ public class PaymentServiceTest
 		Assert.assertEquals(payment.getTransactionTimestamp(), DateTimeCreaterHelper.createDateTime(2013, 8, 21, 19, 22, 7));
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testSavePayment()
 	{
 		UUID id = UUID.randomUUID();
@@ -80,7 +80,7 @@ public class PaymentServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testUpdatePayment()
 	{		
 		PaymentEntity paymentToUpdate = new PaymentEntity();
@@ -119,7 +119,7 @@ public class PaymentServiceTest
 		
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testGetPaymentsForRegistration()
 	{
 		List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
@@ -137,7 +137,7 @@ public class PaymentServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testDisassociatePaymentsFromRegistration()
 	{
 		try

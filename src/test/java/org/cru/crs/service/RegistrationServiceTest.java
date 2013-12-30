@@ -8,6 +8,7 @@ import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.UserInfo;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -18,14 +19,14 @@ public class RegistrationServiceTest
 	Connection sqlConnection;
 	RegistrationService registrationService;
 	
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		registrationService = new RegistrationService(sqlConnection, new AnswerService(sqlConnection), new PaymentService(sqlConnection));
 	}
 
-	@Test
+	@Test(groups="dbtest")
 	public void testGetRegistration()
 	{
 		RegistrationEntity registration = registrationService.getRegistrationBy(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
@@ -39,8 +40,7 @@ public class RegistrationServiceTest
 		Assert.assertEquals(registration.getTotalDue(), new BigDecimal("0"));
 	}
 
-
-	@Test
+	@Test(groups="dbtest")
 	public void testGetRegistrationByConferenceIdUserId()
 	{
 		RegistrationEntity registration = registrationService.getRegistrationByConferenceIdUserId(ConferenceInfo.Id.NorthernMichigan, UserInfo.Id.TestUser);
@@ -54,12 +54,12 @@ public class RegistrationServiceTest
 		Assert.assertEquals(registration.getTotalDue(), new BigDecimal("0"));
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testCreateNewRegistration()
 	{
 		RegistrationEntity newRegistration = new RegistrationEntity();
 		UUID id = UUID.randomUUID();
-		DateTime completed = new DateTime();
+		DateTime completed = new DateTime(DateTimeZone.UTC);
 		
 		newRegistration.setId(id);
 		newRegistration.setUserId(UserInfo.Id.Email);
@@ -88,7 +88,7 @@ public class RegistrationServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testDeleteRegistration()
 	{
 		try
@@ -104,7 +104,7 @@ public class RegistrationServiceTest
 		}
 	}
 	
-	@Test
+	@Test(groups="dbtest")
 	public void testIsUserRegistered()
 	{
 		Assert.assertTrue(registrationService.isUserRegistered(ConferenceInfo.Id.NorthernMichigan, UserInfo.Id.TestUser));
