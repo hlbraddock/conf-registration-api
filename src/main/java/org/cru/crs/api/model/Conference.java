@@ -34,7 +34,6 @@ public class Conference implements java.io.Serializable
 	private DateTime registrationEndTime;
 	private boolean registrationOpen = false;
 
-	private UUID contactUser;
     private String contactPersonName;
     private String contactPersonEmail;
     private String contactPersonPhone;
@@ -72,7 +71,6 @@ public class Conference implements java.io.Serializable
 		dbConference.setRegistrationStartTime(registrationStartTime);
 		dbConference.setRegistrationEndTime(registrationEndTime);
 		dbConference.setTotalSlots(totalSlots);
-		dbConference.setContactPersonId(contactUser);
         dbConference.setContactPersonName(contactPersonName);
         dbConference.setContactPersonEmail(contactPersonEmail);
         dbConference.setContactPersonPhone(contactPersonPhone);
@@ -124,7 +122,6 @@ public class Conference implements java.io.Serializable
 		webConference.registrationStartTime = dbConference.getRegistrationStartTime();
 		webConference.registrationEndTime = dbConference.getRegistrationEndTime();
 		webConference.totalSlots = dbConference.getTotalSlots();
-		webConference.contactUser = dbConference.getContactPersonId();
         webConference.contactPersonName = dbConference.getContactPersonName();
         webConference.contactPersonEmail = dbConference.getContactPersonEmail();
         webConference.contactPersonPhone = dbConference.getContactPersonPhone();
@@ -242,16 +239,6 @@ public class Conference implements java.io.Serializable
 	public void setRegistrationEndTime(DateTime registrationEndTime)
 	{
 		this.registrationEndTime = registrationEndTime;
-	}
-
-	public UUID getContactUser()
-	{
-		return contactUser;
-	}
-
-	public void setContactUser(UUID contactUser)
-	{
-		this.contactUser = contactUser;
 	}
 
     public String getContactPersonName()

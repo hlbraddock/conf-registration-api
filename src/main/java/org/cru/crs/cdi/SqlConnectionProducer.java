@@ -6,17 +6,19 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.model.ProfileType;
 import org.cru.crs.utils.CrsProperties;
 import org.jboss.logging.Logger;
 import org.postgresql.util.PGobject;
+import org.sql2o.Connection;
 import org.sql2o.QuirksMode;
 import org.sql2o.Sql2o;
-
-import com.google.common.base.Throwables;
 import org.sql2o.converters.Convert;
 import org.sql2o.converters.ConverterException;
 import org.sql2o.converters.EnumConverter;
+
+import com.google.common.base.Throwables;
 
 /**
  * This producer will now live the length of the request, and return the same Sql2o Connection object for each request.  This allows
@@ -31,10 +33,10 @@ public class SqlConnectionProducer
 
 	@Inject CrsProperties properties;
 	
-	private org.sql2o.Connection sqlConnection;
+	private Connection sqlConnection;
 
 	@Produces
-	public org.sql2o.Connection getSqlConnection()
+	public Connection getSqlConnection()
 	{
 		if(sqlConnection == null)
 		{
@@ -42,6 +44,7 @@ public class SqlConnectionProducer
 
 			// register with sql2o a converter for reading ProfileType
 			Convert.registerConverter(ProfileType.class, new PostgresPGObjectToEnumConverter(ProfileType.class));
+			Convert.registerConverter(PermissionLevel.class, new PostgresPGObjectToEnumConverter(PermissionLevel.class));
 		}
 		return sqlConnection;
 	}
@@ -50,19 +53,19 @@ public class SqlConnectionProducer
 	{
 		private Logger logger = Logger.getLogger(PostgresPGObjectToEnumConverter.class);
 
-		public PostgresPGObjectToEnumConverter(Class enumType)
+		public PostgresPGObjectToEnumConverter(Class<?> enumType)
 		{
 			super(enumType);
 		}
 
 		@Override
-		public Enum convert(Object o) throws ConverterException
+		public Enum<?> convert(Object o) throws ConverterException
 		{
 			if (o instanceof PGobject)
 			{
 				try
 				{
-					return ProfileType.valueOf(((PGobject) o).getValue().toUpperCase());
+					return super.convert(((PGobject) o).getValue().toUpperCase());
 				}
 				catch (Exception e)
 				{
@@ -77,8 +80,10 @@ public class SqlConnectionProducer
 
 	public org.sql2o.Connection getTestSqlConnection()
 	{
-		
-		org.sql2o.Connection sqlConnection = new org.sql2o.Connection(new Sql2o("jdbc:postgresql://localhost/crsdb","crsuser","crsuser",QuirksMode.PostgreSQL));
+		Connection sqlConnection = new Connection(new Sql2o("jdbc:postgresql://localhost/crsdb","crsuser","crsuser",QuirksMode.PostgreSQL));
+
+		Convert.registerConverter(ProfileType.class, new PostgresPGObjectToEnumConverter(ProfileType.class));
+		Convert.registerConverter(PermissionLevel.class, new PostgresPGObjectToEnumConverter(PermissionLevel.class));
 		
 		try {
 			sqlConnection.getJdbcConnection().setAutoCommit(false);

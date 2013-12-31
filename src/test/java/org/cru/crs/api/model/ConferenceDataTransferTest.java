@@ -25,7 +25,6 @@ public class ConferenceDataTransferTest
 	{
 		Conference conference = new Conference();
 		
-		conference.setContactUser(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
 		conference.setEventEndTime(DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
 		conference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
 		conference.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));
@@ -43,7 +42,6 @@ public class ConferenceDataTransferTest
         ConferenceEntity jpaConference = conference.toDbConferenceEntity();
 		
 		Assert.assertNotNull(jpaConference);
-		Assert.assertEquals(jpaConference.getContactPersonId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
 		Assert.assertEquals(jpaConference.getEventEndTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
 		Assert.assertEquals(jpaConference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
 		Assert.assertEquals(jpaConference.getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));
@@ -64,7 +62,6 @@ public class ConferenceDataTransferTest
 	{
 		ConferenceEntity conference = new ConferenceEntity();
 		
-		conference.setContactPersonId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
 		conference.setEventEndTime(DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
 		conference.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
 		conference.setId(UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));
@@ -77,7 +74,6 @@ public class ConferenceDataTransferTest
 		Conference webConference = Conference.fromDb(conference, null);
 		
 		Assert.assertNotNull(webConference);
-		Assert.assertEquals(webConference.getContactUser(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe1234"));
 		Assert.assertEquals(webConference.getEventEndTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 4, 12, 0, 0));
 		Assert.assertEquals(webConference.getEventStartTime(), DateTimeCreaterHelper.createDateTime(2013, 9, 1, 4, 0, 0));
 		Assert.assertEquals(webConference.getId(), UUID.fromString("abcd1234-abcd-1234-effe-abcdeffe5678"));

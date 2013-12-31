@@ -103,7 +103,7 @@ public class AuthenticationProviderServiceTest
 			// fetch the created user and auth provider entities
 			AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId(relayId);
 
-			UserEntity userEntity = new UserService(sqlConnection).fetchUserBy(authProviderEntity.getCrsId());
+			UserEntity userEntity = new UserService(sqlConnection).getUserById(authProviderEntity.getCrsId());
 			
 			Assert.assertNotNull(authProviderEntity);
 			Assert.assertNotNull(authProviderEntity.getId()); /*this is set randomly by the service*/

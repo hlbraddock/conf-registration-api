@@ -79,7 +79,7 @@ public class PaymentResource extends TransactionalResource
 		RegistrationEntity registrationEntityForRequestedPayment = registrationService.getRegistrationBy(paymentEntity.getRegistrationId());
 
 		/*If the user has read access to the registration this payment goes with, then they also have read access to the payment*/
-		authorizationService.authorize(registrationEntityForRequestedPayment,
+		authorizationService.authorizeRegistration(registrationEntityForRequestedPayment,
 				conferenceService.fetchConferenceBy(registrationEntityForRequestedPayment.getConferenceId()),
 				OperationType.READ,
 				crsLoggedInUser);
@@ -123,7 +123,7 @@ public class PaymentResource extends TransactionalResource
 
 		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
 
-		authorizationService.authorize(registrationEntity, 
+		authorizationService.authorizeRegistration(registrationEntity, 
 				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
 				OperationType.UPDATE,
 				loggedInUser);
@@ -185,7 +185,7 @@ public class PaymentResource extends TransactionalResource
 
 		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
 
-		authorizationService.authorize(registrationEntity, 
+		authorizationService.authorizeRegistration(registrationEntity, 
 				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
 				OperationType.UPDATE,
 				loggedInUser);

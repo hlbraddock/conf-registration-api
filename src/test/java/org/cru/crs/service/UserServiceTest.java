@@ -26,7 +26,7 @@ public class UserServiceTest
 	@Test(groups="dbtest")
 	public void testGetUser()
 	{
-		UserEntity testUser = userService.fetchUserBy(UserInfo.Id.TestUser);
+		UserEntity testUser = userService.getUserById(UserInfo.Id.TestUser);
 		
 		Assert.assertNotNull(testUser);
 		Assert.assertEquals(testUser.getId(), UserInfo.Id.TestUser);
@@ -34,6 +34,25 @@ public class UserServiceTest
 		Assert.assertNull(testUser.getPhoneNumber());
 		Assert.assertNull(testUser.getFirstName());
 		Assert.assertNull(testUser.getLastName());
+	}
+	
+	@Test(groups="dbtest")
+	public void testGetUserByEmailAddress() {
+		UserEntity ryanUser = userService.getUserByEmailAddress("ryan.t.carlson@cru.org");
+		
+		Assert.assertNotNull(ryanUser);
+		Assert.assertEquals(ryanUser.getId(), UserInfo.Id.Ryan);
+		Assert.assertEquals(ryanUser.getEmailAddress(), "ryan.t.carlson@cru.org");
+	}
+	
+	@Test(groups="dbtest")
+	public void testGetUserByFirstLastName() {
+		UserEntity ryanUser = userService.getUserByFirstAndLastName("Ryan", "Carlson");
+		
+		Assert.assertNotNull(ryanUser);
+		Assert.assertEquals(ryanUser.getId(), UserInfo.Id.Ryan);
+		Assert.assertEquals(ryanUser.getFirstName(), "Ryan");
+		Assert.assertEquals(ryanUser.getLastName(), "Carlson");
 	}
 	
 	@Test(groups="dbtest")
@@ -52,7 +71,7 @@ public class UserServiceTest
 		{
 			userService.createUser(newUserEntity);
 			
-			UserEntity retrievedUser = userService.fetchUserBy(id);
+			UserEntity retrievedUser = userService.getUserById(id);
 			
 			Assert.assertEquals(retrievedUser.getId(), id);
 			Assert.assertEquals(retrievedUser.getEmailAddress(), "new.user@cru.org");

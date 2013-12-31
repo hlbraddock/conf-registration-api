@@ -7,7 +7,7 @@ import org.cru.crs.api.client.PaymentResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.process.RegistrationFetchProcess;
+import org.cru.crs.api.process.RetrieveRegistrationProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.service.AnswerService;
@@ -36,7 +36,7 @@ public class PaymentResourceFunctionalTest
 	AnswerService answerService;
 	RegistrationService registrationService;
 	
-	RegistrationFetchProcess registrationFetchProcess;
+	RetrieveRegistrationProcess registrationFetchProcess;
 	
 	org.sql2o.Connection sqlConnection;
 	
@@ -57,7 +57,7 @@ public class PaymentResourceFunctionalTest
         answerService = new AnswerService(sqlConnection);
 		registrationService = new RegistrationService(sqlConnection,answerService,paymentService);
 		
-		registrationFetchProcess = new RegistrationFetchProcess(registrationService, paymentService, answerService);
+		registrationFetchProcess = new RetrieveRegistrationProcess(registrationService, paymentService, answerService);
 	}
 
 	@Test(groups="functional-tests")

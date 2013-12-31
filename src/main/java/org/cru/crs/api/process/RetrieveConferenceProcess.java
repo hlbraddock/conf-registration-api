@@ -21,16 +21,17 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.testng.collections.Maps;
 
-public class ConferenceFetchProcess
+public class RetrieveConferenceProcess
 {
 	ConferenceService conferenceService;
 	ConferenceCostsService conferenceCostsService;
 	PageService pageService;
 	BlockService blockService;
+	
 	Clock clock;
 	
 	@Inject
-	public ConferenceFetchProcess(ConferenceService conferenceService,
+	public RetrieveConferenceProcess(ConferenceService conferenceService,
 			ConferenceCostsService conferenceCostsService,
 			PageService pageService, BlockService blockService, Clock clock)
 	{

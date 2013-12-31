@@ -8,8 +8,8 @@ import junit.framework.Assert;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.ProfileProcess;
-import org.cru.crs.api.process.RegistrationFetchProcess;
-import org.cru.crs.api.process.RegistrationUpdateProcess;
+import org.cru.crs.api.process.RetrieveRegistrationProcess;
+import org.cru.crs.api.process.UpdateRegistrationProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
@@ -17,6 +17,7 @@ import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
+import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.ProfileService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
@@ -29,11 +30,11 @@ public class RegistrationUpdateProcessTests
 {
 	org.sql2o.Connection sqlConnection;
 
-	RegistrationUpdateProcess process;
+	UpdateRegistrationProcess process;
 
 	RegistrationService registrationService;
 
-	RegistrationFetchProcess registrationFetchProcess;
+	RetrieveRegistrationProcess registrationFetchProcess;
 	
 	Registration testRegistration;
 
@@ -52,13 +53,14 @@ public class RegistrationUpdateProcessTests
 		UserService userService = new UserService(sqlConnection);
 		PageService pageService = new PageService(sqlConnection, blockService);
 		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
-		ConferenceService conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, userService);
+		PermissionService permissionService = new PermissionService(sqlConnection);
+		ConferenceService conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, userService, permissionService);
 		ProfileService profileService = new ProfileService(sqlConnection);
 		ProfileProcess profileProcess = new ProfileProcess(blockService, profileService);
 
 		registrationService = new RegistrationService(sqlConnection, answerService, paymentService);
 
-		registrationFetchProcess = new RegistrationFetchProcess(registrationService, paymentService, answerService);
+		registrationFetchProcess = new RetrieveRegistrationProcess(registrationService, paymentService, answerService);
 
 		clock = new Clock()
 		{
@@ -69,7 +71,7 @@ public class RegistrationUpdateProcessTests
 			}
 		};
 
-		process = new RegistrationUpdateProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock, profileProcess);
+		process = new UpdateRegistrationProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock, profileProcess);
 	}
 	
 	@BeforeMethod(alwaysRun=true)

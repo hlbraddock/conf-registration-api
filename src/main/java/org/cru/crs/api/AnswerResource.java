@@ -72,7 +72,10 @@ public class AnswerResource extends TransactionalResource
 
 		if(registrationEntity == null) throw new BadRequestException("There is no registration for this answer");
 
-		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.READ, crsLoggedInUser);
+		authorizationService.authorizeRegistration(registrationEntity, 
+													conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+													OperationType.READ,
+													crsLoggedInUser);
 
 		Answer answer = Answer.fromDb(answerEntity);
 
@@ -117,7 +120,10 @@ public class AnswerResource extends TransactionalResource
 			// create the answer if none yet exists for the given answer id
 			if(currentAnswerEntity == null)
 			{
-				authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.CREATE, crsLoggedInUser);
+				authorizationService.authorizeRegistration(registrationEntity, 
+																conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), 
+																OperationType.CREATE,
+																crsLoggedInUser);
 
 				logger.info("create answer with registration entity");
 
@@ -132,7 +138,10 @@ public class AnswerResource extends TransactionalResource
 
 			Simply.logObject(currentAnswerEntity, this.getClass());
 			
-			authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
+			authorizationService.authorizeRegistration(registrationEntity,
+														conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+														OperationType.UPDATE,
+														crsLoggedInUser);
 
 			answerService.updateAnswer(answer.toDbAnswerEntity());
 
@@ -162,7 +171,10 @@ public class AnswerResource extends TransactionalResource
 			throw new BadRequestException("The answer being deleted belongs to a registration which does not exist");
 		}
 
-		authorizationService.authorize(registrationEntity, conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), OperationType.DELETE, crsLoggedInUser);
+		authorizationService.authorizeRegistration(registrationEntity,
+													conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+													OperationType.DELETE,
+													crsLoggedInUser);
 
 		answerService.deleteAnswer(answerEntity.getId());
 
