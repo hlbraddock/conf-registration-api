@@ -53,7 +53,7 @@ public class RegistrationUpdateProcessTests
 		PageService pageService = new PageService(sqlConnection, blockService);
 		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
 		ConferenceService conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, userService);
-		ProfileService profileService = new ProfileService();
+		ProfileService profileService = new ProfileService(sqlConnection);
 		ProfileProcess profileProcess = new ProfileProcess(blockService, profileService);
 
 		registrationService = new RegistrationService(sqlConnection, answerService, paymentService);
