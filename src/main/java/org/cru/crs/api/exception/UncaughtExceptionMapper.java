@@ -5,23 +5,32 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.log4j.Logger;
 import org.jboss.resteasy.spi.ApplicationException;
 
 @Provider
 public class UncaughtExceptionMapper implements ExceptionMapper<ApplicationException>
 {
 
+	Logger log = Logger.getLogger(this.getClass());
+	
 	@Override
-	public Response toResponse(ApplicationException exception)
+	public Response toResponse(ApplicationException applicationException)
 	{
-		if(exception.getCause() instanceof WebApplicationException)
+		Throwable actualException = unwrapApplicationException(applicationException);
+		
+		if(actualException instanceof WebApplicationException)
 		{
-			return ((WebApplicationException)exception.getCause()).getResponse();
+			return ((WebApplicationException)actualException).getResponse();
 		}
 		
-		exception.printStackTrace();
+		log.error("5** exception caught", actualException);
 		
-		return Response.serverError().header("Error" , exception.getMessage()).build();
+		return Response.serverError().header("Error" , actualException.getMessage()).build();
 	}
 
+	private Throwable unwrapApplicationException(ApplicationException applicationException)
+	{
+		return applicationException.getCause();
+	}
 }

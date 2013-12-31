@@ -91,6 +91,12 @@
         </dependency>
 
 		<dependency>
+    		<groupId>org.ccci</groupId>
+    		<artifactId>red-egg</artifactId>
+    		<version>1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jaxrs</artifactId>
 			<version>3.0.4.Final</version>
@@ -280,6 +286,7 @@
 			<id>local</id>
 			<properties>
 				<db.datasouce.name>java:jboss/datasources/crsLocalDS</db.datasouce.name>
+				<errbit.environment>local</errbit.environment>
 			</properties>
 			<activation>
     			<activeByDefault>true</activeByDefault>
@@ -290,6 +297,7 @@
 			<id>development</id>
 			<properties>
 				<db.datasouce.name>java:jboss/datasources/crsDevDS</db.datasouce.name>
+				<errbit.environment>DEV</errbit.environment>
 			</properties>
 		</profile>
 	</profiles>
