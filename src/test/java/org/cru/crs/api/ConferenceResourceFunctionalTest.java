@@ -69,7 +69,7 @@ public class ConferenceResourceFunctionalTest
         AnswerService answerService = new AnswerService(sqlConnection);
         BlockService blockService = new BlockService(sqlConnection, answerService);
         pageService = new PageService(sqlConnection,blockService);
-        ConferenceCostsService conferenceCostsService = new ConferenceCostsService(null);
+        ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
         conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, new UserService(sqlConnection));
         paymentService = new PaymentService(sqlConnection);
         registrationService = new RegistrationService(sqlConnection, answerService,paymentService);
@@ -173,6 +173,7 @@ public class ConferenceResourceFunctionalTest
 		finally
 		{
 			if(conferenceIdString != null) deleteConferenceForNextTests(UUID.fromString(conferenceIdString));
+			sqlConnection.commit();
 		}
 	}
 
@@ -227,6 +228,7 @@ public class ConferenceResourceFunctionalTest
 		finally
 		{
 			deleteConferenceForNextTests(conferenceId);
+			sqlConnection.commit();
 		}
 	}
 
@@ -265,6 +267,7 @@ public class ConferenceResourceFunctionalTest
 		finally
 		{
 			deletePageForNextTests(pageId);
+			sqlConnection.commit();
 		}
 	}
 
@@ -318,6 +321,7 @@ public class ConferenceResourceFunctionalTest
 		finally
 		{
 			deleteRegistrationForNextTests(registrationId);
+			sqlConnection.commit();
 		}
 
 	}
@@ -413,6 +417,7 @@ public class ConferenceResourceFunctionalTest
 		{
 			deletePageForNextTests(testPageId);
 			deleteConferenceForNextTests(testConferenceId);
+			sqlConnection.commit();
 		}
 	 }
 	
@@ -524,16 +529,6 @@ public class ConferenceResourceFunctionalTest
 		{
 			sqlConnection.createQuery("DELETE FROM pages WHERE id = :id")
 							.addParameter("id", pageId)
-							.executeUpdate();
-		}
-	}
-	
-	private void deletePaymentForNextTests(UUID paymentId)
-	{
-		if(paymentId != null)
-		{
-			sqlConnection.createQuery("DELETE FROM payments WHERE id = :id")
-							.addParameter("id", paymentId)
 							.executeUpdate();
 		}
 	}

@@ -7,6 +7,7 @@ import javax.ws.rs.core.Response.Status;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Session;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.service.AuthenticationProviderService;
@@ -14,7 +15,6 @@ import org.cru.crs.service.SessionService;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
 
 public class CrsUserService

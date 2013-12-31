@@ -3,9 +3,9 @@ package org.cru.crs.auth.authz;
 import java.util.UUID;
 
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
-import org.jboss.resteasy.spi.UnauthorizedException;
 
 public class AuthorizationService
 {

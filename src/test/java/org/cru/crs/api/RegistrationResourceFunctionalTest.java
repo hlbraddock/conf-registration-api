@@ -107,7 +107,7 @@ public class RegistrationResourceFunctionalTest
         Payment payment2 = registration.getPastPayments().get(1);
 
         Assert.assertEquals(payment1.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB22222"));
-        Assert.assertEquals(payment1.getAmount(), new BigDecimal(20f));
+        Assert.assertEquals(payment1.getAmount(), new BigDecimal("20.00"));
         Assert.assertEquals(payment1.getCreditCardNameOnCard(),"Billy User");
         Assert.assertEquals(payment1.getCreditCardExpirationMonth(), "04");
         Assert.assertEquals(payment1.getCreditCardExpirationYear(), "2014");
@@ -115,7 +115,7 @@ public class RegistrationResourceFunctionalTest
         Assert.assertEquals(payment1.getRegistrationId(), UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111"));
 
         Assert.assertEquals(payment2.getId(), UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB33333"));
-        Assert.assertEquals(payment2.getAmount(), new BigDecimal(55f));
+        Assert.assertEquals(payment2.getAmount(), new BigDecimal("55.00"));
         Assert.assertEquals(payment2.getCreditCardNameOnCard(),"Billy User");
         Assert.assertEquals(payment2.getCreditCardExpirationMonth(), "04");
         Assert.assertEquals(payment2.getCreditCardExpirationYear(), "2014");
@@ -148,28 +148,33 @@ public class RegistrationResourceFunctionalTest
 	@Test(groups = "functional-tests")
 	public void updateRegistration()
 	{
+		/* need to act on a different registration that doesn't have the total due set. 
+		 * otherwise this test can have negative impacts on other tests.
+		 */
+		UUID registrationIdForThisTest = UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111");
+		
 		//get registration
-		ClientResponse<Registration> response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
+		ClientResponse<Registration> response = registrationClient.getRegistration(registrationIdForThisTest, UserInfo.AuthCode.Ryan);
 		Registration registration = response.getEntity();
         UUID originalUserId = registration.getUserId();
 
 		// update registration
-		UUID updatedUserUUID = UserInfo.Id.Ryan;
+		UUID updatedUserUUID = UserInfo.Id.TestUser;
 		Assert.assertNotEquals(originalUserId, updatedUserUUID);
 
 		registration.setUserId(updatedUserUUID);
-		response = registrationClient.updateRegistration(registration, registrationUUID, UserInfo.AuthCode.TestUser);
+		response = registrationClient.updateRegistration(registration, registrationIdForThisTest, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 204);
 
 		// get updated registration
-		response = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
+		response = registrationClient.getRegistration(registrationIdForThisTest, UserInfo.AuthCode.TestUser);
 		Assert.assertEquals(response.getStatus(), 200);
 		Assert.assertEquals(response.getEntity().getUserId(), updatedUserUUID);
 
 		// restore registration
-		registration.setId(registrationUUID);
+		registration.setId(registrationIdForThisTest);
         registration.setUserId(originalUserId);
-		response = registrationClient.updateRegistration(registration, registrationUUID, UserInfo.AuthCode.TestUser);
+		response = registrationClient.updateRegistration(registration, registrationIdForThisTest, UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 	

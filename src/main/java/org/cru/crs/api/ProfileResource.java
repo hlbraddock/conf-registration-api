@@ -10,11 +10,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.jboss.resteasy.spi.UnauthorizedException;
 
 @Path("/profile")
 @RequestScoped
@@ -30,16 +28,8 @@ public class ProfileResource extends TransactionalResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getLoggedInUser(@HeaderParam("Authorization") String authCode)
 	{
-		try
-		{
-			CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
-			
-			return Response.ok().entity(loggedInUser).build();
-		} 
-		catch (UnauthorizedException e)
-		{
-			return Response.status(Status.UNAUTHORIZED).build();
-		}
-		
+		CrsApplicationUser loggedInUser = userService.getLoggedInUser(authCode);
+
+		return Response.ok().entity(loggedInUser).build();
 	}
 }
