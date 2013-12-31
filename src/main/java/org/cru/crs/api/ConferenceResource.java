@@ -154,7 +154,7 @@ public class ConferenceResource extends TransactionalResource
 
 		conference.setContactUser(loggedInUser.getId());
 		setInitialContactPersonDetailsBasedOn(conference, loggedInUser);
-
+		
 		Simply.logObject(conference, ConferenceResource.class);
 
 		/*persist the new conference*/
@@ -303,6 +303,9 @@ public class ConferenceResource extends TransactionalResource
 		if(newRegistrationEntity.getId() == null) newRegistrationEntity.setId(UUID.randomUUID());
 		newRegistrationEntity.setUserId(crsLoggedInUser.getId());
 		newRegistrationEntity.setConferenceId(conferenceId);
+		
+		/*it's a new registration, so it will not be 'completed'*/
+		newRegistrationEntity.setCompleted(false);
 
 		Simply.logObject(newRegistration, ConferenceResource.class);
 
@@ -312,7 +315,6 @@ public class ConferenceResource extends TransactionalResource
 		registrationUpdateProcess.performDeepUpdate(newRegistration);
 
 		Registration freshCopyOfNewRegistraiton = registrationFetchProcess.get(newRegistrationEntity.getId());
-
 
 		return Response.status(Status.CREATED)
 				.location(new URI("/pages/" + freshCopyOfNewRegistraiton.getId()))

@@ -33,6 +33,7 @@ import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
@@ -152,8 +153,10 @@ public class RegistrationResource extends TransactionalResource
 			logger.info("update registration :: creating");
 
 			if (registrationService.isUserRegistered(conferenceEntityForUpdatedRegistration.getId(), crsLoggedInUser.getId()))
-				throw new WebApplicationException(HttpURLConnection.HTTP_UNAUTHORIZED);
-
+			{
+				throw new UnauthorizedException();
+			}
+			
 			/*save the new registration to the DB*/
 			registrationService.createNewRegistration(registrationEntity);
 		}
