@@ -6,7 +6,4 @@ this in the future -->
 		xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 							http://java.sun.com/xml/ns/javaee/beans_1_0.xsd"
 		xmlns:weld="http://jboss.org/schema/weld/beans">
-	<alternatives>
-		<class>org.cru.redegg.recording.api.NoOpParameterSanitizer</class>
-	</alternatives>
 </beans>
