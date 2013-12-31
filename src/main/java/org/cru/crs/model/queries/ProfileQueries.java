@@ -22,7 +22,7 @@ public class ProfileQueries implements BasicQueries
 				"name = :name, " +
 				"phone = :phone, " +
 				"address = :address, " +
-				"birthDate = :birthDate, " +
+				"birth_date = :birthDate, " +
 				"gender = :gender, " +
 				"campus = :campus, " +
 				"graduation = :graduation, " +
@@ -34,8 +34,8 @@ public class ProfileQueries implements BasicQueries
 	@Override
 	public String insert()
 	{
-		return "INSERT INTO profiles(id, email, name, phone, address, birthDate, gender, campus, graduation, dormitory) VALUES " +
-				"(:id, :email, :name, :phone, :address, :birthDate, :gender, :campus, :graduation, :dormitory)";
+		return "INSERT INTO profiles(id, user_id, email, name, phone, address, birth_date, gender, campus, graduation, dormitory) VALUES " +
+				"(:id, :userId, :email, :name, :phone, :address, :birthDate, :gender, :campus, :graduation, :dormitory)";
 	}
 
 	@Override
@@ -43,5 +43,4 @@ public class ProfileQueries implements BasicQueries
 	{
 		return "DELETE FROM profiles WHERE id = :id";
 	}
-	
 }

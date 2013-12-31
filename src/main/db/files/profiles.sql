@@ -7,7 +7,7 @@ CREATE TABLE profiles (
   name json,
   phone json,
   address json,
-  birthDate json,
+  birth_date json,
   gender json,
   campus json,
   graduation json,

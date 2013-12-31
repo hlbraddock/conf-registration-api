@@ -46,7 +46,7 @@ public class ProfileProcess
 
 		if(profileEntity == null)
 		{
-			profileEntity = new ProfileEntity();
+			profileEntity = new ProfileEntity(registration.getUserId());
 
 			profileService.createProfile(profileEntity);
 		}

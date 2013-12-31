@@ -49,6 +49,7 @@ public class ProfileService
     	
     	sqlConnection.createQuery(profileQueries.insert())
 						.addParameter("id", profileEntity.getId())
+						.addParameter("userId", profileEntity.getUserId())
 						.addParameter("email", profileEntity.getEmail())
 						.addParameter("name", profileEntity.getName())
 						.addParameter("phone", profileEntity.getPhone() )

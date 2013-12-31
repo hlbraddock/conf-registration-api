@@ -12,6 +12,8 @@ public class ProfileEntity implements java.io.Serializable
 
 	private UUID id;
 
+	private UUID userId;
+
 	private JsonNode email;
 	private JsonNode name;
 	private JsonNode phone;
@@ -22,6 +24,17 @@ public class ProfileEntity implements java.io.Serializable
 	private JsonNode graduation;
 	private JsonNode dormitory;
 
+	public ProfileEntity()
+	{
+		id = UUID.randomUUID();
+	}
+
+	public ProfileEntity(UUID userId)
+	{
+		this();
+		this.userId = userId;
+	}
+
 	public UUID getId()
 	{
 		return id;
@@ -31,6 +44,16 @@ public class ProfileEntity implements java.io.Serializable
 	{
 		this.id = id;
 		return this;
+	}
+
+	public UUID getUserId()
+	{
+		return userId;
+	}
+
+	public void setUserId(UUID userId)
+	{
+		this.userId = userId;
 	}
 
 	public JsonNode getEmail()
