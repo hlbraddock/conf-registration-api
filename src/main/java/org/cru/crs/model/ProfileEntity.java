@@ -152,39 +152,39 @@ public class ProfileEntity implements java.io.Serializable
 		{
 			switch (profileAttribute.getType())
 			{
-				case email:
+				case EMAIL:
 					setEmail(profileAttribute.getValue());
 					break;
 
-				case name:
+				case NAME:
 					setName(profileAttribute.getValue());
 					break;
 
-				case phone:
+				case PHONE:
 					setPhone(profileAttribute.getValue());
 					break;
 
-				case address:
+				case ADDRESS:
 					setAddress(profileAttribute.getValue());
 					break;
 
-				case birthDate:
+				case BIRTH_DATE:
 					setBirthDate(profileAttribute.getValue());
 					break;
 
-				case gender:
+				case GENDER:
 					setGender(profileAttribute.getValue());
 					break;
 
-				case campus:
+				case CAMPUS:
 					setCampus(profileAttribute.getValue());
 					break;
 
-				case graduation:
+				case GRADUATION:
 					setGraduation(profileAttribute.getValue());
 					break;
 
-				case dormitory:
+				case DORMITORY:
 					setDormitory(profileAttribute.getValue());
 					break;
 

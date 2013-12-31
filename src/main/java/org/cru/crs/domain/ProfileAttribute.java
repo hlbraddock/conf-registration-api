@@ -10,7 +10,7 @@ public class ProfileAttribute extends ValueObject
 {
 	public enum Type
 	{
-		email, name, phone, address, birthDate, gender, campus, graduation, dormitory
+		EMAIL, NAME, PHONE, ADDRESS, BIRTH_DATE, GENDER, CAMPUS, GRADUATION, DORMITORY
 	}
 
 	private Type type;
