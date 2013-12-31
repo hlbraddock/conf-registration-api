@@ -6,12 +6,12 @@ public class ProfileQueries implements BasicQueries
 	@Override
 	public String selectById()
 	{
-		return "SELECT * FROM profiles WHERE :id = id";
+		return "SELECT * FROM profiles WHERE id = :id";
 	}
 
 	public String selectByUserId()
 	{
-		return "SELECT * FROM profiles WHERE :id = user_id";
+		return "SELECT * FROM profiles WHERE user_id = :userId";
 	}
 
 	@Override

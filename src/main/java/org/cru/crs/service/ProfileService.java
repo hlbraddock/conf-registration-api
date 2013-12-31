@@ -35,7 +35,7 @@ public class ProfileService
 	public ProfileEntity getProfileByUser(UUID uuid)
 	{
 		return sqlConnection.createQuery(profileQueries.selectByUserId())
-				.addParameter("id", uuid)
+				.addParameter("userId", uuid)
 				.setAutoDeriveColumnNames(true)
 				.executeAndFetchFirst(ProfileEntity.class);
 	}

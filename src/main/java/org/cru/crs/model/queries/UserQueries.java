@@ -6,7 +6,7 @@ public class UserQueries implements BasicQueries
 	@Override
 	public String selectById()
 	{
-		return "SELECT * FROM users WHERE :id = id";
+		return "SELECT * FROM users WHERE id = :id";
 	}
 
 	@Override
