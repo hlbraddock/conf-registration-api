@@ -228,7 +228,7 @@ public class RegistrationResourceFunctionalTest
 		UUID createBlockUUID = UUID.fromString("5060D878-4741-4F21-9D25-231DB86E43EE");
 		UUID answerUUID = UUID.randomUUID();
 		JsonNode createAnswerValue = jsonNodeFromString("{\"email\": \"lee.braddock@cru.org\"}");
-		Answer answer = createAnswer(answerUUID, registrationUUID, createBlockUUID, createAnswerValue);
+		Answer answer = createAnswer(answerUUID, registrationIdUUID, createBlockUUID, createAnswerValue);
 
 		createRegistration.getAnswers().add(answer);
 
