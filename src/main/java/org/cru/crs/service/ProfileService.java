@@ -46,30 +46,38 @@ public class ProfileService
     	{
     		profileEntity.setId(UUID.randomUUID());
     	}
-    	
-    	sqlConnection.createQuery(profileQueries.insert())
-						.addParameter("id", profileEntity.getId())
-						.addParameter("userId", profileEntity.getUserId())
-						.addParameter("email", profileEntity.getEmail())
-						.addParameter("name", profileEntity.getName())
-						.addParameter("phone", profileEntity.getPhone() )
-						.addParameter("address", profileEntity.getAddress())
-						.addParameter("birthDate", profileEntity.getBirthDate())
-						.addParameter("gender", profileEntity.getGender())
-						.addParameter("campus", profileEntity.getCampus())
-						.addParameter("graduation", profileEntity.getGraduation())
-						.addParameter("dormitory", profileEntity.getDormitory())
-    					.executeUpdate();
-    }
+
+		sqlConnection.createQuery(profileQueries.insert())
+				.addParameter("id", profileEntity.getId())
+				.addParameter("userId", profileEntity.getUserId())
+				.addParameter("email", profileEntity.getEmail())
+				.addParameter("firstName", profileEntity.getFirstName())
+				.addParameter("lastName", profileEntity.getLastName())
+				.addParameter("phone", profileEntity.getPhone())
+				.addParameter("street", profileEntity.getStreet())
+				.addParameter("city", profileEntity.getCity())
+				.addParameter("state", profileEntity.getState())
+				.addParameter("zip", profileEntity.getZip())
+				.addParameter("birthDate", profileEntity.getBirthDate())
+				.addParameter("gender", profileEntity.getGender())
+				.addParameter("campus", profileEntity.getCampus())
+				.addParameter("graduation", profileEntity.getGraduation())
+				.addParameter("dormitory", profileEntity.getDormitory())
+				.executeUpdate();
+	}
 
 	public void updateProfile(ProfileEntity profileEntity)
 	{
 		sqlConnection.createQuery(profileQueries.update())
 				.addParameter("id", profileEntity.getId())
 				.addParameter("email", profileEntity.getEmail())
-				.addParameter("name", profileEntity.getName())
+				.addParameter("firstName", profileEntity.getFirstName())
+				.addParameter("lastName", profileEntity.getLastName())
 				.addParameter("phone", profileEntity.getPhone() )
-				.addParameter("address", profileEntity.getAddress())
+				.addParameter("street", profileEntity.getStreet())
+				.addParameter("city", profileEntity.getCity())
+				.addParameter("state", profileEntity.getState())
+				.addParameter("zip", profileEntity.getZip())
 				.addParameter("birthDate", profileEntity.getBirthDate())
 				.addParameter("gender", profileEntity.getGender())
 				.addParameter("campus", profileEntity.getCampus())

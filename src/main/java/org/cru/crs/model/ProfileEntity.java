@@ -1,9 +1,7 @@
 package org.cru.crs.model;
 
-import org.codehaus.jackson.JsonNode;
-import org.cru.crs.domain.ProfileAttribute;
+import com.google.common.base.Strings;
 
-import java.util.List;
 import java.util.UUID;
 
 public class ProfileEntity implements java.io.Serializable
@@ -14,15 +12,19 @@ public class ProfileEntity implements java.io.Serializable
 
 	private UUID userId;
 
-	private JsonNode email;
-	private JsonNode name;
-	private JsonNode phone;
-	private JsonNode address;
-	private JsonNode birthDate;
-	private JsonNode gender;
-	private JsonNode campus;
-	private JsonNode graduation;
-	private JsonNode dormitory;
+	private String email;
+	private String firstName;
+	private String lastName;
+	private String phone;
+	private String street;
+	private String city;
+	private String state;
+	private String zip;
+	private String birthDate;
+	private String gender;
+	private String campus;
+	private String graduation;
+	private String dormitory;
 
 	public ProfileEntity()
 	{
@@ -56,140 +58,134 @@ public class ProfileEntity implements java.io.Serializable
 		this.userId = userId;
 	}
 
-	public JsonNode getEmail()
+	public String getEmail()
 	{
 		return email;
 	}
 
-	public void setEmail(JsonNode email)
+	public void setEmail(String email)
 	{
 		this.email = email;
 	}
 
-	public JsonNode getName()
+	public String getFirstName()
 	{
-		return name;
+		return firstName;
 	}
 
-	public void setName(JsonNode name)
+	public void setFirstName(String firstName)
 	{
-		this.name = name;
+		this.firstName = firstName;
 	}
 
-	public JsonNode getPhone()
+	public String getLastName()
+	{
+		return lastName;
+	}
+
+	public void setLastName(String lastName)
+	{
+		this.lastName = lastName;
+	}
+
+	public String getPhone()
 	{
 		return phone;
 	}
 
-	public void setPhone(JsonNode phone)
+	public void setPhone(String phone)
 	{
 		this.phone = phone;
 	}
 
-	public JsonNode getAddress()
+	public String getStreet()
 	{
-		return address;
+		return street;
 	}
 
-	public void setAddress(JsonNode address)
+	public void setStreet(String street)
 	{
-		this.address = address;
+		this.street = street;
 	}
 
-	public JsonNode getBirthDate()
+	public String getCity()
+	{
+		return city;
+	}
+
+	public void setCity(String city)
+	{
+		this.city = city;
+	}
+
+	public String getState()
+	{
+		return state;
+	}
+
+	public void setState(String state)
+	{
+		this.state = state;
+	}
+
+	public String getZip()
+	{
+		return zip;
+	}
+
+	public void setZip(String zip)
+	{
+		this.zip = zip;
+	}
+
+	public String getBirthDate()
 	{
 		return birthDate;
 	}
 
-	public void setBirthDate(JsonNode birthDate)
+	public void setBirthDate(String birthDate)
 	{
 		this.birthDate = birthDate;
 	}
 
-	public JsonNode getGender()
+	public String getGender()
 	{
 		return gender;
 	}
 
-	public void setGender(JsonNode gender)
+	public void setGender(String gender)
 	{
 		this.gender = gender;
 	}
 
-	public JsonNode getCampus()
+	public String getCampus()
 	{
 		return campus;
 	}
 
-	public void setCampus(JsonNode campus)
+	public void setCampus(String campus)
 	{
 		this.campus = campus;
 	}
 
-	public JsonNode getGraduation()
+	public String getGraduation()
 	{
 		return graduation;
 	}
 
-	public void setGraduation(JsonNode graduation)
+	public void setGraduation(String graduation)
 	{
 		this.graduation = graduation;
 	}
 
-	public JsonNode getDormitory()
+	public String getDormitory()
 	{
 		return dormitory;
 	}
 
-	public void setDormitory(JsonNode dormitory)
+	public void setDormitory(String dormitory)
 	{
 		this.dormitory = dormitory;
 	}
-
-	public void setProfileAttributes(List<ProfileAttribute> profileAttributes)
-	{
-		for (ProfileAttribute profileAttribute : profileAttributes)
-		{
-			switch (profileAttribute.getType())
-			{
-				case EMAIL:
-					setEmail(profileAttribute.getValue());
-					break;
-
-				case NAME:
-					setName(profileAttribute.getValue());
-					break;
-
-				case PHONE:
-					setPhone(profileAttribute.getValue());
-					break;
-
-				case ADDRESS:
-					setAddress(profileAttribute.getValue());
-					break;
-
-				case BIRTH_DATE:
-					setBirthDate(profileAttribute.getValue());
-					break;
-
-				case GENDER:
-					setGender(profileAttribute.getValue());
-					break;
-
-				case CAMPUS:
-					setCampus(profileAttribute.getValue());
-					break;
-
-				case GRADUATION:
-					setGraduation(profileAttribute.getValue());
-					break;
-
-				case DORMITORY:
-					setDormitory(profileAttribute.getValue());
-					break;
-
-				default:
-			}
-		}
-	}
 }
+
