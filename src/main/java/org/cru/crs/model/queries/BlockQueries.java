@@ -25,7 +25,7 @@ public class BlockQueries implements BasicQueries
 				 "required = :required, " +
 				 "title = :title, " +
 				 "content = :content, " +
-				 "profile_type = :profileType" +
+				 "profile_type = :profile_type" +
 				 " WHERE " +
 				 "id = :id";
 	}
@@ -34,7 +34,7 @@ public class BlockQueries implements BasicQueries
 	public String insert()
 	{
 		return "INSERT INTO blocks(id, page_id, position, block_type, admin_only, required, title, content, profile_type) " +
-				"VALUES (:id, :pageId, :position, :blockType, :adminOnly, :required, :title, :content, :profileType)";
+				"VALUES (:id, :pageId, :position, :blockType, :adminOnly, :required, :title, :content, :profile_type)";
 	}
 
 	@Override
