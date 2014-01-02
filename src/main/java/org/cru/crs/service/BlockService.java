@@ -60,7 +60,8 @@ public class BlockService
 						.addParameter("required", blockToSave.isRequired())
 						.addParameter("title", blockToSave.getTitle())
 						.addParameter("content", blockToSave.getContent())
-						.addParameter("profileType", blockToSave.getProfileType())
+		/*type cast Enum to Object so sql2o correctly writes postgres enum type, o/w sql2o will convert to String*/
+						.addParameter("profile_type", (Object) blockToSave.getProfileType())
 						.executeUpdate();
 	}
 	
@@ -76,7 +77,8 @@ public class BlockService
 						.addParameter("required", blockToUpdate.isRequired())
 						.addParameter("title", blockToUpdate.getTitle())
 						.addParameter("content", blockToUpdate.getContent())
-						.addParameter("profileType", blockToUpdate.getProfileType())
+		/*type cast Enum to Object so sql2o correctly writes postgres enum type, o/w sql2o will convert to String*/
+						.addParameter("profile_type", (Object) blockToUpdate.getProfileType())
 						.executeUpdate();
 	}
 
