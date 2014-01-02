@@ -187,5 +187,50 @@ public class ProfileEntity implements java.io.Serializable
 	{
 		this.dormitory = dormitory;
 	}
+
+	public void set(ProfileEntity profileEntity)
+	{
+		if(profileEntity == null)
+			return;
+
+		if(!Strings.isNullOrEmpty(profileEntity.getBirthDate()))
+			birthDate = profileEntity.getBirthDate();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getCampus()))
+			campus = profileEntity.getCampus();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getCity()))
+			city = profileEntity.getCity();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getDormitory()))
+			dormitory = profileEntity.getDormitory();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getEmail()	))
+			email = profileEntity.getEmail();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getFirstName()))
+			firstName = profileEntity.getFirstName();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getGender()))
+			gender = profileEntity.getGender();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getGraduation()))
+			graduation = profileEntity.getGraduation();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getLastName()))
+			lastName = profileEntity.getLastName();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getPhone()))
+			phone = profileEntity.getPhone();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getState()))
+			state = profileEntity.getState();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getStreet()))
+			street = profileEntity.getStreet();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getZip()))
+			zip = profileEntity.getZip();
+	}
 }
 

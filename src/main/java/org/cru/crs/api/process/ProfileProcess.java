@@ -1,17 +1,17 @@
 package org.cru.crs.api.process;
 
 import org.ccci.util.strings.Strings;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.domain.ProfileAttribute;
+
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ProfileService;
+import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,8 +19,10 @@ import java.util.Set;
  */
 public class ProfileProcess
 {
-	BlockService blockService;
-	ProfileService profileService;
+	private BlockService blockService;
+	private ProfileService profileService;
+
+	Logger logger = Logger.getLogger(ProfileProcess.class);
 
 	@Inject
 	public ProfileProcess(BlockService blockService, ProfileService profileService)
@@ -33,9 +35,7 @@ public class ProfileProcess
 	{
 		ProfileEntity profileEntity = getProfileEntity(registration);
 
-		List<ProfileAttribute> profileAttributes = profileAttributesFromAnswers(registration.getAnswers());
-
-		profileEntity.setProfileAttributes(profileAttributes);
+		setProfileEntityFromAnswers(registration.getAnswers(), profileEntity);
 
 		profileService.updateProfile(profileEntity);
 	}
@@ -54,21 +54,26 @@ public class ProfileProcess
 		return profileEntity;
 	}
 
-	private List<ProfileAttribute> profileAttributesFromAnswers(Set<Answer> answers)
+	private void setProfileEntityFromAnswers(Set<Answer> answers, ProfileEntity profileEntity)
 	{
-		List<ProfileAttribute> profileAttributes = new ArrayList<ProfileAttribute>();
-
 		for (Answer answer : answers)
 		{
 			BlockEntity blockEntity = blockService.fetchBlockBy(answer.getBlockId());
 
 			if (hasProfileType(blockEntity))
 			{
-				profileAttributes.add(new ProfileAttribute(blockEntity.getProfileType(), answer.getValue()));
+				try
+				{
+					ProfileEntity profileEntityFromAnswer = new ObjectMapper().readValue(answer.getValue(), ProfileEntity.class);
+
+					profileEntity.set(profileEntityFromAnswer);
+				}
+				catch (Exception e)
+				{
+					logger.error("Could not set profile entity for type " + blockEntity.getProfileType() + " and value " + answer.getValue());
+				}
 			}
 		}
-
-		return profileAttributes;
 	}
 
 	private boolean hasProfileType(BlockEntity blockEntity)
