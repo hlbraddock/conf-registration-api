@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.JsonNode;
-import org.cru.crs.domain.ProfileAttribute;
+import org.cru.crs.domain.ProfileType;
 
 public class BlockEntity implements java.io.Serializable
 {
@@ -23,7 +23,7 @@ public class BlockEntity implements java.io.Serializable
 	private JsonNode content;
 	private String title;
 
-	private ProfileAttribute.Type profileType;
+	private ProfileType profileType;
 
 	public int hashCode()
 	{
@@ -135,12 +135,12 @@ public class BlockEntity implements java.io.Serializable
 		this.conferenceCostsBlockId = conferenceCostsBlockId;
 	}
 
-	public ProfileAttribute.Type getProfileType()
+	public ProfileType getProfileType()
 	{
 		return profileType;
 	}
 
-	public void setProfileType(ProfileAttribute.Type profileType)
+	public void setProfileType(ProfileType profileType)
 	{
 		this.profileType = profileType;
 	}

@@ -1,0 +1,6 @@
+package org.cru.crs.domain;
+
+public enum ProfileType
+{
+	EMAIL, FIRST_NAME, LAST_NAME, PHONE, STREET, CITY, STATE, ZIP, BIRTH_DATE, GENDER, CAMPUS, GRADUATION, DORMITORY
+}
