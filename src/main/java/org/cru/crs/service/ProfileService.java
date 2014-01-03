@@ -58,10 +58,10 @@ public class ProfileService
 				.addParameter("city", profileEntity.getCity())
 				.addParameter("state", profileEntity.getState())
 				.addParameter("zip", profileEntity.getZip())
-				.addParameter("birthDate", profileEntity.getBirthDate())
+				.addParameter("birthDate", profileEntity.getBirthDate() == null ? profileEntity.getBirthDate() : profileEntity.getBirthDate().toDate())
 				.addParameter("gender", profileEntity.getGender())
 				.addParameter("campus", profileEntity.getCampus())
-				.addParameter("graduation", profileEntity.getGraduation())
+				.addParameter("graduation", profileEntity.getGraduation() == null ? profileEntity.getGraduation() : profileEntity.getGraduation().toDate())
 				.addParameter("dormitory", profileEntity.getDormitory())
 				.executeUpdate();
 	}
@@ -78,10 +78,10 @@ public class ProfileService
 				.addParameter("city", profileEntity.getCity())
 				.addParameter("state", profileEntity.getState())
 				.addParameter("zip", profileEntity.getZip())
-				.addParameter("birthDate", profileEntity.getBirthDate())
+				.addParameter("birthDate", profileEntity.getBirthDate() == null ? profileEntity.getBirthDate() : profileEntity.getBirthDate().toDate())
 				.addParameter("gender", profileEntity.getGender())
 				.addParameter("campus", profileEntity.getCampus())
-				.addParameter("graduation", profileEntity.getGraduation())
+				.addParameter("graduation", profileEntity.getGraduation() == null ? profileEntity.getGraduation() : profileEntity.getGraduation().toDate())
 				.addParameter("dormitory", profileEntity.getDormitory())
 				.executeUpdate();
 	}
