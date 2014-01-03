@@ -2,6 +2,7 @@ package org.cru.crs.model;
 
 import com.google.common.base.Strings;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import java.util.UUID;
 
@@ -12,14 +13,14 @@ public class ProfileEntity implements java.io.Serializable
 	private UUID id;
 	private UUID userId;
 
-	private DateTime birthDate;
+	private LocalDate birthDate;
 	private String campus;
 	private String city;
 	private String dormitory;
 	private String email;
 	private String firstName;
 	private String gender;
-	private DateTime graduation;
+	private LocalDate graduation;
 	private String lastName;
 	private String phone;
 	private String state;
@@ -42,7 +43,7 @@ public class ProfileEntity implements java.io.Serializable
 		this.userId = userId;
 	}
 
-	public ProfileEntity(UUID id, UUID userId, DateTime birthDate, String campus, String city, String dormitory, String email, String firstName, String gender, DateTime graduation, String lastName, String phone, String state, String street, String zip)
+	public ProfileEntity(UUID id, UUID userId, LocalDate birthDate, String campus, String city, String dormitory, String email, String firstName, String gender, LocalDate graduation, String lastName, String phone, String state, String street, String zip)
 	{
 		this(id, userId);
 
@@ -81,12 +82,12 @@ public class ProfileEntity implements java.io.Serializable
 		this.userId = userId;
 	}
 
-	public DateTime getBirthDate()
+	public LocalDate getBirthDate()
 	{
 		return birthDate;
 	}
 
-	public void setBirthDate(DateTime birthDate)
+	public void setBirthDate(LocalDate birthDate)
 	{
 		this.birthDate = birthDate;
 	}
@@ -151,12 +152,12 @@ public class ProfileEntity implements java.io.Serializable
 		this.gender = gender;
 	}
 
-	public DateTime getGraduation()
+	public LocalDate getGraduation()
 	{
 		return graduation;
 	}
 
-	public void setGraduation(DateTime graduation)
+	public void setGraduation(LocalDate graduation)
 	{
 		this.graduation = graduation;
 	}
