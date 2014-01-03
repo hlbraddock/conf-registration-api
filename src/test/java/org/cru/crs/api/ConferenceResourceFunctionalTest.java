@@ -100,13 +100,14 @@ public class ConferenceResourceFunctionalTest
 		List<Conference> conferences = response.getEntity();
 		
 		Assert.assertNotNull(conferences);
-		Assert.assertEquals(conferences.size(), 2);
+		Assert.assertEquals(conferences.size(), 3);
 		
 		for(Conference conference : conferences)
 		{
-			//the two conferences should be these two.
+			//the three conferences should be these two.
 			if(!("Northern Michigan Fall Extravaganza".equals(conference.getName()) ||
-					"Miami University Fall Retreat".equals(conference.getName())))
+					"Miami University Fall Retreat".equals(conference.getName()) ||
+						"Winter Beach Weekend Cold!".equals(conference.getName())))
 			{
 				Assert.fail();
 			}
