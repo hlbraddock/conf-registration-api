@@ -2,8 +2,7 @@ package org.cru.crs.service;
 
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.ProfileEntity;
-import org.cru.crs.utils.DateTimeCreaterHelper;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -28,14 +27,14 @@ public class ProfileServiceTest
 		UUID profileId = UUID.fromString("abcdc217-f918-4503-b3b3-85016f9883c1");
 		UUID userId = UUID.fromString("abcdca08-d7bc-4d92-967c-d82d9d312898");
 
-		DateTime birthDate = DateTimeCreaterHelper.createDateTime(1898, 11, 29, 00, 00, 00);
+		LocalDate birthDate = new LocalDate("1898-11-29");
 		String campus = "Oxford";
 		String city = "Orlando";
 		String dormitory = "Hall";
 		String email = "c.s.lewis@cru.org";
 		String firstName = "Clive";
 		String gender = "M";
-		DateTime graduation = DateTimeCreaterHelper.createDateTime(1923, 5, 15, 00, 00, 00);
+		LocalDate graduation = new LocalDate("1923-5-15");
 
 		String lastName = "Lewis";
 		String phone = "407-826-2000";
