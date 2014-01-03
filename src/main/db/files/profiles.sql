@@ -11,10 +11,10 @@ CREATE TABLE profiles (
   city text,
   state text,
   zip varchar(5),
-  birth_date text,
+  birth_date timestamp with time zone,
   gender varchar(1),
   campus text,
-  graduation text,
+  graduation timestamp with time zone,
   dormitory text
 );
 

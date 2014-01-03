@@ -1,6 +1,7 @@
 package org.cru.crs.model;
 
 import com.google.common.base.Strings;
+import org.joda.time.DateTime;
 
 import java.util.UUID;
 
@@ -11,14 +12,14 @@ public class ProfileEntity implements java.io.Serializable
 	private UUID id;
 	private UUID userId;
 
-	private String birthDate;
+	private DateTime birthDate;
 	private String campus;
 	private String city;
 	private String dormitory;
 	private String email;
 	private String firstName;
 	private String gender;
-	private String graduation;
+	private DateTime graduation;
 	private String lastName;
 	private String phone;
 	private String state;
@@ -41,7 +42,7 @@ public class ProfileEntity implements java.io.Serializable
 		this.userId = userId;
 	}
 
-	public ProfileEntity(UUID id, UUID userId, String birthDate, String campus, String city, String dormitory, String email, String firstName, String gender, String graduation, String lastName, String phone, String state, String street, String zip)
+	public ProfileEntity(UUID id, UUID userId, DateTime birthDate, String campus, String city, String dormitory, String email, String firstName, String gender, DateTime graduation, String lastName, String phone, String state, String street, String zip)
 	{
 		this(id, userId);
 
@@ -80,12 +81,12 @@ public class ProfileEntity implements java.io.Serializable
 		this.userId = userId;
 	}
 
-	public String getBirthDate()
+	public DateTime getBirthDate()
 	{
 		return birthDate;
 	}
 
-	public void setBirthDate(String birthDate)
+	public void setBirthDate(DateTime birthDate)
 	{
 		this.birthDate = birthDate;
 	}
@@ -150,12 +151,12 @@ public class ProfileEntity implements java.io.Serializable
 		this.gender = gender;
 	}
 
-	public String getGraduation()
+	public DateTime getGraduation()
 	{
 		return graduation;
 	}
 
-	public void setGraduation(String graduation)
+	public void setGraduation(DateTime graduation)
 	{
 		this.graduation = graduation;
 	}
@@ -215,7 +216,7 @@ public class ProfileEntity implements java.io.Serializable
 		if(profileEntity == null)
 			return;
 
-		if(!Strings.isNullOrEmpty(profileEntity.getBirthDate()))
+		if(profileEntity.getBirthDate() != null)
 			birthDate = profileEntity.getBirthDate();
 
 		if(!Strings.isNullOrEmpty(profileEntity.getCampus()))
@@ -236,7 +237,7 @@ public class ProfileEntity implements java.io.Serializable
 		if(!Strings.isNullOrEmpty(profileEntity.getGender()))
 			gender = profileEntity.getGender();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getGraduation()))
+		if(profileEntity.getGraduation() != null)
 			graduation = profileEntity.getGraduation();
 
 		if(!Strings.isNullOrEmpty(profileEntity.getLastName()))
