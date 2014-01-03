@@ -1,7 +1,6 @@
 package org.cru.crs.model;
 
 import com.google.common.base.Strings;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import java.util.UUID;
