@@ -15,7 +15,9 @@ import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.service.PaymentService;
+import org.cru.crs.service.ProfileService;
 import org.cru.crs.utils.Environment;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
@@ -40,7 +42,9 @@ public class RegistrationResourceFunctionalTest
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 	private UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 	private UUID paymentUUID = UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91957");
-	
+	private org.sql2o.Connection sqlConnection;
+	private ProfileService profileService;
+
 	@BeforeMethod
 	public void createClient()
 	{
@@ -48,8 +52,12 @@ public class RegistrationResourceFunctionalTest
         answerClient = ProxyFactory.create(AnswerResourceClient.class, restApiBaseUrl);
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
 		conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
-		
-		paymentService = new PaymentService(new SqlConnectionProducer().getTestSqlConnection());
+
+		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+
+		paymentService = new PaymentService(sqlConnection);
+
+		profileService = new ProfileService(sqlConnection);
 	}
 
 	/**
@@ -227,7 +235,8 @@ public class RegistrationResourceFunctionalTest
 		// create answer(s) with profile info
 		UUID createBlockUUID = UUID.fromString("5060D878-4741-4F21-9D25-231DB86E43EE");
 		UUID answerUUID = UUID.randomUUID();
-		JsonNode createAnswerValue = jsonNodeFromString("{\"email\": \"lee.braddock@cru.org\"}");
+		String email = "ryan.t.carlson@cru.org";
+		JsonNode createAnswerValue = jsonNodeFromString("{\"email\": \"" + email + "\"}");
 		Answer answer = createAnswer(answerUUID, registrationIdUUID, createBlockUUID, createAnswerValue);
 
 		createRegistration.getAnswers().add(answer);
@@ -250,6 +259,17 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
 		Assert.assertEquals(registration.getId(), createRegistration.getId());
 		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
+
+		// check for profile
+		ProfileEntity profileEntity = profileService.getProfileByUser(UserInfo.Id.Ryan);
+		Assert.assertEquals(profileEntity.getUserId(), UserInfo.Id.Ryan);
+		Assert.assertEquals(profileEntity.getEmail(), email);
+
+		// delete created profile
+		profileService.deleteProfileByUserId(UserInfo.Id.Ryan);
+		sqlConnection.commit();
+		profileEntity = profileService.getProfileByUser(UserInfo.Id.Ryan);
+		Assert.assertNull(profileEntity);
 
 		// delete created registration
 		response = registrationClient.deleteRegistration(registrationIdUUID, UserInfo.AuthCode.TestUser);

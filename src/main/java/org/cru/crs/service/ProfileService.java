@@ -85,4 +85,16 @@ public class ProfileService
 				.addParameter("dormitory", profileEntity.getDormitory())
 				.executeUpdate();
 	}
+
+	public void deleteProfile(UUID uuid)
+	{
+		sqlConnection.createQuery(profileQueries.delete())
+				.addParameter("id", uuid)
+				.executeUpdate();
+	}
+
+	public void deleteProfileByUserId(UUID userId)
+	{
+		deleteProfile(getProfileByUser(userId).getId());
+	}
 }
