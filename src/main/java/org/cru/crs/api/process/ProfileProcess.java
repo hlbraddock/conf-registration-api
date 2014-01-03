@@ -13,6 +13,7 @@ import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * @ lee.braddock
@@ -46,7 +47,7 @@ public class ProfileProcess
 
 		if(profileEntity == null)
 		{
-			profileEntity = new ProfileEntity(registration.getUserId());
+			profileEntity = new ProfileEntity(UUID.randomUUID(), registration.getUserId());
 
 			profileService.createProfile(profileEntity);
 		}
