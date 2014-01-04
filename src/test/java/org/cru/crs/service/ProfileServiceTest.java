@@ -2,7 +2,7 @@ package org.cru.crs.service;
 
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.ProfileEntity;
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -27,14 +27,14 @@ public class ProfileServiceTest
 		UUID profileId = UUID.fromString("abcdc217-f918-4503-b3b3-85016f9883c1");
 		UUID userId = UUID.fromString("abcdca08-d7bc-4d92-967c-d82d9d312898");
 
-		LocalDate birthDate = new LocalDate("1898-11-29");
+		DateTime birthDate = new DateTime("1898-11-29");
 		String campus = "Oxford";
 		String city = "Orlando";
 		String dormitory = "Hall";
 		String email = "c.s.lewis@cru.org";
 		String firstName = "Clive";
 		String gender = "M";
-		LocalDate graduation = new LocalDate("1923-5-15");
+		DateTime graduation = new DateTime("1923-5-15");
 
 		String lastName = "Lewis";
 		String phone = "407-826-2000";
@@ -129,14 +129,14 @@ public class ProfileServiceTest
 		Assert.assertEquals(profileEntity.getId(), profileEntity2.getId());
 		Assert.assertEquals(profileEntity.getUserId(), profileEntity2.getUserId());
 
-		Assert.assertEquals(profileEntity.getBirthDate(), profileEntity2.getBirthDate());
+		Assert.assertEquals(profileEntity.getBirthDate().toLocalDate(), profileEntity2.getBirthDate().toLocalDate());
 		Assert.assertEquals(profileEntity.getCity(), profileEntity2.getCity());
 		Assert.assertEquals(profileEntity.getCampus(), profileEntity2.getCampus());
 		Assert.assertEquals(profileEntity.getDormitory(), profileEntity2.getDormitory());
 		Assert.assertEquals(profileEntity.getEmail(), profileEntity2.getEmail());
 		Assert.assertEquals(profileEntity.getFirstName(), profileEntity2.getFirstName());
 		Assert.assertEquals(profileEntity.getGender(), profileEntity2.getGender());
-		Assert.assertEquals(profileEntity.getGraduation(), profileEntity2.getGraduation());
+		Assert.assertEquals(profileEntity.getGraduation().toLocalDate(), profileEntity2.getGraduation().toLocalDate());
 		Assert.assertEquals(profileEntity.getPhone(), profileEntity2.getPhone());
 		Assert.assertEquals(profileEntity.getLastName(), profileEntity2.getLastName());
 		Assert.assertEquals(profileEntity.getState(), profileEntity2.getState());
