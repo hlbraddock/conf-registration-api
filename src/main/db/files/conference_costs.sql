@@ -16,4 +16,4 @@ INSERT INTO conference_costs (id,base_cost,minimum_deposit) VALUES ('42E4C1B2-0C
 INSERT INTO conference_costs (id,base_cost,minimum_deposit,early_registration_discount,early_registration_cutoff,early_registration_amount) VALUES ('D5878EBA-9B3F-7F33-8355-3193BF4FB698', '75.00', '0.00', true, '31-Mar-2014 23:59:59 UTC', '15.00');
 INSERT INTO conference_costs (id,base_cost,minimum_deposit) VALUES ('1951613E-A253-1AF8-6BC4-C9F1D0B3FA60', '75.00', '20.00');
 INSERT INTO conference_costs (id,base_cost,minimum_deposit) VALUES ('40A342D2-0D99-473A-2C3D-7046BFCDD942', '125.00', '20.00');
-INSERT INTO conference_costs (id,base_cost,minimum_deposit) VALUES ('50B342D2-0D99-473A-2C3D-7046BFCDD942', '125.00', '20.00');
+INSERT INTO conference_costs (id,base_cost,minimum_deposit) VALUES ('50A342D2-0D99-473A-2C3D-7046BFCDD942', '125.00', '20.00');
