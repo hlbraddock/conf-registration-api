@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.JsonNode;
-import org.cru.crs.domain.ProfileType;
 
 public class BlockEntity implements java.io.Serializable
 {

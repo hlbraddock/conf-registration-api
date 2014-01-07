@@ -6,7 +6,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
-import org.cru.crs.domain.ProfileType;
+import org.cru.crs.model.ProfileType;
 import org.cru.crs.utils.CrsProperties;
 import org.jboss.logging.Logger;
 import org.postgresql.util.PGobject;

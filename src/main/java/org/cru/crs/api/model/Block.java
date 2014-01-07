@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.codehaus.jackson.JsonNode;
-import org.cru.crs.domain.ProfileType;
+import org.cru.crs.model.ProfileType;
 import org.cru.crs.model.BlockEntity;
 
 public class Block implements java.io.Serializable
