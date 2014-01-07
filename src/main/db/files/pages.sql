@@ -16,3 +16,4 @@ INSERT INTO pages (id,conference_id,position,title) VALUES ('707986E8-F4AD-4F6F-
 INSERT INTO pages (id,conference_id,position,title) VALUES ('ECB5B34F-D24D-83C8-2954-2179-AC4C38F2','D5878EBA-9B3F-7F33-8355-3193-BF4FB698',1,'Short Novels');
 INSERT INTO pages (id,conference_id,position,title) VALUES ('5F05F119-D50E-599B-E93D-446A-313CD7C2','40A342D2-0D99-473A-2C3D-7046-BFCDD942',0,'Lorem ipsum dolor sit');
 INSERT INTO pages (id,conference_id,position,title) VALUES ('D86E9FCF-0A49-3F7D-3418-ACBB-F8875BE2','40A342D2-0D99-473A-2C3D-7046-BFCDD942',1,'Lorem ipsum dolor');
+INSERT INTO pages (id,conference_id,position,title) VALUES ('506E9FCF-0A49-3F7D-3418-ACBB-F8875BE2','50A342D2-0D99-473A-2C3D-7046BFCDD942',1,'Lorem ipsum dolor sit amet');

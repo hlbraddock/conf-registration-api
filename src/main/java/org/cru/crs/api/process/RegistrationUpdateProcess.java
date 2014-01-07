@@ -26,19 +26,21 @@ public class RegistrationUpdateProcess
 	AnswerService answerService;
 	ConferenceService conferenceService;
 	ConferenceCostsService conferenceCostsService;
+	ProfileProcess profileProcess;
 	Clock clock;
 	
 	RegistrationEntity originalRegistrationEntity;
 	Set<AnswerEntity> originalAnswerEntitySet;
-	
+
 	@Inject
-	public RegistrationUpdateProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock)
+	public RegistrationUpdateProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock, ProfileProcess profileProcess)
 	{
 		this.registrationService = registrationService;
 		this.answerService = answerService;
 		this.conferenceService = conferenceService;
 		this.conferenceCostsService = conferenceCostsService;
 		this.clock = clock;
+		this.profileProcess = profileProcess;
 	}
 	
 	public void performDeepUpdate(Registration registration)
@@ -59,6 +61,8 @@ public class RegistrationUpdateProcess
 				answerService.insertAnswer(updatedOrNewAnswer.toDbAnswerEntity());
 			}
 		}
+
+		profileProcess.capture(registration);
 
 		/*switch to a RegistrationEntity now b/c we're going to do some calculations the client
 		 * cannot influence to determine total cost and completed timestamp*/
@@ -113,7 +117,6 @@ public class RegistrationUpdateProcess
 	
 	/**
 	 * If the registration is completed, let's check 
-	 * @param registration
 	 */
 	private void setTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(RegistrationEntity updatedRegistration)
 	{

@@ -6,17 +6,17 @@ public class UserQueries implements BasicQueries
 	@Override
 	public String selectById()
 	{
-		return "SELECT * FROM users WHERE :id = id";
+		return "SELECT * FROM users WHERE id = :id";
 	}
 
 	@Override
 	public String update()
 	{
 		return "UPDATE users SET " +
-				 "first_name = :firstName " +
-				 "last_name = :lastName " +
-				 "phone_number = phoneNumber " +
-				 "email_address = emailAddress " +
+				 "first_name = :firstName, " +
+				 "last_name = :lastName, " +
+				 "phone_number = :phoneNumber, " +
+				 "email_address = :emailAddress " +
 				 " WHERE " +
 				 "id = :id";
 	}

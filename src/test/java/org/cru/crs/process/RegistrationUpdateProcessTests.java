@@ -7,6 +7,7 @@ import junit.framework.Assert;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RegistrationFetchProcess;
 import org.cru.crs.api.process.RegistrationUpdateProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
@@ -16,6 +17,7 @@ import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
+import org.cru.crs.service.ProfileService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
 import org.cru.crs.utils.DateTimeCreaterHelper;
@@ -26,18 +28,17 @@ import org.testng.annotations.Test;
 public class RegistrationUpdateProcessTests
 {
 	org.sql2o.Connection sqlConnection;
-	
+
 	RegistrationUpdateProcess process;
+
 	RegistrationService registrationService;
-	AnswerService answerService;
-	PaymentService paymentService;
-	
+
 	RegistrationFetchProcess registrationFetchProcess;
 	
 	Registration testRegistration;
-	
+
 	Clock clock;
-	
+
 	final UUID conferenceId = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 	
 	@BeforeMethod(alwaysRun=true)
@@ -45,26 +46,30 @@ public class RegistrationUpdateProcessTests
 	{
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		
-		answerService = new AnswerService(sqlConnection);
-		paymentService = new PaymentService(sqlConnection);
-		registrationService = new RegistrationService(sqlConnection, answerService, paymentService);
+		AnswerService answerService = new AnswerService(sqlConnection);
+		PaymentService paymentService = new PaymentService(sqlConnection);
+		BlockService blockService = new BlockService(sqlConnection, answerService);
+		UserService userService = new UserService(sqlConnection);
+		PageService pageService = new PageService(sqlConnection, blockService);
 		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
-		ConferenceService conferenceService = new ConferenceService(sqlConnection,
-													new ConferenceCostsService(sqlConnection),
-													new PageService(sqlConnection, new BlockService(sqlConnection, new AnswerService(sqlConnection))), 
-													new UserService(sqlConnection));
-		
-		registrationFetchProcess = new RegistrationFetchProcess(registrationService, paymentService, answerService);
-		
-		clock = new Clock(){
+		ConferenceService conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, userService);
+		ProfileService profileService = new ProfileService(sqlConnection);
+		ProfileProcess profileProcess = new ProfileProcess(blockService, profileService);
 
+		registrationService = new RegistrationService(sqlConnection, answerService, paymentService);
+
+		registrationFetchProcess = new RegistrationFetchProcess(registrationService, paymentService, answerService);
+
+		clock = new Clock()
+		{
 			@Override
 			public DateTime currentDateTime()
 			{
 				return DateTimeCreaterHelper.createDateTime(2013, 9, 30, 16, 0, 0);
-			}};
-			
-		process = new RegistrationUpdateProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock);
+			}
+		};
+
+		process = new RegistrationUpdateProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock, profileProcess);
 	}
 	
 	@BeforeMethod(alwaysRun=true)

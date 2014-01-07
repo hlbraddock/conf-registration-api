@@ -40,7 +40,7 @@ public class ConferenceServiceTest
 	{		
 		List<ConferenceEntity> conferences = conferenceService.fetchAllConferences(UserInfo.Users.TestUser);
 		
-		Assert.assertEquals(conferences.size(), 2);
+		Assert.assertEquals(conferences.size(), 3);
 	}
 	
 	@Test(groups="dbtest")

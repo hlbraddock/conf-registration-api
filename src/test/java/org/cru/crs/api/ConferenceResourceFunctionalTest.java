@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
@@ -14,6 +17,7 @@ import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.ConferenceFetchProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.domain.ProfileType;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;
@@ -96,13 +100,14 @@ public class ConferenceResourceFunctionalTest
 		List<Conference> conferences = response.getEntity();
 		
 		Assert.assertNotNull(conferences);
-		Assert.assertEquals(conferences.size(), 2);
+		Assert.assertEquals(conferences.size(), 3);
 		
 		for(Conference conference : conferences)
 		{
-			//the two conferences should be these two.
+			//the three conferences should be these two.
 			if(!("Northern Michigan Fall Extravaganza".equals(conference.getName()) ||
-					"Miami University Fall Retreat".equals(conference.getName())))
+					"Miami University Fall Retreat".equals(conference.getName()) ||
+						"Winter Beach Weekend Cold!".equals(conference.getName())))
 			{
 				Assert.fail();
 			}
@@ -420,7 +425,61 @@ public class ConferenceResourceFunctionalTest
 			sqlConnection.commit();
 		}
 	 }
-	
+
+	@Test(groups = "functional-tests")
+	public void addPageWithBlocksToConferenceByAddingToAConferenceResourceAndUpdating() throws Exception
+	{
+		UUID testConferenceId = UUID.randomUUID();
+		UUID testPageId = null;
+		UUID testBlockId = null;
+
+		try
+		{
+			Conference fakeConference = createFakeConference();
+			fakeConference.setId(testConferenceId);
+
+			conferenceClient.createConference(fakeConference, UserInfo.AuthCode.TestUser);
+
+			Page page = createFakePageWithBlocks("Ministry Goals", 1);
+
+			Block block = page.getBlocks().get(0);
+
+			testBlockId = block.getId();
+
+			fakeConference.getRegistrationPages().add(page);
+
+			createClient();
+
+			ClientResponse<Conference> updateResponse = conferenceClient.updateConference(fakeConference, fakeConference.getId(), UserInfo.AuthCode.TestUser);
+
+			Assert.assertEquals(updateResponse.getStatus(), 204);
+
+			createClient();
+
+			ClientResponse<Conference> fetchResponse = conferenceClient.getConference(fakeConference.getId());
+			Conference updatedConference = fetchResponse.getEntity();
+
+			Page updatedPage = updatedConference.getRegistrationPages().get(0);
+
+			Assert.assertNotNull(updatedPage);
+
+			testPageId = updatedPage.getId();
+
+			Block updatedBlock = updatedPage.getBlocks().get(0);
+
+			Assert.assertEquals(block.getId(), updatedBlock.getId());
+
+			Assert.assertEquals(block.getProfileType(), updatedBlock.getProfileType());
+		}
+		finally
+		{
+			deleteBlockForNextTests(testBlockId);
+			deletePageForNextTests(testPageId);
+			deleteConferenceForNextTests(testConferenceId);
+			sqlConnection.commit();
+		}
+	}
+
 	@Test(groups="functional-tests")
 	public void moveBlockUpOnePage()
 	{
@@ -490,17 +549,47 @@ public class ConferenceResourceFunctionalTest
 		
 		return fakeConference;
 	}
-	
+
 	private Page createFakePage()
 	{
 		Page fakePage = new Page();
-		
+
 		fakePage.setTitle("Ministry Prefs");
 		fakePage.setId(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0cccc"));
 		fakePage.setPosition(1);
 		fakePage.setBlocks(null);
-		
+
 		return fakePage;
+	}
+
+	private Page createFakePageWithBlocks(String title, int position)
+	{
+		Page fakePage = new Page();
+
+		fakePage.setId(UUID.randomUUID());
+		fakePage.setTitle(title);
+		fakePage.setPosition(position);
+
+		List<Block> blocks = new ArrayList<Block>();
+		blocks.add(createFakeBlock(fakePage.getId(), 1, "TextQuestion", jsonNodeFromString("{\"birthDate\":\"November 18, 1990\"}"), ProfileType.BIRTH_DATE));
+
+		fakePage.setBlocks(blocks);
+
+		return fakePage;
+	}
+
+	private Block createFakeBlock(UUID pageId, int position, String type, JsonNode content, ProfileType profileType)
+	{
+		Block block = new Block();
+
+		block.setId(UUID.randomUUID());
+		block.setContent(content);
+		block.setPageId(pageId);
+		block.setType(type);
+		block.setProfileType(profileType);
+		block.setPosition(position);
+
+		return block;
 	}
 
 	private Registration createRegistration(UUID registrationIdUUID, UUID userIdUUID)
@@ -522,17 +611,27 @@ public class ConferenceResourceFunctionalTest
 								.executeUpdate();
 		}
 	}
-	
+
 	private void deletePageForNextTests(UUID pageId)
 	{
 		if(pageId != null)
 		{
 			sqlConnection.createQuery("DELETE FROM pages WHERE id = :id")
-							.addParameter("id", pageId)
-							.executeUpdate();
+					.addParameter("id", pageId)
+					.executeUpdate();
 		}
 	}
-	
+
+	private void deleteBlockForNextTests(UUID blockId)
+	{
+		if(blockId != null)
+		{
+			sqlConnection.createQuery("DELETE FROM blocks WHERE id = :id")
+					.addParameter("id", blockId)
+					.executeUpdate();
+		}
+	}
+
 	private void deleteRegistrationForNextTests(UUID registrationId)
 	{
 		if(registrationId != null)
@@ -540,6 +639,18 @@ public class ConferenceResourceFunctionalTest
 			sqlConnection.createQuery("DELETE FROM registrations WHERE id = :id")
 								.addParameter("id", registrationId)
 								.executeUpdate();
+		}
+	}
+
+	private static JsonNode jsonNodeFromString(String jsonString)
+	{
+		try
+		{
+			return (new ObjectMapper()).readTree(jsonString);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
 		}
 	}
 }

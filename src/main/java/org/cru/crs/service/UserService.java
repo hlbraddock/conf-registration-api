@@ -57,4 +57,16 @@ public class UserService
     					.executeUpdate();
 
     }
+
+
+	public void updateUser(UserEntity userEntity)
+	{
+		sqlConnection.createQuery(userQueries.update())
+				.addParameter("id", userEntity.getId())
+				.addParameter("firstName", userEntity.getFirstName())
+				.addParameter("lastName", userEntity.getLastName())
+				.addParameter("emailAddress", userEntity.getEmailAddress())
+				.addParameter("phoneNumber", userEntity.getPhoneNumber())
+				.executeUpdate();
+	}
 }
