@@ -17,7 +17,7 @@ import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.ConferenceFetchProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
-import org.cru.crs.domain.ProfileType;
+import org.cru.crs.model.ProfileType;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.RegistrationEntity;

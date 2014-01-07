@@ -1,4 +1,4 @@
-package org.cru.crs.domain;
+package org.cru.crs.model;
 
 public enum ProfileType
 {

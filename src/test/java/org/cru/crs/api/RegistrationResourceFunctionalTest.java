@@ -236,7 +236,15 @@ public class RegistrationResourceFunctionalTest
 		UUID createBlockUUID = UUID.fromString("5060D878-4741-4F21-9D25-231DB86E43EE");
 		UUID answerUUID = UUID.randomUUID();
 		String email = "ryan.t.carlson@cru.org";
-		JsonNode createAnswerValue = jsonNodeFromString("{\"email\": \"" + email + "\"}");
+		String firstName = "Ryan";
+		String lastName = "Carlson";
+		String jsonString = "{" +
+				"\"email\": \"" + email + "\"," +
+				"\"firstName\": \"" + firstName + "\"," +
+				"\"lastName\": \"" + lastName + "\"" +
+			"}";
+
+		JsonNode createAnswerValue = jsonNodeFromString(jsonString);
 		Answer answer = createAnswer(answerUUID, registrationIdUUID, createBlockUUID, createAnswerValue);
 
 		createRegistration.getAnswers().add(answer);
@@ -264,6 +272,8 @@ public class RegistrationResourceFunctionalTest
 		ProfileEntity profileEntity = profileService.getProfileByUser(UserInfo.Id.Ryan);
 		Assert.assertEquals(profileEntity.getUserId(), UserInfo.Id.Ryan);
 		Assert.assertEquals(profileEntity.getEmail(), email);
+		Assert.assertEquals(profileEntity.getFirstName(), firstName);
+		Assert.assertEquals(profileEntity.getLastName(), lastName);
 
 		// delete created profile
 		profileService.deleteProfileByUserId(UserInfo.Id.Ryan);
