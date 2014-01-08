@@ -25,7 +25,7 @@ public class NoAuthManager extends AbstractAuthManager
 
 		BasicNoAuthUser basicNoAuthUser = BasicNoAuthUser.fromAuthIdAndEmail(noAuthId);
 
-		authenticationProviderService.createIdentityAndAuthProviderRecords(basicNoAuthUser);
+		persistIdentityAndAuthProviderRecordsIfNecessary(basicNoAuthUser);
 
 		SessionEntity sessionEntity = persistSession(basicNoAuthUser);
 
