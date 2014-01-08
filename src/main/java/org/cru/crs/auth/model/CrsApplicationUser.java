@@ -2,15 +2,12 @@ package org.cru.crs.auth.model;
 
 import java.util.UUID;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.cru.crs.auth.AuthenticationProviderType;
 
 public class CrsApplicationUser implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final String SESSION_OBJECT_NAME = "CrsUser";
-	
 	/**
 	 * The User ID for the CRS application, assigned by CRS.  This user ID is used to identify
 	 * conferences and registrations belonging to the user who is logged in. */
@@ -27,17 +24,6 @@ public class CrsApplicationUser implements java.io.Serializable
 		this.id = id;
 		this.authProviderType = authProviderType;
 		this.authProviderUsername = authProviderUsername;
-	}
-	
-	/**
-	 * Returns true if the user has only authenticated by providing his or her email address to CRS.  If
-	 * Facebook or Relay was used, then this method returns false.
-	 * @return
-	 */
-	@JsonIgnore
-	public boolean isCrsAuthenticatedOnly()
-	{
-		return authProviderType.equals(AuthenticationProviderType.EMAIL_ACCOUNT);
 	}
 	
 	/**
