@@ -321,6 +321,7 @@ public class ConferenceResourceFunctionalTest
 
 			Assert.assertEquals(registration.getId(), registrationId);
 			Assert.assertEquals(registration.getUserId(), newRegistration.getUserId());
+			Assert.assertFalse(registration.getCompleted());
 			Assert.assertEquals(payments.size(), 0);
 		}
 		finally
