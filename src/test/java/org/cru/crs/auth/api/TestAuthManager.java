@@ -25,7 +25,7 @@ public class TestAuthManager extends AbstractAuthManager
 
 	public String login(AuthenticationProviderUser authenticationProviderUser)
 	{
-		authenticationProviderService.createIdentityAndAuthProviderRecords(authenticationProviderUser);
+		persistIdentityAndAuthProviderRecordsIfNecessary(authenticationProviderUser);
 
 		SessionEntity sessionEntity = persistSession(authenticationProviderUser);
 

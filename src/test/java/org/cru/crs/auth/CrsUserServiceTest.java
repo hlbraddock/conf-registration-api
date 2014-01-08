@@ -9,7 +9,6 @@ import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.service.SessionService;
-import org.cru.crs.service.UserService;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.ClockImpl;
 import org.cru.crs.utils.CrsProperties;
@@ -42,7 +41,7 @@ public class CrsUserServiceTest
 		crsProperties = new CrsPropertiesFactory().get();
 		clock = new ClockImpl();
 
-		authenticationProviderService = new AuthenticationProviderService(sqlConnection, new UserService(sqlConnection));
+		authenticationProviderService = new AuthenticationProviderService(sqlConnection);
 		crsUserService = new CrsUserService();
 		crsUserService.sessionService = sessionService;
 		crsUserService.authenticationProviderService = authenticationProviderService;

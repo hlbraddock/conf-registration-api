@@ -6,8 +6,10 @@ import org.ccci.util.time.Clock;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.SessionEntity;
+import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.service.SessionService;
+import org.cru.crs.service.UserService;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.Simply;
@@ -29,15 +31,22 @@ public abstract class AbstractAuthManager
 	SessionService sessionService;
 
 	@Inject
+	UserService userService;
+
+	@Inject
 	Clock clock;
 
 	private Logger logger = Logger.getLogger(AbstractAuthManager.class);
 
-	protected void persistIdentityAndAuthProviderRecordsIfNecessary(AuthenticationProviderUser user)
+	protected void persistIdentityAndAuthProviderRecordsIfNecessary(AuthenticationProviderUser authenticationProviderUser)
 	{
-		if (authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId(user.getId()) == null)
+		if (authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId(authenticationProviderUser.getId()) == null)
 		{
-			authenticationProviderService.createIdentityAndAuthProviderRecords(user);
+			UserEntity userEntity = authenticationProviderUser.toUserEntity();
+
+			userService.createUser(userEntity);
+
+			authenticationProviderService.createAuthProviderRecord(authenticationProviderUser.toAuthProviderIdentityEntity(userEntity.getId()));
 		}
 	}
 
