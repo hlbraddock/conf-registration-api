@@ -3,11 +3,13 @@ package org.cru.crs.auth.api;
 import javax.inject.Inject;
 
 import org.ccci.util.time.Clock;
+import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.AuthenticationProviderService;
+import org.cru.crs.service.ProfileService;
 import org.cru.crs.service.SessionService;
 import org.cru.crs.service.UserService;
 import org.cru.crs.utils.AuthCodeGenerator;
@@ -34,6 +36,9 @@ public abstract class AbstractAuthManager
 	UserService userService;
 
 	@Inject
+	ProfileService profileService;
+
+	@Inject
 	Clock clock;
 
 	private Logger logger = Logger.getLogger(AbstractAuthManager.class);
@@ -47,6 +52,10 @@ public abstract class AbstractAuthManager
 			userService.createUser(userEntity);
 
 			authenticationProviderService.createAuthProviderRecord(authenticationProviderUser.toAuthProviderIdentityEntity(userEntity.getId()));
+
+			// create initial profile from auth provider data
+			if(!authenticationProviderUser.getAuthenticationProviderType().equals(AuthenticationProviderType.NONE))
+				profileService.createProfile(authenticationProviderUser.toProfileEntity(userEntity.getId()));
 		}
 	}
 

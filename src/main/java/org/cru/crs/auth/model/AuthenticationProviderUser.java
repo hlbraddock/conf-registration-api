@@ -2,6 +2,7 @@ package org.cru.crs.auth.model;
 
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
+import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.model.UserEntity;
 
 import java.util.UUID;
@@ -43,6 +44,21 @@ public abstract class AuthenticationProviderUser
 		userEntity.setLastName(getLastName());
 
 		return userEntity;
+	}
+
+	public ProfileEntity toProfileEntity(UUID userId)
+	{
+		ProfileEntity profileEntity = new ProfileEntity();
+
+		profileEntity.setUserId(userId);
+
+		if(getAuthenticationProviderType().equals(AuthenticationProviderType.RELAY))
+			profileEntity.setEmail(getUsername());
+
+		profileEntity.setFirstName(getFirstName());
+		profileEntity.setLastName(getLastName());
+
+		return profileEntity;
 	}
 
 	public String getId()
