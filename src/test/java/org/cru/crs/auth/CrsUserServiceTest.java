@@ -6,9 +6,10 @@ import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.auth.model.BasicNoAuthUser;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.cdi.SqlConnectionProducer;
-import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.service.AuthenticationProviderService;
+import org.cru.crs.service.ProfileService;
 import org.cru.crs.service.SessionService;
+import org.cru.crs.service.UserService;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.ClockImpl;
 import org.cru.crs.utils.CrsProperties;
@@ -19,6 +20,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.WebApplicationException;
 
 
 /**
@@ -29,19 +31,23 @@ public class CrsUserServiceTest
 	private CrsUserService crsUserService;
 	private SessionService sessionService;
 	private AuthenticationProviderService authenticationProviderService;
+	private ProfileService profileService;
+	private UserService userService;
 	private CrsProperties crsProperties;
 	private Clock clock;
 
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
 		org.sql2o.Connection sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		sessionService = new SessionService(sqlConnection);
 
+		sessionService = new SessionService(sqlConnection);
 		crsProperties = new CrsPropertiesFactory().get();
+		authenticationProviderService = new AuthenticationProviderService(sqlConnection);
+		userService = new UserService(sqlConnection);
+		profileService = new ProfileService(sqlConnection);
 		clock = new ClockImpl();
 
-		authenticationProviderService = new AuthenticationProviderService(sqlConnection);
 		crsUserService = new CrsUserService();
 		crsUserService.sessionService = sessionService;
 		crsUserService.authenticationProviderService = authenticationProviderService;
@@ -49,24 +55,24 @@ public class CrsUserServiceTest
 		crsUserService.clock = clock;
 	}
 
-	@Test(groups = "db-integration-tests")
+	@Test(groups = "unittest")
 	public void testLogin()
 	{
-		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock);
+		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock, profileService, userService);
 
 		AuthenticationProviderUser authenticationProviderUser = BasicNoAuthUser.fromAuthIdAndEmail(AuthCodeGenerator.generate());
 
-		String authCode = testAuthManager.login(authenticationProviderUser);
+ 		String authCode = testAuthManager.login(authenticationProviderUser);
 
 		CrsApplicationUser crsApplicationUser = crsUserService.getLoggedInUser(authCode);
 
 		Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE));
 	}
 
-	@Test(groups = "db-integration-tests", expectedExceptions = UnauthorizedException.class)
+	@Test(groups = "unittest", expectedExceptions = WebApplicationException.class)
 	public void testLoginThenExpiredSession()
 	{
-		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(8));
+		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(8), profileService, userService);
 
 		AuthenticationProviderUser authenticationProviderUser = BasicNoAuthUser.fromAuthIdAndEmail(AuthCodeGenerator.generate());
 
@@ -77,10 +83,10 @@ public class CrsUserServiceTest
 		Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE));
 	}
 
-	@Test(groups = "db-integration-tests")
+	@Test(groups = "unittest")
 	public void testLoginThenGetLoggedInTwiceToCheckExtendedSession()
 	{
-		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(3));
+		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(3), profileService, userService);
 
 		AuthenticationProviderUser authenticationProviderUser = BasicNoAuthUser.fromAuthIdAndEmail(AuthCodeGenerator.generate());
 
@@ -91,10 +97,10 @@ public class CrsUserServiceTest
 		Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE));
 	}
 
-	@Test(groups = "db-integration-tests", expectedExceptions = UnauthorizedException.class)
+	@Test(groups = "unittest", expectedExceptions = WebApplicationException.class)
 	public void testLoginExpiredSessionAfterFirstRequest()
 	{
-		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock);
+		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock, profileService, userService);
 
 		AuthenticationProviderUser authenticationProviderUser = BasicNoAuthUser.fromAuthIdAndEmail(AuthCodeGenerator.generate());
 
@@ -108,7 +114,7 @@ public class CrsUserServiceTest
 			crsApplicationUser = crsUserService.getLoggedInUser(authCode);
 			Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE));
 		}
-		catch (UnauthorizedException e)
+		catch (WebApplicationException e)
 		{
 			// we should not get this exception here
 			Assert.assertTrue(false);
