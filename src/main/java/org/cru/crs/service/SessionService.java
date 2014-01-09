@@ -52,4 +52,14 @@ public class SessionService
 						.addParameter("expiration", sessionEntity.getExpiration())
 						.executeUpdate();
 	}
+
+	public void update(SessionEntity sessionEntity)
+	{
+		sqlConnection.createQuery(sessionQueries.update(), false)
+				.addParameter("id", sessionEntity.getId())
+				.addParameter("authProviderId", sessionEntity.getAuthProviderId())
+				.addParameter("authCode", sessionEntity.getAuthCode())
+				.addParameter("expiration", sessionEntity.getExpiration())
+				.executeUpdate();
+	}
 }

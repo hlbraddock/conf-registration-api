@@ -71,6 +71,8 @@ public class CrsUserService
 
 			sessionEntity.setExpiration(expiration);
 
+			sessionService.update(sessionEntity);
+
 			logger.info("getLoggedInUser() returning crs application user");
 
 			return new CrsApplicationUser(authProviderEntity.getCrsId(), authProviderType, authProviderEntity.getUsername());

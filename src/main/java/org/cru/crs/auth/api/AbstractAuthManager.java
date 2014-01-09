@@ -114,6 +114,8 @@ public abstract class AbstractAuthManager
 			{
 				sessionEntity.setExpiration(clock.currentDateTime().plusHours(getMaxSessionLength()));
 
+				sessionService.update(sessionEntity);
+
 				return sessionEntity;
 			}
 		}
