@@ -5,7 +5,9 @@ import org.cru.crs.auth.api.TestAuthManager;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.auth.model.BasicNoAuthUser;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.auth.model.RelayUser;
 import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.service.ProfileService;
 import org.cru.crs.service.SessionService;
@@ -62,11 +64,37 @@ public class CrsUserServiceTest
 
 		AuthenticationProviderUser authenticationProviderUser = BasicNoAuthUser.fromAuthIdAndEmail(AuthCodeGenerator.generate());
 
- 		String authCode = testAuthManager.login(authenticationProviderUser);
+		String authCode = testAuthManager.login(authenticationProviderUser);
 
 		CrsApplicationUser crsApplicationUser = crsUserService.getLoggedInUser(authCode);
 
 		Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE));
+	}
+
+	@Test(groups = "unittest")
+	public void testLoginWithCapturedProfile()
+	{
+		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock, profileService, userService);
+
+		String username = "clive.staples@oxford.edu";
+		String first = "Clive";
+		String last = "Lewis";
+
+		AuthenticationProviderUser authenticationProviderUser = RelayUser.fromAuthId(AuthCodeGenerator.generate(), username, first, last);
+
+		String authCode = testAuthManager.login(authenticationProviderUser);
+
+		CrsApplicationUser crsApplicationUser = crsUserService.getLoggedInUser(authCode);
+
+		Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.RELAY));
+
+		ProfileEntity profileEntity = profileService.getProfileByUser(crsApplicationUser.getId());
+
+		Assert.assertNotNull(profileEntity);
+
+		Assert.assertEquals(username, profileEntity.getEmail());
+		Assert.assertEquals(first, profileEntity.getFirstName());
+		Assert.assertEquals(last, profileEntity.getLastName());
 	}
 
 	@Test(groups = "unittest", expectedExceptions = WebApplicationException.class)
@@ -120,15 +148,7 @@ public class CrsUserServiceTest
 			Assert.assertTrue(false);
 		}
 
-		try
-		{
-			crsUserService.getLoggedInUser(authCode);
-		}
-		finally
-		{
-			// restore clock
-			crsUserService.clock = clock;
-		}
+		crsUserService.getLoggedInUser(authCode);
 	}
 
 	private class ClockTestImpl extends Clock
