@@ -23,12 +23,14 @@ public class AuthenticationProviderServiceTest
 {
 	Connection sqlConnection;
 	AuthenticationProviderService authenticationProviderService;
+	UserService userService;
 	
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		authenticationProviderService = new AuthenticationProviderService(sqlConnection,new UserService(sqlConnection));
+		authenticationProviderService = new AuthenticationProviderService(sqlConnection);
+		userService = new UserService(sqlConnection);
 	}
 	
 	@Test(groups="dbtest")
@@ -91,9 +93,16 @@ public class AuthenticationProviderServiceTest
 		
 		try
 		{
-			authenticationProviderService.createIdentityAndAuthProviderRecords(newRelayUser);
-			
+			// create the user and auth provider entities
+			UserEntity newUserEntity = newRelayUser.toUserEntity();
+
+			userService.createUser(newUserEntity);
+
+			authenticationProviderService.createAuthProviderRecord(newRelayUser.toAuthProviderIdentityEntity(newUserEntity.getId()));
+
+			// fetch the created user and auth provider entities
 			AuthenticationProviderIdentityEntity authProviderEntity = authenticationProviderService.findAuthProviderIdentityByUserAuthProviderId(relayId);
+
 			UserEntity userEntity = new UserService(sqlConnection).fetchUserBy(authProviderEntity.getCrsId());
 			
 			Assert.assertNotNull(authProviderEntity);

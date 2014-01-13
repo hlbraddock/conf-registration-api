@@ -1,6 +1,11 @@
 package org.cru.crs.auth.model;
 
 import org.cru.crs.auth.AuthenticationProviderType;
+import org.cru.crs.model.AuthenticationProviderIdentityEntity;
+import org.cru.crs.model.ProfileEntity;
+import org.cru.crs.model.UserEntity;
+
+import java.util.UUID;
 
 public abstract class AuthenticationProviderUser
 {
@@ -10,7 +15,52 @@ public abstract class AuthenticationProviderUser
 	protected String username;
 	protected String accessToken;
 	protected AuthenticationProviderType authenticationProviderType;
-	
+
+	public AuthenticationProviderIdentityEntity toAuthProviderIdentityEntity(UUID crsId)
+	{
+		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
+
+		authProviderIdentityEntity.setId(UUID.randomUUID());
+		authProviderIdentityEntity.setCrsId(crsId);
+		authProviderIdentityEntity.setUserAuthProviderId(getId());
+		authProviderIdentityEntity.setAuthProviderUserAccessToken(getAccessToken());
+		authProviderIdentityEntity.setAuthProviderName(getAuthenticationProviderType().name());
+		authProviderIdentityEntity.setUsername(getUsername());
+		authProviderIdentityEntity.setFirstName(getFirstName());
+		authProviderIdentityEntity.setLastName(getLastName());
+
+		return authProviderIdentityEntity;
+	}
+
+	public UserEntity toUserEntity()
+	{
+		UserEntity userEntity = new UserEntity();
+
+		if(getAuthenticationProviderType() == AuthenticationProviderType.RELAY)
+			userEntity.setEmailAddress(getUsername());
+
+		userEntity.setFirstName(getFirstName());
+
+		userEntity.setLastName(getLastName());
+
+		return userEntity;
+	}
+
+	public ProfileEntity toProfileEntity(UUID userId)
+	{
+		ProfileEntity profileEntity = new ProfileEntity();
+
+		profileEntity.setUserId(userId);
+
+		if(getAuthenticationProviderType().equals(AuthenticationProviderType.RELAY))
+			profileEntity.setEmail(getUsername());
+
+		profileEntity.setFirstName(getFirstName());
+		profileEntity.setLastName(getLastName());
+
+		return profileEntity;
+	}
+
 	public String getId()
 	{
 		return id;

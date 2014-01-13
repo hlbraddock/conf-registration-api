@@ -23,8 +23,8 @@ public class SessionQueries implements BasicQueries
 	public String update()
 	{
 		return "UPDATE sessions SET " +
-				 "auth_code = :authCode " +
-				 "expiration = :expiration " +
+				 "auth_code = :authCode, " +
+				 "expiration = :expiration, " +
 				 "auth_provider_id = :authProviderId " +
 				 " WHERE " +
 				 "id = :id ";

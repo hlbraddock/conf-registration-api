@@ -6,9 +6,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.cru.crs.auth.AuthenticationProviderType;
-import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
-import org.cru.crs.model.UserEntity;
 import org.cru.crs.model.queries.AuthenticationProviderQueries;
 import org.sql2o.Connection;
 
@@ -17,19 +15,15 @@ public class AuthenticationProviderService
 {
 	org.sql2o.Connection sqlConnection;
 	
-	UserService userService;
-	
 	AuthenticationProviderQueries authenticationProviderQueries;
 	
 	/*Weld requires a default no args constructor to proxy this object*/
 	public AuthenticationProviderService(){ }
 	
 	@Inject
-	public AuthenticationProviderService(Connection sqlConnection, UserService userService)
+	public AuthenticationProviderService(Connection sqlConnection)
 	{
 		this.sqlConnection = sqlConnection;
-		
-		this.userService = userService;
 		
 		this.authenticationProviderQueries = new AuthenticationProviderQueries();
 	}
@@ -70,47 +64,20 @@ public class AuthenticationProviderService
 								.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 
-	/**
-	 * Creates a new internal CRS App identity record along with a row for the authentication provider identity.
-	 * The two rows will be associated by a foreign key relationship
-	 */
-	public void createIdentityAndAuthProviderRecords(AuthenticationProviderUser user)
+	public void createAuthProviderRecord(AuthenticationProviderIdentityEntity authenticationProviderIdentityEntity)
 	{
-		UserEntity newUser = new UserEntity().setId(UUID.randomUUID());
-		
-		setUserFields(user, newUser);
-		
-		AuthenticationProviderIdentityEntity authProviderIdentityEntity = new AuthenticationProviderIdentityEntity();
-		authProviderIdentityEntity.setId(UUID.randomUUID());
-		authProviderIdentityEntity.setCrsId(newUser.getId());
-		authProviderIdentityEntity.setUserAuthProviderId(user.getId());
-		authProviderIdentityEntity.setAuthProviderUserAccessToken(user.getAccessToken());
-		authProviderIdentityEntity.setAuthProviderName(user.getAuthenticationProviderType().name());
-		authProviderIdentityEntity.setUsername(user.getUsername());
-		authProviderIdentityEntity.setFirstName(user.getFirstName());
-		authProviderIdentityEntity.setLastName(user.getLastName());
-		
-		userService.createUser(newUser);
-		
 		sqlConnection.createQuery(authenticationProviderQueries.insert(),false)
-						.addParameter("id", authProviderIdentityEntity.getId())
-						.addParameter("crsId", authProviderIdentityEntity.getCrsId())
-						.addParameter("userAuthProviderId", authProviderIdentityEntity.getUserAuthProviderId())
-						.addParameter("authProviderUserAccessToken", authProviderIdentityEntity.getAuthProviderUserAccessToken())
-						.addParameter("authProviderName", authProviderIdentityEntity.getAuthProviderName())
-						.addParameter("username", authProviderIdentityEntity.getUsername())
-						.addParameter("firstName", authProviderIdentityEntity.getFirstName())
-						.addParameter("lastName", authProviderIdentityEntity.getLastName())
-						.executeUpdate();
+				.addParameter("id", authenticationProviderIdentityEntity.getId())
+				.addParameter("crsId", authenticationProviderIdentityEntity.getCrsId())
+				.addParameter("userAuthProviderId", authenticationProviderIdentityEntity.getUserAuthProviderId())
+				.addParameter("authProviderUserAccessToken", authenticationProviderIdentityEntity.getAuthProviderUserAccessToken())
+				.addParameter("authProviderName", authenticationProviderIdentityEntity.getAuthProviderName())
+				.addParameter("username", authenticationProviderIdentityEntity.getUsername())
+				.addParameter("firstName", authenticationProviderIdentityEntity.getFirstName())
+				.addParameter("lastName", authenticationProviderIdentityEntity.getLastName())
+				.executeUpdate();
 	}
 
-	private void setUserFields(AuthenticationProviderUser user, UserEntity newUser)
-	{
-		if(user.getAuthenticationProviderType() == AuthenticationProviderType.RELAY) newUser.setEmailAddress(user.getUsername());
-		newUser.setFirstName(user.getFirstName());
-		newUser.setLastName(user.getLastName());
-	}
-	
 	/**
 	 * This method is used when changing a "No-Auth" provider type to an "Email-Auth" provider type
 	 * @param authProviderId

@@ -20,4 +20,16 @@ public class RelayUser extends AuthenticationProviderUser
 		return relayUser;
 	}
 
+	public static RelayUser fromAuthId(String authId, String username, String firstName, String lastName)
+	{
+		RelayUser user = new RelayUser();
+
+		user.id = authId;
+		user.authenticationProviderType = AuthenticationProviderType.RELAY;
+		user.username = username;
+		user.firstName = firstName;
+		user.lastName = lastName;
+
+		return user;
+	}
 }
