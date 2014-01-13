@@ -7,6 +7,7 @@ import org.cru.crs.auth.model.BasicNoAuthUser;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.auth.model.RelayUser;
 import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.service.AuthenticationProviderService;
 import org.cru.crs.service.ProfileService;
@@ -97,7 +98,7 @@ public class CrsUserServiceTest
 		Assert.assertEquals(last, profileEntity.getLastName());
 	}
 
-	@Test(groups = "dbtest", expectedExceptions = WebApplicationException.class)
+	@Test(groups = "dbtest", expectedExceptions = UnauthorizedException.class)
 	public void testLoginThenExpiredSession()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(8), profileService, userService);
@@ -125,7 +126,7 @@ public class CrsUserServiceTest
 		Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE));
 	}
 
-	@Test(groups = "dbtest", expectedExceptions = WebApplicationException.class)
+	@Test(groups = "dbtest", expectedExceptions = UnauthorizedException.class)
 	public void testLoginExpiredSessionAfterFirstRequest()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock, profileService, userService);
