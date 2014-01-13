@@ -57,7 +57,7 @@ public class CrsUserServiceTest
 		crsUserService.clock = clock;
 	}
 
-	@Test(groups = "unittest")
+	@Test(groups = "dbtest")
 	public void testLogin()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock, profileService, userService);
@@ -71,7 +71,7 @@ public class CrsUserServiceTest
 		Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE));
 	}
 
-	@Test(groups = "unittest")
+	@Test(groups = "dbtest")
 	public void testLoginWithCapturedProfile()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock, profileService, userService);
@@ -97,7 +97,7 @@ public class CrsUserServiceTest
 		Assert.assertEquals(last, profileEntity.getLastName());
 	}
 
-	@Test(groups = "unittest", expectedExceptions = WebApplicationException.class)
+	@Test(groups = "dbtest", expectedExceptions = WebApplicationException.class)
 	public void testLoginThenExpiredSession()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(8), profileService, userService);
@@ -111,7 +111,7 @@ public class CrsUserServiceTest
 		Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE));
 	}
 
-	@Test(groups = "unittest")
+	@Test(groups = "dbtest")
 	public void testLoginThenGetLoggedInTwiceToCheckExtendedSession()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, new ClockTestImpl(3), profileService, userService);
@@ -125,7 +125,7 @@ public class CrsUserServiceTest
 		Assert.assertTrue(crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE));
 	}
 
-	@Test(groups = "unittest", expectedExceptions = WebApplicationException.class)
+	@Test(groups = "dbtest", expectedExceptions = WebApplicationException.class)
 	public void testLoginExpiredSessionAfterFirstRequest()
 	{
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock, profileService, userService);
