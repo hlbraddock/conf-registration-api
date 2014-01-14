@@ -36,7 +36,7 @@ public class RegistrationView implements java.io.Serializable {
 		registrationView.name = dbRegistrationView.getName();
 		registrationView.visibleBlockIds = dbRegistrationView.getVisibleBlockIds();
 		
-		return null;
+		return registrationView;
 	}
 	
 	public UUID getId() {

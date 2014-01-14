@@ -44,7 +44,7 @@ public class RegistrationViewResource extends TransactionalResource {
 	public Response getRegistrationView(@PathParam(value = "registrationViewId") UUID registrationViewId,
 			 								@HeaderParam(value = "Authorization") String authCode) {
 		
-		logger.info("get registration view entity " + registrationViewId);
+		logger.info("get registration view entity " + registrationViewId + " auth code " + authCode);
 		
 		RegistrationViewEntity registrationViewEntity = registrationViewService.getRegistrationViewById(registrationViewId);
 		
@@ -59,16 +59,16 @@ public class RegistrationViewResource extends TransactionalResource {
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateRegistrationView(@PathParam(value = "permissionId") UUID registrationViewId,
-										@HeaderParam(value = "Authorization") String authCode,
-										RegistrationView registrationView) {
+	public Response updateRegistrationView(@PathParam(value = "registrationViewId") UUID registrationViewId,
+											@HeaderParam(value = "Authorization") String authCode,
+											RegistrationView registrationView) {
 		logger.info("updating registration view entity " + registrationViewId + "auth code" + authCode);
 
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 		
 		authorizationService.authorizeConference(conferenceService.fetchConferenceBy(registrationView.getConferenceId()), 
 																	OperationType.ADMIN, 
-														crsLoggedInUser);
+																	crsLoggedInUser);
 		
 		Simply.logObject(registrationView, RegistrationViewResource.class);
 		
@@ -87,7 +87,7 @@ public class RegistrationViewResource extends TransactionalResource {
 	
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteRegistrationView(@PathParam(value = "permissionId") UUID registrationViewId,
+	public Response deleteRegistrationView(@PathParam(value = "registrationViewId") UUID registrationViewId,
 									 			@HeaderParam(value = "Authorization") String authCode) {
 		logger.info("revoking registration view entity " + registrationViewId + "auth code" + authCode);
 		
