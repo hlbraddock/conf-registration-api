@@ -8,6 +8,7 @@ import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.RegistrationService;
+import org.cru.crs.service.RegistrationViewService;
 import org.cru.crs.service.UserService;
 import org.sql2o.Connection;
 
@@ -45,8 +46,12 @@ public class ServiceFactory {
 		return new RegistrationService(sqlConnection, createAnswerService(sqlConnection), new PaymentService(sqlConnection));
 	}
 	
-	private static AnswerService createAnswerService(Connection sqlConnection) {
+	public static AnswerService createAnswerService(Connection sqlConnection) {
 		return new AnswerService(sqlConnection);
+	}
+	
+	public static RegistrationViewService createRegistrationViewService(Connection sqlConnection) {
+		return new RegistrationViewService(sqlConnection);
 	}
 
 }

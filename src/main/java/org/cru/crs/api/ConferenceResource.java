@@ -29,6 +29,7 @@ import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.RegistrationView;
 import org.cru.crs.api.process.CreateConferenceProcess;
 import org.cru.crs.api.process.CreatePermissionProcess;
 import org.cru.crs.api.process.ProfileProcess;
@@ -44,11 +45,13 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.model.RegistrationViewEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.RegistrationService;
+import org.cru.crs.service.RegistrationViewService;
 import org.cru.crs.service.UserService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
@@ -65,6 +68,7 @@ public class ConferenceResource extends TransactionalResource
 	@Inject BlockService blockService;
 	@Inject UserService userService;
 	@Inject PermissionService permissionService;
+	@Inject RegistrationViewService registrationViewService;
 	
 	@Inject AuthorizationService authorizationService;
 	
@@ -460,7 +464,7 @@ public class ConferenceResource extends TransactionalResource
 		
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 		
-		Simply.logObject(newPermission, PermissionResource.class);
+		Simply.logObject(newPermission, ConferenceResource.class);
 		
 		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
 		
@@ -473,6 +477,63 @@ public class ConferenceResource extends TransactionalResource
 		
 		return Response.created(new URI("/conferences/" + conferenceId + "/permissions/" + newPermission.getId()))
 						.entity(Permission.fromDb(permissionService.getPermissionBy(newPermission.getId())))
+						.build();
+	}
+	
+	@GET
+	@Path("/{conferenceId}/registration-views")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getRegistrationViews(@PathParam(value = "conferenceId") UUID conferenceId,
+									@HeaderParam(value = "Authorization") String authCode) {
+		logger.info("get registration views for conference " + conferenceId + "auth code" + authCode);
+
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
+
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+		
+		if(conference == null) throw new BadRequestException();
+		
+		authorizationService.authorizeConference(conference, 
+													OperationType.READ,
+													crsLoggedInUser);
+		
+		List<RegistrationViewEntity> registrationViewsForConference = registrationViewService.getRegistrationViewsForConference(conferenceId);
+
+		List<RegistrationView> webRegistrationViews = Lists.newArrayList();
+		
+		for(RegistrationViewEntity registrationView : registrationViewsForConference) {
+			webRegistrationViews.add(RegistrationView.fromDb(registrationView));
+		}
+		
+		Simply.logObject(webRegistrationViews, ConferenceResource.class);
+		
+		return Response.ok().entity(webRegistrationViews).build();
+	}
+	
+	@POST
+	@Path("/{conferenceId}/registration-views")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response saveRegistrationView(@PathParam(value = "conferenceId") UUID conferenceId,
+											@HeaderParam(value = "Authorization") String authCode,
+											RegistrationView newDataView) throws URISyntaxException {
+		logger.info("creating data view for conference " + conferenceId + " auth code: " + authCode);
+		
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
+		
+		Simply.logObject(newDataView, ConferenceResource.class);
+		
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+		
+		if(conference == null) throw new BadRequestException();
+		
+		/*read might seem strange here since we're actually saving something, but the thought is that anyone 
+		 * with READ access should be able to save a stored view */
+		authorizationService.authorizeConference(conference, OperationType.READ, crsLoggedInUser);
+
+		registrationViewService.insertRegistrationView(newDataView.toDbDataViewEntity());
+
+		return Response.created(new URI("/conferences/" + conferenceId + "/permissions/" + newDataView.getId()))
+						.entity(registrationViewService.getRegistrationViewById(newDataView.getId()))
 						.build();
 	}
 }
