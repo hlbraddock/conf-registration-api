@@ -27,8 +27,8 @@ import javax.ws.rs.core.Response.Status;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.process.RegistrationFetchProcess;
-import org.cru.crs.api.process.RegistrationUpdateProcess;
+import org.cru.crs.api.process.RetrieveRegistrationProcess;
+import org.cru.crs.api.process.UpdateRegistrationProcess;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
@@ -53,8 +53,8 @@ public class RegistrationResource extends TransactionalResource
     
     @Inject AuthorizationService authorizationService;
     
-    @Inject RegistrationFetchProcess registrationFetchProcess;
-    @Inject RegistrationUpdateProcess registrationUpdateProcess;
+    @Inject RetrieveRegistrationProcess retrieveRegistrationProcess;
+    @Inject UpdateRegistrationProcess updateRegistrationProcess;
     
     @Inject Clock clock; 
         
@@ -81,14 +81,14 @@ public class RegistrationResource extends TransactionalResource
 
 		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
 
-		Registration registration = registrationFetchProcess.get(registrationId);
+		Registration registration = retrieveRegistrationProcess.get(registrationId);
 
 		if(registration == null)
 		{
 			throw new NotFoundException("Registration: " + registrationId + " was not found.");
 		}
 
-		authorizationService.authorize(registration.toDbRegistrationEntity(),
+		authorizationService.authorizeRegistration(registration.toDbRegistrationEntity(),
 				conferenceService.fetchConferenceBy(registration.getConferenceId()),
 				OperationType.READ,
 				crsLoggedInUser);
@@ -145,7 +145,10 @@ public class RegistrationResource extends TransactionalResource
 
 		boolean createRegistration = registrationService.getRegistrationBy(registrationId) == null;
 
-		authorizationService.authorize(registrationEntity, conferenceEntityForUpdatedRegistration, createRegistration ? OperationType.CREATE : OperationType.UPDATE, crsLoggedInUser);
+		authorizationService.authorizeRegistration(registrationEntity, 
+													conferenceEntityForUpdatedRegistration, 
+													createRegistration ? OperationType.CREATE : OperationType.UPDATE, 
+													crsLoggedInUser);
 
 		// support creation on call to update
 		if(createRegistration)
@@ -161,7 +164,7 @@ public class RegistrationResource extends TransactionalResource
 			registrationService.createNewRegistration(registrationEntity);
 		}
 
-		registrationUpdateProcess.performDeepUpdate(registration);
+		updateRegistrationProcess.performDeepUpdate(registration);
 
 		return createRegistration ?
 				Response.status(Status.CREATED)
@@ -197,7 +200,7 @@ public class RegistrationResource extends TransactionalResource
 
 		Simply.logObject(Registration.fromDb(registrationEntity), RegistrationResource.class);
 
-		authorizationService.authorize(registrationEntity,
+		authorizationService.authorizeRegistration(registrationEntity,
 				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
 				OperationType.DELETE,
 				crsLoggedInUser);
@@ -247,7 +250,11 @@ public class RegistrationResource extends TransactionalResource
 
 		Simply.logObject(newAnswer, RegistrationResource.class);
 
-		authorizationService.authorize(registrationEntityForNewAnswer, conferenceService.fetchConferenceBy(registrationEntityForNewAnswer.getConferenceId()), OperationType.UPDATE, crsLoggedInUser);
+		authorizationService.authorizeRegistration(registrationEntityForNewAnswer, 
+													conferenceService.fetchConferenceBy(registrationEntityForNewAnswer.getConferenceId()), 
+													OperationType.UPDATE,
+													crsLoggedInUser);
+		
 		answerService.insertAnswer(newAnswer.toDbAnswerEntity());
 
 		return Response.status(Status.CREATED)

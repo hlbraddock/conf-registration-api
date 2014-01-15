@@ -14,14 +14,14 @@ import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 
-public class RegistrationFetchProcess
+public class RetrieveRegistrationProcess
 {
 	RegistrationService registrationService;
 	PaymentService paymentService;
 	AnswerService answerService;
 	
 	@Inject
-	public RegistrationFetchProcess(RegistrationService registrationService, PaymentService paymentService, AnswerService answerService)
+	public RetrieveRegistrationProcess(RegistrationService registrationService, PaymentService paymentService, AnswerService answerService)
 	{
 		this.registrationService = registrationService;
 		this.paymentService = paymentService;

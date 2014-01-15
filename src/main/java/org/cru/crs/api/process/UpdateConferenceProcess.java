@@ -26,7 +26,7 @@ import org.testng.collections.Lists;
 import org.testng.collections.Maps;
 import org.testng.internal.annotations.Sets;
 
-public class ConferenceUpdateProcess
+public class UpdateConferenceProcess
 {
 	ConferenceService conferenceService;
 	ConferenceCostsService conferenceCostsService;
@@ -34,14 +34,14 @@ public class ConferenceUpdateProcess
 	BlockService blockService;
 	AnswerService answerService;
 	UserService userService;
-	
+		
 	ConferenceEntity originalConferenceEntity;
 	List<PageEntity> originalPageEntityList;
 	Map<UUID,List<BlockEntity>> originalBlockEntityMap;
 	Map<UUID,List<AnswerEntity>> originalAnswerEntityMap;
 	
 	@Inject
-	public ConferenceUpdateProcess(ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, 
+	public UpdateConferenceProcess(ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, 
 								PageService pageService, BlockService blockService, 
 								AnswerService answerService, UserService userService)
 	{
@@ -72,7 +72,7 @@ public class ConferenceUpdateProcess
 		originalPageEntityList = getPageEntityListFromDb(conference);
 		originalBlockEntityMap = getBlockEntityMapFromDb(conference);
 		originalAnswerEntityMap = getAnswerEntityMapFromDb(conference);
-		
+				
 		handleMissingPages(conference);
 		
 		int pagePosition = 0;
@@ -81,7 +81,7 @@ public class ConferenceUpdateProcess
 			page.setConferenceId(originalConferenceEntity.getId());
 			page.setPosition(pagePosition);
 			
-			if(!maybeAddNewPage(page))
+			if(!addNewPage(page))
 			{
 				handleMissingBlocks(conference, page);
 				pageService.updatePage(page.toDbPageEntity());
@@ -95,7 +95,7 @@ public class ConferenceUpdateProcess
 					block.setPageId(page.getId());
 					block.setPosition(blockPosition);
 					
-					if(!maybeAddNewBlock(block))
+					if(!addNewBlock(block))
 					{
 						blockService.updateBlock(block.toDbBlockEntity());
 					}
@@ -109,8 +109,11 @@ public class ConferenceUpdateProcess
 		conferenceCostsService.update(conference.toDbConferenceCostsEntity());
 		conferenceService.updateConference(conference.toDbConferenceEntity());
 	}
-
-	private boolean maybeAddNewPage(Page page)
+	
+	//****************************************************************************************************
+	// these methods insert new components into the database
+	//****************************************************************************************************
+	private boolean addNewPage(Page page)
 	{
 		if(page.getId() == null) page.setId(UUID.randomUUID());
 		
@@ -126,8 +129,7 @@ public class ConferenceUpdateProcess
 		return false;
 	}
 	
-
-	private boolean maybeAddNewBlock(Block block)
+	private boolean addNewBlock(Block block)
 	{
 		if(block.getId() == null) block.setId(UUID.randomUUID());
 		
@@ -152,6 +154,11 @@ public class ConferenceUpdateProcess
 		return false;
 	}
 
+	
+
+	//****************************************************************************************************
+	// these methods handle components that are in the original state, but have been removed in this update
+	//****************************************************************************************************
 	private void handleMissingPages(Conference conference)
 	{
 		List<PageEntity> updatedPageEntityList = convertWebPagesToPageEntities(conference.getRegistrationPages());
@@ -173,7 +180,10 @@ public class ConferenceUpdateProcess
 			blockService.deleteBlock(blockToDelete.getId());
 		}
 	}
-
+	
+	//****************************************************************************************************
+	//
+	//****************************************************************************************************
 	private Set<BlockEntity> getOriginalMasterBlockSet()
 	{
 		/*create a master set so we can detect if a block has moved from one page to another*/
@@ -195,35 +205,14 @@ public class ConferenceUpdateProcess
 		return masterBlockSet;
 	}
 
+	//****************************************************************************************************
+	//  these methods retrieve the current state of various conference components from the DB.
+	//****************************************************************************************************
 	private List<PageEntity> getPageEntityListFromDb(Conference conference)
 	{
 		return pageService.fetchPagesForConference(conference.getId());
 	}
 	
-	private List<PageEntity> convertWebPagesToPageEntities(List<Page> webPages)
-	{
-		List<PageEntity> pageEntities = Lists.newArrayList();
-				
-		for(Page webPage : webPages)
-		{
-			pageEntities.add(webPage.toDbPageEntity());			
-		}
-		
-		return pageEntities;
-	}
-	
-	private List<BlockEntity> convertWebBlocksToBlockEntities(List<Block> blocks)
-	{
-		List<BlockEntity> blockEntites = Lists.newArrayList();
-				
-		for(Block webBlock : blocks)
-		{
-			blockEntites.add(webBlock.toDbBlockEntity());
-		}
-		
-		return blockEntites;
-	}
-
 	private Map<UUID,List<BlockEntity>> getBlockEntityMapFromDb(Conference conference)
 	{
 		Map<UUID,List<BlockEntity>> blockMap = Maps.newHashMap();
@@ -251,5 +240,32 @@ public class ConferenceUpdateProcess
 		}
 		
 		return answerMap;
+	}
+
+	//****************************************************************************************************
+	//  these methods convert web/api objects to database entity objects
+	//****************************************************************************************************
+	private List<PageEntity> convertWebPagesToPageEntities(List<Page> webPages)
+	{
+		List<PageEntity> pageEntities = Lists.newArrayList();
+				
+		for(Page webPage : webPages)
+		{
+			pageEntities.add(webPage.toDbPageEntity());			
+		}
+		
+		return pageEntities;
+	}
+	
+	private List<BlockEntity> convertWebBlocksToBlockEntities(List<Block> blocks)
+	{
+		List<BlockEntity> blockEntites = Lists.newArrayList();
+				
+		for(Block webBlock : blocks)
+		{
+			blockEntites.add(webBlock.toDbBlockEntity());
+		}
+		
+		return blockEntites;
 	}
 }

@@ -25,22 +25,26 @@ import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.process.ConferenceFetchProcess;
-import org.cru.crs.api.process.ConferenceUpdateProcess;
-import org.cru.crs.api.process.RegistrationFetchProcess;
-import org.cru.crs.api.process.RegistrationUpdateProcess;
+import org.cru.crs.api.process.CreateConferenceProcess;
+import org.cru.crs.api.process.CreatePermissionProcess;
+import org.cru.crs.api.process.RetrieveConferenceProcess;
+import org.cru.crs.api.process.RetrieveRegistrationProcess;
+import org.cru.crs.api.process.UpdateConferenceProcess;
+import org.cru.crs.api.process.UpdateRegistrationProcess;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
+import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.RegistrationEntity;
-import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
+import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
 import org.cru.crs.utils.IdComparer;
@@ -57,16 +61,21 @@ public class ConferenceResource extends TransactionalResource
 	@Inject PageService pageService;
 	@Inject BlockService blockService;
 	@Inject UserService userService;
+	@Inject PermissionService permissionService;
 	
 	@Inject AuthorizationService authorizationService;
 	
-	@Inject ConferenceFetchProcess conferenceFetchProcess;
-	@Inject ConferenceUpdateProcess conferenceUpdateProcess;
-	@Inject RegistrationFetchProcess registrationFetchProcess;
-	@Inject RegistrationUpdateProcess registrationUpdateProcess;
+	@Inject CreateConferenceProcess createConferenceProcess;
+	@Inject CreatePermissionProcess createPermissionProcess;
+	
+	@Inject RetrieveConferenceProcess retrieveConferenceProcess;
+	@Inject UpdateConferenceProcess updateConferenceProcess;
+	
+	@Inject RetrieveRegistrationProcess retrieveRegistrationProcess;
+	@Inject UpdateRegistrationProcess updateRegistrationProcess;
 	
 	@Inject CrsUserService crsUserService;
-
+	
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
 	/**
@@ -87,9 +96,9 @@ public class ConferenceResource extends TransactionalResource
 		
 		List<Conference> conferences = Lists.newArrayList();
 
-		for(ConferenceEntity databaseConference : conferenceService.fetchAllConferences(loggedInUser))
+		for(ConferenceEntity databaseConference : conferenceService.fetchAllConferencesForUser(loggedInUser.getId()))
 		{
-			conferences.add(conferenceFetchProcess.get(databaseConference.getId()));            													            	
+			conferences.add(retrieveConferenceProcess.get(databaseConference.getId()));
 		}
 
 		return Response.ok(conferences).build();
@@ -112,7 +121,7 @@ public class ConferenceResource extends TransactionalResource
 	{
 		logger.info("get conference entity " + conferenceId);
 
-		Conference requestedConference = conferenceFetchProcess.get(conferenceId);
+		Conference requestedConference = retrieveConferenceProcess.get(conferenceId);
 
 		if(requestedConference == null) 
 		{
@@ -145,26 +154,16 @@ public class ConferenceResource extends TransactionalResource
 
 		CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 
-		/*if there is no id in the conference, then create one. the client has the ability, but not 
-		 * the obligation to create one*/
-		if(conference.getId() == null)
-		{
-			conference.setId(UUID.randomUUID());
-		}
-
-		conference.setContactUser(loggedInUser.getId());
-		setInitialContactPersonDetailsBasedOn(conference, loggedInUser);
-		
 		Simply.logObject(conference, ConferenceResource.class);
 
 		/*persist the new conference*/
-		conferenceService.createNewConference(conference.toDbConferenceEntity(),conference.toDbConferenceCostsEntity());
-
+		createConferenceProcess.saveNewConference(conference, loggedInUser);
+		
 		/*perform a deep update to ensure all the fields are saved.*/
-		conferenceUpdateProcess.performDeepUpdate(conference);
-
+		updateConferenceProcess.performDeepUpdate(conference);
+		
 		/*fetch the created conference so a nice pretty conference object can be returned to client*/
-		Conference createdConference = conferenceFetchProcess.get(conference.getId());
+		Conference createdConference = retrieveConferenceProcess.get(conference.getId());
 
 		/*return a response with status 201 - Created and a location header to fetch the conference.
 		 * a copy of the entity is also returned.*/
@@ -211,8 +210,8 @@ public class ConferenceResource extends TransactionalResource
 
 		authorizationService.authorizeConference(conference.toDbConferenceEntity(), OperationType.UPDATE, loggedInUser);
 
-		conferenceUpdateProcess.performDeepUpdate(conference);
-
+		updateConferenceProcess.performDeepUpdate(conference);
+		
 		return Response.noContent().build();
 	}
 
@@ -257,6 +256,7 @@ public class ConferenceResource extends TransactionalResource
 		Simply.logObject(newPage, ConferenceResource.class);
 
 		authorizationService.authorizeConference(conferencePageBelongsTo, OperationType.UPDATE, loggedInUser);
+		
 		pageService.savePage(newPage.toDbPageEntity());
 
 		PageEntity createdPage = pageService.fetchPageBy(newPage.getId());
@@ -312,9 +312,9 @@ public class ConferenceResource extends TransactionalResource
 		registrationService.createNewRegistration(newRegistrationEntity);
 
 		/*now perform a deep update to ensure that any answers or other payments are properly saved*/
-		registrationUpdateProcess.performDeepUpdate(newRegistration);
+		updateRegistrationProcess.performDeepUpdate(newRegistration);
 
-		Registration freshCopyOfNewRegistraiton = registrationFetchProcess.get(newRegistrationEntity.getId());
+		Registration freshCopyOfNewRegistraiton = retrieveRegistrationProcess.get(newRegistrationEntity.getId());
 
 		return Response.status(Status.CREATED)
 				.location(new URI("/pages/" + freshCopyOfNewRegistraiton.getId()))
@@ -349,14 +349,14 @@ public class ConferenceResource extends TransactionalResource
 
 		for(RegistrationEntity databaseRegistration: databaseRegistrationsForConferece)
 		{	
-			webRegistrationsForConference.add(registrationFetchProcess.get(databaseRegistration.getId()));
+			webRegistrationsForConference.add(retrieveRegistrationProcess.get(databaseRegistration.getId()));
 		}
 
 		/*if there are any registrations to return, check the first one to ensure the user has read access.  since they're all
 		 * attached to the same conference, read access applies to one and all*/
 		if(!webRegistrationsForConference.isEmpty())
 		{
-			authorizationService.authorize(webRegistrationsForConference.get(0).toDbRegistrationEntity(), 
+			authorizationService.authorizeRegistration(webRegistrationsForConference.get(0).toDbRegistrationEntity(), 
 					conferenceService.fetchConferenceBy(conferenceId), 
 					OperationType.READ, 
 					crsLoggedInUser);
@@ -396,24 +396,67 @@ public class ConferenceResource extends TransactionalResource
 		{
 			throw new NotFoundException("registration not found");
 		}
-
-		Registration registration = registrationFetchProcess.get(registrationEntity.getId());
+		
+		Registration registration = retrieveRegistrationProcess.get(registrationEntity.getId());
 
 		Simply.logObject(registration, ConferenceResource.class);
 
 		return Response.ok(registration).build();
 	}
 
-	private Conference setInitialContactPersonDetailsBasedOn(Conference newConference, CrsApplicationUser loggedInUser)
-	{
-		UserEntity user = userService.fetchUserBy(loggedInUser.getId());
-		if(user != null)
-		{
-			newConference.setContactUser(loggedInUser.getId());
-			newConference.setContactPersonName(user.getFirstName() + " " + user.getLastName());
-			newConference.setContactPersonEmail(user.getEmailAddress());
-			newConference.setContactPersonPhone(user.getPhoneNumber());
+	@GET
+	@Path("/{conferenceId}/permissions")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPermissions(@PathParam(value = "conferenceId") UUID conferenceId,
+									@HeaderParam(value = "Authorization") String authCode) {
+		logger.info("get permission entities " + conferenceId + "auth code" + authCode);
+
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
+
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+		
+		if(conference == null) throw new BadRequestException();
+		
+		/*somewhat trivial call, but for correctness...*/
+		authorizationService.authorizeConference(conference, 
+													OperationType.READ,
+													crsLoggedInUser);
+		
+		List<PermissionEntity> permissionsForConference = permissionService.getPermissionsForConference(conferenceId);
+
+		List<Permission> webPermissions = Lists.newArrayList();
+		
+		for(PermissionEntity permission : permissionsForConference) {
+			webPermissions.add(Permission.fromDb(permission));
 		}
-		return newConference;
+		
+		Simply.logObject(webPermissions, ConferenceResource.class);
+		
+		return Response.ok().entity(webPermissions).build();
+	}
+	
+	@POST
+	@Path("/{conferenceId}/permissions")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response grantPermission(@PathParam(value = "conferenceId") UUID conferenceId,
+									@HeaderParam(value = "Authorization") String authCode,
+									Permission newPermission) throws URISyntaxException {
+		logger.info("creating permission for conference " + conferenceId + " auth code: " + authCode);
+		
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
+		
+		Simply.logObject(newPermission, PermissionResource.class);
+		
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+		
+		if(conference == null) throw new BadRequestException();
+		
+		authorizationService.authorizeConference(conference, OperationType.ADMIN, crsLoggedInUser);
+
+		createPermissionProcess.savePermission(newPermission, conferenceId, crsLoggedInUser);
+
+		return Response.created(new URI("/conferences/" + conferenceId + "/permissions/" + newPermission.getId()))
+						.entity(permissionService.getPermissionBy(newPermission.getId()))
+						.build();
 	}
 }

@@ -20,7 +20,7 @@ import org.cru.crs.utils.CollectionUtils;
 import org.testng.collections.Lists;
 import org.testng.internal.annotations.Sets;
 
-public class RegistrationUpdateProcess
+public class UpdateRegistrationProcess
 {
 	RegistrationService registrationService;
 	AnswerService answerService;
@@ -33,7 +33,7 @@ public class RegistrationUpdateProcess
 	Set<AnswerEntity> originalAnswerEntitySet;
 
 	@Inject
-	public RegistrationUpdateProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock, ProfileProcess profileProcess)
+	public UpdateRegistrationProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock, ProfileProcess profileProcess)
 	{
 		this.registrationService = registrationService;
 		this.answerService = answerService;

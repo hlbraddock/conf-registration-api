@@ -33,5 +33,7 @@ public class UserInfo
 	{
 		public static CrsApplicationUser TestUser = new CrsApplicationUser(UserInfo.Id.TestUser,AuthenticationProviderType.RELAY, "crs.testuser@crue.org");
 		public static CrsApplicationUser Ryan = new CrsApplicationUser(UserInfo.Id.Ryan,AuthenticationProviderType.RELAY, "ryan.t.carlson@cru.org");
+		//this Id is used throughout tests, so even though EMAIL is no longer a valid type, we should keep the ID
+		public static CrsApplicationUser Email = new CrsApplicationUser(UserInfo.Id.Email,AuthenticationProviderType.NONE, "email.account@cru.org");
 	}
 }

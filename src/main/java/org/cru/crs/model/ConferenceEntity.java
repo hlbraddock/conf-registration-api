@@ -27,7 +27,6 @@ public class ConferenceEntity implements java.io.Serializable
 
 	private int totalSlots;
 	
-	private UUID contactPersonId;
     private String contactPersonName;
     private String contactPersonEmail;
     private String contactPersonPhone;
@@ -130,17 +129,7 @@ public class ConferenceEntity implements java.io.Serializable
 	{
 		this.totalSlots = totalSlots;
 	}
-	
-	public UUID getContactPersonId()
-	{
-		return contactPersonId;
-	}
-	
-	public void setContactPersonId(UUID contactPersonId)
-	{
-		this.contactPersonId = contactPersonId;
-	}
-	
+
 	public String getContactPersonName()
 	{
 		return contactPersonName;

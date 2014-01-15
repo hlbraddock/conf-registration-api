@@ -8,18 +8,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.ws.rs.core.Response;
+
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.api.process.ConferenceFetchProcess;
+import org.cru.crs.api.process.RetrieveConferenceProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
-import org.cru.crs.model.ProfileType;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.model.PermissionEntity;
+import org.cru.crs.model.PermissionLevel;
+import org.cru.crs.model.ProfileType;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
@@ -27,11 +33,13 @@ import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
+import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.RegistrationService;
-import org.cru.crs.service.UserService;
 import org.cru.crs.utils.ClockImpl;
+import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
+import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
@@ -59,8 +67,9 @@ public class ConferenceResourceFunctionalTest
 	PaymentService paymentService;
 	PageService pageService;
 	RegistrationService registrationService;
+	PermissionService permissionService;
 	
-	ConferenceFetchProcess conferenceFetchProcess;
+	RetrieveConferenceProcess retrieveConferenceProcess;
 
 	@BeforeMethod
 	private void createClient()
@@ -72,13 +81,16 @@ public class ConferenceResourceFunctionalTest
         
         AnswerService answerService = new AnswerService(sqlConnection);
         BlockService blockService = new BlockService(sqlConnection, answerService);
-        pageService = new PageService(sqlConnection,blockService);
         ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
-        conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, new UserService(sqlConnection));
+
         paymentService = new PaymentService(sqlConnection);
-        registrationService = new RegistrationService(sqlConnection, answerService,paymentService);
+        permissionService = new PermissionService(sqlConnection);
         
-        conferenceFetchProcess = new ConferenceFetchProcess(conferenceService, conferenceCostsService, pageService, blockService, new ClockImpl());
+        conferenceService = ServiceFactory.createConferenceService(sqlConnection);
+        pageService = ServiceFactory.createPageService(sqlConnection);
+        registrationService = ServiceFactory.createRegistrationService(sqlConnection);
+        
+        retrieveConferenceProcess = new RetrieveConferenceProcess(conferenceService, conferenceCostsService, pageService, blockService, new ClockImpl());
 	}
 	
 	/**
@@ -104,7 +116,6 @@ public class ConferenceResourceFunctionalTest
 		
 		for(Conference conference : conferences)
 		{
-			//the three conferences should be these two.
 			if(!("Northern Michigan Fall Extravaganza".equals(conference.getName()) ||
 					"Miami University Fall Retreat".equals(conference.getName()) ||
 						"Winter Beach Weekend Cold!".equals(conference.getName())))
@@ -126,7 +137,7 @@ public class ConferenceResourceFunctionalTest
 	@Test(groups="functional-tests")
 	public void fetchConferenceById()
 	{
-		ClientResponse<Conference> response = conferenceClient.getConference(UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698"));
+		ClientResponse<Conference> response = conferenceClient.getConference(ConferenceInfo.Id.NewYork);
 		
 		Assert.assertEquals(response.getStatus(), 200);
 		Conference conference = response.getEntity();
@@ -135,7 +146,8 @@ public class ConferenceResourceFunctionalTest
 		Assert.assertEquals(conference.getName(), "New York U. Retreat Weekend");
 		Assert.assertEquals(conference.getTotalSlots(), 116);
 	}
-	
+
+
 	/**
 	 * Test: create a new conference
 	 * 
@@ -150,6 +162,8 @@ public class ConferenceResourceFunctionalTest
 	{
 		Conference fakeConference = createFakeConference();
 		String conferenceIdString = null;
+		UUID permissionId = null;
+		
 		try
 		{
 			ClientResponse<Conference> response = conferenceClient.createConference(fakeConference, UserInfo.AuthCode.TestUser);
@@ -174,10 +188,26 @@ public class ConferenceResourceFunctionalTest
 
 			/*update our fake conference with the Id generated by the server*/
 			fakeConference.setId(UUID.fromString(conferenceIdString));
+			
+			/*There should be a permission row saved for this user*/
+			PermissionEntity newPermission = permissionService.getPermissionForUserOnConference(UserInfo.Id.TestUser, conferenceReturnedFromCreateCall.getId());
+			Assert.assertNotNull(newPermission);
+			
+			permissionId = newPermission.getId();
+			
+			Assert.assertEquals(newPermission.getPermissionLevel(), PermissionLevel.CREATOR);
+			
 		}
 		finally
 		{
 			if(conferenceIdString != null) deleteConferenceForNextTests(UUID.fromString(conferenceIdString));
+			
+			if(permissionId != null)
+			{
+				sqlConnection.createQuery("DELETE FROM permissions WHERE id = :id")
+								.addParameter("id", permissionId)
+								.executeUpdate();
+			}
 			sqlConnection.commit();
 		}
 	}
@@ -492,11 +522,24 @@ public class ConferenceResourceFunctionalTest
 	{
 		moveBlock(0, 1, 1, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
 	}
-
+	
+	public Permission createPermission()
+	{
+		Permission permission = new Permission();
+		
+		permission.setId(UUID.randomUUID());
+		permission.setConferenceId(ConferenceInfo.Id.NewYork);
+		permission.setGivenByUserId(UserInfo.Id.Ryan);
+		permission.setUserId(UserInfo.Id.TestUser);
+		permission.setPermissionLevel(PermissionLevel.UPDATE);
+		
+		return permission;
+	}
+	
 	private void moveBlock(int sourcePageIndex, int destinationPageIndex, int blockToRemoveIndex, UUID conferenceUUID)
 	{
 		// retrieve conference & pages
-		Conference webConference = conferenceFetchProcess.get(conferenceUUID);
+		Conference webConference = retrieveConferenceProcess.get(conferenceUUID);
 
 		List<Block> sourceBlocks = webConference.getRegistrationPages().get(sourcePageIndex).getBlocks();
 		List<Block> destinationBlocks = webConference.getRegistrationPages().get(destinationPageIndex).getBlocks();
@@ -514,7 +557,7 @@ public class ConferenceResourceFunctionalTest
 		Assert.assertEquals(updateResponse.getStatus(), 204);
 
 		// retrieve conference & pages
-		Conference updatedWebConference = conferenceFetchProcess.get(conferenceUUID);
+		Conference updatedWebConference = retrieveConferenceProcess.get(conferenceUUID);
 
 		List<Block> updatedSourceBlocks = updatedWebConference.getRegistrationPages().get(sourcePageIndex).getBlocks();
 		List<Block> updatedDestinationBlocks = updatedWebConference.getRegistrationPages().get(destinationPageIndex).getBlocks();
@@ -539,7 +582,6 @@ public class ConferenceResourceFunctionalTest
 	private Conference createFakeConference()
 	{
 		Conference fakeConference = new Conference();
-		fakeConference.setContactUser(UserInfo.Id.TestUser);
 		fakeConference.setName("Fake Fall Retreat");
 		fakeConference.setTotalSlots(202);
 		fakeConference.setRegistrationStartTime(DateTimeCreaterHelper.createDateTime(2013, 6, 1, 8, 0, 0));
@@ -607,6 +649,10 @@ public class ConferenceResourceFunctionalTest
 	{
 		if(conferenceId != null)
 		{
+			sqlConnection.createQuery("DELETE FROM permissions WHERE conference_id = :conferenceId")
+								.addParameter("conferenceId", conferenceId)
+								.executeUpdate();
+			
 			sqlConnection.createQuery("DELETE FROM conferences WHERE id = :id")
 								.addParameter("id", conferenceId)
 								.executeUpdate();

@@ -18,9 +18,9 @@ import org.sql2o.Connection;
  */
 
 @RequestScoped
-public class UserService
-{
-	org.sql2o.Connection sqlConnection;
+public class UserService {
+	
+	Connection sqlConnection;
 	
 	UserQueries userQueries = new UserQueries();
 	
@@ -28,23 +28,34 @@ public class UserService
 	public UserService(){ }
 	
     @Inject
-    public UserService(Connection sqlConnection)
-    {
+    public UserService(Connection sqlConnection) {
     	this.sqlConnection = sqlConnection;
     }
 
-    public UserEntity fetchUserBy(UUID userId)
-    {
+    public UserEntity getUserById(UUID userId) {
         return sqlConnection.createQuery(userQueries.selectById())
         						.addParameter("id", userId)
         						.setAutoDeriveColumnNames(true)
         						.executeAndFetchFirst(UserEntity.class);
     }
+    
+    public UserEntity getUserByEmailAddress(String emailAddress) {
+    	return sqlConnection.createQuery(userQueries.selectByEmailAddress())
+    							.addParameter("emailAddress", emailAddress != null ? emailAddress.toLowerCase() : null)
+    							.setAutoDeriveColumnNames(true)
+    							.executeAndFetchFirst(UserEntity.class);
+    }
 
-    public void createUser(UserEntity userToSave)
-    {
-    	if(userToSave.getId() == null)
-    	{
+    public UserEntity getUserByFirstAndLastName(String firstName, String lastName) {
+    	return sqlConnection.createQuery(userQueries.selectByFirstNameAndLastName())
+				.addParameter("firstName", firstName != null ? firstName.toLowerCase() : null)
+				.addParameter("lastName", lastName != null ? lastName.toLowerCase() : null)
+				.setAutoDeriveColumnNames(true)
+				.executeAndFetchFirst(UserEntity.class);
+    }
+    
+    public void createUser(UserEntity userToSave) {
+    	if(userToSave.getId() == null) {
     		userToSave.setId(UUID.randomUUID());
     	}
     	
@@ -55,12 +66,9 @@ public class UserService
     					.addParameter("emailAddress", userToSave.getEmailAddress())
     					.addParameter("phoneNumber", userToSave.getPhoneNumber())
     					.executeUpdate();
-
     }
 
-
-	public void updateUser(UserEntity userEntity)
-	{
+	public void updateUser(UserEntity userEntity) {
 		sqlConnection.createQuery(userQueries.update())
 				.addParameter("id", userEntity.getId())
 				.addParameter("firstName", userEntity.getFirstName())

@@ -32,13 +32,15 @@ public class ConferenceServiceTest
 		
 		conferenceService = new ConferenceService(sqlConnection,
 										new ConferenceCostsService(sqlConnection),
-										new PageService(sqlConnection, new BlockService(sqlConnection, new AnswerService(sqlConnection))), new UserService(sqlConnection));
+										new PageService(sqlConnection, new BlockService(sqlConnection, new AnswerService(sqlConnection))), 
+										new UserService(sqlConnection),
+										new PermissionService(sqlConnection));
 	}
 	
 	@Test(groups="dbtest")
 	public void testFetchAllConferencesTestUser()
 	{		
-		List<ConferenceEntity> conferences = conferenceService.fetchAllConferences(UserInfo.Users.TestUser);
+		List<ConferenceEntity> conferences = conferenceService.fetchAllConferencesForUser(UserInfo.Id.TestUser);
 		
 		Assert.assertEquals(conferences.size(), 3);
 	}
@@ -46,9 +48,9 @@ public class ConferenceServiceTest
 	@Test(groups="dbtest")
 	public void testFetchAllConferencesRyan()
 	{		
-		List<ConferenceEntity> conferences = conferenceService.fetchAllConferences(UserInfo.Users.Ryan);
+		List<ConferenceEntity> conferences = conferenceService.fetchAllConferencesForUser(UserInfo.Id.Ryan);
 		
-		Assert.assertEquals(conferences.size(), 2);
+		Assert.assertEquals(conferences.size(), 3);
 	}
 	
 	@Test(groups="dbtest")
@@ -66,7 +68,6 @@ public class ConferenceServiceTest
 		Assert.assertEquals(northernMichiganConference.getRegistrationStartTime(), DateTimeCreaterHelper.createDateTime(2013, 4, 11, 1, 58, 35));
 		Assert.assertEquals(northernMichiganConference.getRegistrationEndTime(), DateTimeCreaterHelper.createDateTime(2014, 8, 29, 21, 0, 0));
 		Assert.assertEquals(northernMichiganConference.getTotalSlots(), 80);
-		Assert.assertEquals(northernMichiganConference.getContactPersonId(), UserInfo.Id.TestUser);
 		Assert.assertEquals(northernMichiganConference.getLocationName(), "Black Bear Camp");
 		Assert.assertEquals(northernMichiganConference.getLocationAddress(), "5287 St Rt 17");
 		Assert.assertEquals(northernMichiganConference.getLocationCity(), "Marquette");
@@ -93,7 +94,6 @@ public class ConferenceServiceTest
 			Assert.assertEquals(retrievedConference.getId(), conference.getId());
 			Assert.assertEquals(retrievedConference.getName(), conference.getName());
 			Assert.assertEquals(retrievedConference.getDescription(), conference.getDescription());
-			Assert.assertEquals(retrievedConference.getContactPersonId(), conference.getContactPersonId());
 			Assert.assertEquals(retrievedConference.getContactPersonEmail(), conference.getContactPersonEmail());
 			Assert.assertEquals(retrievedConference.getContactPersonName(), conference.getContactPersonName());
 			Assert.assertEquals(retrievedConference.getContactPersonPhone(), conference.getContactPersonPhone());

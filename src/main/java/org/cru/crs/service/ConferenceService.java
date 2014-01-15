@@ -6,11 +6,12 @@ import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
+import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.queries.ConferenceQueries;
 import org.sql2o.Connection;
+import org.testng.collections.Lists;
 
 @RequestScoped
 public class ConferenceService
@@ -20,6 +21,7 @@ public class ConferenceService
 	ConferenceCostsService conferenceCostsService;
 	PageService pageService;
     UserService userService;
+    PermissionService permissionService;
     
     ConferenceQueries conferenceQueries;
     
@@ -27,22 +29,33 @@ public class ConferenceService
     public ConferenceService(){}
     
     @Inject
-	public ConferenceService(Connection connection, ConferenceCostsService conferenceCostsService, PageService pageService, UserService userService)
+	public ConferenceService(Connection connection, ConferenceCostsService conferenceCostsService, PageService pageService, UserService userService, PermissionService permissionService)
 	{
 		this.sqlConnection = connection;
 		
 		this.conferenceCostsService = conferenceCostsService;
 		this.pageService = pageService;
         this.userService = userService;
+        this.permissionService = permissionService;
+        
         this.conferenceQueries = new ConferenceQueries();
 	}
 
-	public List<ConferenceEntity> fetchAllConferences(CrsApplicationUser crsLoggedInUser)
+	public List<ConferenceEntity> fetchAllConferencesForUser(UUID userId)
 	{
-		return sqlConnection.createQuery(conferenceQueries.selectAllForUser())
-							.addParameter("contactPersonId", crsLoggedInUser.getId())
-							.setAutoDeriveColumnNames(true)
-							.executeAndFetch(ConferenceEntity.class);
+		List<PermissionEntity> permissionsForUser = permissionService.getPermissionsForUser(userId);
+		
+		List<ConferenceEntity> conferencesForUser = Lists.newArrayList();
+		
+		for(PermissionEntity permission : permissionsForUser)
+		{
+			if(permission.getPermissionLevel().isViewOrAbove())
+			{
+				conferencesForUser.add(fetchConferenceBy(permission.getConferenceId()));
+			}
+		}
+		
+		return conferencesForUser;
 	}
 
 	public ConferenceEntity fetchConferenceBy(UUID id)
@@ -67,7 +80,6 @@ public class ConferenceService
         				.addParameter("eventEndTime", newConference.getEventEndTime())
         				.addParameter("registrationStartTime", newConference.getRegistrationStartTime())
         				.addParameter("registrationEndTime", newConference.getRegistrationEndTime())
-        				.addParameter("contactPersonId", newConference.getContactPersonId())
         				.addParameter("contactPersonName", newConference.getContactPersonName())
         				.addParameter("contactPersonEmail", newConference.getContactPersonEmail())
         				.addParameter("contactPersonPhone", newConference.getContactPersonPhone())
@@ -80,7 +92,7 @@ public class ConferenceService
         				.executeUpdate();
 	}
 
-    public void updateConference(ConferenceEntity conferenceToUpdate)
+	public void updateConference(ConferenceEntity conferenceToUpdate)
 	{
 		sqlConnection.createQuery(conferenceQueries.update())
     					.addParameter("id", conferenceToUpdate.getId())
@@ -92,7 +104,6 @@ public class ConferenceService
     					.addParameter("eventEndTime", conferenceToUpdate.getEventEndTime())
     					.addParameter("registrationStartTime", conferenceToUpdate.getRegistrationStartTime())
     					.addParameter("registrationEndTime", conferenceToUpdate.getRegistrationEndTime())
-    					.addParameter("contactPersonId", conferenceToUpdate.getContactPersonId())
     					.addParameter("contactPersonName", conferenceToUpdate.getContactPersonName())
     					.addParameter("contactPersonEmail", conferenceToUpdate.getContactPersonEmail())
     					.addParameter("contactPersonPhone", conferenceToUpdate.getContactPersonPhone())
