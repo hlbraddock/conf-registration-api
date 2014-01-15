@@ -14,8 +14,10 @@ public class PermissionEntity implements Serializable
     private UUID id;
     private UUID conferenceId;
     private UUID userId;
+    private String emailAddress;
     private UUID givenByUserId;
     private PermissionLevel permissionLevel;
+    private String activationCode;
     private DateTime lastUpdatedTimestamp;
     
 	public int hashCode()
@@ -96,5 +98,25 @@ public class PermissionEntity implements Serializable
 	public void setLastUpdatedTimestamp(DateTime lastUpdatedTimestamp)
 	{
 		this.lastUpdatedTimestamp = lastUpdatedTimestamp;
+	}
+
+	public String getActivationCode()
+	{
+		return activationCode;
+	}
+
+	public void setActivationCode(String activationCode)
+	{
+		this.activationCode = activationCode;
+	}
+
+	public String getEmailAddress()
+	{
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress)
+	{
+		this.emailAddress = emailAddress;
 	}
 }

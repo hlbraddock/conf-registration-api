@@ -26,7 +26,7 @@ import org.joda.time.DateTime;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class RegistrationUpdateProcessTests
+public class UpdateRegistrationProcessTest
 {
 	org.sql2o.Connection sqlConnection;
 

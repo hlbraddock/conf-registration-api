@@ -37,6 +37,10 @@ public class ServiceFactory {
 		return new PermissionService(sqlConnection);
 	}
 
+	public static UserService createUserService(Connection sqlConnection) {
+		return new UserService(sqlConnection);
+	}
+	
 	public static RegistrationService createRegistrationService(Connection sqlConnection) {
 		return new RegistrationService(sqlConnection, createAnswerService(sqlConnection), new PaymentService(sqlConnection));
 	}

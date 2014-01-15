@@ -15,15 +15,16 @@ import org.joda.time.DateTime;
 public class Permission implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
-
+	
+	public static final Integer MONTHS_BEFORE_UNACCEPTED_PERMISSION_EXPIRES = 2;
+	
 	private UUID id;
 	private UUID conferenceId;
 	private UUID userId;
 	private String emailAddress;
-	private String firstName;
-	private String lastName;
 	private UUID givenByUserId;
 	private PermissionLevel permissionLevel;
+	private String activationCode;
 	private DateTime timestamp;
 	
 	public static Permission fromDb(PermissionEntity dbPermission)
@@ -36,6 +37,10 @@ public class Permission implements java.io.Serializable
 		webPermission.givenByUserId = dbPermission.getGivenByUserId();
 		webPermission.timestamp = dbPermission.getLastUpdatedTimestamp();
 		webPermission.permissionLevel = dbPermission.getPermissionLevel();
+		
+		/* Setting the activationCode in the web model is intentionally omitted.  There's
+		 * no reason to ever expose activationCode to the API */
+		webPermission.emailAddress = dbPermission.getEmailAddress();
 		
 		return webPermission;
 	}
@@ -50,6 +55,9 @@ public class Permission implements java.io.Serializable
 		dbPermissionEntity.setGivenByUserId(givenByUserId);
 		dbPermissionEntity.setPermissionLevel(permissionLevel);
 		dbPermissionEntity.setLastUpdatedTimestamp(timestamp);
+		
+		dbPermissionEntity.setActivationCode(activationCode);
+		dbPermissionEntity.setEmailAddress(emailAddress);
 		
 		return dbPermissionEntity;
 	}
@@ -78,14 +86,21 @@ public class Permission implements java.io.Serializable
 				.isEquals();
 	}
 
+	public Permission withRandomID()
+	{
+		this.id = UUID.randomUUID();
+		return this;
+	}
+	
 	public UUID getId()
 	{
 		return id;
 	}
 
-	public void setId(UUID id)
+	public Permission setId(UUID id)
 	{
 		this.id = id;
+		return this;
 	}
 
 	public UUID getConferenceId()
@@ -93,9 +108,10 @@ public class Permission implements java.io.Serializable
 		return conferenceId;
 	}
 
-	public void setConferenceId(UUID conferenceId)
+	public Permission setConferenceId(UUID conferenceId)
 	{
 		this.conferenceId = conferenceId;
+		return this;
 	}
 
 	public UUID getUserId()
@@ -103,9 +119,10 @@ public class Permission implements java.io.Serializable
 		return userId;
 	}
 
-	public void setUserId(UUID userId)
+	public Permission setUserId(UUID userId)
 	{
 		this.userId = userId;
+		return this;
 	}
 
 	public UUID getGivenByUserId()
@@ -113,9 +130,10 @@ public class Permission implements java.io.Serializable
 		return givenByUserId;
 	}
 
-	public void setGivenByUserId(UUID givenByUserId)
+	public Permission setGivenByUserId(UUID givenByUserId)
 	{
 		this.givenByUserId = givenByUserId;
+		return this;
 	}
 
 	public PermissionLevel getPermissionLevel()
@@ -123,9 +141,10 @@ public class Permission implements java.io.Serializable
 		return permissionLevel;
 	}
 
-	public void setPermissionLevel(PermissionLevel permissionLevel)
+	public Permission setPermissionLevel(PermissionLevel permissionLevel)
 	{
 		this.permissionLevel = permissionLevel;
+		return this;
 	}
 
 	@JsonSerialize(using=JsonStandardDateTimeSerializer.class)
@@ -135,32 +154,32 @@ public class Permission implements java.io.Serializable
 	}
 
 	@JsonDeserialize(using=JsonStandardDateTimeDeserializer.class)
-	public void setTimestamp(DateTime timestamp)
+	public Permission setTimestamp(DateTime timestamp)
 	{
 		this.timestamp = timestamp;
+		return this;
 	}
 
-	public String getEmailAddress() {
+	public String getEmailAddress()
+	{
 		return emailAddress;
 	}
 
-	public void setEmailAddress(String emailAddress) {
+	public Permission setEmailAddress(String emailAddress)
+	{
 		this.emailAddress = emailAddress;
+		return this;
 	}
 
-	public String getFirstName() {
-		return firstName;
+	public String getActivationCode()
+	{
+		return activationCode;
 	}
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+	public Permission setActivationCode(String activationCode)
+	{
+		this.activationCode = activationCode;
+		return this;
 	}
 
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
 }
