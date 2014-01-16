@@ -1,0 +1,3 @@
+DROP TYPE payment_type CASCADE;
+
+CREATE TYPE payment_type AS ENUM ('CREDIT_CARD', 'CHECK', 'CASH', 'SCHOLARSHIP');

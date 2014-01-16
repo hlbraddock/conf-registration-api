@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.model.PaymentType;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -38,6 +39,7 @@ public class PaymentServiceTest
 		Assert.assertEquals(payment.getAuthnetTransactionId(), (Long)2313987492387498248L);
 		Assert.assertEquals(payment.getRegistrationId(), UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
 		Assert.assertEquals(payment.getTransactionTimestamp(), DateTimeCreaterHelper.createDateTime(2013, 8, 21, 19, 22, 7));
+		Assert.assertEquals(payment.getPaymentType(), PaymentType.CREDIT_CARD);
 	}
 	
 	@Test(groups="dbtest")
@@ -56,6 +58,7 @@ public class PaymentServiceTest
 		newPayment.setCcLastFourDigits("1234");
 		newPayment.setCcNameOnCard("Hank Williamson");
 		newPayment.setTransactionTimestamp(DateTimeCreaterHelper.createDateTime(2015, 9, 30, 15, 11, 51));
+		newPayment.setPaymentType(PaymentType.CHECK);
 		
 		try
 		{
@@ -73,6 +76,7 @@ public class PaymentServiceTest
 			Assert.assertEquals(retrievedPayment.getCcLastFourDigits(), "1234");
 			Assert.assertEquals(retrievedPayment.getCcNameOnCard(), "Hank Williamson");
 			Assert.assertEquals(retrievedPayment.getTransactionTimestamp(), DateTimeCreaterHelper.createDateTime(2015, 9, 30, 15, 11, 51));
+			Assert.assertEquals(retrievedPayment.getPaymentType(), PaymentType.CHECK);
 		}
 		finally
 		{
@@ -94,6 +98,7 @@ public class PaymentServiceTest
 		paymentToUpdate.setCcNameOnCard("Ryan C");
 		paymentToUpdate.setRegistrationId(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
 		paymentToUpdate.setTransactionTimestamp(DateTimeCreaterHelper.createDateTime(2015, 9, 30, 15, 11, 51));
+		paymentToUpdate.setPaymentType(PaymentType.CASH);
 		
 		try
 		{
@@ -111,6 +116,7 @@ public class PaymentServiceTest
 			Assert.assertEquals(retrievedPayment.getCcLastFourDigits(), "1252");
 			Assert.assertEquals(retrievedPayment.getCcNameOnCard(), "Ryan C");
 			Assert.assertEquals(retrievedPayment.getTransactionTimestamp(), DateTimeCreaterHelper.createDateTime(2015, 9, 30, 15, 11, 51));
+			Assert.assertEquals(retrievedPayment.getPaymentType(), PaymentType.CASH);
 		}
 		finally
 		{

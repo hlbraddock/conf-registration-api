@@ -1,7 +1,7 @@
 #!/bin/sh
 
 DIR=files
-CREATE_SCRIPTS="profileTypes.sql permission_levels.sql users.sql auth_provider_identities.sql conference_costs.sql conference_costs_blocks.sql conferences.sql registrations.sql payments.sql pages.sql blocks.sql answers.sql authorizations.sql permissions.sql sessions.sql profiles.sql"
+CREATE_SCRIPTS="profileTypes.sql permission_levels.sql payment_type.sql users.sql auth_provider_identities.sql conference_costs.sql conference_costs_blocks.sql conferences.sql registrations.sql payments.sql pages.sql blocks.sql answers.sql authorizations.sql permissions.sql sessions.sql profiles.sql"
 
 USER=crsuser
 DB=crsdb

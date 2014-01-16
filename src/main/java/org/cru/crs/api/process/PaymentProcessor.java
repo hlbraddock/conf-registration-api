@@ -64,7 +64,7 @@ public class PaymentProcessor
 				throw new WebApplicationException(e, 502);
 			}
 
-			paymentService.updatePayment(payment.toJpaPaymentEntity());
+			paymentService.updatePayment(payment.toDbPaymentEntity());
 		}
     }
 
