@@ -69,7 +69,7 @@ public class PaymentResource extends TransactionalResource
 
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
-		PaymentEntity paymentEntity = paymentService.fetchPaymentBy(paymentId);
+		PaymentEntity paymentEntity = paymentService.getPaymentById(paymentId);
 
 		if(paymentEntity == null)
 		{
@@ -121,32 +121,16 @@ public class PaymentResource extends TransactionalResource
 			throw new BadRequestException("Payment's registration id was null");
 		}
 
-		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
+		paymentProcessor.saveNewPayment(payment, loggedInUser);
 
-		authorizationService.authorizeRegistration(registrationEntity, 
-				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
-				OperationType.UPDATE,
-				loggedInUser);
-
-		if(paymentService.fetchPaymentBy(payment.getId()) == null)
-		{
-			if(payment.getId() == null) payment.setId(UUID.randomUUID());
-			paymentService.createPaymentRecord(payment.toDbPaymentEntity());
-		}
-		else
-		{
-			throw new BadRequestException("Payment with id: " + payment.getId() + " already exists.");
-		}
-
-		if(payment.isReadyToProcess())
-		{
-			paymentProcessor.process(payment, loggedInUser);
-		}
+		paymentProcessor.processPayment(payment, loggedInUser);
 
 		return Response.status(Status.CREATED)
 				.location(new URI("/conferences/" + payment.getId()))
-				.entity(Payment.fromDb(paymentService.fetchPaymentBy(payment.getId()))).build();
+				.entity(Payment.fromDb(paymentService.getPaymentById(payment.getId()))).build();
 	}
+
+	
 	
 	/**
 	 * Updates the payment resource specified by @param paymentId.  However the only "valid updating" of a payment is processing it.  Otherwise the client
@@ -183,23 +167,9 @@ public class PaymentResource extends TransactionalResource
 			throw new BadRequestException("Payment's registration id was null");
 		}
 
-		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(payment.getRegistrationId());
+		paymentProcessor.saveNewPayment(payment, loggedInUser);
 
-		authorizationService.authorizeRegistration(registrationEntity, 
-				conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
-				OperationType.UPDATE,
-				loggedInUser);
-
-		if(paymentService.fetchPaymentBy(payment.getId()) == null)
-		{
-			if(payment.getId() == null) payment.setId(UUID.randomUUID());
-			paymentService.createPaymentRecord(payment.toDbPaymentEntity());
-		}
-
-		if(payment.isReadyToProcess())
-		{
-			paymentProcessor.process(payment, loggedInUser);
-		}
+		paymentProcessor.processPayment(payment, loggedInUser);
 
 		return Response.noContent().build();
 	}

@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.queries.RegistrationQueries;
 import org.jboss.logging.Logger;
@@ -94,10 +95,10 @@ public class RegistrationService
 						.executeUpdate();
     }
 
-    public void deleteRegistration(UUID registrationId)
+    public void deleteRegistration(UUID registrationId, CrsApplicationUser loggedInAdmin)
 	{
     	answerService.deleteAnswersByRegistrationId(registrationId);
-    	paymentService.disassociatePaymentsFromRegistration(registrationId);
+    	paymentService.disassociatePaymentsFromRegistration(registrationId, loggedInAdmin);
     	
     	sqlConnection.createQuery(registrationQueries.delete())
 						.addParameter("id", registrationId)

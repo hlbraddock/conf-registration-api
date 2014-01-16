@@ -35,6 +35,7 @@ public class CreditCard
 
 	public String getFormattedExpirationDate()
 	{
+		if(expirationDate == null) return "";
 		validatePattern();
 		DateFormat expirationFormat = new SimpleDateFormat(pattern);
 		expirationFormat.setCalendar(calendar);

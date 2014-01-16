@@ -93,7 +93,7 @@ public class RegistrationServiceTest
 	{
 		try
 		{
-			registrationService.deleteRegistration(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
+			registrationService.deleteRegistration(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"), UserInfo.Users.TestUser);
 			
 			Assert.assertNull(registrationService.getRegistrationBy(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7")));
 			Assert.assertNull(registrationService.getRegistrationByConferenceIdUserId(ConferenceInfo.Id.NorthernMichigan, UserInfo.Id.TestUser));

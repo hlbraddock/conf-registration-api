@@ -64,4 +64,8 @@ public class ServiceFactory
 		return new RegistrationViewService(sqlConnection, createPageService(sqlConnection), createBlockService(sqlConnection));
 	}
 
+	public static PaymentService createPaymentService(Connection sqlConnection) {
+		return new PaymentService(sqlConnection);
+	}
+
 }

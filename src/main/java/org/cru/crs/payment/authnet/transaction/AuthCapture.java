@@ -1,8 +1,6 @@
 package org.cru.crs.payment.authnet.transaction;
 
 import org.cru.crs.payment.authnet.CreditCardMethod;
-import org.cru.crs.payment.authnet.Transaction;
-import org.cru.crs.payment.authnet.TransactionResult;
 
 import com.google.common.base.Preconditions;
 

@@ -12,6 +12,9 @@ import org.cru.crs.payment.authnet.model.GatewayConfiguration;
 import org.cru.crs.payment.authnet.model.Invoice;
 import org.cru.crs.payment.authnet.model.Merchant;
 import org.cru.crs.payment.authnet.transaction.AuthCapture;
+import org.cru.crs.payment.authnet.transaction.Credit;
+import org.cru.crs.payment.authnet.transaction.TransactionResult;
+import org.cru.crs.payment.authnet.transaction.Void;
 import org.cru.crs.utils.CrsProperties;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -36,7 +39,7 @@ public class AuthnetPaymentProcess
 		authnetAuthorizeCapture.setAmount(payment.getAmount());
 		authnetAuthorizeCapture.setCreditCard(createCreditCard(payment));
 		authnetAuthorizeCapture.setCurrency(crsProperties.getProperty("currencyCode"));
-		/*this isn't required by the authnet api, which is convenient because
+		/* this isn't required by the authnet api, which is convenient because
 		 * we don't have an easy way to parse it out of our questions*/
 		authnetAuthorizeCapture.setCustomer(null);
 		authnetAuthorizeCapture.setGatewayConfiguration(createGatewayConfiguration());
@@ -55,6 +58,67 @@ public class AuthnetPaymentProcess
 		
 	}
 
+	public Long processCreditCardRefund(Conference conference, Payment payment) throws IOException
+	{
+		Credit authnetCredit = new Credit();
+		
+		authnetCredit.setAmount(payment.getAmount());
+		authnetCredit.setCreditCard(createCreditCardLastFourDigitsOnly(payment));
+		authnetCredit.setGatewayConfiguration(createGatewayConfiguration());
+		authnetCredit.setHttpProvider(httpProvider);
+		authnetCredit.setLog(Logger.getLogger(this.getClass()));
+		authnetCredit.setMerchant(createMerchant(conference));
+		authnetCredit.setMethod(new CreditCardMethod());
+		authnetCredit.setTransactionResult(createTransactionResult(payment));
+		authnetCredit.setUrl(crsProperties.getProperty("authnetApiUrl"));
+		
+		try
+		{
+			authnetCredit.execute();
+		}
+		catch(AuthnetTransactionException e)
+		{
+			/* if the credit failed because the transaction is not yet settled, the transaction can be voided, accomplishing
+			 * the same end result.  54 is the reason code that among other things indicates that a transaction cannot be
+			 * refunded b/c it has not yet been settled.
+			 */
+			if(new Integer(54).equals(e.getReasonCode()))
+			{
+				return voidCreditCardTransaction(conference,payment);
+			}
+			else throw e;
+		}
+		
+		return authnetCredit.getTransactionResult().getTransactionID();
+	}
+	
+	private Long voidCreditCardTransaction(Conference conference, Payment payment) throws IOException
+	{
+		Void authnetVoid = new Void(new CreditCardMethod());
+		
+		authnetVoid.setAmount(payment.getAmount());
+		authnetVoid.setCreditCard(createCreditCardLastFourDigitsOnly(payment));
+		authnetVoid.setGatewayConfiguration(createGatewayConfiguration());
+		authnetVoid.setHttpProvider(httpProvider);
+		authnetVoid.setLog(Logger.getLogger(this.getClass()));
+		authnetVoid.setMerchant(createMerchant(conference));
+		authnetVoid.setMethod(new CreditCardMethod());
+		authnetVoid.setTransactionResult(createTransactionResult(payment));
+		authnetVoid.setUrl(crsProperties.getProperty("authnetTestApiUrl"));
+		
+		authnetVoid.execute();
+		
+		return authnetVoid.getTransactionResult().getTransactionID();
+	}
+	
+	TransactionResult createTransactionResult(Payment payment)
+	{
+		TransactionResult transactionResult = new TransactionResult();
+		transactionResult.setTransactionID(payment.getAuthnetTransactionId());
+		
+		return transactionResult;
+	}
+
 	CreditCard createCreditCard(Payment payment)
 	{
 		CreditCard creditCard = new CreditCard();
@@ -68,6 +132,15 @@ public class AuthnetPaymentProcess
 		
 		creditCard.setCardCode(payment.getCreditCardCVVNumber());
 		
+		
+		return creditCard;
+	}
+	
+	CreditCard createCreditCardLastFourDigitsOnly(Payment payment)
+	{
+		CreditCard creditCard = new CreditCard();
+		
+		creditCard.setCardNumber(payment.getCreditCardLastFourDigits());
 		
 		return creditCard;
 	}

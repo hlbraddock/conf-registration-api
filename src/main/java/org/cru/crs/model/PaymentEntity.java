@@ -30,6 +30,10 @@ public class PaymentEntity implements Serializable
 
     private PaymentType paymentType;
     
+    private UUID updatedByUserId;
+    
+    private UUID refundedPaymentId;
+    
     public UUID getId()
     {
         return id;
@@ -131,4 +135,26 @@ public class PaymentEntity implements Serializable
 	{
 		this.paymentType = paymentType;
 	}
+
+	public UUID getUpdatedByUserId()
+	{
+		return updatedByUserId;
+	}
+
+	public void setUpdatedByUserId(UUID updatedByUserId)
+	{
+		this.updatedByUserId = updatedByUserId;
+	}
+
+	public UUID getRefundedPaymentId()
+	{
+		return refundedPaymentId;
+	}
+
+	public void setRefundedPaymentId(UUID refundedPaymentId)
+	{
+		this.refundedPaymentId = refundedPaymentId;
+	}
+	
+	
 }
