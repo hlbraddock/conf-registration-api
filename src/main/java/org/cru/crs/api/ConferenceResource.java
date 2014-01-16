@@ -297,15 +297,15 @@ public class ConferenceResource extends TransactionalResource
 			throw new BadRequestException("Conference specified by: " + conferenceId + " does not exist.");
 		}
 
+		// if the caller has not specified, set completion to false
+		newRegistration.setCompleted(newRegistration.getCompleted() == null ? false : newRegistration.getCompleted());
+
 		RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
 
 		/*prep the new registration entity by making sure the IDs we need to know are set properly.*/
 		if(newRegistrationEntity.getId() == null) newRegistrationEntity.setId(UUID.randomUUID());
 		newRegistrationEntity.setUserId(crsLoggedInUser.getId());
 		newRegistrationEntity.setConferenceId(conferenceId);
-		
-		/*it's a new registration, so it will not be 'completed'*/
-		newRegistrationEntity.setCompleted(false);
 
 		Simply.logObject(newRegistration, ConferenceResource.class);
 

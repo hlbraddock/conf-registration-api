@@ -1,6 +1,5 @@
 package org.cru.crs.api;
 
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -18,7 +17,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -141,11 +139,14 @@ public class RegistrationResource extends TransactionalResource
 
 		Simply.logObject(registration, RegistrationResource.class);
 
+		// if the caller has not specified, set completion to false
+		registration.setCompleted(registration.getCompleted() == null ? false : registration.getCompleted());
+
 		RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
 
 		boolean createRegistration = registrationService.getRegistrationBy(registrationId) == null;
 
-		authorizationService.authorizeRegistration(registrationEntity, 
+		authorizationService.authorizeRegistration(registrationEntity,
 													conferenceEntityForUpdatedRegistration, 
 													createRegistration ? OperationType.CREATE : OperationType.UPDATE, 
 													crsLoggedInUser);
@@ -159,7 +160,7 @@ public class RegistrationResource extends TransactionalResource
 			{
 				throw new UnauthorizedException();
 			}
-			
+
 			/*save the new registration to the DB*/
 			registrationService.createNewRegistration(registrationEntity);
 		}
