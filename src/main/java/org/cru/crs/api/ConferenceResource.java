@@ -111,7 +111,7 @@ public class ConferenceResource extends TransactionalResource
 	 * 	200 Ok - found conference and the user specified by @param authCode has read access
 	 *  404 Not Found - no conference resource specified by @param conferenceId
 	 *  
-	 * @param authCode
+	 * @param conferenceId
 	 * @return
 	 */
 	@GET
@@ -223,7 +223,7 @@ public class ConferenceResource extends TransactionalResource
 	 *  400 Bad Request - if the conference specified by @param conferenceId, then bad request
 	 *  401 Unauthorized - user specified by @param authCode is expired, doesn't exist
 	 * 
-	 * @param conference
+	 * @param conferenceId
 	 * @return
 	 */
 	@POST
@@ -276,7 +276,7 @@ public class ConferenceResource extends TransactionalResource
 	 *  400 Bad Request - if the conference specified by @param conferenceId, then bad request
 	 *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist
 	 * 
-	 * @param conference
+	 * @param conferenceId
 	 * @return
 	 */
 	@POST
@@ -330,7 +330,7 @@ public class ConferenceResource extends TransactionalResource
 	 * 	200 Ok - registration resources were found and returned
 	 *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist, or user doesn't have read access to conference or registrations
 	 * 
-	 * @param conference
+	 * @param conferenceId
 	 * @return
 	 */
 	@GET
@@ -375,7 +375,7 @@ public class ConferenceResource extends TransactionalResource
 	 *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist.
 	 *  404 Not Found - user specified by @param authCode doesn't have a registration for conference specifed by @param conferenceId
 	 * 
-	 * @param conference
+	 * @param conferenceId
 	 * @return
 	 */
 	@GET
