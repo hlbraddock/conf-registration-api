@@ -110,7 +110,7 @@ public class UpdateRegistrationProcess
 	{
 		/*this should only be done once, that's when the updated registration is completed by the version
 		stored in the database is not*/
-		if(registration.nullSafeIsCompleted() && !originalRegistrationEntity.nullSafeIsCompleted())
+		if(registration.getCompleted() && !originalRegistrationEntity.getCompleted())
 		{
 			registration.setCompletedTimestamp(clock.currentDateTime());
 		}
@@ -123,7 +123,7 @@ public class UpdateRegistrationProcess
 	{
 		/*this should only be done once, that's when the updated registration is completed by the version
 		stored in the database is not*/
-		if(updatedRegistration.nullSafeIsCompleted() && !originalRegistrationEntity.nullSafeIsCompleted())
+		if(updatedRegistration.getCompleted() && !originalRegistrationEntity.getCompleted())
 		{
 			ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(updatedRegistration.getConferenceId());
 

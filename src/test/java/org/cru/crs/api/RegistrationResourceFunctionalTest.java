@@ -248,6 +248,7 @@ public class RegistrationResourceFunctionalTest
 		Answer answer = createAnswer(answerUUID, registrationIdUUID, createBlockUUID, createAnswerValue);
 
 		createRegistration.getAnswers().add(answer);
+		createRegistration.setCompleted(true); // so that the profile gets saved
 
 		// create registration through update
 		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.Ryan);
@@ -270,6 +271,7 @@ public class RegistrationResourceFunctionalTest
 
 		// check for profile
 		ProfileEntity profileEntity = profileService.getProfileByUser(UserInfo.Id.Ryan);
+		Assert.assertNotNull(profileEntity);
 		Assert.assertEquals(profileEntity.getUserId(), UserInfo.Id.Ryan);
 		Assert.assertEquals(profileEntity.getEmail(), email);
 		Assert.assertEquals(profileEntity.getFirstName(), firstName);
