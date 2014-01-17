@@ -139,9 +139,6 @@ public class RegistrationResource extends TransactionalResource
 
 		Simply.logObject(registration, RegistrationResource.class);
 
-		// if the caller has not specified, set completion to false
-		registration.setCompleted(registration.getCompleted() == null ? false : registration.getCompleted());
-
 		RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
 
 		boolean createRegistration = registrationService.getRegistrationBy(registrationId) == null;

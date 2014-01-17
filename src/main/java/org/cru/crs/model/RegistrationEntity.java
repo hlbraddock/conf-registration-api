@@ -14,13 +14,8 @@ public class RegistrationEntity implements java.io.Serializable
 	private UUID conferenceId;
 	private UUID userId;
 	private BigDecimal totalDue;
-    private Boolean completed;
+    private boolean completed;
     private DateTime completedTimestamp;
-    
-    public Boolean nullSafeIsCompleted()
-    {
-    	return completed != null && completed;
-    }
     
 	public UUID getId()
 	{
@@ -46,11 +41,11 @@ public class RegistrationEntity implements java.io.Serializable
 	{
 		this.userId = userId;
 	}
-	public Boolean getCompleted()
+	public boolean getCompleted()
 	{
 		return completed;
 	}
-	public void setCompleted(Boolean completed)
+	public void setCompleted(boolean completed)
 	{
 		this.completed = completed;
 	}

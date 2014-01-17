@@ -29,18 +29,18 @@ public class Registration implements java.io.Serializable
 	private UUID userId;
 	private UUID conferenceId;
 	private BigDecimal totalDue;
-    private Boolean completed;
+    private boolean completed;
     private DateTime completedTimestamp;
     
     private Payment currentPayment;
     
     private Set<Answer> answers = Sets.newHashSet();
     private List<Payment> pastPayments = Lists.newArrayList();
-    
+
 	/**
 	 * Creates a web api friendly registration
 	 * 
-	 * @param jpaRegistration
+	 * @param dbRegistration
 	 * @return
 	 */
 	public static Registration fromDb(RegistrationEntity dbRegistration)
@@ -152,12 +152,12 @@ public class Registration implements java.io.Serializable
 		this.conferenceId = conferenceId;
 	}
 
-    public Boolean getCompleted()
+    public boolean getCompleted()
     {
         return completed;
     }
 
-    public void setCompleted(Boolean completed)
+    public void setCompleted(boolean completed)
     {
         this.completed = completed;
     }
