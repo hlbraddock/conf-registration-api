@@ -19,6 +19,6 @@ public enum OperationType
 
 	final String operationType;
 
-	public static final Set<OperationType> CRUDSet =
-			new HashSet<OperationType>(Arrays.asList(OperationType.CREATE, OperationType.READ, OperationType.UPDATE, OperationType.DELETE));
+	public static final Set<OperationType> CUD =
+			new HashSet<OperationType>(Arrays.asList(OperationType.CREATE, OperationType.UPDATE, OperationType.DELETE));
 }

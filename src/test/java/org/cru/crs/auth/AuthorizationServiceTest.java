@@ -30,9 +30,9 @@ public class AuthorizationServiceTest
 	private void setupConnectionAndService()
 	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		authorizationService = new AuthorizationService(new PermissionService(sqlConnection));
-		conferenceService = ServiceFactory.createConferenceService(sqlConnection);
 		registrationService = ServiceFactory.createRegistrationService(sqlConnection);
+		authorizationService = new AuthorizationService(new PermissionService(sqlConnection), registrationService);
+		conferenceService = ServiceFactory.createConferenceService(sqlConnection);
 	}
 	
 	@Test(groups="dbtest")
