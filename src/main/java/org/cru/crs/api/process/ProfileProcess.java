@@ -165,7 +165,7 @@ public class ProfileProcess
 		return blocksWithAnswers;
 	}
 
-	private boolean hasProfileType(BlockEntity blockEntity)
+	public boolean hasProfileType(BlockEntity blockEntity)
 	{
 		return blockEntity.getProfileType() != null && !Strings.isEmpty(blockEntity.getProfileType().toString());
 	}
