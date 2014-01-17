@@ -301,7 +301,7 @@ public class ConferenceResource extends TransactionalResource
 			throw new BadRequestException("Conference specified by: " + conferenceId + " does not exist.");
 		}
 
-		/*prep the new registration entity by making sure the IDs we need to know are set properly.*/
+		/*prep the new registration by making sure the IDs we need to know are set properly.*/
 		if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
 		newRegistration.setUserId(crsLoggedInUser.getId());
 		newRegistration.setConferenceId(conferenceId);
@@ -318,11 +318,11 @@ public class ConferenceResource extends TransactionalResource
 		/*now perform a deep update to ensure that any answers or other payments are properly saved*/
 		updateRegistrationProcess.performDeepUpdate(newRegistration);
 
-		Registration freshCopyOfNewRegistraiton = retrieveRegistrationProcess.get(newRegistrationEntity.getId());
+		Registration freshCopyOfNewRegistration = retrieveRegistrationProcess.get(newRegistrationEntity.getId());
 
 		return Response.status(Status.CREATED)
-				.location(new URI("/pages/" + freshCopyOfNewRegistraiton.getId()))
-				.entity(freshCopyOfNewRegistraiton)
+				.location(new URI("/pages/" + freshCopyOfNewRegistration.getId()))
+				.entity(freshCopyOfNewRegistration)
 				.build();
 	}
 	
