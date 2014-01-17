@@ -61,6 +61,49 @@ public class ProfileEntity implements java.io.Serializable
 		this.zip = zip;
 	}
 
+	public ProfileEntity typeSpecific(ProfileType profileType)
+	{
+		ProfileEntity profileEntity = new ProfileEntity();
+
+		switch(profileType)
+		{
+			case EMAIL:
+				profileEntity.setEmail(email);
+				break;
+			case NAME:
+				profileEntity.setFirstName(firstName);
+				profileEntity.setLastName(lastName);
+				break;
+			case PHONE:
+				profileEntity.setPhone(phone);
+				break;
+			case ADDRESS:
+				profileEntity.setStreet(street);
+				profileEntity.setCity(city);
+				profileEntity.setState(state);
+				profileEntity.setZip(zip);
+				break;
+			case BIRTH_DATE:
+				profileEntity.setBirthDate(birthDate);
+				break;
+			case GENDER:
+				profileEntity.setGender(gender);
+				break;
+			case CAMPUS:
+				profileEntity.setCampus(campus);
+				break;
+			case GRADUATION:
+				profileEntity.setGraduation(graduation);
+				break;
+			case DORMITORY:
+				profileEntity.setDormitory(dormitory);
+				break;
+			default:
+		}
+
+		return profileEntity;
+	}
+
 	public UUID getId()
 	{
 		return id;

@@ -28,7 +28,13 @@
     </dependencyManagement>
 	
 	<dependencies>
-		<!-- Import external dependencies that we like -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.2.4</version>
+        </dependency>
+
+        <!-- Import external dependencies that we like -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>

@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response.Status;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
 import org.cru.crs.api.process.UpdateRegistrationProcess;
 import org.cru.crs.auth.CrsUserService;
@@ -52,6 +53,7 @@ public class RegistrationResource extends TransactionalResource
     
     @Inject RetrieveRegistrationProcess retrieveRegistrationProcess;
     @Inject UpdateRegistrationProcess updateRegistrationProcess;
+	@Inject	ProfileProcess profileProcess;
 
     @Inject Clock clock; 
         
@@ -154,6 +156,8 @@ public class RegistrationResource extends TransactionalResource
 
 			/*save the new registration to the DB*/
 			registrationService.createNewRegistration(registrationEntity);
+
+			profileProcess.populateRegistrationAnswers(registration);
 		}
 
 		updateRegistrationProcess.performDeepUpdate(registration);

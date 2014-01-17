@@ -3,8 +3,6 @@ package org.cru.crs.api.model;
 import org.codehaus.jackson.JsonNode;
 import org.cru.crs.model.AnswerEntity;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 public class Answer implements java.io.Serializable
@@ -16,17 +14,22 @@ public class Answer implements java.io.Serializable
 	private UUID blockId;
 
 	private JsonNode value;
-	
+
+	public Answer()
+	{
+	}
+
+	public Answer(UUID id, UUID registrationId, UUID blockId, JsonNode value)
+	{
+		this.id = id;
+		this.registrationId = registrationId;
+		this.blockId = blockId;
+		this.value = value;
+	}
+
 	public static Answer fromDb(AnswerEntity dbAnswer)
 	{
-		Answer answer = new Answer();
-
-		answer.id = dbAnswer.getId();
-		answer.registrationId = dbAnswer.getRegistrationId();
-		answer.blockId = dbAnswer.getBlockId();
-		answer.value = dbAnswer.getAnswer();
-
-		return answer;
+		return new Answer(dbAnswer.getId(), dbAnswer.getRegistrationId(), dbAnswer.getBlockId(), dbAnswer.getAnswer());
 	}
 	
 	public AnswerEntity toDbAnswerEntity()

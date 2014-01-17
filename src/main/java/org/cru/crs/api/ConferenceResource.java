@@ -31,6 +31,7 @@ import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.CreateConferenceProcess;
 import org.cru.crs.api.process.CreatePermissionProcess;
+import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveConferenceProcess;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
 import org.cru.crs.api.process.UpdateConferenceProcess;
@@ -77,6 +78,8 @@ public class ConferenceResource extends TransactionalResource
 	@Inject UpdateRegistrationProcess updateRegistrationProcess;
 	
 	@Inject CrsUserService crsUserService;
+
+	@Inject	ProfileProcess profileProcess;
 	
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
@@ -314,6 +317,8 @@ public class ConferenceResource extends TransactionalResource
 		Simply.logObject(newRegistration, ConferenceResource.class);
 
 		registrationService.createNewRegistration(newRegistrationEntity);
+
+		profileProcess.populateRegistrationAnswers(newRegistration);
 
 		/*now perform a deep update to ensure that any answers or other payments are properly saved*/
 		updateRegistrationProcess.performDeepUpdate(newRegistration);
