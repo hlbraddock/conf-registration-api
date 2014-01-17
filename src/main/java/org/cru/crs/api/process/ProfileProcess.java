@@ -65,16 +65,16 @@ public class ProfileProcess
 	{
 		ProfileEntity profileEntity = getProfileEntity(registration);
 
-		Set<BlockEntity> blockEntities = fetchBlocksForConference(registration);
+		Set<BlockEntity> blockEntities = fetchBlocksForConference(registration.getConferenceId());
 
 		setAnswersFromProfileEntity(registration, blockEntities, profileEntity);
 	}
 
-	private Set<BlockEntity> fetchBlocksForConference(Registration registration)
+	public Set<BlockEntity> fetchBlocksForConference(UUID conferenceId)
 	{
 		Set<BlockEntity> blockEntities = new HashSet<BlockEntity>();
 
-		List<PageEntity> pageEntities = pageService.fetchPagesForConference(registration.getConferenceId());
+		List<PageEntity> pageEntities = pageService.fetchPagesForConference(conferenceId);
 		for(PageEntity pageEntity : pageEntities)
 			blockEntities.addAll(blockService.fetchBlocksForPage(pageEntity.getId()));
 
