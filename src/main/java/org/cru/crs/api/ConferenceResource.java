@@ -294,12 +294,17 @@ public class ConferenceResource extends TransactionalResource
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 		/*if the registration this conference is supposed to belong to doesn't exist, then this is a bad request*/
-		if(conferenceService.fetchConferenceBy(conferenceId) == null)
+
+		ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(conferenceId);
+		if(conferenceEntity == null)
 		{
 			throw new BadRequestException("Conference specified by: " + conferenceId + " does not exist.");
 		}
 
 		RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
+
+		// authorize the user
+		authorizationService.authorizeRegistration(newRegistrationEntity, conferenceEntity, OperationType.CREATE, crsLoggedInUser);
 
 		/*prep the new registration entity by making sure the IDs we need to know are set properly.*/
 		if(newRegistrationEntity.getId() == null) newRegistrationEntity.setId(UUID.randomUUID());
