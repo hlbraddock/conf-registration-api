@@ -301,15 +301,15 @@ public class ConferenceResource extends TransactionalResource
 			throw new BadRequestException("Conference specified by: " + conferenceId + " does not exist.");
 		}
 
+		/*prep the new registration entity by making sure the IDs we need to know are set properly.*/
+		if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
+		newRegistration.setUserId(crsLoggedInUser.getId());
+		newRegistration.setConferenceId(conferenceId);
+
 		RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
 
 		// authorize the user
 		authorizationService.authorizeRegistration(newRegistrationEntity, conferenceEntity, OperationType.CREATE, crsLoggedInUser);
-
-		/*prep the new registration entity by making sure the IDs we need to know are set properly.*/
-		if(newRegistrationEntity.getId() == null) newRegistrationEntity.setId(UUID.randomUUID());
-		newRegistrationEntity.setUserId(crsLoggedInUser.getId());
-		newRegistrationEntity.setConferenceId(conferenceId);
 
 		Simply.logObject(newRegistration, ConferenceResource.class);
 
