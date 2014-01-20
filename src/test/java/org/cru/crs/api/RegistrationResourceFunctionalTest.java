@@ -233,9 +233,7 @@ public class RegistrationResourceFunctionalTest
 		String firstName = "Ryan";
 		String lastName = "Carlson";
 		String jsonString = "{" +
-				"\"email\": \"" + email + "\"," +
-				"\"firstName\": \"" + firstName + "\"," +
-				"\"lastName\": \"" + lastName + "\"" +
+				"\"text\": \"" + email + "\"" +
 			"}";
 
 		JsonNode createAnswerValue = jsonNodeFromString(jsonString);
@@ -268,8 +266,6 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertNotNull(profileEntity);
 		Assert.assertEquals(profileEntity.getUserId(), UserInfo.Id.Ryan);
 		Assert.assertEquals(profileEntity.getEmail(), email);
-		Assert.assertEquals(profileEntity.getFirstName(), firstName);
-		Assert.assertEquals(profileEntity.getLastName(), lastName);
 
 		// delete created profile
 		profileService.deleteProfileByUserId(UserInfo.Id.Ryan);
