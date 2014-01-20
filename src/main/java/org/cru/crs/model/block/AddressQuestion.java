@@ -1,5 +1,7 @@
 package org.cru.crs.model.block;
 
+import org.ccci.util.strings.Strings;
+
 public class AddressQuestion
 {
 	private String address1;
@@ -56,5 +58,10 @@ public class AddressQuestion
 	public void setZip(String zip)
 	{
 		this.zip = zip;
+	}
+
+	public boolean isEmpty()
+	{
+		return Strings.isEmpty(address1) && Strings.isEmpty(address2) && Strings.isEmpty(city) && Strings.isEmpty(state) && Strings.isEmpty(zip);
 	}
 }

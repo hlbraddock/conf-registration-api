@@ -26,6 +26,7 @@ import org.cru.crs.service.BlockService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.ProfileService;
 import org.cru.crs.utils.JsonUtils;
+import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -69,6 +70,10 @@ public class ProfileProcess
 	{
 		ProfileEntity profileEntity = getProfileEntity(registration);
 
+		logger.info("populate registration answers ");
+
+		Simply.logObject(profileEntity, ProfileProcess.class);
+
 		Set<BlockEntity> blockEntities = fetchBlocksForConference(registration.getConferenceId());
 
 		setAnswersFromProfileEntity(registration, blockEntities, profileEntity);
@@ -89,12 +94,18 @@ public class ProfileProcess
 	{
 		ProfileEntity profileEntity = profileService.getProfileByUser(registration.getUserId());
 
+		logger.info("get profile entity for user id " + registration.getId());
+
 		if(profileEntity == null)
 		{
+			logger.info("get profile entity for user id " + registration.getId() + " is null");
+
 			profileEntity = new ProfileEntity(UUID.randomUUID(), registration.getUserId());
 
 			profileService.createProfile(profileEntity);
 		}
+
+		logger.info("get profile entity for user id " + registration.getId() + " got it");
 
 		return profileEntity;
 	}
@@ -159,35 +170,48 @@ public class ProfileProcess
 			{
 				try
 				{
-					String jsonString = "";
+					String jsonString = null;
 
 					// serialize the appropriate block type java object into a json formatted string
+
+					logger.info("set answer from profile () block type " + blockEntity.getBlockType());
+
+					Simply.logObject(profileEntity, ProfileProcess.class);
 
 					if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION.toString()) ||
 							blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION.toString()) ||
 							blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION.toString()))
 					{
 						TextQuestion textQuestion = profileEntity.getTextQuestion(blockEntity.getProfileType());
-						jsonString = gson.toJson(textQuestion);
+						if(!textQuestion.isEmpty())
+							jsonString = gson.toJson(textQuestion);
 					}
 
 					else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION.toString()))
 					{
 						DateQuestion dateQuestion = profileEntity.getDateQuestion(blockEntity.getProfileType());
-						jsonString = gson.toJson(dateQuestion);
+						if(!dateQuestion.isEmpty())
+							jsonString = gson.toJson(dateQuestion);
 					}
 
 					else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION.toString()))
 					{
 						NameQuestion nameQuestion = profileEntity.getNameQuestion();
-						jsonString = gson.toJson(nameQuestion);
+						if(!nameQuestion.isEmpty())
+							jsonString = gson.toJson(nameQuestion);
 					}
 
 					else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION.toString()))
 					{
 						AddressQuestion addressQuestion = profileEntity.getAddressQuestion();
-						jsonString = gson.toJson(addressQuestion);
+						if(addressQuestion.isEmpty())
+							jsonString = gson.toJson(addressQuestion);
 					}
+
+					logger.info("set answer from profile () json string " + jsonString);
+
+					if(Strings.isEmpty(jsonString))
+						return;
 
 					// build json node type from json formatted string
 					JsonNode jsonNode = JsonUtils.jsonNodeFromString(jsonString);

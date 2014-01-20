@@ -1,5 +1,7 @@
 package org.cru.crs.model.block;
 
+import org.ccci.util.strings.Strings;
+
 public class NameQuestion
 {
 	private String firstName;
@@ -23,5 +25,10 @@ public class NameQuestion
 	public void setLastName(String lastName)
 	{
 		this.lastName = lastName;
+	}
+
+	public boolean isEmpty()
+	{
+		return Strings.isEmpty(firstName) && Strings.isEmpty(lastName);
 	}
 }

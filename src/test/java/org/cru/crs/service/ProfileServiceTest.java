@@ -39,10 +39,11 @@ public class ProfileServiceTest
 		String lastName = "Lewis";
 		String phone = "407-826-2000";
 		String state = "FL";
-		String street = "100 Lake Hart Dr";
+		String address1 = "100 Lake Hart Drive";
+		String address2 = "MailStop 2400";
 		String zip = "32832";
 
-		profileEntity = new ProfileEntity(profileId, userId, birthDate, campus, city, dormitory, email, firstName, gender, graduation, lastName, phone, state, street, zip);
+		profileEntity = new ProfileEntity(profileId, userId, birthDate, campus, city, dormitory, email, firstName, gender, graduation, lastName, phone, state, address1, address2, zip);
 	}
 
 	@Test(groups = "dbtest")
@@ -140,7 +141,8 @@ public class ProfileServiceTest
 		Assert.assertEquals(profileEntity.getPhone(), profileEntity2.getPhone());
 		Assert.assertEquals(profileEntity.getLastName(), profileEntity2.getLastName());
 		Assert.assertEquals(profileEntity.getState(), profileEntity2.getState());
-		Assert.assertEquals(profileEntity.getStreet(), profileEntity2.getStreet());
+		Assert.assertEquals(profileEntity.getAddress1(), profileEntity2.getAddress1());
+		Assert.assertEquals(profileEntity.getAddress2(), profileEntity2.getAddress2());
 		Assert.assertEquals(profileEntity.getZip(), profileEntity2.getZip());
 	}
 }

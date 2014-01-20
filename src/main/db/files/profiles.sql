@@ -7,7 +7,8 @@ CREATE TABLE profiles (
   firstName text,
   lastName text,
   phone text,
-  street text,
+  address1 text,
+  address2 text,
   city text,
   state text,
   zip varchar(5),
@@ -19,6 +20,6 @@ CREATE TABLE profiles (
 );
 
 INSERT INTO profiles
-(id, user_id, email, firstName, lastName, phone, street, city, state, zip, birth_date, gender, campus, graduation, dormitory)
+(id, user_id, email, firstName, lastName, phone, address1, address2, city, state, zip, birth_date, gender, campus, graduation, dormitory)
 VALUES
-('dbc7a808-d7bc-4d92-967c-d82d9d312898', 'dbc6a808-d7bc-4d92-967c-d82d9d312898', 'test.user@cru.org', 'Test', 'User', '407-826-2000', '100 Lake Hart Dr', 'Orlando', 'FL', '32832', '12/29/2001', 'M', 'UCF', '5/1/1993', 'Dorm1');
+('dbc7a808-d7bc-4d92-967c-d82d9d312898', 'dbc6a808-d7bc-4d92-967c-d82d9d312898', 'test.user@cru.org', 'Test', 'User', '407-826-2000', '100 Lake Hart Drive', 'MailStop 2400', 'Orlando', 'FL', '32832', '12/29/2001', 'M', 'UCF', '5/1/1993', 'Dorm1');
