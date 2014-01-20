@@ -10,11 +10,15 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
 import org.ccci.util.strings.Strings;
 
+import org.cru.crs.model.block.AddressQuestion;
+import org.cru.crs.model.block.BlockType;
+import org.cru.crs.model.block.DateQuestion;
+import org.cru.crs.model.block.NameQuestion;
+import org.cru.crs.model.block.TextQuestion;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.ProfileEntity;
@@ -103,15 +107,30 @@ public class ProfileProcess
 
 			if (hasProfileType(blockEntity))
 			{
-				try
+				if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION) ||
+						blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION) ||
+						blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION))
 				{
-					ProfileEntity profileEntityFromAnswer = new ObjectMapper().readValue(answer.getValue(), ProfileEntity.class);
-
-					profileEntity.set(profileEntityFromAnswer);
+					TextQuestion textQuestion = gson.fromJson(answer.getValue().toString(), TextQuestion.class);
+					profileEntity.set(textQuestion, blockEntity.getProfileType());
 				}
-				catch (Exception e)
+
+				else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION))
 				{
-					logger.error("Could not set profile entity for type " + blockEntity.getProfileType() + " and value " + answer.getValue());
+					DateQuestion dateQuestion = gson.fromJson(answer.getValue().toString(), DateQuestion.class);
+					profileEntity.set(dateQuestion, blockEntity.getProfileType());
+				}
+
+				else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION))
+				{
+					NameQuestion nameQuestion = gson.fromJson(answer.getValue().toString(), NameQuestion.class);
+					profileEntity.set(nameQuestion);
+				}
+
+				else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION))
+				{
+					AddressQuestion addressQuestion = gson.fromJson(answer.getValue().toString(), AddressQuestion.class);
+					profileEntity.set(addressQuestion);
 				}
 			}
 		}
@@ -130,11 +149,35 @@ public class ProfileProcess
 			// if the block has a profile type, add an answer to the list with the appropriate profile value
 			if (hasProfileType(blockEntity))
 			{
-				// build a profile entity having only values pertaining to the profile type specified by the block
-				ProfileEntity typeSpecificProfileEntity = profileEntity.typeSpecific(blockEntity.getProfileType());
+				String jsonString = "";
 
-				// serialize the type specific profile entity into json formatted string
-				String jsonString = gson.toJson(typeSpecificProfileEntity);
+				// serialize the appropriate block type java object into a json formatted string
+
+				if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION) ||
+						blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION) ||
+						blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION))
+				{
+					TextQuestion textQuestion = profileEntity.getTextQuestion(blockEntity.getProfileType());
+					jsonString = gson.toJson(textQuestion);
+				}
+
+				else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION))
+				{
+					DateQuestion dateQuestion = profileEntity.getDateQuestion(blockEntity.getProfileType());
+					jsonString = gson.toJson(dateQuestion);
+				}
+
+				else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION))
+				{
+					NameQuestion nameQuestion = profileEntity.getNameQuestion();
+					jsonString = gson.toJson(nameQuestion);
+				}
+
+				else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION))
+				{
+					AddressQuestion addressQuestion = profileEntity.getAddressQuestion();
+					jsonString = gson.toJson(addressQuestion);
+				}
 
 				// build json node type from json formatted string
 				JsonNode jsonNode = JsonUtils.jsonNodeFromString(jsonString);

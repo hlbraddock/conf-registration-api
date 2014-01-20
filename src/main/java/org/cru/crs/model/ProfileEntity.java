@@ -1,6 +1,10 @@
 package org.cru.crs.model;
 
 import com.google.common.base.Strings;
+import org.cru.crs.model.block.AddressQuestion;
+import org.cru.crs.model.block.DateQuestion;
+import org.cru.crs.model.block.NameQuestion;
+import org.cru.crs.model.block.TextQuestion;
 import org.joda.time.DateTime;
 
 import java.util.UUID;
@@ -59,49 +63,6 @@ public class ProfileEntity implements java.io.Serializable
 		this.state = state;
 		this.street = street;
 		this.zip = zip;
-	}
-
-	public ProfileEntity typeSpecific(ProfileType profileType)
-	{
-		ProfileEntity profileEntity = new ProfileEntity();
-
-		switch(profileType)
-		{
-			case EMAIL:
-				profileEntity.setEmail(email);
-				break;
-			case NAME:
-				profileEntity.setFirstName(firstName);
-				profileEntity.setLastName(lastName);
-				break;
-			case PHONE:
-				profileEntity.setPhone(phone);
-				break;
-			case ADDRESS:
-				profileEntity.setStreet(street);
-				profileEntity.setCity(city);
-				profileEntity.setState(state);
-				profileEntity.setZip(zip);
-				break;
-			case BIRTH_DATE:
-				profileEntity.setBirthDate(birthDate);
-				break;
-			case GENDER:
-				profileEntity.setGender(gender);
-				break;
-			case CAMPUS:
-				profileEntity.setCampus(campus);
-				break;
-			case GRADUATION:
-				profileEntity.setGraduation(graduation);
-				break;
-			case DORMITORY:
-				profileEntity.setDormitory(dormitory);
-				break;
-			default:
-		}
-
-		return profileEntity;
 	}
 
 	public UUID getId()
@@ -252,6 +213,123 @@ public class ProfileEntity implements java.io.Serializable
 	public void setZip(String zip)
 	{
 		this.zip = zip;
+	}
+
+	public TextQuestion getTextQuestion(ProfileType profileType)
+	{
+		TextQuestion textQuestion = new TextQuestion();
+
+		switch(profileType)
+		{
+			case EMAIL:
+				textQuestion.setText(email);
+				break;
+			case PHONE:
+				textQuestion.setText(phone);
+				break;
+			case GENDER:
+				textQuestion.setText(gender);
+				break;
+			case CAMPUS:
+				textQuestion.setText(campus);
+				break;
+			case DORMITORY:
+				textQuestion.setText(dormitory);
+				break;
+			default:
+		}
+
+		return textQuestion;
+	}
+
+	public DateQuestion getDateQuestion(ProfileType profileType)
+	{
+		DateQuestion dateQuestion = new DateQuestion();
+
+		switch(profileType)
+		{
+			case BIRTH_DATE:
+				dateQuestion.setText(birthDate);
+				break;
+			case GRADUATION:
+				dateQuestion.setText(graduation);
+			default:
+		}
+
+		return dateQuestion;
+	}
+
+	public NameQuestion getNameQuestion()
+	{
+		NameQuestion nameQuestion = new NameQuestion();
+
+		nameQuestion.setFirstName(firstName);
+		nameQuestion.setLastName(lastName);
+
+		return nameQuestion;
+	}
+
+	public AddressQuestion getAddressQuestion()
+	{
+		AddressQuestion addressQuestion = new AddressQuestion();
+
+		addressQuestion.setAddress1(street);
+		addressQuestion.setCity(city);
+		addressQuestion.setState(state);
+		addressQuestion.setZip(zip);
+
+		return addressQuestion;
+	}
+
+	public void set(TextQuestion textQuestion, ProfileType profileType)
+	{
+		switch(profileType)
+		{
+			case EMAIL:
+				setEmail(textQuestion.getText());
+				break;
+			case PHONE:
+				setPhone(textQuestion.getText());
+				break;
+			case GENDER:
+				setGender(textQuestion.getText());
+				break;
+			case CAMPUS:
+				setCampus(textQuestion.getText());
+				break;
+			case DORMITORY:
+				setDormitory(textQuestion.getText());
+				break;
+			default:
+		}
+	}
+
+	public void set(DateQuestion dateQuestion, ProfileType profileType)
+	{
+		switch(profileType)
+		{
+			case BIRTH_DATE:
+				setBirthDate(dateQuestion.getText());
+				break;
+			case GRADUATION:
+				setGraduation(dateQuestion.getText());
+				break;
+			default:
+		}
+	}
+
+	public void set(NameQuestion nameQuestion)
+	{
+		firstName = nameQuestion.getFirstName();
+		lastName = nameQuestion.getLastName();
+	}
+
+	public void set(AddressQuestion addressQuestion)
+	{
+		street = addressQuestion.getAddress1();
+		city = addressQuestion.getCity();
+		state = addressQuestion.getState();
+		zip = addressQuestion.getZip();
 	}
 
 	public void set(ProfileEntity profileEntity)
