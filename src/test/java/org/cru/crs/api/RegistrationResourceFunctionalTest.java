@@ -217,12 +217,6 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 
-	/*
-	 * This functional test can't really test whether or not the user profile was updated with profile data from the registration
-	 * because there is no profile endpoint to query.
-	 * However, we will leave it for now, since in future, new registrations will be pre-populated with current profile data
-	 * and we can utilize this function to test when that becomes available.
-	 */
 	@Test(groups="functional-tests")
 	public void createRegistrationWithProfileOnUpdate() throws URISyntaxException
 	{
