@@ -28,9 +28,9 @@ import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
-import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.model.ProfileType;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.model.block.TextQuestion;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;
@@ -406,9 +406,10 @@ public class ConferenceResourceFunctionalTest
 
 			answerId = answerEntity.getId();
 
-			ProfileEntity profileEntityFromAnswer = new ObjectMapper().readValue(answerEntity.getAnswer(), ProfileEntity.class);
+			TextQuestion textQuestion = new ObjectMapper().readValue(answerEntity.getAnswer(), TextQuestion.class);
 
-			Assert.assertEquals(profileEntityFromAnswer.getEmail(), UserInfo.Email.TestUser);
+			Assert.assertNotNull(textQuestion);
+			Assert.assertEquals(textQuestion.getText(), UserInfo.Email.TestUser);
 		}
 		finally
 		{
