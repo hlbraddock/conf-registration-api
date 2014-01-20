@@ -107,30 +107,38 @@ public class ProfileProcess
 
 			if (hasProfileType(blockEntity))
 			{
-				if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION) ||
-						blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION) ||
-						blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION))
+				try
 				{
-					TextQuestion textQuestion = gson.fromJson(answer.getValue().toString(), TextQuestion.class);
-					profileEntity.set(textQuestion, blockEntity.getProfileType());
-				}
+					if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION) ||
+							blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION) ||
+							blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION))
+					{
+						TextQuestion textQuestion = gson.fromJson(answer.getValue().toString(), TextQuestion.class);
+						profileEntity.set(textQuestion, blockEntity.getProfileType());
+					}
 
-				else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION))
-				{
-					DateQuestion dateQuestion = gson.fromJson(answer.getValue().toString(), DateQuestion.class);
-					profileEntity.set(dateQuestion, blockEntity.getProfileType());
-				}
+					else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION))
+					{
+						DateQuestion dateQuestion = gson.fromJson(answer.getValue().toString(), DateQuestion.class);
+						profileEntity.set(dateQuestion, blockEntity.getProfileType());
+					}
 
-				else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION))
-				{
-					NameQuestion nameQuestion = gson.fromJson(answer.getValue().toString(), NameQuestion.class);
-					profileEntity.set(nameQuestion);
-				}
+					else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION))
+					{
+						NameQuestion nameQuestion = gson.fromJson(answer.getValue().toString(), NameQuestion.class);
+						profileEntity.set(nameQuestion);
+					}
 
-				else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION))
+					else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION))
+					{
+						AddressQuestion addressQuestion = gson.fromJson(answer.getValue().toString(), AddressQuestion.class);
+						profileEntity.set(addressQuestion);
+					}
+				}
+				catch(Exception e)
 				{
-					AddressQuestion addressQuestion = gson.fromJson(answer.getValue().toString(), AddressQuestion.class);
-					profileEntity.set(addressQuestion);
+					logger.error("Could not capture profile from registration for block type " + blockEntity.getBlockType() +
+							" and profile type " + blockEntity.getProfileType());
 				}
 			}
 		}
@@ -149,44 +157,52 @@ public class ProfileProcess
 			// if the block has a profile type, add an answer to the list with the appropriate profile value
 			if (hasProfileType(blockEntity))
 			{
-				String jsonString = "";
-
-				// serialize the appropriate block type java object into a json formatted string
-
-				if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION) ||
-						blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION) ||
-						blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION))
+				try
 				{
-					TextQuestion textQuestion = profileEntity.getTextQuestion(blockEntity.getProfileType());
-					jsonString = gson.toJson(textQuestion);
-				}
+					String jsonString = "";
 
-				else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION))
+					// serialize the appropriate block type java object into a json formatted string
+
+					if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION.toString()) ||
+							blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION.toString()) ||
+							blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION.toString()))
+					{
+						TextQuestion textQuestion = profileEntity.getTextQuestion(blockEntity.getProfileType());
+						jsonString = gson.toJson(textQuestion);
+					}
+
+					else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION.toString()))
+					{
+						DateQuestion dateQuestion = profileEntity.getDateQuestion(blockEntity.getProfileType());
+						jsonString = gson.toJson(dateQuestion);
+					}
+
+					else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION.toString()))
+					{
+						NameQuestion nameQuestion = profileEntity.getNameQuestion();
+						jsonString = gson.toJson(nameQuestion);
+					}
+
+					else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION.toString()))
+					{
+						AddressQuestion addressQuestion = profileEntity.getAddressQuestion();
+						jsonString = gson.toJson(addressQuestion);
+					}
+
+					// build json node type from json formatted string
+					JsonNode jsonNode = JsonUtils.jsonNodeFromString(jsonString);
+
+					// construct the answer
+					Answer answer = new Answer(UUID.randomUUID(), registration.getId(), blockEntity.getId(), jsonNode);
+
+					// add answer to the registration
+					registration.getAnswers().add(answer);
+				}
+				catch(Exception e)
 				{
-					DateQuestion dateQuestion = profileEntity.getDateQuestion(blockEntity.getProfileType());
-					jsonString = gson.toJson(dateQuestion);
+					logger.error("Could not pre-populate registration for block type " + blockEntity.getBlockType() +
+									" and profile type " + blockEntity.getProfileType());
 				}
-
-				else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION))
-				{
-					NameQuestion nameQuestion = profileEntity.getNameQuestion();
-					jsonString = gson.toJson(nameQuestion);
-				}
-
-				else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION))
-				{
-					AddressQuestion addressQuestion = profileEntity.getAddressQuestion();
-					jsonString = gson.toJson(addressQuestion);
-				}
-
-				// build json node type from json formatted string
-				JsonNode jsonNode = JsonUtils.jsonNodeFromString(jsonString);
-
-				// construct the answer
-				Answer answer = new Answer(UUID.randomUUID(), registration.getId(), blockEntity.getId(), jsonNode);
-
-				// add answer to the registration
-				registration.getAnswers().add(answer);
 			}
 		}
 	}
