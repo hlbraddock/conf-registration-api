@@ -87,7 +87,7 @@ public class ConferenceResourceFunctionalTest
         
         sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
         
-        AnswerService answerService = new AnswerService(sqlConnection);
+        answerService = new AnswerService(sqlConnection);
         BlockService blockService = new BlockService(sqlConnection, answerService);
         ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
 
@@ -376,32 +376,25 @@ public class ConferenceResourceFunctionalTest
 	}
 
 	@Test(groups="functional-tests")
-	public void addRegistrationToConferenceWithProfileAutomaticallyAdded() throws URISyntaxException, IOException
+	public void addRegistrationToConferencePrepopulatedFromProfile() throws URISyntaxException, IOException
 	{
 		UUID registrationId = null;
+		UUID answerId = null;
 		try
 		{
-			UUID userIdUUID = UserInfo.Id.Ryan;
+			UUID userIdUUID = UserInfo.Id.TestUser;
 
 			Registration newRegistration = createRegistration(registrationId, userIdUUID);
 
 			UUID conferenceUUID = UUID.fromString("50A342D2-0D99-473A-2C3D-7046BFCDD942");
 
-			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID, UserInfo.AuthCode.Ryan);
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID, UserInfo.AuthCode.TestUser);
 
 			Assert.assertEquals(response.getStatus(), 201);
 
 			String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
 			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/pages/";
 			registrationId =  UUID.fromString(returnedLocationHeader.substring(resourceFullPathWithoutId.length()));
-
-			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId);
-			List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(registrationId);
-
-			Assert.assertEquals(registration.getId(), registrationId);
-			Assert.assertEquals(registration.getUserId(), newRegistration.getUserId());
-			Assert.assertFalse(registration.getCompleted());
-			Assert.assertEquals(payments.size(), 0);
 
 			List<AnswerEntity> answerEntities = answerService.getAllAnswersForRegistration(registrationId);
 
@@ -411,12 +404,15 @@ public class ConferenceResourceFunctionalTest
 
 			AnswerEntity answerEntity = getAnswerWithBlockId(answerEntities, blockId);
 
+			answerId = answerEntity.getId();
+
 			ProfileEntity profileEntityFromAnswer = new ObjectMapper().readValue(answerEntity.getAnswer(), ProfileEntity.class);
 
-			Assert.assertEquals(profileEntityFromAnswer.getEmail(), UserInfo.Email.Ryan);
+			Assert.assertEquals(profileEntityFromAnswer.getEmail(), UserInfo.Email.TestUser);
 		}
 		finally
 		{
+			deleteAnswerForNextTests(answerId);
 			deleteRegistrationForNextTests(registrationId);
 			sqlConnection.commit();
 		}
@@ -778,6 +774,16 @@ public class ConferenceResourceFunctionalTest
 			sqlConnection.createQuery("DELETE FROM conferences WHERE id = :id")
 								.addParameter("id", conferenceId)
 								.executeUpdate();
+		}
+	}
+
+	private void deleteAnswerForNextTests(UUID answerId)
+	{
+		if(answerId != null)
+		{
+			sqlConnection.createQuery("DELETE FROM answers WHERE id = :id")
+					.addParameter("id", answerId)
+					.executeUpdate();
 		}
 	}
 
