@@ -218,7 +218,7 @@ public class RegistrationResourceFunctionalTest
 	}
 
 	@Test(groups="functional-tests")
-	public void createRegistrationWithProfileOnUpdate() throws URISyntaxException
+	public void saveCompletedRegistrationToCaptureProfile() throws URISyntaxException
 	{
 		UUID registrationIdUUID = UUID.randomUUID();
 		UUID userIdUUID = UserInfo.Id.Ryan;
