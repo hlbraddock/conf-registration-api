@@ -32,6 +32,7 @@ public class UserInfo
 	public static class Email
 	{
 		public static String Ryan = "ryan.t.carlson@cru.org";
+		public static String TestUser = "test.user@cru.org";
 	}
 
 	public static class Users
