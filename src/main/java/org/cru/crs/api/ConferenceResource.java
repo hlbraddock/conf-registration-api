@@ -320,6 +320,10 @@ public class ConferenceResource extends TransactionalResource
 
 		profileProcess.populateRegistrationAnswers(newRegistration);
 
+		logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode + " after populate profile.");
+
+		Simply.logObject(newRegistration, ConferenceResource.class);
+
 		/*now perform a deep update to ensure that any answers or other payments are properly saved*/
 		updateRegistrationProcess.performDeepUpdate(newRegistration);
 
