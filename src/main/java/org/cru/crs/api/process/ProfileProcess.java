@@ -70,8 +70,6 @@ public class ProfileProcess
 	{
 		ProfileEntity profileEntity = getProfileEntity(registration);
 
-		logger.info("populate registration answers ");
-
 		Simply.logObject(profileEntity, ProfileProcess.class);
 
 		Set<BlockEntity> blockEntities = fetchBlocksForConference(registration.getConferenceId());
@@ -94,18 +92,12 @@ public class ProfileProcess
 	{
 		ProfileEntity profileEntity = profileService.getProfileByUser(registration.getUserId());
 
-		logger.info("get profile entity for user id " + registration.getId());
-
 		if(profileEntity == null)
 		{
-			logger.info("get profile entity for user id " + registration.getId() + " is null");
-
 			profileEntity = new ProfileEntity(UUID.randomUUID(), registration.getUserId());
 
 			profileService.createProfile(profileEntity);
 		}
-
-		logger.info("get profile entity for user id " + registration.getId() + " got it");
 
 		return profileEntity;
 	}
@@ -120,27 +112,27 @@ public class ProfileProcess
 			{
 				try
 				{
-					if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION) ||
-							blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION) ||
-							blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION))
+					if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION.toString()) ||
+							blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION.toString()) ||
+							blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION.toString()))
 					{
 						TextQuestion textQuestion = gson.fromJson(answer.getValue().toString(), TextQuestion.class);
 						profileEntity.set(textQuestion, blockEntity.getProfileType());
 					}
 
-					else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION))
+					else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION.toString()))
 					{
 						DateQuestion dateQuestion = gson.fromJson(answer.getValue().toString(), DateQuestion.class);
 						profileEntity.set(dateQuestion, blockEntity.getProfileType());
 					}
 
-					else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION))
+					else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION.toString()))
 					{
 						NameQuestion nameQuestion = gson.fromJson(answer.getValue().toString(), NameQuestion.class);
 						profileEntity.set(nameQuestion);
 					}
 
-					else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION))
+					else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION.toString()))
 					{
 						AddressQuestion addressQuestion = gson.fromJson(answer.getValue().toString(), AddressQuestion.class);
 						profileEntity.set(addressQuestion);
@@ -173,11 +165,6 @@ public class ProfileProcess
 					String jsonString = null;
 
 					// serialize the appropriate block type java object into a json formatted string
-
-					logger.info("set answer from profile () block type " + blockEntity.getBlockType());
-
-					Simply.logObject(profileEntity, ProfileProcess.class);
-
 					if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION.toString()) ||
 							blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION.toString()) ||
 							blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION.toString()))
@@ -207,8 +194,6 @@ public class ProfileProcess
 						if(addressQuestion.isEmpty())
 							jsonString = gson.toJson(addressQuestion);
 					}
-
-					logger.info("set answer from profile () json string " + jsonString);
 
 					if(Strings.isEmpty(jsonString))
 						return;
