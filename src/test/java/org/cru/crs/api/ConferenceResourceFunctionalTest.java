@@ -1,6 +1,7 @@
 package org.cru.crs.api;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -8,9 +9,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.ws.rs.core.Response;
+import javax.mail.MessagingException;
 
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.ConferenceResourceClient;
@@ -523,17 +523,50 @@ public class ConferenceResourceFunctionalTest
 		moveBlock(0, 1, 1, UUID.fromString("D5878EBA-9B3F-7F33-8355-3193BF4FB698"));
 	}
 	
-	public Permission createPermission()
+	
+	@Test(groups="functional-tests")
+	public void grantPermission() throws Exception
 	{
-		Permission permission = new Permission();
+		Permission newPermission = createPermission();
 		
-		permission.setId(UUID.randomUUID());
-		permission.setConferenceId(ConferenceInfo.Id.NewYork);
-		permission.setGivenByUserId(UserInfo.Id.Ryan);
-		permission.setUserId(UserInfo.Id.TestUser);
-		permission.setPermissionLevel(PermissionLevel.UPDATE);
+		try
+		{
+			ClientResponse response = conferenceClient.grantPermission(ConferenceInfo.Id.NewYork, UserInfo.AuthCode.Ryan, newPermission);
+			
+			Assert.assertEquals(response.getStatus(), 201);
+			
+			PermissionEntity retrievedPermission = permissionService.getPermissionBy(newPermission.getId());
+			
+			Assert.assertNotNull(retrievedPermission);
+			Assert.assertEquals(retrievedPermission.getEmailAddress(), "ryan.t.carlson@cru.org");
+			Assert.assertEquals(retrievedPermission.getConferenceId(), ConferenceInfo.Id.NewYork);
+			Assert.assertEquals(retrievedPermission.getGivenByUserId(), UserInfo.Id.Ryan);
+			Assert.assertEquals(retrievedPermission.getPermissionLevel(), PermissionLevel.UPDATE);
+			
+			/*permission has not been accepted via email link yet, so this is null*/
+			Assert.assertNull(retrievedPermission.getUserId());
+			
+			/*these two field should hve been set by the system*/
+			Assert.assertNotNull(retrievedPermission.getLastUpdatedTimestamp());
+			Assert.assertNotNull(retrievedPermission.getActivationCode());
+		}
+		finally
+		{
+			sqlConnection.createQuery("DELETE FROM permissions WHERE id = :id")
+							.addParameter("id", newPermission.getId())
+							.executeUpdate();
+			sqlConnection.commit();
+		}
+	}
+	
+	private Permission createPermission()
+	{
+		return new Permission().withRandomID()
+								.setConferenceId(ConferenceInfo.Id.NewYork)
+								.setGivenByUserId(UserInfo.Id.Ryan)
+								.setEmailAddress("ryan.t.carlson@cru.org")
+								.setPermissionLevel(PermissionLevel.UPDATE);
 		
-		return permission;
 	}
 	
 	private void moveBlock(int sourcePageIndex, int destinationPageIndex, int blockToRemoveIndex, UUID conferenceUUID)

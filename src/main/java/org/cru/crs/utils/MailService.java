@@ -1,22 +1,27 @@
 package org.cru.crs.utils;
 
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+
 import org.ccci.util.mail.EmailAddress;
 import org.ccci.util.mail.MailMessage;
 import org.ccci.util.mail.MailMessageFactory;
 import org.ccci.util.strings.Strings;
-
-import javax.inject.Inject;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
 
 /**
  * @author Lee Braddock
  */
 public class MailService
 {
-	@Inject
 	CrsProperties crsProperties;
 
+	@Inject
+	public MailService(CrsProperties crsProperties)
+	{
+		this.crsProperties = crsProperties;
+	}
+	
 	public void send(String from, String to, String subject, String body) throws MessagingException
 	{
 		String mailServer = crsProperties.getProperty("mailServer");

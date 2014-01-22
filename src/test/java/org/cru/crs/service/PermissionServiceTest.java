@@ -44,6 +44,20 @@ public class PermissionServiceTest
 	}
 	
 	@Test(groups="dbtest")
+	public void testGetPermissionByAuthCode()
+	{
+		PermissionEntity permission = permissionService.getPermissionByActivationCode("ABC123");
+		
+		Assert.assertNotNull(permission);
+		Assert.assertEquals(permission.getId(), UUID.fromString("7cc69410-7eeb-11e3-baa7-0800200c9a66"));
+		Assert.assertEquals(permission.getGivenByUserId(), UserInfo.Id.TestUser);
+		Assert.assertNull(permission.getUserId());
+		Assert.assertEquals(permission.getConferenceId(), ConferenceInfo.Id.WinterBeachCold);
+		Assert.assertEquals(permission.getPermissionLevel(), PermissionLevel.VIEW);
+		Assert.assertEquals(permission.getLastUpdatedTimestamp(), DateTimeCreaterHelper.createDateTime(2014, 8, 14, 15, 27, 50));
+	}
+	
+	@Test(groups="dbtest")
 	public void testGetPermissionsForConference()
 	{
 		List<PermissionEntity> permissionsForNorthernMichiganConference = permissionService.getPermissionsForConference(ConferenceInfo.Id.NorthernMichigan);
@@ -149,6 +163,8 @@ public class PermissionServiceTest
 		{
 			PermissionEntity permissionToRyan = permissionService.getPermissionBy(permissionIdToRyan);
 
+			Assert.assertNotEquals(permissionToRyan.getPermissionLevel(), PermissionLevel.FULL);
+			
 			permissionToRyan.setPermissionLevel(PermissionLevel.FULL);
 			permissionToRyan.setLastUpdatedTimestamp(DateTimeCreaterHelper.createDateTime(2014, 1, 1, 10, 0, 0));
 

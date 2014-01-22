@@ -58,14 +58,11 @@ public class CreateConferenceProcess
 	
 	private void saveInitialCreatorPermissionForConference(Conference newConference, CrsApplicationUser loggedInUser)
 	{
-		Permission creatorPermission = new Permission();
-
-		creatorPermission.setId(UUID.randomUUID());
-		creatorPermission.setConferenceId(newConference.getId());
-		creatorPermission.setUserId(loggedInUser.getId());
-		creatorPermission.setPermissionLevel(PermissionLevel.CREATOR);
-		creatorPermission.setTimestamp(clock.currentDateTime());
-		
-		permissionService.insertPermission(creatorPermission.toDbPermissionEntity());
+		permissionService.insertPermission(new Permission().setId(UUID.randomUUID())
+														.setConferenceId(newConference.getId())
+														.setUserId(loggedInUser.getId())
+														.setPermissionLevel(PermissionLevel.CREATOR)
+														.setTimestamp(clock.currentDateTime())
+														.toDbPermissionEntity());
 	}
 }

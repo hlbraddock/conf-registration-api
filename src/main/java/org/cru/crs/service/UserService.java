@@ -39,21 +39,6 @@ public class UserService {
         						.executeAndFetchFirst(UserEntity.class);
     }
     
-    public UserEntity getUserByEmailAddress(String emailAddress) {
-    	return sqlConnection.createQuery(userQueries.selectByEmailAddress())
-    							.addParameter("emailAddress", emailAddress != null ? emailAddress.toLowerCase() : null)
-    							.setAutoDeriveColumnNames(true)
-    							.executeAndFetchFirst(UserEntity.class);
-    }
-
-    public UserEntity getUserByFirstAndLastName(String firstName, String lastName) {
-    	return sqlConnection.createQuery(userQueries.selectByFirstNameAndLastName())
-				.addParameter("firstName", firstName != null ? firstName.toLowerCase() : null)
-				.addParameter("lastName", lastName != null ? lastName.toLowerCase() : null)
-				.setAutoDeriveColumnNames(true)
-				.executeAndFetchFirst(UserEntity.class);
-    }
-    
     public void createUser(UserEntity userToSave) {
     	if(userToSave.getId() == null) {
     		userToSave.setId(UUID.randomUUID());

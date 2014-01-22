@@ -1,0 +1,61 @@
+package org.cru.crs.process;
+
+import java.util.UUID;
+
+import junit.framework.Assert;
+
+import org.cru.crs.api.model.Permission;
+import org.cru.crs.api.process.UpdatePermissionProcess;
+import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.model.PermissionEntity;
+import org.cru.crs.service.PermissionService;
+import org.cru.crs.utils.ClockImpl;
+import org.cru.crs.utils.ServiceFactory;
+import org.cru.crs.utils.UserInfo;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.sql2o.Connection;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+public class UpdatePermissionProcessTest
+{
+
+	Connection sqlConnection;
+	
+	UpdatePermissionProcess updatePermissionProcess;
+	
+	PermissionService permissionService;
+	
+	@BeforeMethod(alwaysRun=true)
+	public void setup()
+	{
+		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+		
+		updatePermissionProcess = new UpdatePermissionProcess(ServiceFactory.createPermissionService(sqlConnection), new ClockImpl());
+		
+		permissionService = ServiceFactory.createPermissionService(sqlConnection);
+	}
+	
+	@Test(groups="dbtest")
+	public void testUpdatePermission()
+	{
+		PermissionEntity storedInProgressPermissionEntity = permissionService.getPermissionBy(UUID.fromString("7cc69410-7eeb-11e3-baa7-0800200c9a66"));
+		
+		Permission webPermissionToActivate = Permission.fromDb(storedInProgressPermissionEntity).setActivationCode("ABC123");
+		
+		try
+		{
+			updatePermissionProcess.updatePermission(webPermissionToActivate, UserInfo.Users.Email);
+
+			PermissionEntity retrievedPermissionAfterUpdate = permissionService.getPermissionBy(UUID.fromString("7cc69410-7eeb-11e3-baa7-0800200c9a66"));
+
+			Assert.assertEquals(retrievedPermissionAfterUpdate.getUserId(), UserInfo.Id.Email);
+			Assert.assertTrue(retrievedPermissionAfterUpdate.getLastUpdatedTimestamp().isBefore(new DateTime(DateTimeZone.UTC)));
+		}
+		finally
+		{
+			sqlConnection.rollback();
+		}
+	}
+}

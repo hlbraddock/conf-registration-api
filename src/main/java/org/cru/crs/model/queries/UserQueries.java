@@ -7,14 +7,6 @@ public class UserQueries implements BasicQueries {
 		return "SELECT * FROM users WHERE id = :id";
 	}
 
-	public String selectByEmailAddress() {
-		return "SELECT * FROM users WHERE lower(email_address) = :emailAddress";
-	}
-	
-	public String selectByFirstNameAndLastName() {
-		return "SELECT * FROM users WHERE lower(first_name) = :firstName AND lower(last_name) = :lastName";
-	}
-	
 	@Override
 	public String update() {
 		return "UPDATE users SET " +

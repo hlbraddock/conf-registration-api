@@ -1,5 +1,6 @@
 package org.cru.crs.api;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.UUID;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -435,9 +437,11 @@ public class ConferenceResource extends TransactionalResource
 	@POST
 	@Path("/{conferenceId}/permissions")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response grantPermission(@PathParam(value = "conferenceId") UUID conferenceId,
 									@HeaderParam(value = "Authorization") String authCode,
-									Permission newPermission) throws URISyntaxException {
+									Permission newPermission) throws URISyntaxException, MalformedURLException, MessagingException
+	{
 		logger.info("creating permission for conference " + conferenceId + " auth code: " + authCode);
 		
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
@@ -451,9 +455,10 @@ public class ConferenceResource extends TransactionalResource
 		authorizationService.authorizeConference(conference, OperationType.ADMIN, crsLoggedInUser);
 
 		createPermissionProcess.savePermission(newPermission, conferenceId, crsLoggedInUser);
-
+		createPermissionProcess.notifyRecipientOfGrantedPermission(newPermission);
+		
 		return Response.created(new URI("/conferences/" + conferenceId + "/permissions/" + newPermission.getId()))
-						.entity(permissionService.getPermissionBy(newPermission.getId()))
+						.entity(Permission.fromDb(permissionService.getPermissionBy(newPermission.getId())))
 						.build();
 	}
 }

@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 import org.ccci.util.NotImplementedException;
 import org.cru.crs.model.PermissionEntity;
-import org.cru.crs.model.queries.PermissionQueries;
 import org.sql2o.Connection;
 
 @RequestScoped
@@ -32,15 +31,23 @@ public class PermissionService
 	
 	public PermissionEntity getPermissionBy(UUID id)
 	{
-		return sqlConnection.createQuery(permissionQueries.selectById())
+		return sqlConnection.createQuery(PermissionQueries.selectById())
 								.addParameter("id", id)
+								.setAutoDeriveColumnNames(true)
+								.executeAndFetchFirst(PermissionEntity.class);
+	}
+	
+	public PermissionEntity getPermissionByActivationCode(String activationCode)
+	{
+		return sqlConnection.createQuery(PermissionQueries.selectByActivationCode())
+								.addParameter("activationCode", activationCode)
 								.setAutoDeriveColumnNames(true)
 								.executeAndFetchFirst(PermissionEntity.class);
 	}
 	
 	public List<PermissionEntity> getPermissionsForConference(UUID conferenceId)
 	{
-		return sqlConnection.createQuery(permissionQueries.selectAllForConference())
+		return sqlConnection.createQuery(PermissionQueries.selectAllForConference())
 								.addParameter("conferenceId", conferenceId)
 								.setAutoDeriveColumnNames(true)
 								.executeAndFetch(PermissionEntity.class);
@@ -48,7 +55,7 @@ public class PermissionService
 	
 	public List<PermissionEntity> getPermissionsForUser(UUID userId)
 	{
-		return sqlConnection.createQuery(permissionQueries.selectAllForUser())
+		return sqlConnection.createQuery(PermissionQueries.selectAllForUser())
 								.addParameter("userId", userId)
 								.setAutoDeriveColumnNames(true)
 								.executeAndFetch(PermissionEntity.class);
@@ -56,7 +63,7 @@ public class PermissionService
 	
 	public PermissionEntity getPermissionForUserOnConference(UUID userId, UUID conferenceId)
 	{
-		return sqlConnection.createQuery(permissionQueries.selectByUserIdConferenceId())
+		return sqlConnection.createQuery(PermissionQueries.selectByUserIdConferenceId())
 								.addParameter("userId", userId)
 								.addParameter("conferenceId", conferenceId)
 								.setAutoDeriveColumnNames(true)
@@ -65,24 +72,28 @@ public class PermissionService
 	
 	public void updatePermission(PermissionEntity permissionToUpdate)
 	{
-		sqlConnection.createQuery(permissionQueries.update())
+		sqlConnection.createQuery(PermissionQueries.update())
 								.addParameter("id", permissionToUpdate.getId())
 								.addParameter("conferenceId", permissionToUpdate.getConferenceId())
 								.addParameter("userId", permissionToUpdate.getUserId())
+								.addParameter("emailAddress", permissionToUpdate.getEmailAddress())
 								.addParameter("permissionLevel", (Object)permissionToUpdate.getPermissionLevel())
 								.addParameter("givenByUserId", permissionToUpdate.getGivenByUserId())
+								.addParameter("activationCode", permissionToUpdate.getActivationCode())
 								.addParameter("lastUpdatedTimestamp", permissionToUpdate.getLastUpdatedTimestamp())
 								.executeUpdate();
 	}
 	
 	public void insertPermission(PermissionEntity permissionToInsert)
 	{
-		sqlConnection.createQuery(permissionQueries.insert())
+		sqlConnection.createQuery(PermissionQueries.insert())
 								.addParameter("id", permissionToInsert.getId())
 								.addParameter("conferenceId", permissionToInsert.getConferenceId())
 								.addParameter("userId", permissionToInsert.getUserId())
+								.addParameter("emailAddress", permissionToInsert.getEmailAddress())
 								.addParameter("permissionLevel", (Object)permissionToInsert.getPermissionLevel())
 								.addParameter("givenByUserId", permissionToInsert.getGivenByUserId())
+								.addParameter("activationCode", permissionToInsert.getActivationCode())
 								.addParameter("lastUpdatedTimestamp", permissionToInsert.getLastUpdatedTimestamp())
 								.executeUpdate();
 	}
@@ -90,5 +101,54 @@ public class PermissionService
 	public void deletePermission(UUID id)
 	{
 		throw new NotImplementedException();
+	}
+	
+	private static class PermissionQueries
+	{
+
+		private static String selectById()
+		{
+			return "SELECT * FROM permissions WHERE id = :id";
+		}
+
+		private static String selectByActivationCode()
+		{
+			return "SELECT * FROM permissions WHERE activation_code = :activationCode";
+		}
+		
+		private static String selectAllForUser()
+		{
+			return "SELECT * FROM permissions WHERE user_id = :userId";
+		}
+		
+		private static String selectAllForConference()
+		{
+			return "SELECT * FROM permissions WHERE conference_id = :conferenceId";
+		}	
+
+		private static String selectByUserIdConferenceId()
+		{
+			return "SELECT * FROM permissions WHERE user_id = :userId AND conference_id = :conferenceId";
+		}
+		
+		private static String update()
+		{
+			return "UPDATE permissions SET " +
+						"conference_id = :conferenceId," +
+						"user_id = :userId," + 
+						"email_address = :emailAddress," +
+						"permission_level = :permissionLevel," +
+						"given_by_user_id = :givenByUserId," + 
+						"activation_code = :activationCode," +
+						"last_updated_timestamp = :lastUpdatedTimestamp" +
+						" WHERE " +
+						"id = :id";
+		}
+
+		private static String insert()
+		{
+			return "INSERT INTO permissions(id, conference_id, user_id, email_address, permission_level, given_by_user_id, activation_code, last_updated_timestamp) " +
+					"VALUES(:id, :conferenceId, :userId, :emailAddress, :permissionLevel, :givenByUserId, :activationCode, :lastUpdatedTimestamp)";
+		}
 	}
 }

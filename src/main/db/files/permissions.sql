@@ -4,7 +4,9 @@ CREATE TABLE permissions (
   id uuid NOT NULL PRIMARY KEY,
   conference_id uuid references conferences(id),
   user_id uuid references users(id),
+  email_address text,
   permission_level permission_levels,
+  activation_code varchar(41),
   given_by_user_id uuid references users(id),
   last_updated_timestamp timestamp with time zone
 );
@@ -17,3 +19,4 @@ INSERT INTO permissions(id, conference_Id, user_id, permission_level, given_by_u
 INSERT INTO permissions(id, conference_Id, user_id, permission_level, given_by_user_id, last_updated_timestamp) VALUES('a078fc14-e0ef-459e-96d1-f904088f136d', '40A342D2-0D99-473A-2C3D-7046BFCDD942', 'f8f8c217-f918-4503-b3b3-85016f9883c1', 'CREATOR', null, null);
 INSERT INTO permissions(id, conference_Id, user_id, permission_level, given_by_user_id, last_updated_timestamp) VALUES('f5e85e25-88e2-402e-b9fb-559332013f44', '50A342D2-0D99-473A-2C3D-7046BFCDD942', 'dbc6a808-d7bc-4d92-967c-d82d9d312898', 'CREATOR', null, null);
 INSERT INTO permissions(id, conference_Id, user_id, permission_level, given_by_user_id, last_updated_timestamp) VALUES('c1e4ed2e-8eaf-474a-9795-4d0e41b33d70', '50A342D2-0D99-473A-2C3D-7046BFCDD942', 'f8f8c217-f918-4503-b3b3-85016f9883c1', 'NONE', 'dbc6a808-d7bc-4d92-967c-d82d9d312898', null);
+INSERT INTO permissions(id, conference_Id, user_id, permission_level, given_by_user_id, last_updated_timestamp, email_address, activation_code) VALUES('7cc69410-7eeb-11e3-baa7-0800200c9a66', '50A342D2-0D99-473A-2C3D-7046BFCDD942', null, 'VIEW', 'dbc6a808-d7bc-4d92-967c-d82d9d312898', '14-Aug-2014 15:27:50 UTC', 'ryan.t.carlson@cru.org', 'ABC123');
