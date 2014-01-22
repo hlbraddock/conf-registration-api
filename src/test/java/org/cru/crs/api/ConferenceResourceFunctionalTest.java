@@ -347,9 +347,7 @@ public class ConferenceResourceFunctionalTest
 		{
 			Registration newRegistration = createRegistration(registrationId, UserInfo.Id.Ryan);
 
-			UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
-
-			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID, UserInfo.AuthCode.Ryan);
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.Ryan);
 
 			Assert.assertEquals(response.getStatus(), 201);
 
@@ -382,9 +380,7 @@ public class ConferenceResourceFunctionalTest
 		{
 			Registration newRegistration = createRegistration(registrationId, UserInfo.Id.TestUser);
 
-			UUID conferenceUUID = UUID.fromString("50A342D2-0D99-473A-2C3D-7046BFCDD942");
-
-			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID, UserInfo.AuthCode.TestUser);
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, ConferenceInfo.Id.WinterBeachCold, UserInfo.AuthCode.TestUser);
 
 			Assert.assertEquals(response.getStatus(), 201);
 
@@ -394,7 +390,7 @@ public class ConferenceResourceFunctionalTest
 
 			List<AnswerEntity> answerEntities = answerService.getAllAnswersForRegistration(registrationId);
 
-			Set<BlockEntity> blockEntities = profileProcess.fetchBlocksForConference(conferenceUUID);
+			Set<BlockEntity> blockEntities = profileProcess.fetchBlocksForConference(ConferenceInfo.Id.WinterBeachCold);
 
 			UUID blockId = getBlockIdWithProfileType(blockEntities, ProfileType.EMAIL);
 
