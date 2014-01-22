@@ -112,27 +112,27 @@ public class ProfileProcess
 			{
 				try
 				{
-					if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION.toString()) ||
-							blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION.toString()) ||
-							blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION.toString()))
+					BlockType blockType = BlockType.fromString(blockEntity.getBlockType());
+
+					if(blockType.isTextQuestion())
 					{
 						TextQuestion textQuestion = gson.fromJson(answer.getValue().toString(), TextQuestion.class);
 						profileEntity.set(textQuestion, blockEntity.getProfileType());
 					}
 
-					else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION.toString()))
+					else if(blockType.isDateQuestion())
 					{
 						DateQuestion dateQuestion = gson.fromJson(answer.getValue().toString(), DateQuestion.class);
 						profileEntity.set(dateQuestion, blockEntity.getProfileType());
 					}
 
-					else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION.toString()))
+					else if(blockType.isNameQuestion())
 					{
 						NameQuestion nameQuestion = gson.fromJson(answer.getValue().toString(), NameQuestion.class);
 						profileEntity.set(nameQuestion);
 					}
 
-					else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION.toString()))
+					else if(blockType.isAddressQuestion())
 					{
 						AddressQuestion addressQuestion = gson.fromJson(answer.getValue().toString(), AddressQuestion.class);
 						profileEntity.set(addressQuestion);
@@ -141,7 +141,7 @@ public class ProfileProcess
 				catch(Exception e)
 				{
 					logger.error("Could not capture profile from registration for block type " + blockEntity.getBlockType() +
-							" and profile type " + blockEntity.getProfileType());
+							" and profile type " + blockEntity.getProfileType(), e);
 				}
 			}
 		}
@@ -164,31 +164,31 @@ public class ProfileProcess
 				{
 					String jsonString = null;
 
+					BlockType blockType = BlockType.fromString(blockEntity.getBlockType());
+
 					// serialize the appropriate block type java object into a json formatted string
-					if(blockEntity.getBlockType().equals(BlockType.EMAIL_QUESTION.toString()) ||
-							blockEntity.getBlockType().equals(BlockType.PHONE_QUESTION.toString()) ||
-							blockEntity.getBlockType().equals(BlockType.NUMBER_QUESTION.toString()))
+					if(blockType.isTextQuestion())
 					{
 						TextQuestion textQuestion = profileEntity.getTextQuestion(blockEntity.getProfileType());
 						if(!textQuestion.isEmpty())
 							jsonString = gson.toJson(textQuestion);
 					}
 
-					else if(blockEntity.getBlockType().equals(BlockType.DATE_QUESTION.toString()))
+					else if(blockType.isDateQuestion())
 					{
 						DateQuestion dateQuestion = profileEntity.getDateQuestion(blockEntity.getProfileType());
 						if(!dateQuestion.isEmpty())
 							jsonString = gson.toJson(dateQuestion);
 					}
 
-					else if(blockEntity.getBlockType().equals(BlockType.NAME_QUESTION.toString()))
+					else if(blockType.isNameQuestion())
 					{
 						NameQuestion nameQuestion = profileEntity.getNameQuestion();
 						if(!nameQuestion.isEmpty())
 							jsonString = gson.toJson(nameQuestion);
 					}
 
-					else if(blockEntity.getBlockType().equals(BlockType.ADDRESS_QUESTION.toString()))
+					else if(blockType.isAddressQuestion())
 					{
 						AddressQuestion addressQuestion = profileEntity.getAddressQuestion();
 						if(addressQuestion.isEmpty())
@@ -210,7 +210,7 @@ public class ProfileProcess
 				catch(Exception e)
 				{
 					logger.error("Could not pre-populate registration for block type " + blockEntity.getBlockType() +
-									" and profile type " + blockEntity.getProfileType());
+									" and profile type " + blockEntity.getProfileType(), e);
 				}
 			}
 		}
