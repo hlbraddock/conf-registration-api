@@ -22,9 +22,4 @@ public enum BlockType
 	{
 		return text;
 	}
-
-	public static void main(String[] args)
-	{
-		System.out.println(BlockType.EMAIL_QUESTION);
-	}
 }
