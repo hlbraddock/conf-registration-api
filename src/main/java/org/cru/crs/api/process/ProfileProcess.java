@@ -25,7 +25,7 @@ import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.ProfileService;
-import org.cru.crs.utils.JsonUtils;
+import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
@@ -199,7 +199,7 @@ public class ProfileProcess
 						return;
 
 					// build json node type from json formatted string
-					JsonNode jsonNode = JsonUtils.jsonNodeFromString(jsonString);
+					JsonNode jsonNode = JsonNodeHelper.toJsonNode(jsonString);
 
 					// construct the answer
 					Answer answer = new Answer(UUID.randomUUID(), registration.getId(), blockEntity.getId(), jsonNode);
