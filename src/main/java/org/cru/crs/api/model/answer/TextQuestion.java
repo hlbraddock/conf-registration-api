@@ -1,6 +1,7 @@
 package org.cru.crs.api.model.answer;
 
 import org.ccci.util.strings.Strings;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class TextQuestion
 {
@@ -16,6 +17,7 @@ public class TextQuestion
 		this.text = text;
 	}
 
+	@JsonIgnore
 	public boolean isEmpty()
 	{
 		return Strings.isEmpty(text);

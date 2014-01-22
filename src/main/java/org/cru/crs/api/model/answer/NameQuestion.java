@@ -1,6 +1,7 @@
 package org.cru.crs.api.model.answer;
 
 import org.ccci.util.strings.Strings;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class NameQuestion
 {
@@ -27,6 +28,7 @@ public class NameQuestion
 		this.lastName = lastName;
 	}
 
+	@JsonIgnore
 	public boolean isEmpty()
 	{
 		return Strings.isEmpty(firstName) && Strings.isEmpty(lastName);

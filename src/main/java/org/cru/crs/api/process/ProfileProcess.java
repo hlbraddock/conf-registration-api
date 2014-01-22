@@ -1,14 +1,5 @@
 package org.cru.crs.api.process;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import org.codehaus.jackson.JsonNode;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
@@ -28,11 +19,8 @@ import org.cru.crs.service.ProfileService;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import javax.inject.Inject;
-import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -114,27 +102,28 @@ public class ProfileProcess
 				{
 					BlockType blockType = BlockType.fromString(blockEntity.getBlockType());
 
+					// deserialize the json answer using the appropriate block type determined answer object
 					if(blockType.isTextQuestion())
 					{
-						TextQuestion textQuestion = gson.fromJson(answer.getValue().toString(), TextQuestion.class);
+						TextQuestion textQuestion = JsonNodeHelper.deserialize(answer.getValue(), TextQuestion.class);
 						profileEntity.set(textQuestion, blockEntity.getProfileType());
 					}
 
 					else if(blockType.isDateQuestion())
 					{
-						DateQuestion dateQuestion = gson.fromJson(answer.getValue().toString(), DateQuestion.class);
+						DateQuestion dateQuestion = JsonNodeHelper.deserialize(answer.getValue(), DateQuestion.class);
 						profileEntity.set(dateQuestion, blockEntity.getProfileType());
 					}
 
 					else if(blockType.isNameQuestion())
 					{
-						NameQuestion nameQuestion = gson.fromJson(answer.getValue().toString(), NameQuestion.class);
+						NameQuestion nameQuestion = JsonNodeHelper.deserialize(answer.getValue(), NameQuestion.class);
 						profileEntity.set(nameQuestion);
 					}
 
 					else if(blockType.isAddressQuestion())
 					{
-						AddressQuestion addressQuestion = gson.fromJson(answer.getValue().toString(), AddressQuestion.class);
+						AddressQuestion addressQuestion = JsonNodeHelper.deserialize(answer.getValue(), AddressQuestion.class);
 						profileEntity.set(addressQuestion);
 					}
 				}
@@ -162,7 +151,7 @@ public class ProfileProcess
 			{
 				try
 				{
-					String jsonString = null;
+					JsonNode jsonNode = null;
 
 					BlockType blockType = BlockType.fromString(blockEntity.getBlockType());
 
@@ -171,35 +160,32 @@ public class ProfileProcess
 					{
 						TextQuestion textQuestion = profileEntity.getTextQuestion(blockEntity.getProfileType());
 						if(!textQuestion.isEmpty())
-							jsonString = gson.toJson(textQuestion);
+							jsonNode = JsonNodeHelper.serialize(textQuestion);
 					}
 
 					else if(blockType.isDateQuestion())
 					{
 						DateQuestion dateQuestion = profileEntity.getDateQuestion(blockEntity.getProfileType());
 						if(!dateQuestion.isEmpty())
-							jsonString = gson.toJson(dateQuestion);
+							jsonNode = JsonNodeHelper.serialize(dateQuestion);
 					}
 
 					else if(blockType.isNameQuestion())
 					{
 						NameQuestion nameQuestion = profileEntity.getNameQuestion();
 						if(!nameQuestion.isEmpty())
-							jsonString = gson.toJson(nameQuestion);
+							jsonNode = JsonNodeHelper.serialize(nameQuestion);
 					}
 
 					else if(blockType.isAddressQuestion())
 					{
 						AddressQuestion addressQuestion = profileEntity.getAddressQuestion();
 						if(addressQuestion.isEmpty())
-							jsonString = gson.toJson(addressQuestion);
+							jsonNode = JsonNodeHelper.serialize(addressQuestion);
 					}
 
-					if(Strings.isEmpty(jsonString))
-						return;
-
-					// build json node type from json formatted string
-					JsonNode jsonNode = JsonNodeHelper.toJsonNode(jsonString);
+					// if unrecognizable block type
+					else return;
 
 					// construct the answer
 					Answer answer = new Answer(UUID.randomUUID(), registration.getId(), blockEntity.getId(), jsonNode);
@@ -236,20 +222,5 @@ public class ProfileProcess
 	public boolean hasProfileType(BlockEntity blockEntity)
 	{
 		return blockEntity.getProfileType() != null && !Strings.isEmpty(blockEntity.getProfileType().toString());
-	}
-
-	private Gson gson = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateTimeTypeConverter()).create();
-
-	private class DateTimeTypeConverter implements JsonSerializer<DateTime>, JsonDeserializer<DateTime> {
-		// No need for an InstanceCreator since DateTime provides a no-args constructor
-		@Override
-		public JsonElement serialize(DateTime src, Type srcType, JsonSerializationContext context) {
-			return new JsonPrimitive(src.toString(DateTimeFormat.fullDateTime()));
-		}
-		@Override
-		public DateTime deserialize(JsonElement json, Type type, JsonDeserializationContext context)
-				throws JsonParseException {
-			return new DateTime(json.getAsString());
-		}
 	}
 }

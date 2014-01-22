@@ -1,5 +1,6 @@
 package org.cru.crs.api.model.answer;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.joda.time.DateTime;
 
 public class DateQuestion
@@ -16,6 +17,7 @@ public class DateQuestion
 		this.text = text;
 	}
 
+	@JsonIgnore
 	public boolean isEmpty()
 	{
 		return text == null;

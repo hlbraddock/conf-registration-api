@@ -1,6 +1,7 @@
 package org.cru.crs.api.model.answer;
 
 import org.ccci.util.strings.Strings;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class AddressQuestion
 {
@@ -60,6 +61,7 @@ public class AddressQuestion
 		this.zip = zip;
 	}
 
+	@JsonIgnore
 	public boolean isEmpty()
 	{
 		return Strings.isEmpty(address1) && Strings.isEmpty(address2) && Strings.isEmpty(city) && Strings.isEmpty(state) && Strings.isEmpty(zip);
