@@ -1,10 +1,10 @@
 package org.cru.crs.model;
 
 import com.google.common.base.Strings;
-import org.cru.crs.model.block.AddressQuestion;
-import org.cru.crs.model.block.DateQuestion;
-import org.cru.crs.model.block.NameQuestion;
-import org.cru.crs.model.block.TextQuestion;
+import org.cru.crs.api.model.answer.AddressQuestion;
+import org.cru.crs.api.model.answer.DateQuestion;
+import org.cru.crs.api.model.answer.NameQuestion;
+import org.cru.crs.api.model.answer.TextQuestion;
 import org.joda.time.DateTime;
 
 import java.util.UUID;

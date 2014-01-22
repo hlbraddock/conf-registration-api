@@ -27,7 +27,7 @@ import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.model.ProfileType;
 import org.cru.crs.model.RegistrationEntity;
-import org.cru.crs.model.block.TextQuestion;
+import org.cru.crs.api.model.answer.TextQuestion;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;

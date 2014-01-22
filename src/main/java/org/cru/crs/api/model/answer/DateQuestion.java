@@ -1,4 +1,4 @@
-package org.cru.crs.model.block;
+package org.cru.crs.api.model.answer;
 
 import org.joda.time.DateTime;
 

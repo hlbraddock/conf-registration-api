@@ -14,11 +14,11 @@ import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
 import org.ccci.util.strings.Strings;
 
-import org.cru.crs.model.block.AddressQuestion;
-import org.cru.crs.model.block.BlockType;
-import org.cru.crs.model.block.DateQuestion;
-import org.cru.crs.model.block.NameQuestion;
-import org.cru.crs.model.block.TextQuestion;
+import org.cru.crs.api.model.answer.AddressQuestion;
+import org.cru.crs.api.model.answer.BlockType;
+import org.cru.crs.api.model.answer.DateQuestion;
+import org.cru.crs.api.model.answer.NameQuestion;
+import org.cru.crs.api.model.answer.TextQuestion;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.ProfileEntity;
