@@ -193,4 +193,28 @@ public class AuthorizationServiceTest
 		/*this user has no permissions on the conference, so he cannot view someone else's registration*/
 		authorizationService.authorizeRegistration(testUserRegistration, northernMichiganConference, OperationType.ADMIN, new CrsApplicationUser(UUID.randomUUID(),  null,  null));
 	}
+
+	@Test(groups="dbtest")
+	public void testNotYetRegisteredAuthorized()
+	{
+		ConferenceEntity northernMichiganConference = conferenceService.fetchConferenceBy(ConferenceInfo.Id.NorthernMichigan);
+
+		RegistrationEntity registrationEntity =
+				registrationService.getRegistrationByConferenceIdUserId(northernMichiganConference.getId(), UserInfo.Id.Ryan);
+
+		/*this user is not yet registered*/
+		authorizationService.authorizeRegistration(registrationEntity, northernMichiganConference, OperationType.CREATE, UserInfo.Users.Ryan);
+	}
+
+	@Test(groups="dbtest", expectedExceptions=UnauthorizedException.class)
+	public void testAlreadyRegisteredUnauthorized()
+	{
+		ConferenceEntity northernMichiganConference = conferenceService.fetchConferenceBy(ConferenceInfo.Id.NorthernMichigan);
+
+		RegistrationEntity registrationEntity =
+				registrationService.getRegistrationByConferenceIdUserId(northernMichiganConference.getId(), UserInfo.Id.TestUser);
+
+		/*this user is already registered*/
+		authorizationService.authorizeRegistration(registrationEntity, northernMichiganConference, OperationType.CREATE, UserInfo.Users.TestUser);
+	}
 }
