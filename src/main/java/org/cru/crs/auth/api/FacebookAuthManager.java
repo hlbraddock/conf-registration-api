@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import org.cru.crs.auth.OauthServices;
 import org.cru.crs.auth.model.FacebookUser;
 import org.cru.crs.model.SessionEntity;
-import org.cru.crs.utils.JsonUtils;
+import org.cru.crs.utils.JsonNodeHelper;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Token;
@@ -91,7 +91,15 @@ public class FacebookAuthManager extends AbstractAuthManager
 			return Response.status(response.getCode()).build();
 
 		// transform the facebook response into facebook user
-		FacebookUser facebookUser = FacebookUser.fromJsonNode(JsonUtils.jsonNodeFromString(response.getBody()), accessToken.getToken());
+		FacebookUser facebookUser = null;
+		try
+		{
+			facebookUser = FacebookUser.fromJsonNode(JsonNodeHelper.toJsonNode(response.getBody()), accessToken.getToken());
+		}
+		catch(Exception e)
+		{
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
 
         persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser);
 
