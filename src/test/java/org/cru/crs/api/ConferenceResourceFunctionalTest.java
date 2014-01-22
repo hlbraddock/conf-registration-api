@@ -41,6 +41,7 @@ import org.cru.crs.utils.ClockImpl;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
+import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
@@ -395,7 +396,7 @@ public class ConferenceResourceFunctionalTest
 
 			answerId = answerEntity.getId();
 
-			TextQuestion textQuestion = new ObjectMapper().readValue(answerEntity.getAnswer(), TextQuestion.class);
+			TextQuestion textQuestion = JsonNodeHelper.deserialize(answerEntity.getAnswer(), TextQuestion.class);
 
 			Assert.assertNotNull(textQuestion);
 			Assert.assertEquals(textQuestion.getText(), UserInfo.Email.TestUser);
