@@ -38,4 +38,4 @@ INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, titl
 INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content) values('A739C777-6989-F658-7C29-B3DD-034F6FDB','ECB5B34F-D24D-83C8-2954-2179-AC4C38F2','textQuestion',false, false, 3, 'Is capable author?','""');
 
 INSERT INTO blocks(id, page_id, block_type, admin_only, required, position, title, content, profile_type) values
-('5060D878-4741-4F21-9D25-231D-B86E43EE','506E9FCF-0A49-3F7D-3418-ACBB-F8875BE2','textQuestion', false, true, 0, 'Email address','"Your email address you scoundrel!"', 'EMAIL');
+('5060D878-4741-4F21-9D25-231D-B86E43EE','506E9FCF-0A49-3F7D-3418-ACBB-F8875BE2','emailQuestion', false, true, 0, 'Email address','"Your email address you scoundrel!"', 'EMAIL');

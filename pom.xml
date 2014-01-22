@@ -28,7 +28,7 @@
     </dependencyManagement>
 	
 	<dependencies>
-		<!-- Import external dependencies that we like -->
+        <!-- Import external dependencies that we like -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>

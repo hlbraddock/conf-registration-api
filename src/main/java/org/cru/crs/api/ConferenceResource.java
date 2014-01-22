@@ -31,6 +31,7 @@ import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.CreateConferenceProcess;
 import org.cru.crs.api.process.CreatePermissionProcess;
+import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveConferenceProcess;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
 import org.cru.crs.api.process.UpdateConferenceProcess;
@@ -77,6 +78,8 @@ public class ConferenceResource extends TransactionalResource
 	@Inject UpdateRegistrationProcess updateRegistrationProcess;
 	
 	@Inject CrsUserService crsUserService;
+
+	@Inject	ProfileProcess profileProcess;
 	
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
@@ -294,30 +297,41 @@ public class ConferenceResource extends TransactionalResource
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 		/*if the registration this conference is supposed to belong to doesn't exist, then this is a bad request*/
-		if(conferenceService.fetchConferenceBy(conferenceId) == null)
+
+		ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(conferenceId);
+		if(conferenceEntity == null)
 		{
 			throw new BadRequestException("Conference specified by: " + conferenceId + " does not exist.");
 		}
 
+		/*prep the new registration by making sure the IDs we need to know are set properly.*/
+		if(newRegistration.getId() == null) newRegistration.setId(UUID.randomUUID());
+		newRegistration.setUserId(crsLoggedInUser.getId());
+		newRegistration.setConferenceId(conferenceId);
+
 		RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
 
-		/*prep the new registration entity by making sure the IDs we need to know are set properly.*/
-		if(newRegistrationEntity.getId() == null) newRegistrationEntity.setId(UUID.randomUUID());
-		newRegistrationEntity.setUserId(crsLoggedInUser.getId());
-		newRegistrationEntity.setConferenceId(conferenceId);
+		// authorize the user
+		authorizationService.authorizeRegistration(newRegistrationEntity, conferenceEntity, OperationType.CREATE, crsLoggedInUser);
 
 		Simply.logObject(newRegistration, ConferenceResource.class);
 
 		registrationService.createNewRegistration(newRegistrationEntity);
 
+		profileProcess.populateRegistrationAnswers(newRegistration);
+
+		logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode + " after populate profile.");
+
+		Simply.logObject(newRegistration, ConferenceResource.class);
+
 		/*now perform a deep update to ensure that any answers or other payments are properly saved*/
 		updateRegistrationProcess.performDeepUpdate(newRegistration);
 
-		Registration freshCopyOfNewRegistraiton = retrieveRegistrationProcess.get(newRegistrationEntity.getId());
+		Registration freshCopyOfNewRegistration = retrieveRegistrationProcess.get(newRegistrationEntity.getId());
 
 		return Response.status(Status.CREATED)
-				.location(new URI("/pages/" + freshCopyOfNewRegistraiton.getId()))
-				.entity(freshCopyOfNewRegistraiton)
+				.location(new URI("/registrations/" + freshCopyOfNewRegistration.getId()))
+				.entity(freshCopyOfNewRegistration)
 				.build();
 	}
 	

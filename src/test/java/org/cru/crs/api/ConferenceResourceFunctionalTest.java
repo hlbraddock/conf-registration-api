@@ -1,15 +1,12 @@
 package org.cru.crs.api;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import javax.mail.MessagingException;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -19,14 +16,18 @@ import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveConferenceProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.model.ProfileType;
 import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.api.model.answer.TextQuestion;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;
@@ -34,11 +35,13 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.PermissionService;
+import org.cru.crs.service.ProfileService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.ClockImpl;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.Environment;
+import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
@@ -68,7 +71,10 @@ public class ConferenceResourceFunctionalTest
 	PageService pageService;
 	RegistrationService registrationService;
 	PermissionService permissionService;
-	
+	AnswerService answerService;
+	ProfileService profileService;
+	ProfileProcess profileProcess;
+
 	RetrieveConferenceProcess retrieveConferenceProcess;
 
 	@BeforeMethod
@@ -79,7 +85,7 @@ public class ConferenceResourceFunctionalTest
         
         sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
         
-        AnswerService answerService = new AnswerService(sqlConnection);
+        answerService = new AnswerService(sqlConnection);
         BlockService blockService = new BlockService(sqlConnection, answerService);
         ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
 
@@ -89,7 +95,12 @@ public class ConferenceResourceFunctionalTest
         conferenceService = ServiceFactory.createConferenceService(sqlConnection);
         pageService = ServiceFactory.createPageService(sqlConnection);
         registrationService = ServiceFactory.createRegistrationService(sqlConnection);
-        
+
+		profileService = new ProfileService(sqlConnection);
+		profileProcess = new ProfileProcess(blockService, profileService, pageService);
+
+		answerService = new AnswerService(sqlConnection);
+
         retrieveConferenceProcess = new RetrieveConferenceProcess(conferenceService, conferenceCostsService, pageService, blockService, new ClockImpl());
 	}
 	
@@ -332,18 +343,14 @@ public class ConferenceResourceFunctionalTest
 		UUID registrationId = null;
 		try
 		{
-			UUID userIdUUID = UserInfo.Id.Ryan;
+			Registration newRegistration = createRegistration(registrationId, UserInfo.Id.Ryan);
 
-			Registration newRegistration = createRegistration(registrationId, userIdUUID);
-
-			UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
-
-			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, conferenceUUID, UserInfo.AuthCode.Ryan);
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.Ryan);
 
 			Assert.assertEquals(response.getStatus(), 201);
 
 			String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
-			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/pages/";
+			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/registrations/";
 			registrationId =  UUID.fromString(returnedLocationHeader.substring(resourceFullPathWithoutId.length()));
 
 			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId);
@@ -360,6 +367,75 @@ public class ConferenceResourceFunctionalTest
 			sqlConnection.commit();
 		}
 
+	}
+
+	@Test(groups="functional-tests")
+	public void addRegistrationToConferencePrepopulatedFromProfile() throws URISyntaxException, IOException
+	{
+		UUID registrationId = null;
+		UUID answerId = null;
+		try
+		{
+			Registration newRegistration = createRegistration(registrationId, UserInfo.Id.TestUser);
+
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, ConferenceInfo.Id.WinterBeachCold, UserInfo.AuthCode.TestUser);
+
+			Assert.assertEquals(response.getStatus(), 201);
+
+			String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
+			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/registrations/";
+			registrationId =  UUID.fromString(returnedLocationHeader.substring(resourceFullPathWithoutId.length()));
+
+			List<AnswerEntity> answerEntities = answerService.getAllAnswersForRegistration(registrationId);
+
+			Set<BlockEntity> blockEntities = profileProcess.fetchBlocksForConference(ConferenceInfo.Id.WinterBeachCold);
+
+			UUID blockId = getBlockIdWithProfileType(blockEntities, ProfileType.EMAIL);
+
+			AnswerEntity answerEntity = getAnswerWithBlockId(answerEntities, blockId);
+
+			answerId = answerEntity.getId();
+
+			TextQuestion textQuestion = JsonNodeHelper.deserialize(answerEntity.getAnswer(), TextQuestion.class);
+
+			Assert.assertNotNull(textQuestion);
+			Assert.assertEquals(textQuestion.getText(), UserInfo.Email.TestUser);
+		}
+		finally
+		{
+			deleteAnswerForNextTests(answerId);
+			deleteRegistrationForNextTests(registrationId);
+			sqlConnection.commit();
+		}
+	}
+
+	private AnswerEntity getAnswerWithBlockId(List<AnswerEntity> answerEntities, UUID blockId)
+	{
+		for(AnswerEntity answerEntity : answerEntities)
+		{
+			if(answerEntity.getBlockId().equals(blockId))
+			{
+				return answerEntity;
+			}
+		}
+
+		throw new RuntimeException("Could not find answer for block id ");
+	}
+
+	private UUID getBlockIdWithProfileType(Set<BlockEntity> blockEntities, ProfileType profileType)
+	{
+		for(BlockEntity blockEntity : blockEntities)
+		{
+			if(profileProcess.hasProfileType(blockEntity))
+			{
+				if(blockEntity.getProfileType().equals(profileType))
+				{
+					return blockEntity.getId();
+				}
+			}
+		}
+
+		throw new RuntimeException("Could not find blcock for block with profile type " + profileType);
 	}
 
 	@Test(groups="functional-tests")
@@ -689,6 +765,16 @@ public class ConferenceResourceFunctionalTest
 			sqlConnection.createQuery("DELETE FROM conferences WHERE id = :id")
 								.addParameter("id", conferenceId)
 								.executeUpdate();
+		}
+	}
+
+	private void deleteAnswerForNextTests(UUID answerId)
+	{
+		if(answerId != null)
+		{
+			sqlConnection.createQuery("DELETE FROM answers WHERE id = :id")
+					.addParameter("id", answerId)
+					.executeUpdate();
 		}
 	}
 

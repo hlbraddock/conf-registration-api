@@ -10,21 +10,22 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.PermissionService;
+import org.cru.crs.service.RegistrationService;
 
 public class AuthorizationService
 {
 	private PermissionService permissionService;
-
+	private RegistrationService registrationService;
 	
 	public AuthorizationService()
 	{
-		
 	}
 
 	@Inject
-	public AuthorizationService(PermissionService permissionService)
+	public AuthorizationService(PermissionService permissionService, RegistrationService registrationService)
 	{
 		this.permissionService = permissionService;
+		this.registrationService = registrationService;
 	}
 
 	public void authorizeConference(ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser)
@@ -51,6 +52,8 @@ public class AuthorizationService
 
 	public void authorizeRegistration(RegistrationEntity registrationEntity, ConferenceEntity conferenceEntity, OperationType operationType, CrsApplicationUser crsApplicationUser)
 	{
+		UUID conferenceId = conferenceEntity.getId();
+
 		if(registrationEntity == null) return;
 
 		if(crsApplicationUser == null)
@@ -58,19 +61,23 @@ public class AuthorizationService
 			throw new UnauthorizedException();
 		}
 
+		if(operationType.equals(OperationType.CREATE))
+		{
+			if (registrationService.isUserRegistered(conferenceId, crsApplicationUser.getId()))	throw new UnauthorizedException();
+		}
+		if(operationType.equals(OperationType.READ))
+		{
+			if(!userOwnsRegistration(registrationEntity, crsApplicationUser.getId()) &&
+					!userCanViewConferenceRegistrationData(conferenceId, crsApplicationUser.getId())) throw new UnauthorizedException();
+		}
+		if(OperationType.CUD.contains(operationType))
+		{
+			if(!userOwnsRegistration(registrationEntity, crsApplicationUser.getId()) &&
+					!userCanUpdateConference(conferenceId, crsApplicationUser.getId())) throw new UnauthorizedException();
+		}
 		if(operationType.equals(OperationType.ADMIN))
 		{
-			if(!userCanAdministerConference(conferenceEntity.getId(), crsApplicationUser.getId())) throw new UnauthorizedException();
-		}
-		else if(OperationType.CRUDSet.contains(operationType) && !operationType.equals(OperationType.READ))
-		{
-			if(!userOwnsRegistration(registrationEntity, crsApplicationUser.getId()) &&
-			   !userCanUpdateConference(conferenceEntity.getId(), crsApplicationUser.getId())) throw new UnauthorizedException();
-		}
-		else if(operationType.equals(OperationType.READ))
-		{
-			if(!userOwnsRegistration(registrationEntity, crsApplicationUser.getId()) &&
-			   !userCanViewConferenceRegistrationData(conferenceEntity.getId(), crsApplicationUser.getId())) throw new UnauthorizedException();
+			if(!userCanAdministerConference(conferenceId, crsApplicationUser.getId())) throw new UnauthorizedException();
 		}
 	}
 

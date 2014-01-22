@@ -25,13 +25,13 @@ import javax.ws.rs.core.Response.Status;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
 import org.cru.crs.api.process.UpdateRegistrationProcess;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
@@ -53,7 +53,8 @@ public class RegistrationResource extends TransactionalResource
     
     @Inject RetrieveRegistrationProcess retrieveRegistrationProcess;
     @Inject UpdateRegistrationProcess updateRegistrationProcess;
-    
+	@Inject	ProfileProcess profileProcess;
+
     @Inject Clock clock; 
         
 	@Context HttpServletRequest request;
@@ -153,13 +154,10 @@ public class RegistrationResource extends TransactionalResource
 		{
 			logger.info("update registration :: creating");
 
-			if (registrationService.isUserRegistered(conferenceEntityForUpdatedRegistration.getId(), crsLoggedInUser.getId()))
-			{
-				throw new UnauthorizedException();
-			}
-
 			/*save the new registration to the DB*/
 			registrationService.createNewRegistration(registrationEntity);
+
+			profileProcess.populateRegistrationAnswers(registration);
 		}
 
 		updateRegistrationProcess.performDeepUpdate(registration);

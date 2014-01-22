@@ -56,7 +56,7 @@ public class UpdateRegistrationProcessTest
 		PermissionService permissionService = new PermissionService(sqlConnection);
 		ConferenceService conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, userService, permissionService);
 		ProfileService profileService = new ProfileService(sqlConnection);
-		ProfileProcess profileProcess = new ProfileProcess(blockService, profileService);
+		ProfileProcess profileProcess = new ProfileProcess(blockService, profileService, pageService);
 
 		registrationService = new RegistrationService(sqlConnection, answerService, paymentService);
 

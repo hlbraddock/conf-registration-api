@@ -122,7 +122,7 @@ public class AnswerResource extends TransactionalResource
 			{
 				authorizationService.authorizeRegistration(registrationEntity, 
 																conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()), 
-																OperationType.CREATE,
+																OperationType.UPDATE,
 																crsLoggedInUser);
 
 				logger.info("create answer with registration entity");

@@ -1,6 +1,10 @@
 package org.cru.crs.model;
 
 import com.google.common.base.Strings;
+import org.cru.crs.api.model.answer.AddressQuestion;
+import org.cru.crs.api.model.answer.DateQuestion;
+import org.cru.crs.api.model.answer.NameQuestion;
+import org.cru.crs.api.model.answer.TextQuestion;
 import org.joda.time.DateTime;
 
 import java.util.UUID;
@@ -23,7 +27,8 @@ public class ProfileEntity implements java.io.Serializable
 	private String lastName;
 	private String phone;
 	private String state;
-	private String street;
+	private String address1;
+	private String address2;
 	private String zip;
 
 	public ProfileEntity()
@@ -42,7 +47,7 @@ public class ProfileEntity implements java.io.Serializable
 		this.userId = userId;
 	}
 
-	public ProfileEntity(UUID id, UUID userId, DateTime birthDate, String campus, String city, String dormitory, String email, String firstName, String gender, DateTime graduation, String lastName, String phone, String state, String street, String zip)
+	public ProfileEntity(UUID id, UUID userId, DateTime birthDate, String campus, String city, String dormitory, String email, String firstName, String gender, DateTime graduation, String lastName, String phone, String state, String address1, String address2, String zip)
 	{
 		this(id, userId);
 
@@ -57,7 +62,8 @@ public class ProfileEntity implements java.io.Serializable
 		this.lastName = lastName;
 		this.phone = phone;
 		this.state = state;
-		this.street = street;
+		this.address1 = address1;
+		this.address2 = address2;
 		this.zip = zip;
 	}
 
@@ -191,14 +197,24 @@ public class ProfileEntity implements java.io.Serializable
 		this.state = state;
 	}
 
-	public String getStreet()
+	public String getAddress1()
 	{
-		return street;
+		return address1;
 	}
 
-	public void setStreet(String street)
+	public void setAddress1(String address1)
 	{
-		this.street = street;
+		this.address1 = address1;
+	}
+
+	public String getAddress2()
+	{
+		return address2;
+	}
+
+	public void setAddress2(String address2)
+	{
+		this.address2 = address2;
 	}
 
 	public String getZip()
@@ -209,6 +225,125 @@ public class ProfileEntity implements java.io.Serializable
 	public void setZip(String zip)
 	{
 		this.zip = zip;
+	}
+
+	public TextQuestion getTextQuestion(ProfileType profileType)
+	{
+		TextQuestion textQuestion = new TextQuestion();
+
+		switch(profileType)
+		{
+			case EMAIL:
+				textQuestion.setText(email);
+				break;
+			case PHONE:
+				textQuestion.setText(phone);
+				break;
+			case GENDER:
+				textQuestion.setText(gender);
+				break;
+			case CAMPUS:
+				textQuestion.setText(campus);
+				break;
+			case DORMITORY:
+				textQuestion.setText(dormitory);
+				break;
+			default:
+		}
+
+		return textQuestion;
+	}
+
+	public DateQuestion getDateQuestion(ProfileType profileType)
+	{
+		DateQuestion dateQuestion = new DateQuestion();
+
+		switch(profileType)
+		{
+			case BIRTH_DATE:
+				dateQuestion.setText(birthDate);
+				break;
+			case GRADUATION:
+				dateQuestion.setText(graduation);
+			default:
+		}
+
+		return dateQuestion;
+	}
+
+	public NameQuestion getNameQuestion()
+	{
+		NameQuestion nameQuestion = new NameQuestion();
+
+		nameQuestion.setFirstName(firstName);
+		nameQuestion.setLastName(lastName);
+
+		return nameQuestion;
+	}
+
+	public AddressQuestion getAddressQuestion()
+	{
+		AddressQuestion addressQuestion = new AddressQuestion();
+
+		addressQuestion.setAddress1(address1);
+		addressQuestion.setAddress2(address2);
+		addressQuestion.setCity(city);
+		addressQuestion.setState(state);
+		addressQuestion.setZip(zip);
+
+		return addressQuestion;
+	}
+
+	public void set(TextQuestion textQuestion, ProfileType profileType)
+	{
+		switch(profileType)
+		{
+			case EMAIL:
+				setEmail(textQuestion.getText());
+				break;
+			case PHONE:
+				setPhone(textQuestion.getText());
+				break;
+			case GENDER:
+				setGender(textQuestion.getText());
+				break;
+			case CAMPUS:
+				setCampus(textQuestion.getText());
+				break;
+			case DORMITORY:
+				setDormitory(textQuestion.getText());
+				break;
+			default:
+		}
+	}
+
+	public void set(DateQuestion dateQuestion, ProfileType profileType)
+	{
+		switch(profileType)
+		{
+			case BIRTH_DATE:
+				setBirthDate(dateQuestion.getText());
+				break;
+			case GRADUATION:
+				setGraduation(dateQuestion.getText());
+				break;
+			default:
+		}
+	}
+
+	public void set(NameQuestion nameQuestion)
+	{
+		firstName = nameQuestion.getFirstName();
+		lastName = nameQuestion.getLastName();
+	}
+
+	public void set(AddressQuestion addressQuestion)
+	{
+		address1 = addressQuestion.getAddress1();
+		address2 = addressQuestion.getAddress2();
+		city = addressQuestion.getCity();
+		state = addressQuestion.getState();
+		zip = addressQuestion.getZip();
 	}
 
 	public void set(ProfileEntity profileEntity)
@@ -249,8 +384,11 @@ public class ProfileEntity implements java.io.Serializable
 		if(!Strings.isNullOrEmpty(profileEntity.getState()))
 			state = profileEntity.getState();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getStreet()))
-			street = profileEntity.getStreet();
+		if(!Strings.isNullOrEmpty(profileEntity.getAddress1()))
+			address1 = profileEntity.getAddress1();
+
+		if(!Strings.isNullOrEmpty(profileEntity.getAddress2()))
+			address2 = profileEntity.getAddress2();
 
 		if(!Strings.isNullOrEmpty(profileEntity.getZip()))
 			zip = profileEntity.getZip();
@@ -264,6 +402,8 @@ public class ProfileEntity implements java.io.Serializable
 
 		ProfileEntity that = (ProfileEntity) o;
 
+		if (address1 != null ? !address1.equals(that.address1) : that.address1 != null) return false;
+		if (address2 != null ? !address2.equals(that.address2) : that.address2 != null) return false;
 		if (birthDate != null ? !birthDate.equals(that.birthDate) : that.birthDate != null) return false;
 		if (campus != null ? !campus.equals(that.campus) : that.campus != null) return false;
 		if (city != null ? !city.equals(that.city) : that.city != null) return false;
@@ -272,10 +412,10 @@ public class ProfileEntity implements java.io.Serializable
 		if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
 		if (gender != null ? !gender.equals(that.gender) : that.gender != null) return false;
 		if (graduation != null ? !graduation.equals(that.graduation) : that.graduation != null) return false;
+		if (id != null ? !id.equals(that.id) : that.id != null) return false;
 		if (lastName != null ? !lastName.equals(that.lastName) : that.lastName != null) return false;
 		if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
 		if (state != null ? !state.equals(that.state) : that.state != null) return false;
-		if (street != null ? !street.equals(that.street) : that.street != null) return false;
 		if (userId != null ? !userId.equals(that.userId) : that.userId != null) return false;
 		if (zip != null ? !zip.equals(that.zip) : that.zip != null) return false;
 
@@ -285,20 +425,22 @@ public class ProfileEntity implements java.io.Serializable
 	@Override
 	public int hashCode()
 	{
-		int result = userId != null ? userId.hashCode() : 0;
+		int result = id != null ? id.hashCode() : 0;
+		result = 31 * result + (userId != null ? userId.hashCode() : 0);
+		result = 31 * result + (birthDate != null ? birthDate.hashCode() : 0);
+		result = 31 * result + (campus != null ? campus.hashCode() : 0);
+		result = 31 * result + (city != null ? city.hashCode() : 0);
+		result = 31 * result + (dormitory != null ? dormitory.hashCode() : 0);
 		result = 31 * result + (email != null ? email.hashCode() : 0);
 		result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+		result = 31 * result + (gender != null ? gender.hashCode() : 0);
+		result = 31 * result + (graduation != null ? graduation.hashCode() : 0);
 		result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
 		result = 31 * result + (phone != null ? phone.hashCode() : 0);
-		result = 31 * result + (street != null ? street.hashCode() : 0);
-		result = 31 * result + (city != null ? city.hashCode() : 0);
 		result = 31 * result + (state != null ? state.hashCode() : 0);
+		result = 31 * result + (address1 != null ? address1.hashCode() : 0);
+		result = 31 * result + (address2 != null ? address2.hashCode() : 0);
 		result = 31 * result + (zip != null ? zip.hashCode() : 0);
-		result = 31 * result + (birthDate != null ? birthDate.hashCode() : 0);
-		result = 31 * result + (gender != null ? gender.hashCode() : 0);
-		result = 31 * result + (campus != null ? campus.hashCode() : 0);
-		result = 31 * result + (graduation != null ? graduation.hashCode() : 0);
-		result = 31 * result + (dormitory != null ? dormitory.hashCode() : 0);
 		return result;
 	}
 }

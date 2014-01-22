@@ -217,14 +217,8 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(response.getStatus(), 204);
 	}
 
-	/*
-	 * This functional test can't really test whether or not the user profile was updated with profile data from the registration
-	 * because there is no profile endpoint to query.
-	 * However, we will leave it for now, since in future, new registrations will be pre-populated with current profile data
-	 * and we can utilize this function to test when that becomes available.
-	 */
 	@Test(groups="functional-tests")
-	public void createRegistrationWithProfileOnUpdate() throws URISyntaxException
+	public void saveCompletedRegistrationToCaptureProfile() throws URISyntaxException
 	{
 		UUID registrationIdUUID = UUID.randomUUID();
 		UUID userIdUUID = UserInfo.Id.Ryan;
@@ -239,9 +233,7 @@ public class RegistrationResourceFunctionalTest
 		String firstName = "Ryan";
 		String lastName = "Carlson";
 		String jsonString = "{" +
-				"\"email\": \"" + email + "\"," +
-				"\"firstName\": \"" + firstName + "\"," +
-				"\"lastName\": \"" + lastName + "\"" +
+				"\"text\": \"" + email + "\"" +
 			"}";
 
 		JsonNode createAnswerValue = jsonNodeFromString(jsonString);
@@ -274,8 +266,6 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertNotNull(profileEntity);
 		Assert.assertEquals(profileEntity.getUserId(), UserInfo.Id.Ryan);
 		Assert.assertEquals(profileEntity.getEmail(), email);
-		Assert.assertEquals(profileEntity.getFirstName(), firstName);
-		Assert.assertEquals(profileEntity.getLastName(), lastName);
 
 		// delete created profile
 		profileService.deleteProfileByUserId(UserInfo.Id.Ryan);
