@@ -345,9 +345,7 @@ public class ConferenceResourceFunctionalTest
 		UUID registrationId = null;
 		try
 		{
-			UUID userIdUUID = UserInfo.Id.Ryan;
-
-			Registration newRegistration = createRegistration(registrationId, userIdUUID);
+			Registration newRegistration = createRegistration(registrationId, UserInfo.Id.Ryan);
 
 			UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 
@@ -382,9 +380,7 @@ public class ConferenceResourceFunctionalTest
 		UUID answerId = null;
 		try
 		{
-			UUID userIdUUID = UserInfo.Id.TestUser;
-
-			Registration newRegistration = createRegistration(registrationId, userIdUUID);
+			Registration newRegistration = createRegistration(registrationId, UserInfo.Id.TestUser);
 
 			UUID conferenceUUID = UUID.fromString("50A342D2-0D99-473A-2C3D-7046BFCDD942");
 
