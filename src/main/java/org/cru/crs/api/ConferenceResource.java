@@ -330,7 +330,7 @@ public class ConferenceResource extends TransactionalResource
 		Registration freshCopyOfNewRegistration = retrieveRegistrationProcess.get(newRegistrationEntity.getId());
 
 		return Response.status(Status.CREATED)
-				.location(new URI("/pages/" + freshCopyOfNewRegistration.getId()))
+				.location(new URI("/registrations/" + freshCopyOfNewRegistration.getId()))
 				.entity(freshCopyOfNewRegistration)
 				.build();
 	}

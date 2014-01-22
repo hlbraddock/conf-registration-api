@@ -1,15 +1,12 @@
 package org.cru.crs.api;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import javax.mail.MessagingException;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -352,7 +349,7 @@ public class ConferenceResourceFunctionalTest
 			Assert.assertEquals(response.getStatus(), 201);
 
 			String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
-			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/pages/";
+			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/registrations/";
 			registrationId =  UUID.fromString(returnedLocationHeader.substring(resourceFullPathWithoutId.length()));
 
 			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId);
@@ -385,7 +382,7 @@ public class ConferenceResourceFunctionalTest
 			Assert.assertEquals(response.getStatus(), 201);
 
 			String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
-			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/pages/";
+			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/registrations/";
 			registrationId =  UUID.fromString(returnedLocationHeader.substring(resourceFullPathWithoutId.length()));
 
 			List<AnswerEntity> answerEntities = answerService.getAllAnswersForRegistration(registrationId);
