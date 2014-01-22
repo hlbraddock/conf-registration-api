@@ -84,9 +84,9 @@ public class PaymentResource extends TransactionalResource
 				OperationType.READ,
 				crsLoggedInUser);
 
-		Simply.logObject(Payment.fromJpa(paymentEntity), this.getClass());
+		Simply.logObject(Payment.fromDb(paymentEntity), this.getClass());
 
-		return Response.ok(Payment.fromJpa(paymentEntity)).build();
+		return Response.ok(Payment.fromDb(paymentEntity)).build();
     }
 	
 	/**
@@ -131,7 +131,7 @@ public class PaymentResource extends TransactionalResource
 		if(paymentService.fetchPaymentBy(payment.getId()) == null)
 		{
 			if(payment.getId() == null) payment.setId(UUID.randomUUID());
-			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+			paymentService.createPaymentRecord(payment.toDbPaymentEntity());
 		}
 		else
 		{
@@ -145,7 +145,7 @@ public class PaymentResource extends TransactionalResource
 
 		return Response.status(Status.CREATED)
 				.location(new URI("/conferences/" + payment.getId()))
-				.entity(Payment.fromJpa(paymentService.fetchPaymentBy(payment.getId()))).build();
+				.entity(Payment.fromDb(paymentService.fetchPaymentBy(payment.getId()))).build();
 	}
 	
 	/**
@@ -193,7 +193,7 @@ public class PaymentResource extends TransactionalResource
 		if(paymentService.fetchPaymentBy(payment.getId()) == null)
 		{
 			if(payment.getId() == null) payment.setId(UUID.randomUUID());
-			paymentService.createPaymentRecord(payment.toJpaPaymentEntity());
+			paymentService.createPaymentRecord(payment.toDbPaymentEntity());
 		}
 
 		if(payment.isReadyToProcess())

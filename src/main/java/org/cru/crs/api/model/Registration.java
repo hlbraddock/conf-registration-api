@@ -78,10 +78,10 @@ public class Registration implements java.io.Serializable
 			webRegistration.pastPayments = Lists.newArrayList();
 			for(PaymentEntity dbPastPayment : dbPastPayments)
 			{
-				webRegistration.pastPayments.add(Payment.fromJpa(dbPastPayment));
+				webRegistration.pastPayments.add(Payment.fromDb(dbPastPayment));
 			}
 		}
-		webRegistration.currentPayment = Payment.fromJpa(dbCurrentPayment);
+		webRegistration.currentPayment = Payment.fromDb(dbCurrentPayment);
 		
 		return webRegistration;
 	}

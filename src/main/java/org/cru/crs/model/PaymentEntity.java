@@ -28,6 +28,8 @@ public class PaymentEntity implements Serializable
 
     private DateTime transactionTimestamp;
 
+    private PaymentType paymentType;
+    
     public UUID getId()
     {
         return id;
@@ -119,4 +121,14 @@ public class PaymentEntity implements Serializable
     {
         this.transactionTimestamp = transactionTimestamp;
     }
+
+	public PaymentType getPaymentType()
+	{
+		return paymentType;
+	}
+
+	public void setPaymentType(PaymentType paymentType)
+	{
+		this.paymentType = paymentType;
+	}
 }

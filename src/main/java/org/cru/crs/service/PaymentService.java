@@ -7,8 +7,8 @@ import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import org.ccci.util.NotImplementedException;
 import org.cru.crs.model.PaymentEntity;
-import org.cru.crs.model.queries.PaymentQueries;
 import org.sql2o.Connection;
 
 import com.google.common.base.Preconditions;
@@ -17,9 +17,7 @@ import com.google.common.base.Preconditions;
 public class PaymentService
 {
 	org.sql2o.Connection sqlConnection;
-	
-    PaymentQueries paymentQueries;
-    
+	    
 	/*Weld requires a default no args constructor to proxy this object*/
     public PaymentService(){ }
     
@@ -27,13 +25,11 @@ public class PaymentService
     public PaymentService(Connection sqlConnection)
     {
     	this.sqlConnection = sqlConnection;
-    	
-        this.paymentQueries = new PaymentQueries();
     }
 
     public PaymentEntity fetchPaymentBy(UUID id)
     {
-        return sqlConnection.createQuery(paymentQueries.selectById())
+        return sqlConnection.createQuery(PaymentQueries.selectById())
         							.addParameter("id", id)
         							.setAutoDeriveColumnNames(true)
         							.executeAndFetchFirst(PaymentEntity.class);
@@ -42,7 +38,7 @@ public class PaymentService
     public void createPaymentRecord(PaymentEntity payment)
     {
     	Preconditions.checkNotNull(payment.getRegistrationId());
-    	sqlConnection.createQuery(paymentQueries.insert())
+    	sqlConnection.createQuery(PaymentQueries.insert())
         				.addParameter("id", payment.getId())
         				.addParameter("registrationId", payment.getRegistrationId())
         				.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
@@ -52,13 +48,14 @@ public class PaymentService
         				.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
         				.addParameter("amount", payment.getAmount())
         				.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
+        				.addParameter("paymentType", (Object)payment.getPaymentType())
         				.executeUpdate();
     }
     
     public void updatePayment(PaymentEntity payment)
     {
     	Preconditions.checkNotNull(payment.getRegistrationId());
-    	sqlConnection.createQuery(paymentQueries.update())
+    	sqlConnection.createQuery(PaymentQueries.update())
     					.addParameter("id", payment.getId())
     					.addParameter("registrationId", payment.getRegistrationId())
     					.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
@@ -68,12 +65,13 @@ public class PaymentService
     					.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
     					.addParameter("amount", payment.getAmount())
     					.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
+    					.addParameter("paymentType", (Object)payment.getPaymentType())
     					.executeUpdate();
     }
     
     public List<PaymentEntity> fetchPaymentsForRegistration(UUID registrationId)
     {
-        return sqlConnection.createQuery(paymentQueries.selectAllForRegistration())
+        return sqlConnection.createQuery(PaymentQueries.selectAllForRegistration())
         			.addParameter("registrationId", registrationId)
         			.setAutoDeriveColumnNames(true)
         			.executeAndFetch(PaymentEntity.class);
@@ -91,7 +89,7 @@ public class PaymentService
     	
     	for(PaymentEntity payment : payments)
     	{
-    		sqlConnection.createQuery(paymentQueries.update())
+    		sqlConnection.createQuery(PaymentQueries.update())
     						.addParameter("id", payment.getId())
     						.addParameter("registrationId", (UUID)null)
     						.addParameter("authnetTransactionId", payment.getAuthnetTransactionId())
@@ -101,7 +99,48 @@ public class PaymentService
     						.addParameter("ccLastFourDigits", payment.getCcLastFourDigits())
     						.addParameter("amount", payment.getAmount())
     						.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
+    						.addParameter("paymentType", (Object)payment.getPaymentType())
     						.executeUpdate();
+    	}
+    }
+    
+    private static class PaymentQueries
+    {
+    	private static  String selectById()
+    	{
+    		return "SELECT * FROM payments WHERE id = :id";
+    	}
+    	
+    	private static  String selectAllForRegistration()
+    	{
+    		return "SELECT * FROM payments WHERE registration_id = :registrationId";
+    	}
+    	
+    	private static  String update()
+    	{
+    		return "UPDATE payments SET " +
+    				 "registration_id = :registrationId, " +
+    				 "authnet_transaction_id = :authnetTransactionId, " +
+    				 "cc_name_on_card = :ccNameOnCard, " +
+    				 "cc_expiration_month = :ccExpirationMonth, " +
+    				 "cc_expiration_year = :ccExpirationYear, " +
+    				 "cc_last_four_digits = :ccLastFourDigits, " +
+    				 "amount = :amount, " +
+    				 "transaction_timestamp = :transactionTimestamp, " +
+    				 "payment_type = :paymentType" +
+    				 " WHERE  " +
+    				 "id = :id";
+    	}
+
+    	private static  String insert()
+    	{
+    		return "INSERT INTO payments(id, registration_id, authnet_transaction_id, cc_name_on_card, cc_expiration_month, cc_expiration_year, cc_last_four_digits, amount, transaction_timestamp, payment_type) " + 
+    			   "VALUES (:id, :registrationId, :authnetTransactionId, :ccNameOnCard, :ccExpirationMonth, :ccExpirationYear, :ccLastFourDigits, :amount, :transactionTimestamp, :paymentType)";
+    	}
+
+    	private static String delete()
+    	{
+    		throw new NotImplementedException();
     	}
     }
 }

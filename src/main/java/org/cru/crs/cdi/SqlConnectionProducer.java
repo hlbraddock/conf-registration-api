@@ -6,6 +6,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import org.cru.crs.model.PaymentType;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.model.ProfileType;
 import org.cru.crs.utils.CrsProperties;
@@ -45,6 +46,7 @@ public class SqlConnectionProducer
 			// register with sql2o a converter for reading ProfileType
 			Convert.registerConverter(ProfileType.class, new PostgresPGObjectToEnumConverter(ProfileType.class));
 			Convert.registerConverter(PermissionLevel.class, new PostgresPGObjectToEnumConverter(PermissionLevel.class));
+			Convert.registerConverter(PaymentType.class, new PostgresPGObjectToEnumConverter(PaymentType.class));
 		}
 		return sqlConnection;
 	}
@@ -84,6 +86,7 @@ public class SqlConnectionProducer
 
 		Convert.registerConverter(ProfileType.class, new PostgresPGObjectToEnumConverter(ProfileType.class));
 		Convert.registerConverter(PermissionLevel.class, new PostgresPGObjectToEnumConverter(PermissionLevel.class));
+		Convert.registerConverter(PaymentType.class, new PostgresPGObjectToEnumConverter(PaymentType.class));
 		
 		try {
 			sqlConnection.getJdbcConnection().setAutoCommit(false);

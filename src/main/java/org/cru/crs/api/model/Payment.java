@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.model.PaymentType;
 import org.joda.time.DateTime;
 
 
@@ -27,46 +28,50 @@ public class Payment implements Serializable
     private String creditCardNumber;
     private BigDecimal amount;
     private DateTime transactionDatetime;
+    private PaymentType paymentType;
     private boolean readyToProcess;
 
-    public PaymentEntity toJpaPaymentEntity()
+    public PaymentEntity toDbPaymentEntity()
     {
-        PaymentEntity jpaPayment = new PaymentEntity();
+        PaymentEntity dbPayment = new PaymentEntity();
 
-        jpaPayment.setId(id);
-        jpaPayment.setRegistrationId(registrationId);
-        jpaPayment.setAmount(amount);
-        jpaPayment.setCcExpirationMonth(creditCardExpirationMonth);
-        jpaPayment.setCcExpirationYear(creditCardExpirationYear);
-        jpaPayment.setCcNameOnCard(creditCardNameOnCard);
+        dbPayment.setId(id);
+        dbPayment.setRegistrationId(registrationId);
+        dbPayment.setAmount(amount);
+        dbPayment.setCcExpirationMonth(creditCardExpirationMonth);
+        dbPayment.setCcExpirationYear(creditCardExpirationYear);
+        dbPayment.setCcNameOnCard(creditCardNameOnCard);
         
         if(creditCardNumber != null)
         {
-            jpaPayment.setCcLastFourDigits(creditCardNumber.substring(Math.max(0, creditCardNumber.length() - 4)));
+            dbPayment.setCcLastFourDigits(creditCardNumber.substring(Math.max(0, creditCardNumber.length() - 4)));
         }
 
-        jpaPayment.setAuthnetTransactionId(authnetTransactionId);
-        jpaPayment.setTransactionTimestamp(transactionDatetime);
-        return jpaPayment;
+        dbPayment.setAuthnetTransactionId(authnetTransactionId);
+        dbPayment.setTransactionTimestamp(transactionDatetime);
+        dbPayment.setPaymentType(paymentType);
+        
+        return dbPayment;
     }
 	
-    public static Payment fromJpa(PaymentEntity jpaPayment)
+    public static Payment fromDb(PaymentEntity dbPayment)
 	{
-		if(jpaPayment == null) return null;
+		if(dbPayment == null) return null;
     	Payment payment = new Payment();
 		
-		payment.id = jpaPayment.getId();
-		payment.registrationId = jpaPayment.getRegistrationId();
-		payment.amount = jpaPayment.getAmount();
+		payment.id = dbPayment.getId();
+		payment.registrationId = dbPayment.getRegistrationId();
+		payment.amount = dbPayment.getAmount();
 
-		payment.creditCardExpirationMonth = jpaPayment.getCcExpirationMonth();
-		payment.creditCardExpirationYear = jpaPayment.getCcExpirationYear();
-		payment.creditCardNameOnCard = jpaPayment.getCcNameOnCard();
-		payment.authnetTransactionId = jpaPayment.getAuthnetTransactionId();
-		payment.creditCardLastFourDigits = jpaPayment.getCcLastFourDigits();
-		payment.transactionDatetime = jpaPayment.getTransactionTimestamp();
+		payment.creditCardExpirationMonth = dbPayment.getCcExpirationMonth();
+		payment.creditCardExpirationYear = dbPayment.getCcExpirationYear();
+		payment.creditCardNameOnCard = dbPayment.getCcNameOnCard();
+		payment.authnetTransactionId = dbPayment.getAuthnetTransactionId();
+		payment.creditCardLastFourDigits = dbPayment.getCcLastFourDigits();
+		payment.transactionDatetime = dbPayment.getTransactionTimestamp();
+		payment.paymentType = dbPayment.getPaymentType();
 		
-		if(jpaPayment.getCcLastFourDigits() != null) payment.creditCardNumber = "****" + jpaPayment.getCcLastFourDigits();
+		if(dbPayment.getCcLastFourDigits() != null) payment.creditCardNumber = "****" + dbPayment.getCcLastFourDigits();
 				
 		return payment;
 	}
@@ -191,6 +196,16 @@ public class Payment implements Serializable
 	public void setReadyToProcess(boolean readyToProcess)
 	{
 		this.readyToProcess = readyToProcess;
+	}
+
+	public PaymentType getPaymentType()
+	{
+		return paymentType;
+	}
+
+	public void setPaymentType(PaymentType paymentType)
+	{
+		this.paymentType = paymentType;
 	}
     
 }
