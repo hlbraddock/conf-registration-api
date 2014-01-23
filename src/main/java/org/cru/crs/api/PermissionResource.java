@@ -30,7 +30,7 @@ import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 
-@Path("/permissions/{permissionId}")
+@Path("/permissions")
 public class PermissionResource extends TransactionalResource {
 
 	@Inject PermissionService permissionService;
@@ -44,6 +44,7 @@ public class PermissionResource extends TransactionalResource {
 	Logger logger = Logger.getLogger(PermissionResource.class);
 	
 	@GET
+	@Path("/{permissionId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPermission(@PathParam(value = "permissionId") UUID permissionId,
 			 @HeaderParam(value = "Authorization") String authCode) {
@@ -68,6 +69,7 @@ public class PermissionResource extends TransactionalResource {
 	}
 	
 	@PUT
+	@Path("/{permissionId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePermission(@PathParam(value = "permissionId") UUID permissionId,
 			 @HeaderParam(value = "Authorization") String authCode,
@@ -95,7 +97,21 @@ public class PermissionResource extends TransactionalResource {
 		return Response.noContent().build();
 	}
 	
+	@PUT //one could argue @POST for this, and I woudn't put up too much of a fight.
+	@Path("/{activationCode}/accept")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response acceptPermission(@PathParam(value = "activationCode") String activationCode,
+			 @HeaderParam(value = "Authorization") String authCode)
+	{
+		logger.info("accepting permission entity with code" + activationCode + "auth code" + authCode);
+		
+		updatePermissionProcess.acceptPermission(crsUserService.getLoggedInUser(authCode), activationCode);
+				
+		return Response.noContent().build();
+	}
+	
 	@DELETE
+	@Path("/{permissionId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response revokePermission(@PathParam(value = "permissionId") UUID permissionId,
 									 @HeaderParam(value = "Authorization") String authCode) {
