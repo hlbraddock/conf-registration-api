@@ -513,7 +513,7 @@ public class ConferenceResource extends TransactionalResource
 	@POST
 	@Path("/{conferenceId}/registration-views")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response saveRegistrationView(@PathParam(value = "conferenceId") UUID conferenceId,
+	public Response createRegistrationView(@PathParam(value = "conferenceId") UUID conferenceId,
 											@HeaderParam(value = "Authorization") String authCode,
 											RegistrationView newDataView) throws URISyntaxException {
 		logger.info("creating data view for conference " + conferenceId + " auth code: " + authCode);
@@ -526,13 +526,13 @@ public class ConferenceResource extends TransactionalResource
 		
 		if(conference == null) throw new BadRequestException();
 		
-		/*read might seem strange here since we're actually saving something, but the thought is that anyone 
+		/* read might seem strange here since we're actually saving something, but the thought is that anyone 
 		 * with READ access should be able to save a stored view */
 		authorizationService.authorizeConference(conference, OperationType.READ, crsLoggedInUser);
 
 		registrationViewService.insertRegistrationView(newDataView.toDbDataViewEntity());
 
-		return Response.created(new URI("/conferences/" + conferenceId + "/permissions/" + newDataView.getId()))
+		return Response.created(new URI("/conferences/" + conferenceId + "/registration-views/" + newDataView.getId()))
 						.entity(registrationViewService.getRegistrationViewById(newDataView.getId()))
 						.build();
 	}

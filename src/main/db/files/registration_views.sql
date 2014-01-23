@@ -1,7 +1,7 @@
 DROP TABLE registration_views CASCADE;
 
 CREATE TABLE registration_views(
-	id uuid,
+	id uuid not null primary key,
 	conference_id uuid references conferences(id),
 	created_by_user_id uuid references users(id),
 	name text,

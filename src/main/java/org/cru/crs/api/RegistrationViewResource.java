@@ -94,7 +94,7 @@ public class RegistrationViewResource extends TransactionalResource {
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 		RegistrationViewEntity existingRegistrationViewEntity = registrationViewService.getRegistrationViewById(registrationViewId);
 		
-		/* the permission already doesn't exist, so we're golden*/
+		/* the registration view already doesn't exist, so we're golden*/
 		if(existingRegistrationViewEntity == null) return Response.noContent().build();
 		
 		authorizationService.authorizeConference(conferenceService.fetchConferenceBy(existingRegistrationViewEntity.getConferenceId()), 
