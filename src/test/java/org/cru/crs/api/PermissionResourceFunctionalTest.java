@@ -116,24 +116,23 @@ public class PermissionResourceFunctionalTest {
 	}
 	
 	@Test(groups="functional-tests")
-	public void testDeletePermission() {
+	public void testDeletePermission()
+	{
 		PermissionEntity originalPermission = permissionService.getPermissionBy(UUID.fromString("dcb85040-76e2-11e3-981f-0800200c9a66"));
 		
-		try {
+		try
+		{
 			ClientResponse response = permissionClient.revokePermission(UUID.fromString("dcb85040-76e2-11e3-981f-0800200c9a66"), UserInfo.AuthCode.TestUser);
 			
 			Assert.assertEquals(response.getStatus(), 204);
 			
 			PermissionEntity revokedPermission = permissionService.getPermissionBy(UUID.fromString("dcb85040-76e2-11e3-981f-0800200c9a66"));
 			
-			Assert.assertNotNull(revokedPermission);
-			Assert.assertEquals(revokedPermission.getUserId(), UserInfo.Id.Ryan);
-			Assert.assertEquals(revokedPermission.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);
-			Assert.assertEquals(revokedPermission.getPermissionLevel(), PermissionLevel.NONE);
+			Assert.assertNull(revokedPermission);
 		}
-		finally {
-			originalPermission.setPermissionLevel(PermissionLevel.UPDATE);
-			permissionService.updatePermission(originalPermission);
+		finally
+		{
+			permissionService.insertPermission(originalPermission);
 			sqlConnection.commit();
 		}
 	}

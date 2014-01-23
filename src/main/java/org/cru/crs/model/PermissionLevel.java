@@ -2,7 +2,7 @@ package org.cru.crs.model;
 
 public enum PermissionLevel
 {
-	NONE, VIEW, UPDATE, FULL, CREATOR;
+	VIEW, UPDATE, FULL, CREATOR;
 	
 	public boolean isAdminOrAbove()
 	{

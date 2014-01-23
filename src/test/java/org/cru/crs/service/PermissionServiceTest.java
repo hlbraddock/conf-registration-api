@@ -3,7 +3,6 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.ccci.util.NotImplementedException;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
@@ -93,16 +92,15 @@ public class PermissionServiceTest
 			}
 		}
 	}
-	/**
-	 * FIXME: this is a dumb test (written by me) and is currently failing
-	 */
+
+
 	@Test(groups="dbtest")
 	public void testGetPermissionsForUser()
 	{
 		List<PermissionEntity> permissionsForRyan = permissionService.getPermissionsForUser(UserInfo.Id.Ryan);
 		
 		Assert.assertNotNull(permissionsForRyan);
-		Assert.assertEquals(4, permissionsForRyan.size());
+		Assert.assertEquals(permissionsForRyan.size(), 3);
 
 		for(PermissionEntity permission : permissionsForRyan) {
 			Assert.assertNotNull(permission);
@@ -146,8 +144,7 @@ public class PermissionServiceTest
 			Assert.assertEquals(retrievedPermission.getPermissionLevel(), PermissionLevel.FULL);
 			Assert.assertEquals(retrievedPermission.getLastUpdatedTimestamp(), DateTimeCreaterHelper.createDateTime(2014, 2, 14, 21, 54, 54));
 			
-			
-			Assert.assertEquals(permissionService.getPermissionsForUser(UserInfo.Id.Ryan).size(), 5);
+			Assert.assertEquals(permissionService.getPermissionsForUser(UserInfo.Id.Ryan).size(), 4);
 			Assert.assertEquals(permissionService.getPermissionsForConference(ConferenceInfo.Id.MiamiUniversity).size(), 2);
 		}
 		finally
@@ -186,12 +183,14 @@ public class PermissionServiceTest
 		}
 	}
 
-	@Test(groups="dbtest", expectedExceptions=NotImplementedException.class)
+	@Test(groups="dbtest")
 	public void testDeletePermission()
 	{
 		try
 		{
 			permissionService.deletePermission(permissionIdToRyan);
+			
+			Assert.assertNull(permissionService.getPermissionBy(permissionIdToRyan));
 		}
 		finally
 		{
