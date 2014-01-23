@@ -90,6 +90,32 @@ public class PermissionResourceFunctionalTest {
 	}
 	
 	@Test(groups="functional-tests")
+	public void testAcceptPermission()
+	{
+		PermissionEntity permissionBeforeAcceptance = permissionService.getPermissionBy(UUID.fromString("7cc69410-7eeb-11e3-baa7-0800200c9a66"));
+		
+		try
+		{
+			Assert.assertNull(permissionBeforeAcceptance.getUserId());
+			
+			ClientResponse response = permissionClient.acceptPermission("ABC123", UserInfo.AuthCode.Email);
+			
+			Assert.assertEquals(response.getStatus(), 204);
+			
+			PermissionEntity retrievedPermission = permissionService.getPermissionBy(UUID.fromString("7cc69410-7eeb-11e3-baa7-0800200c9a66"));
+			
+			Assert.assertEquals(retrievedPermission.getUserId(), UserInfo.Id.Email);
+			Assert.assertEquals(retrievedPermission.getActivationCode(), "ABC123");
+			
+		}
+		finally
+		{
+			permissionService.updatePermission(permissionBeforeAcceptance);
+			sqlConnection.commit();
+		}
+	}
+	
+	@Test(groups="functional-tests")
 	public void testDeletePermission() {
 		PermissionEntity originalPermission = permissionService.getPermissionBy(UUID.fromString("dcb85040-76e2-11e3-981f-0800200c9a66"));
 		
