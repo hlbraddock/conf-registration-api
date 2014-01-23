@@ -127,9 +127,7 @@ public class PermissionResource extends TransactionalResource {
 														OperationType.ADMIN, 
 														crsLoggedInUser);
 		
-		existingPermissionEntity.setPermissionLevel(PermissionLevel.NONE);
-		
-		updatePermissionProcess.updatePermission(Permission.fromDb(existingPermissionEntity), crsLoggedInUser);
+		permissionService.deletePermission(permissionId);
 		
 		return Response.noContent().build();
 	}

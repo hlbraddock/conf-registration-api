@@ -6,7 +6,6 @@ import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.ccci.util.NotImplementedException;
 import org.cru.crs.model.PermissionEntity;
 import org.sql2o.Connection;
 
@@ -100,7 +99,9 @@ public class PermissionService
 	
 	public void deletePermission(UUID id)
 	{
-		throw new NotImplementedException();
+		sqlConnection.createQuery(PermissionQueries.delete())
+						.addParameter("id", id)
+						.executeUpdate();
 	}
 	
 	private static class PermissionQueries
@@ -149,6 +150,11 @@ public class PermissionService
 		{
 			return "INSERT INTO permissions(id, conference_id, user_id, email_address, permission_level, given_by_user_id, activation_code, last_updated_timestamp) " +
 					"VALUES(:id, :conferenceId, :userId, :emailAddress, :permissionLevel, :givenByUserId, :activationCode, :lastUpdatedTimestamp)";
+		}
+		
+		private static String delete()
+		{
+			return "DELETE FROM permissions WHERE id = :id";
 		}
 	}
 }
