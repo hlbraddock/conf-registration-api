@@ -10,6 +10,7 @@ import javax.mail.MessagingException;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.UserService;
@@ -43,11 +44,14 @@ public class CreatePermissionProcess
 	{
 		if(newPermission.getId() == null) newPermission.withRandomID();
 		
-		permissionService.insertPermission(newPermission.setConferenceId(conferenceId)
-														.setActivationCode(AuthCodeGenerator.generate())
-														.setTimestamp(clock.currentDateTime())
-														.setGivenByUserId(permissionGrantor.getId())
-														.toDbPermissionEntity());
+		PermissionEntity dbPermission = newPermission.setConferenceId(conferenceId)
+				.setTimestamp(clock.currentDateTime())
+				.setGivenByUserId(permissionGrantor.getId())
+				.toDbPermissionEntity();
+		
+		dbPermission.setActivationCode(AuthCodeGenerator.generate());
+		
+		permissionService.insertPermission(dbPermission);
 
 	}
 	
@@ -58,15 +62,16 @@ public class CreatePermissionProcess
 		mailService.send("crs.dev@cru.org", 
 							newPermission.getEmailAddress(), 
 							PermissionEmail.subject(), 
-							PermissionEmail.body(createActivationUrl(newPermission), 
+							PermissionEmail.body(createActivationUrl(newPermission.getId()), 
 													newPermission.getPermissionLevel(),
 													conferenceService.fetchConferenceBy(newPermission.getConferenceId()),
 													userService.getUserById(newPermission.getGivenByUserId())));
 	}
 
-	private URL createActivationUrl(Permission newPermission) throws MalformedURLException
+	private URL createActivationUrl(UUID permissionId) throws MalformedURLException
 	{
-		return new URL(properties.getProperty("permissionActivationUrl") + "/" +  newPermission.getActivationCode());
+		PermissionEntity dbPermission = permissionService.getPermissionBy(permissionId);
+		return new URL(properties.getProperty("permissionActivationUrl") + "/" +  dbPermission.getActivationCode());
 	}
 
 }

@@ -24,7 +24,6 @@ public class Permission implements java.io.Serializable
 	private String emailAddress;
 	private UUID givenByUserId;
 	private PermissionLevel permissionLevel;
-	private String activationCode;
 	private DateTime timestamp;
 	
 	public static Permission fromDb(PermissionEntity dbPermission)
@@ -37,9 +36,6 @@ public class Permission implements java.io.Serializable
 		webPermission.givenByUserId = dbPermission.getGivenByUserId();
 		webPermission.timestamp = dbPermission.getLastUpdatedTimestamp();
 		webPermission.permissionLevel = dbPermission.getPermissionLevel();
-		
-		/* Setting the activationCode in the web model is intentionally omitted.  There's
-		 * no reason to ever expose activationCode to the API */
 		webPermission.emailAddress = dbPermission.getEmailAddress();
 		
 		return webPermission;
@@ -55,8 +51,6 @@ public class Permission implements java.io.Serializable
 		dbPermissionEntity.setGivenByUserId(givenByUserId);
 		dbPermissionEntity.setPermissionLevel(permissionLevel);
 		dbPermissionEntity.setLastUpdatedTimestamp(timestamp);
-		
-		dbPermissionEntity.setActivationCode(activationCode);
 		dbPermissionEntity.setEmailAddress(emailAddress);
 		
 		return dbPermissionEntity;
@@ -170,16 +164,4 @@ public class Permission implements java.io.Serializable
 		this.emailAddress = emailAddress;
 		return this;
 	}
-
-	public String getActivationCode()
-	{
-		return activationCode;
-	}
-
-	public Permission setActivationCode(String activationCode)
-	{
-		this.activationCode = activationCode;
-		return this;
-	}
-
 }
