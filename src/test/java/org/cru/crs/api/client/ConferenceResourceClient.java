@@ -21,6 +21,7 @@ import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.RegistrationView;
 import org.jboss.resteasy.client.ClientResponse;
 
 @Path("/conferences")
@@ -73,4 +74,18 @@ public interface ConferenceResourceClient
 	public ClientResponse<Permission> grantPermission(@PathParam(value = "conferenceId") UUID conferenceId,
 														@HeaderParam(value = "Authorization") String authCode,
 														Permission newPermission) throws URISyntaxException, MalformedURLException, MessagingException;
+	
+	@GET
+	@Path("/{conferenceId}/registration-views")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ClientResponse<List<RegistrationView>>  getRegistrationViews(@PathParam(value = "conferenceId") UUID conferenceId,
+									@HeaderParam(value = "Authorization") String authCode);
+	
+	@POST
+	@Path("/{conferenceId}/registration-views")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ClientResponse createRegistrationView(@PathParam(value = "conferenceId") UUID conferenceId,
+											@HeaderParam(value = "Authorization") String authCode,
+											RegistrationView newDataView) throws URISyntaxException;
 }

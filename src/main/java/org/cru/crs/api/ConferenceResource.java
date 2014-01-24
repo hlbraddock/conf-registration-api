@@ -513,6 +513,7 @@ public class ConferenceResource extends TransactionalResource
 	@POST
 	@Path("/{conferenceId}/registration-views")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response createRegistrationView(@PathParam(value = "conferenceId") UUID conferenceId,
 											@HeaderParam(value = "Authorization") String authCode,
 											RegistrationView newDataView) throws URISyntaxException {
@@ -533,7 +534,7 @@ public class ConferenceResource extends TransactionalResource
 		registrationViewService.insertRegistrationView(newDataView.toDbDataViewEntity());
 
 		return Response.created(new URI("/conferences/" + conferenceId + "/registration-views/" + newDataView.getId()))
-						.entity(registrationViewService.getRegistrationViewById(newDataView.getId()))
+						.entity(RegistrationView.fromDb(registrationViewService.getRegistrationViewById(newDataView.getId())))
 						.build();
 	}
 }
