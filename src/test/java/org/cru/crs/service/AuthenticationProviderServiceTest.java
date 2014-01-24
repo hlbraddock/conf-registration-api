@@ -90,7 +90,8 @@ public class AuthenticationProviderServiceTest
 		newRelayUser.setLastName("User");
 		newRelayUser.setAuthenticationProviderType(AuthenticationProviderType.RELAY);
 		newRelayUser.setUsername("unittest.fred@cru.org");
-		
+		newRelayUser.setEmail("unittest.fred@cru.org");
+
 		try
 		{
 			// create the user and auth provider entities
