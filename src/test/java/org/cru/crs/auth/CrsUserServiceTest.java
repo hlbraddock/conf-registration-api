@@ -78,10 +78,11 @@ public class CrsUserServiceTest
 		TestAuthManager testAuthManager = TestAuthManager.getInstance(sessionService, authenticationProviderService, clock, profileService, userService);
 
 		String username = "clive.staples@oxford.edu";
+		String email = "clive.staples@oxford.edu";
 		String first = "Clive";
 		String last = "Lewis";
 
-		AuthenticationProviderUser authenticationProviderUser = RelayUser.fromAuthId(AuthCodeGenerator.generate(), username, first, last);
+		AuthenticationProviderUser authenticationProviderUser = RelayUser.fromAuthId(AuthCodeGenerator.generate(), username, email, first, last);
 
 		String authCode = testAuthManager.login(authenticationProviderUser);
 

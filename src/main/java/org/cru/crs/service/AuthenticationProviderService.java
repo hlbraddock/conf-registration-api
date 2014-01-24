@@ -41,6 +41,7 @@ public class AuthenticationProviderService
 								.executeAndFetchFirst(AuthenticationProviderIdentityEntity.class);
 	}
 
+
 	/**
 	 * Finds record in auth_provider_identities based on the auth provider's id of the user.
 	 *  ex: relay sso guid or facebook id.
@@ -73,6 +74,7 @@ public class AuthenticationProviderService
 				.addParameter("authProviderUserAccessToken", authenticationProviderIdentityEntity.getAuthProviderUserAccessToken())
 				.addParameter("authProviderName", authenticationProviderIdentityEntity.getAuthProviderName())
 				.addParameter("username", authenticationProviderIdentityEntity.getUsername())
+				.addParameter("email", authenticationProviderIdentityEntity.getEmail())
 				.addParameter("firstName", authenticationProviderIdentityEntity.getFirstName())
 				.addParameter("lastName", authenticationProviderIdentityEntity.getLastName())
 				.executeUpdate();

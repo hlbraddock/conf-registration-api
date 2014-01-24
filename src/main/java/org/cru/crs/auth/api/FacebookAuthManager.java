@@ -13,10 +13,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.codehaus.jackson.JsonNode;
 import org.cru.crs.auth.OauthServices;
 import org.cru.crs.auth.model.FacebookUser;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.JsonNodeHelper;
+import org.cru.crs.utils.Simply;
+import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Token;
@@ -41,7 +44,13 @@ public class FacebookAuthManager extends AbstractAuthManager
 		String apiSecret = crsProperties.getProperty("facebookAppSecret");
 
 		// get oauth service
-		OAuthService service = OauthServices.build(FacebookApi.class, getUrlWithService(httpServletRequest, "login").toString(), apiKey, apiSecret);
+		OAuthService service = new ServiceBuilder()
+				.provider(FacebookApi.class)
+				.apiKey(apiKey)
+				.apiSecret(apiSecret)
+				.callback(getUrlWithService(httpServletRequest, "login").toString())
+				.scope("email")
+				.build();
 
 		// get authorization url for identity provider
 		String authorizationUrl = service.getAuthorizationUrl(null);
@@ -94,7 +103,9 @@ public class FacebookAuthManager extends AbstractAuthManager
 		FacebookUser facebookUser = null;
 		try
 		{
-			facebookUser = FacebookUser.fromJsonNode(JsonNodeHelper.toJsonNode(response.getBody()), accessToken.getToken());
+			JsonNode jsonNodeFacebookUser = JsonNodeHelper.toJsonNode(response.getBody());
+
+			facebookUser = new FacebookUser(jsonNodeFacebookUser, accessToken.getToken());
 		}
 		catch(Exception e)
 		{

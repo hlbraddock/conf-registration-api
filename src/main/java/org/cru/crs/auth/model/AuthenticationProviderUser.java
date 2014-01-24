@@ -13,6 +13,7 @@ public abstract class AuthenticationProviderUser
 	protected String firstName;
 	protected String lastName;
 	protected String username;
+	protected String email;
 	protected String accessToken;
 	protected AuthenticationProviderType authenticationProviderType;
 
@@ -28,6 +29,7 @@ public abstract class AuthenticationProviderUser
 		authProviderIdentityEntity.setUsername(getUsername());
 		authProviderIdentityEntity.setFirstName(getFirstName());
 		authProviderIdentityEntity.setLastName(getLastName());
+		authProviderIdentityEntity.setEmail(getEmail());
 
 		return authProviderIdentityEntity;
 	}
@@ -36,8 +38,7 @@ public abstract class AuthenticationProviderUser
 	{
 		UserEntity userEntity = new UserEntity();
 
-		if(getAuthenticationProviderType() == AuthenticationProviderType.RELAY)
-			userEntity.setEmailAddress(getUsername());
+		userEntity.setEmailAddress(getEmail());
 
 		userEntity.setFirstName(getFirstName());
 
@@ -52,10 +53,10 @@ public abstract class AuthenticationProviderUser
 
 		profileEntity.setUserId(userId);
 
-		if(getAuthenticationProviderType().equals(AuthenticationProviderType.RELAY))
-			profileEntity.setEmail(getUsername());
+		profileEntity.setEmail(getEmail());
 
 		profileEntity.setFirstName(getFirstName());
+
 		profileEntity.setLastName(getLastName());
 
 		return profileEntity;
@@ -76,6 +77,10 @@ public abstract class AuthenticationProviderUser
 	public String getUsername()
 	{
 		return username;
+	}
+	public String getEmail()
+	{
+		return email;
 	}
 	public AuthenticationProviderType getAuthenticationProviderType()
 	{
@@ -100,6 +105,10 @@ public abstract class AuthenticationProviderUser
 	public void setUsername(String username)
 	{
 		this.username = username;
+	}
+	public void setEmail(String email)
+	{
+		this.email = email;
 	}
 	public void setAccessToken(String accessToken)
 	{

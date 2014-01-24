@@ -19,6 +19,7 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	private String authProviderName;
 
 	private String username;
+	private String email;
 	private String firstName;	
 	private String lastName;
 	
@@ -70,6 +71,14 @@ public class AuthenticationProviderIdentityEntity implements java.io.Serializabl
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	
-	
+
+	public String getEmail()
+	{
+		return email;
+	}
+
+	public void setEmail(String email)
+	{
+		this.email = email;
+	}
 }
