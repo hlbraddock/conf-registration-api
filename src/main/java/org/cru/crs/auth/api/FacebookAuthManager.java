@@ -18,6 +18,7 @@ import org.cru.crs.auth.OauthServices;
 import org.cru.crs.auth.model.FacebookUser;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.JsonNodeHelper;
+import org.cru.crs.utils.Simply;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
@@ -86,7 +87,7 @@ public class FacebookAuthManager extends AbstractAuthManager
 		}
 
 		// build request
-		OAuthRequest request = new OAuthRequest(Verb.GET, "https://graph.facebook.com/me?scope=email");
+		OAuthRequest request = new OAuthRequest(Verb.GET, "https://graph.facebook.com/me");
 
 		// sign in to facebook on behalf of user using access token
 		service.signRequest(accessToken, request);
@@ -110,6 +111,8 @@ public class FacebookAuthManager extends AbstractAuthManager
 		{
 			return Response.status(Response.Status.UNAUTHORIZED).build();
 		}
+
+		Simply.logObject(facebookUser);
 
         persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser);
 
