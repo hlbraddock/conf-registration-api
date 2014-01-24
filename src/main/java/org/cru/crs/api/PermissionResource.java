@@ -23,7 +23,6 @@ import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.PermissionEntity;
-import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PermissionService;
 import org.cru.crs.utils.IdComparer;
@@ -112,7 +111,6 @@ public class PermissionResource extends TransactionalResource {
 	
 	@DELETE
 	@Path("/{permissionId}")
-	@Consumes(MediaType.APPLICATION_JSON)
 	public Response revokePermission(@PathParam(value = "permissionId") UUID permissionId,
 									 @HeaderParam(value = "Authorization") String authCode) {
 		logger.info("revoking permission entity " + permissionId + "auth code" + authCode);

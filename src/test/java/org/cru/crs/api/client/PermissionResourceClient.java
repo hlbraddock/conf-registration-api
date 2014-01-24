@@ -40,7 +40,6 @@ public interface PermissionResourceClient {
 	
 	@DELETE
 	@Path("/{permissionId}")
-	@Consumes(MediaType.APPLICATION_JSON)
 	public ClientResponse revokePermission(@PathParam(value = "permissionId") UUID permissionId,
 									 @HeaderParam(value = "Authorization") String authCode);
 	
