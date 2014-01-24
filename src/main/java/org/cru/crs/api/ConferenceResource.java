@@ -268,7 +268,7 @@ public class ConferenceResource extends TransactionalResource
 		
 		pageService.savePage(newPage.toDbPageEntity());
 
-		PageEntity createdPage = pageService.fetchPageBy(newPage.getId());
+		PageEntity createdPage = pageService.getPageById(newPage.getId());
 
 		return Response.status(Status.CREATED)
 				.location(new URI("/pages/" + newPage.getId()))

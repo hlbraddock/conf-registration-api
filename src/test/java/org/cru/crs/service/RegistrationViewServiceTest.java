@@ -16,18 +16,21 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class RegistrationViewServiceTest {
+public class RegistrationViewServiceTest
+{
 	Connection sqlConnection;
 	RegistrationViewService registrationViewService;
 
 	@BeforeMethod(alwaysRun=true)
-	private void setupConnectionAndService() {	
+	private void setupConnectionAndService()
+	{	
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		registrationViewService = ServiceFactory.createRegistrationViewService(sqlConnection);
 	}
 	
 	@Test(groups="dbtest")
-	public void testGetDataViewById() throws JsonProcessingException, IOException {
+	public void testGetDataViewById() throws JsonProcessingException, IOException
+	{
 		RegistrationViewEntity noCats = registrationViewService.getRegistrationViewById(UUID.fromString("11cfdedf-febc-4011-9b48-44d36bf94997"));
 		
 		Assert.assertNotNull(noCats);
@@ -35,11 +38,12 @@ public class RegistrationViewServiceTest {
 		Assert.assertEquals(noCats.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);
 		Assert.assertEquals(noCats.getCreatedByUserId(), UserInfo.Id.TestUser);
 		Assert.assertEquals(noCats.getName(), "No cats");
-		Assert.assertEquals(noCats.getVisibleBlockIds(), JsonNodeHelper.toJsonNode("[\"AF60D878-4741-4F21-9D25-231D-B86E43EE\",\"DDA45720-DE87-C419-933A-0187-12B152D2\"]"));
+		Assert.assertEquals(noCats.getVisibleBlockIds(), JsonNodeHelper.toJsonNode("[\"AF60D878-4741-4F21-9D25-231DB86E43EE\",\"DDA45720-DE87-C419-933A-018712B152D2\"]"));
 	}
 	
 	@Test(groups="dbtest")
-	public void testGetDataViewsForConference() {
+	public void testGetDataViewsForConference()
+	{
 		List<RegistrationViewEntity> northernMichiganDataViews =  registrationViewService.getRegistrationViewsForConference(ConferenceInfo.Id.NorthernMichigan);
 		
 		Assert.assertNotNull(northernMichiganDataViews);
@@ -47,10 +51,12 @@ public class RegistrationViewServiceTest {
 	}
 	
 	@Test(groups="dbtest")
-	public void testInsertDataView() throws JsonProcessingException, IOException {
+	public void testInsertDataView() throws JsonProcessingException, IOException
+	{
 		UUID idForThisTest = UUID.randomUUID();
 		
-		try {
+		try
+		{
 			registrationViewService.insertRegistrationView(createFakeDataView(idForThisTest));
 			
 			RegistrationViewEntity retrievedDataView = registrationViewService.getRegistrationViewById(idForThisTest);
@@ -59,17 +65,19 @@ public class RegistrationViewServiceTest {
 			Assert.assertEquals(retrievedDataView.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);
 			Assert.assertEquals(retrievedDataView.getCreatedByUserId(), UserInfo.Id.TestUser);
 			Assert.assertEquals(retrievedDataView.getName(), "Foo");
-			Assert.assertEquals(retrievedDataView.getVisibleBlockIds(), JsonNodeHelper.toJsonNode("[\"DDA45720-DE87-C419-933A-0187-12B152DC\"]"));
+			Assert.assertEquals(retrievedDataView.getVisibleBlockIds(), JsonNodeHelper.toJsonNode("[\"DDA45720-DE87-C419-933A-018712B152DC\"]"));
 		}
-		
-		finally {
+		finally
+		{
 			sqlConnection.rollback();
 		}
 	}
 	
 	@Test(groups="dbtest")
-	public void testUpdateDataView() {
-		try {
+	public void testUpdateDataView()
+	{
+		try
+		{
 			RegistrationViewEntity noCats = registrationViewService.getRegistrationViewById(UUID.fromString("11cfdedf-febc-4011-9b48-44d36bf94997"));
 			
 			noCats.setName("No kitties");
@@ -80,31 +88,36 @@ public class RegistrationViewServiceTest {
 			
 			Assert.assertEquals(retrievedDataView.getName(), "No kitties");
 		}
-		finally {
+		finally
+		{
 			sqlConnection.rollback();
 		}
 	}
 	
 	@Test(groups="dbtest")
-	public void testDeleteDataView() {
-		try {
+	public void testDeleteDataView()
+	{
+		try
+		{
 			registrationViewService.deleteRegistrationView(UUID.fromString("11cfdedf-febc-4011-9b48-44d36bf94997"));
 			
 			Assert.assertNull(registrationViewService.getRegistrationViewById(UUID.fromString("11cfdedf-febc-4011-9b48-44d36bf94997")));
 		}
-		finally {
+		finally
+		{
 			sqlConnection.rollback();
 		}
 	}
 
-	private RegistrationViewEntity createFakeDataView(UUID id) throws JsonProcessingException, IOException {
+	private RegistrationViewEntity createFakeDataView(UUID id) throws JsonProcessingException, IOException
+	{
 		RegistrationViewEntity dataView = new RegistrationViewEntity();
 		
 		dataView.setId(id);
 		dataView.setConferenceId(ConferenceInfo.Id.NorthernMichigan);
 		dataView.setCreatedByUserId(UserInfo.Id.TestUser);
 		dataView.setName("Foo");
-		dataView.setVisibleBlockIds(JsonNodeHelper.toJsonNode("[\"DDA45720-DE87-C419-933A-0187-12B152DC\"]"));
+		dataView.setVisibleBlockIds(JsonNodeHelper.toJsonNode("[\"DDA45720-DE87-C419-933A-018712B152DC\"]"));
 		
 		return dataView;
 	}

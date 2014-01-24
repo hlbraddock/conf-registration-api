@@ -26,7 +26,7 @@ public class PageServiceTest
 	@Test(groups="dbtest")
 	public void testFetchAboutYourCatPage()
 	{
-		PageEntity pageEntity = pageService.fetchPageBy(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+		PageEntity pageEntity = pageService.getPageById(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 		
 		Assert.assertNotNull(pageEntity);
 		Assert.assertEquals(pageEntity.getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
@@ -79,7 +79,7 @@ public class PageServiceTest
 		{
 			pageService.savePage(newPage);
 			
-			PageEntity savedPage = pageService.fetchPageBy(id);
+			PageEntity savedPage = pageService.getPageById(id);
 			
 			Assert.assertNotNull(savedPage);
 			Assert.assertEquals(savedPage.getId(), id);
@@ -109,7 +109,7 @@ public class PageServiceTest
 		{
 			pageService.updatePage(updatedAboutYouPage);
 			
-			PageEntity updatedPage = pageService.fetchPageBy(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
+			PageEntity updatedPage = pageService.getPageById(UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
 			
 			Assert.assertNotNull(updatedPage);
 			Assert.assertEquals(updatedPage.getId(), UUID.fromString("0a00d62c-af29-3723-f949-95a950a0b27c"));
@@ -130,7 +130,7 @@ public class PageServiceTest
 		{
 			pageService.deletePage(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5"));
 			
-			Assert.assertNull(pageService.fetchPageBy(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5")));
+			Assert.assertNull(pageService.getPageById(UUID.fromString("7dae078f-a131-471e-bb70-5156b62ddea5")));
 			Assert.assertEquals(pageService.fetchPagesForConference(ConferenceInfo.Id.NorthernMichigan).size(), 2);
 		}
 		finally

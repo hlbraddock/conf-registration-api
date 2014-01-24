@@ -94,7 +94,7 @@ public class ProfileProcess
 	{
 		for (Answer answer : answers)
 		{
-			BlockEntity blockEntity = blockService.fetchBlockBy(answer.getBlockId());
+			BlockEntity blockEntity = blockService.getBlockById(answer.getBlockId());
 
 			if (hasProfileType(blockEntity))
 			{
@@ -208,7 +208,7 @@ public class ProfileProcess
 
 		for (Answer answer : answers)
 		{
-			BlockEntity blockEntity = blockService.fetchBlockBy(answer.getBlockId());
+			BlockEntity blockEntity = blockService.getBlockById(answer.getBlockId());
 
 			if (hasProfileType(blockEntity))
 			{

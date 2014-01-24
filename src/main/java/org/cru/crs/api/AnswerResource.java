@@ -99,7 +99,7 @@ public class AnswerResource extends TransactionalResource
             /*if the block for which this answer is related to has been deleted, then return
             an appropriate error client error message
              */
-            if(blockService.fetchBlockBy(answer.getBlockId()) == null)
+            if(blockService.getBlockById(answer.getBlockId()) == null)
 			{
 				return Response.status(Status.GONE).build();
 			}

@@ -56,7 +56,7 @@ public class RegistrationViewResourceFunctionalTest {
 		Assert.assertEquals(registrationView.getName(), "No cats");
 		Assert.assertEquals(registrationView.getCreatedByUserId(), UserInfo.Id.TestUser);
 		Assert.assertEquals(registrationView.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);
-		Assert.assertEquals(registrationView.getVisibleBlockIds(), JsonNodeHelper.toJsonNode("[\"AF60D878-4741-4F21-9D25-231D-B86E43EE\",\"DDA45720-DE87-C419-933A-0187-12B152D2\"]"));
+		Assert.assertEquals(registrationView.getVisibleBlockIds(), JsonNodeHelper.toJsonNode("[\"AF60D878-4741-4F21-9D25-231DB86E43EE\",\"DDA45720-DE87-C419-933A-018712B152D2\"]"));
 	}
 	
 	@Test(groups="functional-tests")

@@ -35,7 +35,7 @@ public class BlockResource extends TransactionalResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getBlock(@PathParam(value="blockId") UUID blockId)
 	{
-		BlockEntity requestedBlock = blockService.fetchBlockBy(blockId);
+		BlockEntity requestedBlock = blockService.getBlockById(blockId);
 
 		if(requestedBlock == null)
 		{
