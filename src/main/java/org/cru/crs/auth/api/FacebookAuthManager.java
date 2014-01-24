@@ -112,8 +112,6 @@ public class FacebookAuthManager extends AbstractAuthManager
 			return Response.status(Response.Status.UNAUTHORIZED).build();
 		}
 
-		Simply.logObject(facebookUser);
-
         persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser);
 
 		SessionEntity sessionEntity = persistSession(facebookUser);
