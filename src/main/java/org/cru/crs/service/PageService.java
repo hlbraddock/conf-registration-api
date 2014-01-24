@@ -33,7 +33,7 @@ public class PageService
 		this.pageQueries = new PageQueries();
 	}
 	
-	public PageEntity fetchPageBy(UUID id)
+	public PageEntity getPageById(UUID id)
 	{
 		return sqlConnection.createQuery(pageQueries.selectById(), false)
 						.addParameter("id", id)

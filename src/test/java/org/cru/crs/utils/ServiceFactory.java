@@ -8,12 +8,15 @@ import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.RegistrationService;
+import org.cru.crs.service.RegistrationViewService;
 import org.cru.crs.service.UserService;
 import org.sql2o.Connection;
 
-public class ServiceFactory {
+public class ServiceFactory
+{
 	
-	public static ConferenceService createConferenceService(Connection sqlConnection) {
+	public static ConferenceService createConferenceService(Connection sqlConnection)
+	{
 		return new ConferenceService(sqlConnection,
 				createConferenceCostsService(sqlConnection),
 				createPageService(sqlConnection), 
@@ -21,32 +24,44 @@ public class ServiceFactory {
 				createPermissionService(sqlConnection));
 	}
 	
-	public static PageService createPageService(Connection sqlConnection) {
+	public static PageService createPageService(Connection sqlConnection)
+	{
 		return new PageService(sqlConnection, createBlockService(sqlConnection));
 	}
 
-	public static BlockService createBlockService(Connection sqlConnection) {
+	public static BlockService createBlockService(Connection sqlConnection)
+	{
 		 return new BlockService(sqlConnection, createAnswerService(sqlConnection));
 	}
 
-	public static ConferenceCostsService createConferenceCostsService(Connection sqlConnection) {
+	public static ConferenceCostsService createConferenceCostsService(Connection sqlConnection)
+	{
 		return new ConferenceCostsService(sqlConnection);
 	}
 
-	public static PermissionService createPermissionService(Connection sqlConnection) {
+	public static PermissionService createPermissionService(Connection sqlConnection)
+	{
 		return new PermissionService(sqlConnection);
 	}
 
-	public static UserService createUserService(Connection sqlConnection) {
+	public static UserService createUserService(Connection sqlConnection)
+	{
 		return new UserService(sqlConnection);
 	}
 	
-	public static RegistrationService createRegistrationService(Connection sqlConnection) {
+	public static RegistrationService createRegistrationService(Connection sqlConnection)
+	{
 		return new RegistrationService(sqlConnection, createAnswerService(sqlConnection), new PaymentService(sqlConnection));
 	}
 	
-	private static AnswerService createAnswerService(Connection sqlConnection) {
+	public static AnswerService createAnswerService(Connection sqlConnection)
+	{
 		return new AnswerService(sqlConnection);
+	}
+	
+	public static RegistrationViewService createRegistrationViewService(Connection sqlConnection)
+	{
+		return new RegistrationViewService(sqlConnection, createPageService(sqlConnection), createBlockService(sqlConnection));
 	}
 
 }

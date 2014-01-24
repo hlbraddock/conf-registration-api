@@ -32,7 +32,7 @@ public class BlockService
 		this.blockQueries = new BlockQueries();
 	}
 	
-	public BlockEntity fetchBlockBy(UUID blockId)
+	public BlockEntity getBlockById(UUID blockId)
 	{
 		return sqlConnection.createQuery(blockQueries.selectById(), false)
 								.addParameter("id", blockId)

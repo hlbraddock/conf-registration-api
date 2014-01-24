@@ -26,7 +26,7 @@ public class BlockServiceTest
 	@Test(groups="dbtest")
 	public void testFetchYearInSchoolBlock() throws Exception
 	{
-		BlockEntity yearInSchoolBlock = blockService.fetchBlockBy(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1"));
+		BlockEntity yearInSchoolBlock = blockService.getBlockById(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1"));
 		
 		Assert.assertNotNull(yearInSchoolBlock);
 		
@@ -90,7 +90,7 @@ public class BlockServiceTest
 		{
 			blockService.saveBlock(newBlock);
 			
-			BlockEntity retrievedBlock = blockService.fetchBlockBy(id);
+			BlockEntity retrievedBlock = blockService.getBlockById(id);
 			
 			Assert.assertNotNull(retrievedBlock);
 			Assert.assertEquals(retrievedBlock.getId(), id);
@@ -126,7 +126,7 @@ public class BlockServiceTest
 		{
 			blockService.updateBlock(updatedCatsNameBlock);
 			
-			BlockEntity updatedBlock = blockService.fetchBlockBy(UUID.fromString("dda45720-de87-c419-933a-018712b152dc"));
+			BlockEntity updatedBlock = blockService.getBlockById(UUID.fromString("dda45720-de87-c419-933a-018712b152dc"));
 			
 			Assert.assertNotNull(updatedBlock);
 			Assert.assertEquals(updatedBlock.getId(), UUID.fromString("dda45720-de87-c419-933a-018712b152dc"));
@@ -150,7 +150,7 @@ public class BlockServiceTest
 		{
 			blockService.deleteBlock(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1"));
 			
-			Assert.assertNull(blockService.fetchBlockBy(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1")));
+			Assert.assertNull(blockService.getBlockById(UUID.fromString("a229c854-6989-f658-7c29-b3dd034f6fd1")));
 			Assert.assertEquals(blockService.fetchBlocksForPage(UUID.fromString("7a52af36-2f3c-5e45-9f76-0af10ff50bb8")).size(), 3);
 		}
 		finally

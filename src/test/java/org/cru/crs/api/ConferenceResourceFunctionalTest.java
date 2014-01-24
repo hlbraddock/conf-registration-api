@@ -16,6 +16,8 @@ import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.model.RegistrationView;
+import org.cru.crs.api.model.answer.TextQuestion;
 import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveConferenceProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
@@ -27,7 +29,7 @@ import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.model.ProfileType;
 import org.cru.crs.model.RegistrationEntity;
-import org.cru.crs.api.model.answer.TextQuestion;
+import org.cru.crs.model.RegistrationViewEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;
@@ -115,7 +117,7 @@ public class ConferenceResourceFunctionalTest
 	 * by the authenticated user in the session
 	 */
 	@Test(groups="functional-tests")
-	public void fetchAllTheConferences()
+	public void getAllTheConferences()
 	{
 		ClientResponse<List<Conference>> response = conferenceClient.getConferences(UserInfo.AuthCode.TestUser);
 		
@@ -146,7 +148,7 @@ public class ConferenceResourceFunctionalTest
 	 * Expected return: 200 - OK and conference JSON resource specified by ID
 	 */
 	@Test(groups="functional-tests")
-	public void fetchConferenceById()
+	public void getConferenceById()
 	{
 		ClientResponse<Conference> response = conferenceClient.getConference(ConferenceInfo.Id.NewYork);
 		
@@ -635,6 +637,70 @@ public class ConferenceResourceFunctionalTest
 		}
 	}
 	
+	@Test(groups="functional-tests")
+	public void getRegistrationViews() throws IOException
+	{
+		ClientResponse<List<RegistrationView>> response = conferenceClient.getRegistrationViews(ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.TestUser);
+		
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		List<RegistrationView> registrationViews = response.getEntity();
+		
+		Assert.assertEquals(registrationViews.size(), 2);
+		
+		for(RegistrationView view : registrationViews)
+		{
+			if(view.getId().equals(UUID.fromString("11cfdedf-febc-4011-9b48-44d36bf94997")))
+			{
+				Assert.assertEquals(view.getName(), "No cats");
+				Assert.assertEquals(view.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);
+				Assert.assertEquals(view.getCreatedByUserId(), UserInfo.Id.TestUser);
+				Assert.assertEquals(view.getVisibleBlockIds(), JsonNodeHelper.toJsonNode("[\"AF60D878-4741-4F21-9D25-231DB86E43EE\",\"DDA45720-DE87-C419-933A-018712B152D2\"]"));
+			}
+		}
+	}
+	
+	@Test(groups="functional-tests")
+	public void createRegistrationView() throws IOException, URISyntaxException
+	{
+		RegistrationView view = createFakeRegistrationView();
+		
+		try
+		{
+			ClientResponse response = conferenceClient.createRegistrationView(ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.TestUser, view);
+			
+			Assert.assertEquals(response.getStatus(), 201);
+			
+			RegistrationViewEntity retrievedView = ServiceFactory.createRegistrationViewService(sqlConnection).getRegistrationViewById(view.getId());
+			
+			Assert.assertNotNull(retrievedView);
+			
+			Assert.assertEquals(retrievedView.getId(), view.getId());
+			Assert.assertEquals(retrievedView.getName(), view.getName());
+			Assert.assertEquals(retrievedView.getConferenceId(), view.getConferenceId());
+			Assert.assertEquals(retrievedView.getCreatedByUserId(),  view.getCreatedByUserId());
+			Assert.assertEquals(retrievedView.getVisibleBlockIds(), view.getVisibleBlockIds());
+			
+		}
+		finally
+		{
+			 ServiceFactory.createRegistrationViewService(sqlConnection).deleteRegistrationView(view.getId());
+			 sqlConnection.commit();
+		}
+	}
+	
+	private RegistrationView createFakeRegistrationView() throws IOException
+	{
+		RegistrationView view = new RegistrationView();
+		
+		view.setId(UUID.randomUUID());
+		view.setConferenceId(ConferenceInfo.Id.NorthernMichigan);
+		view.setCreatedByUserId(UserInfo.Id.TestUser);
+		view.setName("New view");
+		view.setVisibleBlockIds(JsonNodeHelper.toJsonNode("[\"AF60D878-4741-4F21-9D25-231DB86E43EE\"]"));
+		
+		return view;
+	}
 	private Permission createPermission()
 	{
 		return new Permission().withRandomID()

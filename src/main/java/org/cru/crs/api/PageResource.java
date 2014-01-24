@@ -32,7 +32,7 @@ public class PageResource extends TransactionalResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPage(@PathParam(value="pageId") UUID pageId)
 	{
-		PageEntity requestedPage = pageService.fetchPageBy(pageId);
+		PageEntity requestedPage = pageService.getPageById(pageId);
 
 		if(requestedPage == null)
 		{
