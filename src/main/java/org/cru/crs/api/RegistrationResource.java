@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response.Status;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.api.process.NotificationProcess;
 import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
 import org.cru.crs.api.process.UpdateRegistrationProcess;
@@ -37,6 +38,7 @@ import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.RegistrationService;
+import org.cru.crs.service.UserService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
@@ -46,14 +48,16 @@ public class RegistrationResource extends TransactionalResource
 {
 	@Inject RegistrationService registrationService;
 	@Inject ConferenceService conferenceService;
-	@Inject CrsUserService userService;
-    @Inject AnswerService answerService;
-    
+	@Inject CrsUserService crsUserService;
+	@Inject AnswerService answerService;
+	@Inject	UserService userService;
+
     @Inject AuthorizationService authorizationService;
-    
+
     @Inject RetrieveRegistrationProcess retrieveRegistrationProcess;
     @Inject UpdateRegistrationProcess updateRegistrationProcess;
 	@Inject	ProfileProcess profileProcess;
+	@Inject	NotificationProcess notificationProcess;
 
     @Inject Clock clock; 
         
@@ -78,7 +82,7 @@ public class RegistrationResource extends TransactionalResource
 	{
 		logger.info("get registration entity " + registrationId + " and auth code " + authCode);
 
-		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 		Registration registration = retrieveRegistrationProcess.get(registrationId);
 
@@ -118,7 +122,7 @@ public class RegistrationResource extends TransactionalResource
 	{
 		logger.info("update registration entity " + registrationId + " and auth code " + authCode);
 
-		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 		/*If the path registration id and the entity's registration id are both not null and different, then this is a bad request.
 		 * Malicious or not, we don't really know what the user wants to do.*/
@@ -157,10 +161,21 @@ public class RegistrationResource extends TransactionalResource
 			/*save the new registration to the DB*/
 			registrationService.createNewRegistration(registrationEntity);
 
+			// populate answers from user's profile
 			profileProcess.populateRegistrationAnswers(registration);
 		}
 
 		updateRegistrationProcess.performDeepUpdate(registration);
+
+		// if the registrant has completed the registration
+		if(registration.getCompleted())
+		{
+			// capture profile
+			profileProcess.capture(registration, crsLoggedInUser.getAuthProviderType());
+
+			// notify them of registration info
+			notificationProcess.registrationComplete(crsLoggedInUser, registration, conferenceEntityForUpdatedRegistration);
+		}
 
 		return createRegistration ?
 				Response.status(Status.CREATED)
@@ -185,7 +200,7 @@ public class RegistrationResource extends TransactionalResource
 	{
 		logger.info("delete registration entity " + registrationId + " and auth code " + authCode);
 
-		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
 
@@ -225,7 +240,7 @@ public class RegistrationResource extends TransactionalResource
 	{
 		logger.info("create answer entity " + registrationId + " and auth code " + authCode);
 
-		CrsApplicationUser crsLoggedInUser = userService.getLoggedInUser(authCode);
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
 		/*if the path registration id and the entity's registration id are both not null and different, then this is a bad request
 		 * malicious or not, we don't really know what they want to do.*/

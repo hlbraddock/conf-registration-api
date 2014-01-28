@@ -62,9 +62,6 @@ public class UpdateRegistrationProcess
 			}
 		}
 
-		if(registration.getCompleted())
-			profileProcess.capture(registration);
-
 		/*switch to a RegistrationEntity now b/c we're going to do some calculations the client
 		 * cannot influence to determine total cost and completed timestamp*/
 		RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();

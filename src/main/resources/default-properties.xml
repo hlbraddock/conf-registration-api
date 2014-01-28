@@ -4,6 +4,7 @@
 
     <!-- front end url-->
     <entry key="clientUrl">http://localhost:9000/#/</entry>
+    <entry key="registerUrlPath">register</entry>
 
     <!-- facebook app credentials -->
     <entry key="facebookAppId"></entry>

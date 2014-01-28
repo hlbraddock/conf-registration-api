@@ -4,10 +4,13 @@ import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 
+import com.google.common.collect.Sets;
 import org.ccci.util.mail.EmailAddress;
 import org.ccci.util.mail.MailMessage;
 import org.ccci.util.mail.MailMessageFactory;
 import org.ccci.util.strings.Strings;
+
+import java.util.Set;
 
 /**
  * @author Lee Braddock
@@ -21,8 +24,15 @@ public class MailService
 	{
 		this.crsProperties = crsProperties;
 	}
-	
+
 	public void send(String from, String to, String subject, String body) throws MessagingException
+	{
+		Set<String> recipients = Sets.newHashSet();
+		recipients.add(to);
+		send(from, recipients, subject, body);
+	}
+
+	public void send(String from, Set<String> to, String subject, String body) throws MessagingException
 	{
 		String mailServer = crsProperties.getProperty("mailServer");
 		String mailServerUsername = crsProperties.getProperty("mailServerUsername");
@@ -37,7 +47,8 @@ public class MailService
 		MailMessage mailMessage = mailMessageFactory.createApplicationMessage();
 
 		mailMessage.setFrom(EmailAddress.valueOf(from));
-		mailMessage.addTo(EmailAddress.valueOf(to));
+		for(String recipient : to)
+			mailMessage.addTo(EmailAddress.valueOf(recipient));
 		mailMessage.setMessage(subject, body, true);
 		mailMessage.sendToAll();
 	}

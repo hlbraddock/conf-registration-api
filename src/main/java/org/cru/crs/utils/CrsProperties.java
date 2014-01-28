@@ -11,4 +11,9 @@ public class CrsProperties extends PropertiesWithFallback
 	{
 		super(encryptionData, firstSourceOnly, propertiesFile, propertiesFile2);
 	}
+
+	public String getNonNullProperty(String property)
+	{
+		return getProperty(property) == null ? "" : getProperty(property);
+	}
 }

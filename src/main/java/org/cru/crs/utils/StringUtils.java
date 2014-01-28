@@ -18,4 +18,9 @@ public class StringUtils
         }
         return spaces.toString().toLowerCase();
     }
+
+	public static String repeat(String string, int num)
+	{
+		return new String(new char[num]).replace("\0", string);
+	}
 }

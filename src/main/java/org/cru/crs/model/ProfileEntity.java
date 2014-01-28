@@ -1,12 +1,17 @@
 package org.cru.crs.model;
 
 import com.google.common.base.Strings;
+import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.answer.AddressQuestion;
+import org.cru.crs.api.model.answer.BlockType;
 import org.cru.crs.api.model.answer.DateQuestion;
 import org.cru.crs.api.model.answer.NameQuestion;
 import org.cru.crs.api.model.answer.TextQuestion;
+import org.cru.crs.utils.JsonNodeHelper;
+import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class ProfileEntity implements java.io.Serializable
@@ -392,6 +397,62 @@ public class ProfileEntity implements java.io.Serializable
 
 		if(!Strings.isNullOrEmpty(profileEntity.getZip()))
 			zip = profileEntity.getZip();
+	}
+
+	private boolean hasProfileType(BlockEntity blockEntity)
+	{
+		return blockEntity.getProfileType() != null && !Strings.isNullOrEmpty(blockEntity.getProfileType().toString());
+	}
+
+	Logger logger = Logger.getLogger(ProfileEntity.class);
+
+	// set profile from answers
+	public void set(Map<Answer,BlockEntity> answerToBlockMap)
+	{
+		for (Map.Entry<Answer, BlockEntity> entry : answerToBlockMap.entrySet())
+		{
+			Answer answer = entry.getKey();
+
+			BlockEntity blockEntity = entry.getValue();
+
+			if (hasProfileType(blockEntity))
+			{
+				try
+				{
+					BlockType blockType = BlockType.fromString(blockEntity.getBlockType());
+
+					// deserialize the json answer using the appropriate block type determined answer object
+					if(blockType.isTextQuestion())
+					{
+						TextQuestion textQuestion = JsonNodeHelper.deserialize(answer.getValue(), TextQuestion.class);
+						set(textQuestion, blockEntity.getProfileType());
+					}
+
+					else if(blockType.isDateQuestion())
+					{
+						DateQuestion dateQuestion = JsonNodeHelper.deserialize(answer.getValue(), DateQuestion.class);
+						set(dateQuestion, blockEntity.getProfileType());
+					}
+
+					else if(blockType.isNameQuestion())
+					{
+						NameQuestion nameQuestion = JsonNodeHelper.deserialize(answer.getValue(), NameQuestion.class);
+						set(nameQuestion);
+					}
+
+					else if(blockType.isAddressQuestion())
+					{
+						AddressQuestion addressQuestion = JsonNodeHelper.deserialize(answer.getValue(), AddressQuestion.class);
+						set(addressQuestion);
+					}
+				}
+				catch(Exception e)
+				{
+					logger.error("Could not set profile from answers for block type " + blockEntity.getBlockType() +
+							" and profile type " + blockEntity.getProfileType(), e);
+				}
+			}
+		}
 	}
 
 	@Override

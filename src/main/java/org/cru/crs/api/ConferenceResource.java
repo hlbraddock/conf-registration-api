@@ -323,6 +323,7 @@ public class ConferenceResource extends TransactionalResource
 
 		registrationService.createNewRegistration(newRegistrationEntity);
 
+		// populate answers from user's profile
 		profileProcess.populateRegistrationAnswers(newRegistration);
 
 		logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode + " after populate profile.");

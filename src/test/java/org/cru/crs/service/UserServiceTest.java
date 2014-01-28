@@ -30,10 +30,10 @@ public class UserServiceTest
 		
 		Assert.assertNotNull(testUser);
 		Assert.assertEquals(testUser.getId(), UserInfo.Id.TestUser);
-		Assert.assertNull(testUser.getEmailAddress());
+		Assert.assertEquals(testUser.getEmailAddress(), UserInfo.Email.TestUser);
 		Assert.assertNull(testUser.getPhoneNumber());
-		Assert.assertNull(testUser.getFirstName());
-		Assert.assertNull(testUser.getLastName());
+		Assert.assertEquals(testUser.getFirstName(), "Test");
+		Assert.assertEquals(testUser.getLastName(), "User");
 	}
 	
 	@Test(groups="dbtest")

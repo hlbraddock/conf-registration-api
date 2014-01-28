@@ -37,7 +37,7 @@ public class RegistrationServiceTest
 		Assert.assertEquals(registration.getUserId(), UserInfo.Id.TestUser);
 		Assert.assertFalse(registration.getCompleted());
 		Assert.assertNull(registration.getCompletedTimestamp());
-		Assert.assertEquals(registration.getTotalDue(), new BigDecimal("0"));
+		Assert.assertEquals(registration.getTotalDue(), new BigDecimal("120.00"));
 	}
 
 	@Test(groups="dbtest")
@@ -51,7 +51,7 @@ public class RegistrationServiceTest
 		Assert.assertEquals(registration.getUserId(), UserInfo.Id.TestUser);
 		Assert.assertFalse(registration.getCompleted());
 		Assert.assertNull(registration.getCompletedTimestamp());
-		Assert.assertEquals(registration.getTotalDue(), new BigDecimal("0"));
+		Assert.assertEquals(registration.getTotalDue(), new BigDecimal("120.00"));
 	}
 	
 	@Test(groups="dbtest")

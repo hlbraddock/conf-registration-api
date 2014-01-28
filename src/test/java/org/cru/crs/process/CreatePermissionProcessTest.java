@@ -53,7 +53,7 @@ public class CreatePermissionProcessTest
 	{
 		Permission newPermission = new Permission().withRandomID()
 													.setConferenceId(ConferenceInfo.Id.WinterBeachCold)
-													.setEmailAddress("ryan.t.carlson@cru.org")
+													.setEmailAddress(UserInfo.Email.Ryan)
 													.setPermissionLevel(PermissionLevel.UPDATE);
 
 		try
@@ -63,7 +63,7 @@ public class CreatePermissionProcessTest
 			PermissionEntity retrievedPermission = permissionService.getPermissionBy(newPermission.getId());
 
 			Assert.assertEquals(retrievedPermission.getConferenceId(), ConferenceInfo.Id.WinterBeachCold);
-			Assert.assertEquals(retrievedPermission.getEmailAddress(), "ryan.t.carlson@cru.org");
+			Assert.assertEquals(retrievedPermission.getEmailAddress(), UserInfo.Email.Ryan);
 			Assert.assertEquals(retrievedPermission.getPermissionLevel(), PermissionLevel.UPDATE);
 			Assert.assertEquals(retrievedPermission.getGivenByUserId(), UserInfo.Id.TestUser);
 			Assert.assertNull(retrievedPermission.getUserId());

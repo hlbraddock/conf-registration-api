@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.cru.crs.api.model.Payment;
+import org.cru.crs.api.process.NotificationProcess;
 import org.cru.crs.api.process.PaymentProcessor;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.authz.AuthorizationService;
@@ -46,6 +47,7 @@ public class PaymentResource extends TransactionalResource
 	@Inject ConferenceService conferenceService;
 	
 	@Inject PaymentProcessor paymentProcessor;
+	@Inject	NotificationProcess notificationProcess;
 	
 	private Logger logger = Logger.getLogger(this.getClass());
 	
@@ -125,6 +127,8 @@ public class PaymentResource extends TransactionalResource
 
 		paymentProcessor.processPayment(payment, loggedInUser);
 
+		notificationProcess.paymentReceipt(payment, loggedInUser);
+
 		return Response.status(Status.CREATED)
 				.location(new URI("/conferences/" + payment.getId()))
 				.entity(Payment.fromDb(paymentService.getPaymentById(payment.getId()))).build();
@@ -170,6 +174,8 @@ public class PaymentResource extends TransactionalResource
 		paymentProcessor.saveNewPayment(payment, loggedInUser);
 
 		paymentProcessor.processPayment(payment, loggedInUser);
+
+		notificationProcess.paymentReceipt(payment, loggedInUser);
 
 		return Response.noContent().build();
 	}

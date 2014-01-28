@@ -100,7 +100,7 @@ public class ConferenceResourceFunctionalTest
         registrationService = ServiceFactory.createRegistrationService(sqlConnection);
 
 		profileService = new ProfileService(sqlConnection);
-		profileProcess = new ProfileProcess(blockService, profileService, pageService);
+		profileProcess = new ProfileProcess(blockService, profileService, pageService, ServiceFactory.createUserService(sqlConnection));
 
 		answerService = new AnswerService(sqlConnection);
 
@@ -132,7 +132,7 @@ public class ConferenceResourceFunctionalTest
 		{
 			if(!("Northern Michigan Fall Extravaganza".equals(conference.getName()) ||
 					"Miami University Fall Retreat".equals(conference.getName()) ||
-						"Winter Beach Weekend Cold!".equals(conference.getName())))
+						"Winter Beach Weekend!".equals(conference.getName())))
 			{
 				Assert.fail();
 			}
@@ -643,7 +643,7 @@ public class ConferenceResourceFunctionalTest
 			PermissionEntity retrievedPermission = permissionService.getPermissionBy(newPermission.getId());
 			
 			Assert.assertNotNull(retrievedPermission);
-			Assert.assertEquals(retrievedPermission.getEmailAddress(), "ryan.t.carlson@cru.org");
+			Assert.assertEquals(retrievedPermission.getEmailAddress(), UserInfo.Email.Ryan);
 			Assert.assertEquals(retrievedPermission.getConferenceId(), ConferenceInfo.Id.NewYork);
 			Assert.assertEquals(retrievedPermission.getGivenByUserId(), UserInfo.Id.Ryan);
 			Assert.assertEquals(retrievedPermission.getPermissionLevel(), PermissionLevel.UPDATE);
@@ -733,7 +733,7 @@ public class ConferenceResourceFunctionalTest
 		return new Permission().withRandomID()
 								.setConferenceId(ConferenceInfo.Id.NewYork)
 								.setGivenByUserId(UserInfo.Id.Ryan)
-								.setEmailAddress("ryan.t.carlson@cru.org")
+								.setEmailAddress(UserInfo.Email.Ryan)
 								.setPermissionLevel(PermissionLevel.UPDATE);
 		
 	}

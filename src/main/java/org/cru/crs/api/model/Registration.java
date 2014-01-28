@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
@@ -204,4 +205,21 @@ public class Registration implements java.io.Serializable
 		this.completedTimestamp = completedTimestamp;
 	}
 
+	// convenience method
+	@JsonIgnore
+	public BigDecimal getOutstandingBalance()
+	{
+		return getTotalDue() == null ? new BigDecimal(0) : getTotalDue().subtract(getTotalPaid());
+	}
+
+	@JsonIgnore
+	public BigDecimal getTotalPaid()
+	{
+		BigDecimal bigDecimal = new BigDecimal(0);
+
+		for(Payment payment : getPastPayments())
+			bigDecimal = bigDecimal.add(payment.getAmount());
+
+		return bigDecimal;
+	}
 }
