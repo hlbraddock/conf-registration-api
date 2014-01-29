@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  *******************************************************************************/
-package org.cru.crs.payment.authnet;
+package org.cru.crs.payment.authnet.transaction;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -25,6 +25,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.cru.crs.payment.authnet.AuthnetResponse;
+import org.cru.crs.payment.authnet.AuthnetTransactionException;
+import org.cru.crs.payment.authnet.CreditCardMethod;
+import org.cru.crs.payment.authnet.HttpProvider;
+import org.cru.crs.payment.authnet.Method;
 import org.cru.crs.payment.authnet.model.CreditCard;
 import org.cru.crs.payment.authnet.model.Customer;
 import org.cru.crs.payment.authnet.model.GatewayConfiguration;
@@ -48,7 +53,7 @@ public abstract class Transaction
 
 	private String currency;
 	private BigDecimal amount;
-	private CreditCardMethod method;
+	private Method method;
 
 	private Map<String, String> request = new HashMap<String, String>();
 	protected AuthnetResponse authnetResponse;
@@ -58,6 +63,11 @@ public abstract class Transaction
 
 	private CreditCard creditCard;
 
+	public Transaction(Method method)
+	{
+		this.method = method;
+	}
+	
 	public Transaction(CreditCardMethod method)
 	{
 		this.method = method;
@@ -73,6 +83,15 @@ public abstract class Transaction
 
 	protected void processResponse()
 	{
+		if (!authnetResponse.isApproved())
+		{
+			log.warn("transaction not approved");
+			log.warn("responseCode:   " + authnetResponse.getResponseField(AuthnetResponse.RESPONSE_CODE));
+			log.warn("responseReason: " + authnetResponse.getResponseField(AuthnetResponse.RESPONSE_REASON_CODE));
+			log.warn("reasonText:     " + authnetResponse.getResponseField(AuthnetResponse.RESPONSE_REASON_TEXT));
+			
+			throw new AuthnetTransactionException(authnetResponse);
+		}
 	}
 
 	private void buildRequest()
@@ -144,13 +163,6 @@ public abstract class Transaction
 			}
 			authnetResponse = new AuthnetResponse(httpResponse, gatewayConfiguration.getDelimiter());
 
-			if (!authnetResponse.isApproved())
-			{
-				log.debug("transaction not approved");
-				log.debug("responseCode:   " + authnetResponse.getResponseField(AuthnetResponse.RESPONSE_CODE));
-				log.debug("responseReason: " + authnetResponse.getResponseField(AuthnetResponse.RESPONSE_REASON_CODE));
-				log.debug("reasonText:     " + authnetResponse.getResponseField(AuthnetResponse.RESPONSE_REASON_TEXT));
-			}
 
 		}
 		catch (IOException e)
@@ -189,6 +201,7 @@ public abstract class Transaction
 
 	protected void checkTypeSpecificProperties()
 	{
+		
 	}
 
 	protected void buildTransactionData()
@@ -266,12 +279,12 @@ public abstract class Transaction
 		this.log = log;
 	}
 
-	public CreditCardMethod getMethod()
+	public Method getMethod()
 	{
 		return method;
 	}
 
-	public void setMethod(CreditCardMethod method)
+	public void setMethod(Method method)
 	{
 		this.method = method;
 	}
@@ -338,5 +351,13 @@ public abstract class Transaction
 		Preconditions.checkNotNull(getCreditCard().getCardNumber(), "creditCard.cardNumber was null");
 		Preconditions.checkNotNull(getCreditCard().getExpirationDate(), "creditCard.expirationDate was null");
 		Preconditions.checkNotNull(getCreditCard().getCardCode(), "creditCard.cardCode was null");
+	}
+
+	/**
+	 * Only the CC last four digits are required for a Credit
+	 */
+	public void checkCreditCardRefund()
+	{
+		Preconditions.checkNotNull(getCreditCard().getCardNumber(), "creditCard.cardNumber was null");	
 	}
 }

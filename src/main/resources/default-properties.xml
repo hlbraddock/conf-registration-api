@@ -21,7 +21,7 @@
 
 	<!-- authorize dot net configuration -->
 	<entry key="currencyCode">USD</entry>
-	<entry key="authnetTestMode">true</entry>
+
 	
 	<!-- errbit -->
 	<entry key="errbitEnvironment">${errbit.environment}</entry>

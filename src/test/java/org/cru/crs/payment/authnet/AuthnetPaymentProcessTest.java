@@ -97,7 +97,6 @@ public class AuthnetPaymentProcessTest
 		GatewayConfiguration gatewayConfig = paymentProcess.createGatewayConfiguration();
 		
 		Assert.assertNotNull(gatewayConfig);
-		Assert.assertTrue(gatewayConfig.getTestRequest());
 	}
 	
 	@Test(groups="unittest")

@@ -29,6 +29,7 @@ public class Payment implements Serializable
     private BigDecimal amount;
     private DateTime transactionDatetime;
     private PaymentType paymentType;
+    private UUID refundedPaymentId;
     private boolean readyToProcess;
 
     public PaymentEntity toDbPaymentEntity()
@@ -50,6 +51,7 @@ public class Payment implements Serializable
         dbPayment.setAuthnetTransactionId(authnetTransactionId);
         dbPayment.setTransactionTimestamp(transactionDatetime);
         dbPayment.setPaymentType(paymentType);
+        dbPayment.setRefundedPaymentId(refundedPaymentId);
         
         return dbPayment;
     }
@@ -70,6 +72,7 @@ public class Payment implements Serializable
 		payment.creditCardLastFourDigits = dbPayment.getCcLastFourDigits();
 		payment.transactionDatetime = dbPayment.getTransactionTimestamp();
 		payment.paymentType = dbPayment.getPaymentType();
+		payment.refundedPaymentId = dbPayment.getRefundedPaymentId();
 		
 		if(dbPayment.getCcLastFourDigits() != null) payment.creditCardNumber = "****" + dbPayment.getCcLastFourDigits();
 				
@@ -206,6 +209,16 @@ public class Payment implements Serializable
 	public void setPaymentType(PaymentType paymentType)
 	{
 		this.paymentType = paymentType;
+	}
+
+	public UUID getRefundedPaymentId()
+	{
+		return refundedPaymentId;
+	}
+
+	public void setRefundedPaymentId(UUID refundedPaymentId)
+	{
+		this.refundedPaymentId = refundedPaymentId;
 	}
     
 }

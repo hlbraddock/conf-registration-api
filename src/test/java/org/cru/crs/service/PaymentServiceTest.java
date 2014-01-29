@@ -8,6 +8,7 @@ import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.PaymentType;
 import org.cru.crs.utils.DateTimeCreaterHelper;
+import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -27,7 +28,7 @@ public class PaymentServiceTest
 	@Test(groups="dbtest")
 	public void testGetPayment()
 	{
-		PaymentEntity payment = paymentService.fetchPaymentBy(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
+		PaymentEntity payment = paymentService.getPaymentById(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
 		
 		Assert.assertNotNull(payment);
 		
@@ -36,7 +37,7 @@ public class PaymentServiceTest
 		Assert.assertEquals(payment.getCcExpirationYear(), "2014");
 		Assert.assertEquals(payment.getCcLastFourDigits(), "1111");
 		Assert.assertEquals(payment.getAmount(), new BigDecimal("20.00"));
-		Assert.assertEquals(payment.getAuthnetTransactionId(), (Long)2313987492387498248L);
+		Assert.assertEquals(payment.getAuthnetTransactionId(), (Long)2205342461L);
 		Assert.assertEquals(payment.getRegistrationId(), UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
 		Assert.assertEquals(payment.getTransactionTimestamp(), DateTimeCreaterHelper.createDateTime(2013, 8, 21, 19, 22, 7));
 		Assert.assertEquals(payment.getPaymentType(), PaymentType.CREDIT_CARD);
@@ -62,9 +63,9 @@ public class PaymentServiceTest
 		
 		try
 		{
-			paymentService.createPaymentRecord(newPayment);
+			paymentService.createPaymentRecord(newPayment, UserInfo.Users.TestUser);
 			
-			PaymentEntity retrievedPayment = paymentService.fetchPaymentBy(id);
+			PaymentEntity retrievedPayment = paymentService.getPaymentById(id);
 			
 			Assert.assertNotNull(retrievedPayment);
 			Assert.assertEquals(retrievedPayment.getId(),id);
@@ -102,9 +103,9 @@ public class PaymentServiceTest
 		
 		try
 		{
-			paymentService.updatePayment(paymentToUpdate);
+			paymentService.updatePayment(paymentToUpdate, UserInfo.Users.TestUser);
 			
-			PaymentEntity retrievedPayment = paymentService.fetchPaymentBy(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
+			PaymentEntity retrievedPayment = paymentService.getPaymentById(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
 			
 			Assert.assertNotNull(retrievedPayment);
 			Assert.assertEquals(retrievedPayment.getId(),UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
@@ -148,11 +149,11 @@ public class PaymentServiceTest
 	{
 		try
 		{
-			paymentService.disassociatePaymentsFromRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
+			paymentService.disassociatePaymentsFromRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"), UserInfo.Users.TestUser);
 			
 			Assert.assertTrue(paymentService.fetchPaymentsForRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111")).isEmpty());
-			Assert.assertNotNull(paymentService.fetchPaymentBy(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222")));
-			Assert.assertNotNull(paymentService.fetchPaymentBy(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb33333")));
+			Assert.assertNotNull(paymentService.getPaymentById(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222")));
+			Assert.assertNotNull(paymentService.getPaymentById(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb33333")));
 		}
 		finally
 		{

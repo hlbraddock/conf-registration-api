@@ -8,6 +8,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.ccci.util.NotImplementedException;
+import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.PaymentEntity;
 import org.sql2o.Connection;
 
@@ -27,15 +28,23 @@ public class PaymentService
     	this.sqlConnection = sqlConnection;
     }
 
-    public PaymentEntity fetchPaymentBy(UUID id)
+    public PaymentEntity getPaymentById(UUID id)
     {
         return sqlConnection.createQuery(PaymentQueries.selectById())
         							.addParameter("id", id)
         							.setAutoDeriveColumnNames(true)
         							.executeAndFetchFirst(PaymentEntity.class);
     }
-
-    public void createPaymentRecord(PaymentEntity payment)
+    
+    public List<PaymentEntity> getPaymentsByRefundedPaymentId(UUID refundedPaymentId)
+    {
+    	return sqlConnection.createQuery(PaymentQueries.selectByRefundedPaymentId())
+									.addParameter("refundedPaymentId", refundedPaymentId)
+									.setAutoDeriveColumnNames(true)
+									.executeAndFetch(PaymentEntity.class);  
+    }
+    
+    public void createPaymentRecord(PaymentEntity payment, CrsApplicationUser loggedInUser)
     {
     	Preconditions.checkNotNull(payment.getRegistrationId());
     	sqlConnection.createQuery(PaymentQueries.insert())
@@ -49,10 +58,12 @@ public class PaymentService
         				.addParameter("amount", payment.getAmount())
         				.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
         				.addParameter("paymentType", (Object)payment.getPaymentType())
+        				.addParameter("updatedByUserId", loggedInUser.getId())
+        				.addParameter("refundedPaymentId", payment.getRefundedPaymentId())
         				.executeUpdate();
     }
     
-    public void updatePayment(PaymentEntity payment)
+    public void updatePayment(PaymentEntity payment, CrsApplicationUser loggedInAdministrator)
     {
     	Preconditions.checkNotNull(payment.getRegistrationId());
     	sqlConnection.createQuery(PaymentQueries.update())
@@ -66,6 +77,8 @@ public class PaymentService
     					.addParameter("amount", payment.getAmount())
     					.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
     					.addParameter("paymentType", (Object)payment.getPaymentType())
+    					.addParameter("updatedByUserId", loggedInAdministrator.getId())
+    					.addParameter("refundedPaymentId", payment.getRefundedPaymentId())
     					.executeUpdate();
     }
     
@@ -81,7 +94,7 @@ public class PaymentService
      * Useful when a registration is going to be deleted, at a minimum we should keep the payment record around.
      * @param paymentId
      */
-    public void disassociatePaymentsFromRegistration(UUID registrationId)
+    public void disassociatePaymentsFromRegistration(UUID registrationId, CrsApplicationUser loggedInAdministrator)
     {
     	List<PaymentEntity> payments = fetchPaymentsForRegistration(registrationId);
 
@@ -100,6 +113,8 @@ public class PaymentService
     						.addParameter("amount", payment.getAmount())
     						.addParameter("transactionTimestamp", payment.getTransactionTimestamp())
     						.addParameter("paymentType", (Object)payment.getPaymentType())
+    						.addParameter("updatedByUserId", loggedInAdministrator.getId())
+    						.addParameter("refundedPaymentId", payment.getRefundedPaymentId())
     						.executeUpdate();
     	}
     }
@@ -109,6 +124,11 @@ public class PaymentService
     	private static  String selectById()
     	{
     		return "SELECT * FROM payments WHERE id = :id";
+    	}
+    	
+    	private static String selectByRefundedPaymentId()
+    	{
+    		return "SELECT * FROM payments WHERE refunded_payment_id = :refundedPaymentId";
     	}
     	
     	private static  String selectAllForRegistration()
@@ -127,15 +147,17 @@ public class PaymentService
     				 "cc_last_four_digits = :ccLastFourDigits, " +
     				 "amount = :amount, " +
     				 "transaction_timestamp = :transactionTimestamp, " +
-    				 "payment_type = :paymentType" +
+    				 "payment_type = :paymentType, " +
+    				 "updated_by_user_id = :updatedByUserId, " +
+    				 "refunded_payment_id = :refundedPaymentId" +
     				 " WHERE  " +
     				 "id = :id";
     	}
 
     	private static  String insert()
     	{
-    		return "INSERT INTO payments(id, registration_id, authnet_transaction_id, cc_name_on_card, cc_expiration_month, cc_expiration_year, cc_last_four_digits, amount, transaction_timestamp, payment_type) " + 
-    			   "VALUES (:id, :registrationId, :authnetTransactionId, :ccNameOnCard, :ccExpirationMonth, :ccExpirationYear, :ccLastFourDigits, :amount, :transactionTimestamp, :paymentType)";
+    		return "INSERT INTO payments(id, registration_id, authnet_transaction_id, cc_name_on_card, cc_expiration_month, cc_expiration_year, cc_last_four_digits, amount, transaction_timestamp, payment_type, updated_by_user_id, refunded_payment_id) " + 
+    			   "VALUES (:id, :registrationId, :authnetTransactionId, :ccNameOnCard, :ccExpirationMonth, :ccExpirationYear, :ccLastFourDigits, :amount, :transactionTimestamp, :paymentType, :updatedByUserId, :refundedPaymentId)";
     	}
 
     	private static String delete()

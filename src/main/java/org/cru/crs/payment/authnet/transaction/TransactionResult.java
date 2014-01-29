@@ -1,4 +1,4 @@
-package org.cru.crs.payment.authnet;
+package org.cru.crs.payment.authnet.transaction;
 
 import java.util.HashMap;
 import java.util.Map;
