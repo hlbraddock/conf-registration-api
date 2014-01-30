@@ -253,23 +253,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-			<plugin>
-				<groupId>com.github.github</groupId>
-				<artifactId>site-maven-plugin</artifactId>
-				<version>0.8</version>
-				<configuration>
-					<message>Creating deploy repo for ${project.version}</message>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>site</goal>
-						</goals>
-						<phase>site</phase>
-					</execution>
-				</executions>
-			</plugin>
 
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
@@ -278,6 +261,7 @@
 					<altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
 				</configuration>
 			</plugin>
+			
 			<plugin>
 				<groupId>com.github.github</groupId>
 				<artifactId>site-maven-plugin</artifactId>
@@ -301,6 +285,18 @@
 					</execution>
 				</executions>
 			</plugin>    
+			
+			<plugin>
+                <groupId>com.googlecode.flyway</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <url>${database.server.url}</url>
+                    <serverId>${database.server.id}</serverId>
+                   <initVersion>0.0</initVersion>
+                </configuration>
+            </plugin>
+            
 		</plugins>
 		
 		<resources>
@@ -315,7 +311,8 @@
 		<profile>
 			<id>local</id>
 			<properties>
-				<db.datasouce.name>java:jboss/datasources/crsLocalDS</db.datasouce.name>
+				<database.server.id>crs-local</database.server.id>
+				<database.server.url>jdbc:postgresql://localhost/crsdb</database.server.url>
 				<errbit.environment>local</errbit.environment>
 				<github.global.server>github</github.global.server>
 			</properties>
@@ -327,7 +324,8 @@
 		<profile>
 			<id>development</id>
 			<properties>
-				<db.datasouce.name>java:jboss/datasources/crsDevDS</db.datasouce.name>
+				<database.server.id>crs-dev</database.server.id>
+				<database.server.url>jdbc:postgresql://10.7.196.222/crs_dev</database.server.url>
 				<errbit.environment>DEV</errbit.environment>
 			</properties>
 		</profile>

@@ -12,7 +12,6 @@ public class BlockEntity implements java.io.Serializable
 
 	private UUID id;
 	private UUID pageId;
-	private UUID conferenceCostsBlockId;
 	private int position;
 
 	private String blockType;
@@ -124,14 +123,6 @@ public class BlockEntity implements java.io.Serializable
 	public void setRequired(boolean required)
 	{
 		this.required = required;
-	}
-
-	public UUID getConferenceCostsBlockId() {
-		return conferenceCostsBlockId;
-	}
-
-	public void setConferenceCostsBlockId(UUID conferenceCostsBlockId) {
-		this.conferenceCostsBlockId = conferenceCostsBlockId;
 	}
 
 	public ProfileType getProfileType()
