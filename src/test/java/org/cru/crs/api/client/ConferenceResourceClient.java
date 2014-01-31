@@ -15,7 +15,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
@@ -66,7 +65,7 @@ public interface ConferenceResourceClient
 	@GET
 	@Path("/{conferenceId}/registrations/current")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public ClientResponse<Registration> getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId, @HeaderParam(value = "Authorization") String authCode);
+	public ClientResponse<Registration> getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId, @HeaderParam(value = "Authorization") String authCode, @HeaderParam(value = "PreviousAuthorization") String previousAuthCode);
 	
 	@POST
 	@Path("/{conferenceId}/permissions")
