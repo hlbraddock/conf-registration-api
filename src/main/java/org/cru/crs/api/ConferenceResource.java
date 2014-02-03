@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.ccci.util.strings.Strings;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Permission;
@@ -399,7 +400,8 @@ public class ConferenceResource extends TransactionalResource
 	@Path("/{conferenceId}/registrations/current")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCurrentRegistration(@PathParam(value = "conferenceId") UUID conferenceId,
-			@HeaderParam(value = "Authorization") String authCode)
+										   @HeaderParam(value = "Authorization") String authCode,
+										   @HeaderParam(value = "PreviousAuthorization") String previousAuthCode)
 	{
 		logger.info(conferenceId);
 
@@ -408,6 +410,29 @@ public class ConferenceResource extends TransactionalResource
 		logger.info(loggedInUser);
 
 		RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
+
+		/*
+		* Allow an anonymous user to login during registration:
+		*
+		* If there is no registration associated with the provided auth code,
+		* but there is one associated with an optionally provided previous auth code,
+		* update that registration's user id to the user associated with the new auth code
+		*/
+		if(registrationEntity == null)
+		{
+			if(!Strings.isEmpty(previousAuthCode))
+			{
+				CrsApplicationUser previousLoggedInUser = crsUserService.getLoggedInUser(previousAuthCode);
+
+				logger.info("previous logged in user " + loggedInUser);
+
+				registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, previousLoggedInUser.getId());
+
+				registrationEntity.setUserId(loggedInUser.getId());
+
+				registrationService.updateRegistration(registrationEntity);
+			}
+		}
 
 		if(registrationEntity == null)
 		{

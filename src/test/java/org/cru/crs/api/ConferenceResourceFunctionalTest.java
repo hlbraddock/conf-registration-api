@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.common.base.Strings;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.ConferenceResourceClient;
@@ -470,24 +471,50 @@ public class ConferenceResourceFunctionalTest
 	public void getCurrentRegistration()
 	{
 		UUID conferenceUUID = UUID.fromString("1951613E-A253-1AF8-6BC4-C9F1D0B3FA60");
+		UUID registrationUUID = UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111");
 
-		ClientResponse<Registration> response = conferenceClient.getCurrentRegistration(conferenceUUID, UserInfo.AuthCode.Ryan);
+		getCurrentRegistration(conferenceUUID, registrationUUID, UserInfo.Id.Ryan, UserInfo.AuthCode.Ryan, "");
+
+	}
+
+	private void getCurrentRegistration(UUID conferenceUUID, UUID registrationUUID, UUID userUUID, String authCode, String prevAuthCode)
+	{
+		ClientResponse<Registration> response = null;
+
+		if(Strings.isNullOrEmpty(prevAuthCode))
+			response = conferenceClient.getCurrentRegistration(conferenceUUID, authCode, "");
+		else
+			response = conferenceClient.getCurrentRegistration(conferenceUUID, authCode, prevAuthCode);
 
 		Assert.assertEquals(response.getStatus(), 200);
 
 		Registration registration = response.getEntity();
 
-		UUID registrationUUID = UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111");
-
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getId(), registrationUUID);
-		Assert.assertEquals(registration.getUserId(), UserInfo.Id.Ryan);
+		Assert.assertEquals(registration.getUserId(), userUUID);
 		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
 		Assert.assertNull(registration.getCurrentPayment());
 		Assert.assertNotNull(registration.getPastPayments());
 		Assert.assertFalse(registration.getPastPayments().isEmpty());
 	}
-	
+
+	@Test(groups="functional-tests")
+	public void getCurrentRegistrationNewAuthCode()
+	{
+		UUID conferenceUUID = UUID.fromString("1951613E-A253-1AF8-6BC4-C9F1D0B3FA60");
+		UUID registrationUUID = UUID.fromString("AAAAF4A8-C7DC-4C0A-BB9E-67E6DCB91111");
+
+		// check current valid registration for Ryan
+		getCurrentRegistration(conferenceUUID, registrationUUID, UserInfo.Id.Ryan, UserInfo.AuthCode.Ryan, "");
+
+		// check transfer of registration from Ryan to Test User
+		getCurrentRegistration(conferenceUUID, registrationUUID, UserInfo.Id.TestUser, UserInfo.AuthCode.TestUser, UserInfo.AuthCode.Ryan);
+
+		// restore registration ownership to Ryan
+		getCurrentRegistration(conferenceUUID, registrationUUID, UserInfo.Id.Ryan, UserInfo.AuthCode.Ryan, UserInfo.AuthCode.TestUser);
+	}
+
 	/**
 	 * Test: add a page to conference by fetching the conference and adding a child page to it. this is different than hitting
 	 * the createPage endpoint, but should have the same outcome
