@@ -4,7 +4,7 @@
 	<groupId>org.cru</groupId>
 	<artifactId>crs-http-json-api</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.SNAPSHOT</version>
+	<version>0.1.0</version>
 	<name>CRS Http JSON Api</name>
 	<url>...</url>
 	
