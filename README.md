@@ -2,7 +2,7 @@
 
 ##Current Status
 
-Pre-alpha release.
+Pre-alpha.  Targeting initial release in Q2-2014.
 
 Outstanding tasks: https://trello.com/b/i7500iKQ/new-crs
 
