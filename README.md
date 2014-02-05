@@ -11,5 +11,10 @@ To run the API in your development environment, the following steps need to be t
 * Build project. Run: `mvn clean package`
 * Deploy project Copy target/crs_http_json_api.war to {wildfly_home}/standalone/deployments/
 * Start application server {wildfly_home}/bin/standalone.sh
+* 
+
+## License
+
+The Conference Registration API (conf-registration-api) is released under the MIT License (http://opensource.org/licenses/MIT)
 
 =====================
