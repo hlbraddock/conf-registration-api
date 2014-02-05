@@ -1,17 +1,10 @@
-conf-registration-api
+# conf-registration-api
 
-Current project status: https://trello.com/b/i7500iKQ/new-crs
+##Current Status
 
-To run the API in your development environment, the following steps need to be taken:
+Pre-alpha release.
 
-* Clone this project.
-* Download and Install application server: wildfly-8.0.0.Beta1 (http://wildfly.org/downloads/)
-* Download and Install local database: postgresql v9.3.x (http://www.postgresql.org/download/)
-* Create and populate database.  Run: `src/main/db/create_crs_db_and_roles.sh`
-* Build project. Run: `mvn clean package`
-* Deploy project Copy target/crs_http_json_api.war to {wildfly_home}/standalone/deployments/
-* Start application server {wildfly_home}/bin/standalone.sh
-* 
+Outstanding tasks: https://trello.com/b/i7500iKQ/new-crs
 
 ## License
 
