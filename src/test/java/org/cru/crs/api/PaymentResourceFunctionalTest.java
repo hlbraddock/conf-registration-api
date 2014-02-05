@@ -93,6 +93,8 @@ public class PaymentResourceFunctionalTest
 				sqlConnection.createQuery("DELETE FROM payments WHERE id = :id")
 									.addParameter("id", processedPayment.getId())
 									.executeUpdate();
+
+				sqlConnection.commit();
 			}
 		}
 

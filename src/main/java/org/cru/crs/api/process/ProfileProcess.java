@@ -10,19 +10,24 @@ import org.cru.crs.api.model.answer.BlockType;
 import org.cru.crs.api.model.answer.DateQuestion;
 import org.cru.crs.api.model.answer.NameQuestion;
 import org.cru.crs.api.model.answer.TextQuestion;
+import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.ProfileEntity;
+import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.ProfileService;
+import org.cru.crs.service.UserService;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,35 +39,76 @@ public class ProfileProcess
 	private BlockService blockService;
 	private ProfileService profileService;
 	private PageService pageService;
+	private UserService userService;
 
 	Logger logger = Logger.getLogger(ProfileProcess.class);
 
 	@Inject
-	public ProfileProcess(BlockService blockService, ProfileService profileService, PageService pageService)
+	public ProfileProcess(BlockService blockService, ProfileService profileService, PageService pageService, UserService userService)
 	{
 		this.blockService = blockService;
 		this.profileService = profileService;
 		this.pageService = pageService;
+		this.userService = userService;
 	}
 
-	public void capture(Registration registration)
+	public void capture(Registration registration, AuthenticationProviderType authenticationProviderType)
 	{
-		ProfileEntity profileEntity = getProfileEntity(registration);
+		ProfileEntity profileEntity = getUserProfile(registration.getUserId());
 
-		setProfileEntityFromAnswers(registration.getAnswers(), profileEntity);
+		profileEntity.set(getAnswerBlockMap(registration.getAnswers()));
+
+		Simply.logObject(profileEntity, this.getClass());
 
 		profileService.updateProfile(profileEntity);
+
+		// capture the anonymous user's email address while you're at it
+		if(authenticationProviderType.equals(AuthenticationProviderType.NONE))
+		{
+			UserEntity userEntity = userService.getUserById(registration.getUserId());
+
+			userEntity.setEmailAddress(profileEntity.getEmail());
+
+			userService.updateUser(userEntity);
+		}
+	}
+
+	private ProfileEntity getUserProfile(UUID userId)
+	{
+		ProfileEntity profileEntity = profileService.getProfileByUser(userId);
+
+		if(profileEntity == null)
+		{
+			profileEntity = new ProfileEntity(UUID.randomUUID(), userId);
+
+			profileService.createProfile(profileEntity);
+		}
+
+		return profileEntity;
 	}
 
 	public void populateRegistrationAnswers(Registration registration)
 	{
-		ProfileEntity profileEntity = getProfileEntity(registration);
+		ProfileEntity profileEntity = profileService.getProfileByUser(registration.getUserId());
+
+		if(profileEntity == null)
+			return;
 
 		Simply.logObject(profileEntity, ProfileProcess.class);
 
-		Set<BlockEntity> blockEntities = fetchBlocksForConference(registration.getConferenceId());
+		setAnswersFromProfileEntity(registration, profileEntity);
+	}
 
-		setAnswersFromProfileEntity(registration, blockEntities, profileEntity);
+	private Map<Answer, BlockEntity> getAnswerBlockMap(Set<Answer> answers)
+	{
+		Map<Answer,BlockEntity> answerBlockEntityHashMap = new HashMap<Answer, BlockEntity>();
+
+		for (Answer answer : answers)
+		{
+			answerBlockEntityHashMap.put(answer, blockService.getBlockById(answer.getBlockId()));
+		}
+
+		return answerBlockEntityHashMap;
 	}
 
 	public Set<BlockEntity> fetchBlocksForConference(UUID conferenceId)
@@ -76,69 +122,11 @@ public class ProfileProcess
 		return blockEntities;
 	}
 
-	private ProfileEntity getProfileEntity(Registration registration)
-	{
-		ProfileEntity profileEntity = profileService.getProfileByUser(registration.getUserId());
-
-		if(profileEntity == null)
-		{
-			profileEntity = new ProfileEntity(UUID.randomUUID(), registration.getUserId());
-
-			profileService.createProfile(profileEntity);
-		}
-
-		return profileEntity;
-	}
-
-	private void setProfileEntityFromAnswers(Set<Answer> answers, ProfileEntity profileEntity)
-	{
-		for (Answer answer : answers)
-		{
-			BlockEntity blockEntity = blockService.getBlockById(answer.getBlockId());
-
-			if (hasProfileType(blockEntity))
-			{
-				try
-				{
-					BlockType blockType = BlockType.fromString(blockEntity.getBlockType());
-
-					// deserialize the json answer using the appropriate block type determined answer object
-					if(blockType.isTextQuestion())
-					{
-						TextQuestion textQuestion = JsonNodeHelper.deserialize(answer.getValue(), TextQuestion.class);
-						profileEntity.set(textQuestion, blockEntity.getProfileType());
-					}
-
-					else if(blockType.isDateQuestion())
-					{
-						DateQuestion dateQuestion = JsonNodeHelper.deserialize(answer.getValue(), DateQuestion.class);
-						profileEntity.set(dateQuestion, blockEntity.getProfileType());
-					}
-
-					else if(blockType.isNameQuestion())
-					{
-						NameQuestion nameQuestion = JsonNodeHelper.deserialize(answer.getValue(), NameQuestion.class);
-						profileEntity.set(nameQuestion);
-					}
-
-					else if(blockType.isAddressQuestion())
-					{
-						AddressQuestion addressQuestion = JsonNodeHelper.deserialize(answer.getValue(), AddressQuestion.class);
-						profileEntity.set(addressQuestion);
-					}
-				}
-				catch(Exception e)
-				{
-					logger.error("Could not capture profile from registration for block type " + blockEntity.getBlockType() +
-							" and profile type " + blockEntity.getProfileType(), e);
-				}
-			}
-		}
-	}
-
-	private void setAnswersFromProfileEntity(Registration registration, Set<BlockEntity> blockEntities, ProfileEntity profileEntity)
+	private void setAnswersFromProfileEntity(Registration registration, ProfileEntity profileEntity)
 	{
 		Set<UUID> blocksWithAnswers = getBlocksWithAnswers(registration.getAnswers());
+
+		Set<BlockEntity> blockEntities = fetchBlocksForConference(registration.getConferenceId());
 
 		for(BlockEntity	blockEntity : blockEntities)
 		{

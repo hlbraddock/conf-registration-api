@@ -16,9 +16,12 @@ import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.ProfileEntity;
+import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.ProfileService;
+import org.cru.crs.service.UserService;
 import org.cru.crs.utils.Environment;
+import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
@@ -38,6 +41,7 @@ public class RegistrationResourceFunctionalTest
 	AnswerResourceClient answerClient;
 
 	PaymentService paymentService;
+	UserService userService;
 	
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 	private UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
@@ -55,9 +59,11 @@ public class RegistrationResourceFunctionalTest
 
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 
-		paymentService = new PaymentService(sqlConnection);
+		paymentService = ServiceFactory.createPaymentService(sqlConnection);
 
-		profileService = new ProfileService(sqlConnection);
+		profileService = ServiceFactory.createProfileService(sqlConnection);
+
+		userService = ServiceFactory.createUserService(sqlConnection);
 	}
 
 	/**
@@ -229,18 +235,17 @@ public class RegistrationResourceFunctionalTest
 		// create answer(s) with profile info
 		UUID createBlockUUID = UUID.fromString("5060D878-4741-4F21-9D25-231DB86E43EE");
 		UUID answerUUID = UUID.randomUUID();
-		String email = "ryan.t.carlson@cru.org";
+		String email = UserInfo.Email.Ryan;
 		String firstName = "Ryan";
 		String lastName = "Carlson";
 		String jsonString = "{" +
 				"\"text\": \"" + email + "\"" +
-			"}";
+				"}";
 
 		JsonNode createAnswerValue = jsonNodeFromString(jsonString);
 		Answer answer = createAnswer(answerUUID, registrationIdUUID, createBlockUUID, createAnswerValue);
 
 		createRegistration.getAnswers().add(answer);
-		createRegistration.setCompleted(true); // so that the profile gets saved
 
 		// create registration through update
 		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.Ryan);
@@ -251,6 +256,11 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
 		Assert.assertEquals(registration.getId(), createRegistration.getId());
 		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
+
+		// update registration as completed
+		createRegistration.setCompleted(true); // so that the profile gets saved
+		response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.Ryan);
+		Assert.assertEquals(response.getStatus(), 204);
 
 		// get updated registration
 		response = registrationClient.getRegistration(registrationIdUUID, UserInfo.AuthCode.Ryan);
@@ -272,6 +282,84 @@ public class RegistrationResourceFunctionalTest
 		sqlConnection.commit();
 		profileEntity = profileService.getProfileByUser(UserInfo.Id.Ryan);
 		Assert.assertNull(profileEntity);
+
+		// delete created registration
+		response = registrationClient.deleteRegistration(registrationIdUUID, UserInfo.AuthCode.TestUser);
+		Assert.assertEquals(response.getStatus(), 204);
+
+		// ensure deleted registration
+		response = registrationClient.getRegistration(registrationIdUUID, UserInfo.AuthCode.Ryan);
+		Assert.assertNotEquals(response.getStatus(), 200);
+	}
+
+	@Test(groups="functional-tests")
+	public void updateRegistrationAnonymousUserWithEmailAnswerToCaptureUserInfo() throws URISyntaxException
+	{
+		UUID registrationIdUUID = UUID.randomUUID();
+		UUID userIdUUID = UserInfo.Id.Anonymous;
+		UUID conferenceUUID = UUID.fromString("50A342D2-0D99-473A-2C3D-7046BFCDD942");
+
+		Registration createRegistration = createRegistration(registrationIdUUID, userIdUUID, conferenceUUID);
+
+		// create answer(s) with profile info
+		UUID createBlockUUID = UUID.fromString("5060D878-4741-4F21-9D25-231DB86E43EE");
+		UUID answerUUID = UUID.randomUUID();
+		String email = UserInfo.Email.Anonymous;
+		String firstName = "Anonymous";
+		String lastName = "User";
+		String jsonString = "{" +
+				"\"text\": \"" + email + "\"" +
+				"}";
+
+		JsonNode createAnswerValue = jsonNodeFromString(jsonString);
+		Answer answer = createAnswer(answerUUID, registrationIdUUID, createBlockUUID, createAnswerValue);
+
+		createRegistration.getAnswers().add(answer);
+		createRegistration.setCompleted(true); // so that the profile gets saved
+
+		// create registration through update
+		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.Anonymous);
+		Assert.assertEquals(response.getStatus(), 201);
+
+		Registration registration = response.getEntity();
+
+		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
+		Assert.assertEquals(registration.getId(), createRegistration.getId());
+		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
+
+		// get updated registration
+		response = registrationClient.getRegistration(registrationIdUUID, UserInfo.AuthCode.Anonymous);
+		Assert.assertEquals(response.getStatus(), 200);
+
+		registration = response.getEntity();
+		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
+		Assert.assertEquals(registration.getId(), createRegistration.getId());
+		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
+
+		// check for profile
+		ProfileEntity profileEntity = profileService.getProfileByUser(UserInfo.Id.Anonymous);
+		Assert.assertNotNull(profileEntity);
+		Assert.assertEquals(profileEntity.getUserId(), UserInfo.Id.Anonymous);
+		Assert.assertEquals(profileEntity.getEmail(), email);
+
+		// delete created profile
+		profileService.deleteProfileByUserId(UserInfo.Id.Anonymous);
+		profileEntity = profileService.getProfileByUser(UserInfo.Id.Anonymous);
+		Assert.assertNull(profileEntity);
+
+		// check for user email
+		UserEntity userEntity = userService.getUserById(userIdUUID);
+		Assert.assertNotNull(userEntity);
+		Assert.assertEquals(userEntity.getEmailAddress(), UserInfo.Email.Anonymous);
+
+		// delete remove email from user entity
+		userEntity.setEmailAddress("");
+		userService.updateUser(userEntity);
+		userEntity = userService.getUserById(userIdUUID);
+		Assert.assertNotNull(userEntity);
+		Assert.assertEquals(userEntity.getEmailAddress(), "");
+
+		sqlConnection.commit();
 
 		// delete created registration
 		response = registrationClient.deleteRegistration(registrationIdUUID, UserInfo.AuthCode.TestUser);

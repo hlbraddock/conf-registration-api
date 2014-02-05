@@ -7,6 +7,7 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.PermissionService;
+import org.cru.crs.service.ProfileService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.RegistrationViewService;
 import org.cru.crs.service.UserService;
@@ -64,8 +65,14 @@ public class ServiceFactory
 		return new RegistrationViewService(sqlConnection, createPageService(sqlConnection), createBlockService(sqlConnection));
 	}
 
-	public static PaymentService createPaymentService(Connection sqlConnection) {
+	public static PaymentService createPaymentService(Connection sqlConnection)
+	{
 		return new PaymentService(sqlConnection);
+	}
+
+	public static ProfileService createProfileService(Connection sqlConnection)
+	{
+		return new ProfileService(sqlConnection);
 	}
 
 }

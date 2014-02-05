@@ -12,3 +12,6 @@ INSERT INTO sessions(id, auth_code, expiration, auth_provider_id) VALUES ('b8a8c
 INSERT INTO sessions(id, auth_code, expiration, auth_provider_id) VALUES ('c8a8c217-f977-4503-b3b3-85016f981234', '488aca23cecd6e5b8ac406bf74a46723dd853273','02-Oct-2014 02:43:14 UTC','f8f8c217-f977-4503-b3b3-85016f988342');
 INSERT INTO sessions(id, auth_code, expiration, auth_provider_id) VALUES ('d8a8c217-f977-4503-b3b3-85016f981234', '11eac4a91ccb730509cd82d822b5b4dd202de7ff','02-Oct-2014 02:43:14 UTC','36f19114-f833-4a26-b7ba-b67052b68cea');
 INSERT INTO sessions(id, auth_code, expiration, auth_provider_id) VALUES ('e8a8c217-f977-4503-b3b3-85016f981234', '123aca23cecd6e5b8ac406bf74a46723dd853273','02-Oct-2013 02:43:14 UTC','f8f8c217-f977-4503-b3b3-85016f988342');
+
+INSERT INTO sessions(id, auth_code, expiration, auth_provider_id) VALUES
+('1234c217-f977-4503-b3b3-85016f981234', '1234c4a91ccb730509cd82d822b5b4dd202de7ff','02-Oct-2016 02:43:14 UTC','1234c217-f918-4503-b3b3-85016f988342');
