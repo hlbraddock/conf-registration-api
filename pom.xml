@@ -319,7 +319,6 @@
 			<properties>
 				<db.datasouce.name>java:jboss/datasources/crsLocalDS</db.datasouce.name>
 				<errbit.environment>local</errbit.environment>
-				<github.global.server>github</github.global.server>
 			</properties>
 			<activation>
     			<activeByDefault>true</activeByDefault>
