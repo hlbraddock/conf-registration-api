@@ -18,7 +18,7 @@ public class CrsPropertiesTest
     {
       CrsProperties props = new CrsPropertiesFactory().get();
 
-      Assert.assertEquals(props.get("clientUrl"), "http://localhost:9000/#/");
+      Assert.assertEquals(props.get("clientUrl"), "http://localhost:9000/#");
     }
 
 }
