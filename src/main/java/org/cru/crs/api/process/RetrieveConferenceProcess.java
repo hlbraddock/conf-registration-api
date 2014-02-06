@@ -48,6 +48,9 @@ public class RetrieveConferenceProcess
 	public Conference get(UUID conferenceId)
 	{
 		ConferenceEntity databaseConference = conferenceService.fetchConferenceBy(conferenceId);
+		if(databaseConference == null)
+			return null;
+
 		ConferenceCostsEntity databaseConferenceCosts = conferenceCostsService.fetchBy(conferenceId);
 		List<PageEntity> databasePages = orderPagesByPosition(pageService.fetchPagesForConference(conferenceId));
 		Map<UUID,List<BlockEntity>> databaseBlocks = Maps.newHashMap();
