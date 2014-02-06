@@ -290,8 +290,6 @@
 					<includes><include>**/*</include></includes>
 					<repositoryName>conf-registration-api</repositoryName>      <!-- github repo name -->
 					<repositoryOwner>CruGlobal</repositoryOwner>    <!-- github username  -->
-					<username>${github.username}</username>
-					<password>${github.password}</password>
 				</configuration>
 				<executions>
 					<!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
