@@ -59,7 +59,7 @@ public class CreatePermissionProcess
 
 	public void notifyRecipientOfGrantedPermission(Permission newPermission) throws MalformedURLException, MessagingException
 	{
-		mailService.send("crs.dev@cru.org", 
+		mailService.send(properties.getProperty("crsEmail"), 
 							newPermission.getEmailAddress(), 
 							PermissionEmail.subject(), 
 							PermissionEmail.body(createActivationUrl(newPermission.getId()), 
@@ -71,7 +71,9 @@ public class CreatePermissionProcess
 	private URL createActivationUrl(UUID permissionId) throws MalformedURLException
 	{
 		PermissionEntity dbPermission = permissionService.getPermissionBy(permissionId);
-		return new URL(properties.getProperty("permissionActivationUrl") + "/" +  dbPermission.getActivationCode());
+		return new URL(properties.getProperty("clientUrl") + properties.getProperty("permissionActivationUrlPath") 
+						+ "/" 
+						+  dbPermission.getActivationCode());
 	}
 
 }

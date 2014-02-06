@@ -117,7 +117,10 @@ public class FacebookAuthManager extends AbstractAuthManager
 		SessionEntity sessionEntity = persistSession(facebookUser);
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + sessionEntity.getAuthCode())).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") 
+									+ crsProperties.getProperty("authUrlPath") 
+									+ "/"
+									+ sessionEntity.getAuthCode())).build();
 	}
 
 	private boolean isLoginError(String code, String error)

@@ -49,7 +49,7 @@ public class AuthnetPaymentProcess
 		authnetAuthorizeCapture.setMerchant(createMerchant(conference));
 		authnetAuthorizeCapture.setMethod(new CreditCardMethod());
 		authnetAuthorizeCapture.setTransactionResult(null);
-		authnetAuthorizeCapture.setUrl(crsProperties.getProperty("authnetTestApiUrl"));
+		authnetAuthorizeCapture.setUrl(crsProperties.getProperty("authnetUrl"));
 		
 		authnetAuthorizeCapture.execute();
 		
@@ -70,7 +70,7 @@ public class AuthnetPaymentProcess
 		authnetCredit.setMerchant(createMerchant(conference));
 		authnetCredit.setMethod(new CreditCardMethod());
 		authnetCredit.setTransactionResult(createTransactionResult(payment));
-		authnetCredit.setUrl(crsProperties.getProperty("authnetApiUrl"));
+		authnetCredit.setUrl(crsProperties.getProperty("authnetUrl"));
 		
 		try
 		{
@@ -104,7 +104,7 @@ public class AuthnetPaymentProcess
 		authnetVoid.setMerchant(createMerchant(conference));
 		authnetVoid.setMethod(new CreditCardMethod());
 		authnetVoid.setTransactionResult(createTransactionResult(payment));
-		authnetVoid.setUrl(crsProperties.getProperty("authnetTestApiUrl"));
+		authnetVoid.setUrl(crsProperties.getProperty("authnetUrl"));
 		
 		authnetVoid.execute();
 		

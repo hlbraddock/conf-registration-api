@@ -30,6 +30,9 @@ public class NoAuthManager extends AbstractAuthManager
 		SessionEntity sessionEntity = persistSession(basicNoAuthUser);
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + sessionEntity.getAuthCode())).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") 
+										+ crsProperties.getProperty("authUrlPath") 
+										+ "/"
+										+ sessionEntity.getAuthCode())).build();
 	}
 }

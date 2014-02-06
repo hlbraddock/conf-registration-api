@@ -33,6 +33,9 @@ public class RelayAuthManager extends AbstractAuthManager
 		SessionEntity sessionEntity = persistSession(relayUser);
 
 		// redirect to client managed auth code url with auth code
-		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") + "auth/" + sessionEntity.getAuthCode())).build();
+		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") 
+											+ crsProperties.getProperty("authUrlPath") 
+											+ "/"
+											+ sessionEntity.getAuthCode())).build();
 	}
 }

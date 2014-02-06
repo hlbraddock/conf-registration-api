@@ -2,29 +2,5 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 
-    <!-- front end url-->
-    <entry key="clientUrl">http://localhost:9000/#/</entry>
-    <entry key="registerUrlPath">register</entry>
-
-    <!-- facebook app credentials -->
-    <entry key="facebookAppId"></entry>
-    <entry key="facebookAppSecret"></entry>
-
-    <!-- email server configuration -->
-    <entry key="mailServer">email-smtp.us-east-1.amazonaws.com</entry>
-    <entry key="mailServerUsername"></entry>
-    <entry key="mailServerPassword"></entry>
-
-    <entry key="crsEmail">donotreply@cru.org</entry>
-
-    <!-- user logged in session length (in hours) -->
-    <entry key="maxSessionLength">4</entry>
-
-	<!-- authorize dot net configuration -->
-	<entry key="currencyCode">USD</entry>
-
-	
-	<!-- errbit -->
-	<entry key="errbitEnvironment">${errbit.environment}</entry>
 </properties>
 
