@@ -30,7 +30,6 @@ public interface RegistrationViewResourceClient {
 													RegistrationView registrationView);
 	
 	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
 	public ClientResponse deleteRegistrationView(@PathParam(value = "registrationViewId") UUID registrationViewId,
 													@HeaderParam(value = "Authorization") String authCode);
 }

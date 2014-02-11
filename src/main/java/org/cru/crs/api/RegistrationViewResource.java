@@ -86,9 +86,9 @@ public class RegistrationViewResource extends TransactionalResource {
 	}
 	
 	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteRegistrationView(@PathParam(value = "registrationViewId") UUID registrationViewId,
-									 			@HeaderParam(value = "Authorization") String authCode) {
+									 			@HeaderParam(value = "Authorization") String authCode)
+	{
 		logger.info("revoking registration view entity " + registrationViewId + "auth code" + authCode);
 		
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
