@@ -86,7 +86,7 @@ public class UpdateRegistrationProcess
 	}
 
 	/**
-	 * If the person who is logged in is an administrator, he/she has the ability to update the total amount due.
+	 * If the person who is logged in is has update rights on the conference, he/she has the ability to update the total amount due.
 	 * 
 	 * @param registration
 	 * @param registrationEntity
@@ -97,9 +97,14 @@ public class UpdateRegistrationProcess
 	{
 		try 
 		{
-			authorizationService.authorizeRegistration(registration.toDbRegistrationEntity(), 
-					conferenceService.fetchConferenceBy(registration.getConferenceId()), 
-					OperationType.ADMIN, loggedInAdmin);
+			authorizationService.authorizeConference(
+										conferenceService.fetchConferenceBy(registration.getConferenceId()), 
+										OperationType.UPDATE,
+										loggedInAdmin);
+			
+			/*I don't think an admin should be able to update their own registration's totalDue.  Someone else should have to do that
+			 * for them, for accountability. */
+			if(loggedInAdmin.getId().equals(registration.getUserId())) throw new UnauthorizedException();
 			
 			//make sure that the amount coming over is non-null, and greater than 'zero'.  either of these values
 			//suggest the client didn't send an amount over and we don't want to accidentally make the conference free
