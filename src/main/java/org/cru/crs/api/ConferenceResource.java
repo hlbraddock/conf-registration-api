@@ -504,7 +504,7 @@ public class ConferenceResource extends TransactionalResource
 
 		Simply.logObject(currentPermissionForConference, ConferenceResource.class);
 		
-		if(currentPermissionForConference != null) throw new NotFoundException();
+		if(currentPermissionForConference == null) throw new NotFoundException();
 			
 		return Response.ok().entity(Permission.fromDb(currentPermissionForConference)).build();
 	}
