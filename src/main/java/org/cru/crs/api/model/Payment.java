@@ -2,6 +2,7 @@ package org.cru.crs.api.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
@@ -11,6 +12,8 @@ import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.PaymentType;
 import org.joda.time.DateTime;
+
+import com.google.common.collect.Lists;
 
 
 public class Payment implements Serializable
@@ -79,6 +82,17 @@ public class Payment implements Serializable
 		return payment;
 	}
 
+    public static List<Payment> fromDb(List<PaymentEntity> dbPayments)
+    {
+    	List<Payment> apiPayments = Lists.newArrayList();
+		
+		for(PaymentEntity databasePayment : dbPayments)
+		{
+			apiPayments.add(Payment.fromDb(databasePayment));
+		}
+		
+		return apiPayments;
+    }
 	public UUID getId()
 	{
 		return id;

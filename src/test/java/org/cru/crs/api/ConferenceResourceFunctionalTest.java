@@ -357,7 +357,7 @@ public class ConferenceResourceFunctionalTest
 			registrationId =  UUID.fromString(returnedLocationHeader.substring(resourceFullPathWithoutId.length()));
 
 			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId);
-			List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(registrationId);
+			List<PaymentEntity> payments = paymentService.getPaymentsForRegistration(registrationId);
 
 			Assert.assertEquals(registration.getId(), registrationId);
 			Assert.assertEquals(registration.getUserId(), newRegistration.getUserId());

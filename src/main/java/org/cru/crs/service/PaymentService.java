@@ -82,7 +82,7 @@ public class PaymentService
     					.executeUpdate();
     }
     
-    public List<PaymentEntity> fetchPaymentsForRegistration(UUID registrationId)
+    public List<PaymentEntity> getPaymentsForRegistration(UUID registrationId)
     {
         return sqlConnection.createQuery(PaymentQueries.selectAllForRegistration())
         			.addParameter("registrationId", registrationId)
@@ -96,7 +96,7 @@ public class PaymentService
      */
     public void disassociatePaymentsFromRegistration(UUID registrationId, CrsApplicationUser loggedInAdministrator)
     {
-    	List<PaymentEntity> payments = fetchPaymentsForRegistration(registrationId);
+    	List<PaymentEntity> payments = getPaymentsForRegistration(registrationId);
 
     	if(payments == null) return;
     	
@@ -165,4 +165,5 @@ public class PaymentService
     		throw new NotImplementedException();
     	}
     }
+
 }
