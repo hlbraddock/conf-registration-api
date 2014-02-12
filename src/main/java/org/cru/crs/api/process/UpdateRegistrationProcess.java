@@ -1,5 +1,6 @@
 package org.cru.crs.api.process;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +10,10 @@ import javax.inject.Inject;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.auth.authz.AuthorizationService;
+import org.cru.crs.auth.authz.OperationType;
+import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.RegistrationEntity;
@@ -29,21 +34,24 @@ public class UpdateRegistrationProcess
 	ProfileProcess profileProcess;
 	Clock clock;
 	
+	AuthorizationService authorizationService;
+	
 	RegistrationEntity originalRegistrationEntity;
 	Set<AnswerEntity> originalAnswerEntitySet;
 
 	@Inject
-	public UpdateRegistrationProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock, ProfileProcess profileProcess)
+	public UpdateRegistrationProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock, AuthorizationService authorizationService, ProfileProcess profileProcess)
 	{
 		this.registrationService = registrationService;
 		this.answerService = answerService;
 		this.conferenceService = conferenceService;
 		this.conferenceCostsService = conferenceCostsService;
 		this.clock = clock;
+		this.authorizationService = authorizationService;
 		this.profileProcess = profileProcess;
 	}
 	
-	public void performDeepUpdate(Registration registration)
+	public void performDeepUpdate(Registration registration, CrsApplicationUser loggedInAdmin)
 	{
 		originalRegistrationEntity = registrationService.getRegistrationBy(registration.getId());
 		originalAnswerEntitySet = getAnswerEntitySetFromDb(registration);
@@ -67,9 +75,42 @@ public class UpdateRegistrationProcess
 		RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
 
 		recordCompletedTimestampIfThisUpdateCompletesRegistration(registrationEntity);
-		setTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(registrationEntity);
+		
+		registrationEntity = calculateTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(registrationEntity);
+		
+		/* administrators can override the total due if they need to for some reason. the proper auth
+		 * checks are checked in this method*/
+		registrationEntity = administratorOverrideOfTotalDue(registration, registrationEntity, loggedInAdmin);
 		
 		registrationService.updateRegistration(registrationEntity);
+	}
+
+	/**
+	 * If the person who is logged in is an administrator, he/she has the ability to update the total amount due.
+	 * 
+	 * @param registration
+	 * @param registrationEntity
+	 * @param loggedInAdmin
+	 * @return
+	 */
+	private RegistrationEntity administratorOverrideOfTotalDue(Registration registration, RegistrationEntity registrationEntity, CrsApplicationUser loggedInAdmin)
+	{
+		try 
+		{
+			authorizationService.authorizeRegistration(registration.toDbRegistrationEntity(), 
+					conferenceService.fetchConferenceBy(registration.getConferenceId()), 
+					OperationType.ADMIN, loggedInAdmin);
+			
+			//make sure that the amount coming over is non-null, and greater than 'zero'.  either of these values
+			//suggest the client didn't send an amount over and we don't want to accidentally make the conference free
+			if(registration.getTotalDue() != null && registration.getTotalDue().compareTo(new BigDecimal("0")) > 0)
+			{
+				registrationEntity.setTotalDue(registration.getTotalDue());
+			}
+		}
+		catch(UnauthorizedException e){ /*do nothing*/ }
+		
+		return registrationEntity;
 	}
 
 	private void handleMissingAnswers(Registration registration)
@@ -116,11 +157,11 @@ public class UpdateRegistrationProcess
 	/**
 	 * If the registration is completed, let's check 
 	 */
-	private void setTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(RegistrationEntity updatedRegistration)
+	private RegistrationEntity calculateTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(RegistrationEntity updatedRegistration)
 	{
 		/*this should only be done once, that's when the updated registration is completed by the version
 		stored in the database is not*/
-		if(updatedRegistration.getCompleted() && !originalRegistrationEntity.getCompleted())
+		if(updatedRegistration.getCompleted())
 		{
 			ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(updatedRegistration.getConferenceId());
 
@@ -133,5 +174,7 @@ public class UpdateRegistrationProcess
 				updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost());
 			}
 		}
+		
+		return updatedRegistration;
 	}
 }

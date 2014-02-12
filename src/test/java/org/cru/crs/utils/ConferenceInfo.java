@@ -11,6 +11,7 @@ public class ConferenceInfo
 		public static UUID NorthernMichigan = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 		public static UUID MiamiUniversity = UUID.fromString("1951613E-A253-1AF8-6BC4-C9F1D0B3FA60");
 		public static UUID NewYork = UUID.fromString("d5878eba-9b3f-7f33-8355-3193bf4fb698");
+		public static UUID FallBeach = UUID.fromString("40A342D2-0D99-473A-2C3D-7046BFCDD942");
 		public static UUID WinterBeachCold = UUID.fromString("50A342D2-0D99-473A-2C3D-7046BFCDD942");
 	}
 	

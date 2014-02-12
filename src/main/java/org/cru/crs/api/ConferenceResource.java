@@ -331,7 +331,7 @@ public class ConferenceResource extends TransactionalResource
 		Simply.logObject(newRegistration, ConferenceResource.class);
 
 		/*now perform a deep update to ensure that any answers or other payments are properly saved*/
-		updateRegistrationProcess.performDeepUpdate(newRegistration);
+		updateRegistrationProcess.performDeepUpdate(newRegistration, crsLoggedInUser);
 
 		Registration freshCopyOfNewRegistration = retrieveRegistrationProcess.get(newRegistrationEntity.getId());
 

@@ -1,5 +1,6 @@
 package org.cru.crs.utils;
 
+import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;
@@ -73,6 +74,11 @@ public class ServiceFactory
 	public static ProfileService createProfileService(Connection sqlConnection)
 	{
 		return new ProfileService(sqlConnection);
+	}
+	
+	public static AuthorizationService createAuthorizationService(Connection sqlConnection)
+	{
+		return new AuthorizationService(createPermissionService(sqlConnection), createRegistrationService(sqlConnection));
 	}
 
 }
