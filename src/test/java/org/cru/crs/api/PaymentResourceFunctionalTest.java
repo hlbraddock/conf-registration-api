@@ -125,7 +125,7 @@ public class PaymentResourceFunctionalTest
 			
 			Assert.assertEquals(response.getStatus(), 201);
 			
-			List<PaymentEntity> paymentsForRegistration = paymentService.fetchPaymentsForRegistration(registrationUUID);
+			List<PaymentEntity> paymentsForRegistration = paymentService.getPaymentsForRegistration(registrationUUID);
 			
 			for(PaymentEntity payment : paymentsForRegistration)
 			{

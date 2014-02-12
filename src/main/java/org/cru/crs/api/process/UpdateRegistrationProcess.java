@@ -35,9 +35,6 @@ public class UpdateRegistrationProcess
 	Clock clock;
 	
 	AuthorizationService authorizationService;
-	
-	;
-	;
 
 	@Inject
 	public UpdateRegistrationProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock, AuthorizationService authorizationService, ProfileProcess profileProcess)

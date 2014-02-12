@@ -129,7 +129,7 @@ public class PaymentServiceTest
 	@Test(groups="dbtest")
 	public void testGetPaymentsForRegistration()
 	{
-		List<PaymentEntity> payments = paymentService.fetchPaymentsForRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
+		List<PaymentEntity> payments = paymentService.getPaymentsForRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
 		
 		Assert.assertNotNull(payments);
 		Assert.assertEquals(payments.size(), 2);
@@ -151,7 +151,7 @@ public class PaymentServiceTest
 		{
 			paymentService.disassociatePaymentsFromRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"), UserInfo.Users.TestUser);
 			
-			Assert.assertTrue(paymentService.fetchPaymentsForRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111")).isEmpty());
+			Assert.assertTrue(paymentService.getPaymentsForRegistration(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111")).isEmpty());
 			Assert.assertNotNull(paymentService.getPaymentById(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222")));
 			Assert.assertNotNull(paymentService.getPaymentById(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb33333")));
 		}

@@ -32,7 +32,7 @@ public class RetrieveRegistrationProcess
 	{
 		RegistrationEntity databaseRegistration = registrationService.getRegistrationBy(registrationId);
 		List<AnswerEntity> databaseAnswers = answerService.getAllAnswersForRegistration(registrationId);
-		List<PaymentEntity> databasePayments = paymentService.fetchPaymentsForRegistration(registrationId);
+		List<PaymentEntity> databasePayments = paymentService.getPaymentsForRegistration(registrationId);
 		
 		PaymentEntity currentPayment = null;
 		

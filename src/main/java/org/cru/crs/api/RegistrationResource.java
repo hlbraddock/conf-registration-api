@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.NotificationProcess;
 import org.cru.crs.api.process.ProfileProcess;
@@ -37,6 +38,7 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
 import org.cru.crs.utils.IdComparer;
@@ -51,7 +53,8 @@ public class RegistrationResource extends TransactionalResource
 	@Inject CrsUserService crsUserService;
 	@Inject AnswerService answerService;
 	@Inject	UserService userService;
-
+	@Inject PaymentService paymentService;
+	
     @Inject AuthorizationService authorizationService;
 
     @Inject RetrieveRegistrationProcess retrieveRegistrationProcess;
@@ -272,5 +275,26 @@ public class RegistrationResource extends TransactionalResource
 				.entity(newAnswer)
 				.header("location", new URI("/answers/" + newAnswer.getId()))
 				.build();
+	}
+	
+	@GET
+	@Path("/payments")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPaymentsForRegistration(@PathParam(value = "registrationId") UUID registrationId, @HeaderParam(value = "Authorization") String authCode)
+	{
+		logger.info("get payments for registration " + registrationId + " and auth code " + authCode);
+
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
+		
+		RegistrationEntity registrationEntity = registrationService.getRegistrationBy(registrationId);
+		
+		if(registrationEntity == null) throw new BadRequestException();
+		
+		authorizationService.authorizeRegistration(registrationEntity, 
+													conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
+													OperationType.READ, 
+													crsLoggedInUser);
+		
+		return Response.ok(Payment.fromDb(paymentService.getPaymentsForRegistration(registrationId))).build();
 	}
 }
