@@ -105,7 +105,8 @@ public class Registration implements java.io.Serializable
 		
 		dbRegistration.setId(id);
 		dbRegistration.setUserId(userId);
-		/*total due is omitted b/c that value would never come from the client*/
+		/*total due is omitted b/c that value doesn't typically come from the client.  administrators
+		 * can override the total due, but that is handled specifically in UpdateRegistrationProcess*/
 		dbRegistration.setCompleted(completed);
 		dbRegistration.setConferenceId(conferenceId);
         /*completed timestamp is omitted b/c that value would never come from the client*/

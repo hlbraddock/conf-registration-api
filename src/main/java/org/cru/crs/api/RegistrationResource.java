@@ -165,7 +165,7 @@ public class RegistrationResource extends TransactionalResource
 			profileProcess.populateRegistrationAnswers(registration);
 		}
 
-		updateRegistrationProcess.performDeepUpdate(registration);
+		updateRegistrationProcess.performDeepUpdate(registration, crsLoggedInUser);
 
 		// if the registrant has completed the registration
 		if(registration.getCompleted())

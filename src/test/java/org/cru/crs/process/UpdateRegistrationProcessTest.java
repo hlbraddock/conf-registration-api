@@ -3,13 +3,12 @@ package org.cru.crs.process;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import junit.framework.Assert;
-
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
 import org.cru.crs.api.process.UpdateRegistrationProcess;
+import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
@@ -17,12 +16,15 @@ import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.PaymentService;
-import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.ProfileService;
 import org.cru.crs.service.RegistrationService;
 import org.cru.crs.service.UserService;
+import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
+import org.cru.crs.utils.ServiceFactory;
+import org.cru.crs.utils.UserInfo;
 import org.joda.time.DateTime;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -39,26 +41,24 @@ public class UpdateRegistrationProcessTest
 	Registration testRegistration;
 
 	Clock clock;
-
-	final UUID conferenceId = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 	
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
 		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		
-		AnswerService answerService = new AnswerService(sqlConnection);
-		PaymentService paymentService = new PaymentService(sqlConnection);
-		BlockService blockService = new BlockService(sqlConnection, answerService);
-		UserService userService = new UserService(sqlConnection);
-		PageService pageService = new PageService(sqlConnection, blockService);
-		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);
-		PermissionService permissionService = new PermissionService(sqlConnection);
-		ConferenceService conferenceService = new ConferenceService(sqlConnection, conferenceCostsService, pageService, userService, permissionService);
-		ProfileService profileService = new ProfileService(sqlConnection);
+		AnswerService answerService = ServiceFactory.createAnswerService(sqlConnection);
+		PaymentService paymentService = ServiceFactory.createPaymentService(sqlConnection);
+		BlockService blockService = ServiceFactory.createBlockService(sqlConnection);
+		PageService pageService = ServiceFactory.createPageService(sqlConnection);
+		ConferenceCostsService conferenceCostsService = ServiceFactory.createConferenceCostsService(sqlConnection);
+		ConferenceService conferenceService = ServiceFactory.createConferenceService(sqlConnection);
+		ProfileService profileService = ServiceFactory.createProfileService(sqlConnection);
+		AuthorizationService authorizationService = ServiceFactory.createAuthorizationService(sqlConnection);
+		
 		ProfileProcess profileProcess = new ProfileProcess(blockService, profileService, pageService, new UserService(sqlConnection));
-
-		registrationService = new RegistrationService(sqlConnection, answerService, paymentService);
+		
+		registrationService = ServiceFactory.createRegistrationService(sqlConnection);
 
 		registrationFetchProcess = new RetrieveRegistrationProcess(registrationService, paymentService, answerService);
 
@@ -71,7 +71,13 @@ public class UpdateRegistrationProcessTest
 			}
 		};
 
-		process = new UpdateRegistrationProcess(registrationService,answerService,conferenceService, conferenceCostsService, clock, profileProcess);
+		process = new UpdateRegistrationProcess(registrationService,
+													answerService,
+													conferenceService, 
+													conferenceCostsService, 
+													clock, 
+													authorizationService,
+													profileProcess);
 	}
 	
 	@BeforeMethod(alwaysRun=true)
@@ -79,7 +85,8 @@ public class UpdateRegistrationProcessTest
 	{
 		testRegistration = new Registration();
 		testRegistration.setId(UUID.randomUUID());
-		testRegistration.setConferenceId(conferenceId);
+		testRegistration.setConferenceId(ConferenceInfo.Id.FallBeach);
+		testRegistration.setUserId(UserInfo.Id.TestUser);
 	}
 	
 	@Test(groups="dbtest")
@@ -91,13 +98,13 @@ public class UpdateRegistrationProcessTest
 
 			testRegistration.setCompleted(true);
 
-			process.performDeepUpdate(testRegistration);
+			process.performDeepUpdate(testRegistration, UserInfo.Users.TestUser);
 			
 			Registration updatedRegistration = registrationFetchProcess.get(testRegistration.getId());
 			
 			Assert.assertTrue(updatedRegistration.getCompleted());
-			Assert.assertEquals(new BigDecimal("50.00"), updatedRegistration.getTotalDue());
-			Assert.assertEquals(clock.currentDateTime(), updatedRegistration.getCompletedTimestamp());
+			Assert.assertEquals(updatedRegistration.getTotalDue(), new BigDecimal("125.00"));
+			Assert.assertEquals(updatedRegistration.getCompletedTimestamp(), clock.currentDateTime());
 		}
 		finally
 		{
@@ -105,4 +112,69 @@ public class UpdateRegistrationProcessTest
 		}
 	}
 
+	@Test(groups="dbtest")
+	public void testAdministratorOverrideTotalDue()
+	{
+		try
+		{
+			registrationService.createNewRegistration(testRegistration.toDbRegistrationEntity());
+
+			testRegistration.setCompleted(true);
+
+			/*set the registration to be complete.  this sets the total due to $125.00*/
+			process.performDeepUpdate(testRegistration, UserInfo.Users.TestUser);
+
+			Assert.assertEquals(registrationService.getRegistrationBy(testRegistration.getId()).getTotalDue(), new BigDecimal("125.00"));
+			
+			testRegistration.setTotalDue(new BigDecimal("100.00"));
+
+			/*TestUser does not have admin rights for this conference, so he should
+			 * not be able alter the total due. */
+			process.performDeepUpdate(testRegistration, UserInfo.Users.TestUser);
+
+			Assert.assertEquals(registrationService.getRegistrationBy(testRegistration.getId()).getTotalDue(), new BigDecimal("125.00"));
+			
+			/*Ryan is the creator of this conference, so he should be able to change it*/
+			process.performDeepUpdate(testRegistration, UserInfo.Users.Ryan);
+			
+			Assert.assertEquals(registrationService.getRegistrationBy(testRegistration.getId()).getTotalDue(), new BigDecimal("100.00"));
+		}
+		finally
+		{
+			sqlConnection.rollback();
+		}
+	}
+	
+	@Test(groups="dbtest")
+	public void testAdministratorOverrideTotalDueToNull()
+	{
+		try
+		{
+			registrationService.createNewRegistration(testRegistration.toDbRegistrationEntity());
+
+			testRegistration.setCompleted(true);
+
+			/*set the registration to be complete.  this sets the total due to $125.00*/
+			process.performDeepUpdate(testRegistration, UserInfo.Users.TestUser);
+
+			Assert.assertEquals(registrationService.getRegistrationBy(testRegistration.getId()).getTotalDue(), new BigDecimal("125.00"));
+			
+			testRegistration.setTotalDue(null);
+
+			/*TestUser does not have admin rights for this conference, so he should
+			 * not be able alter the total due. */
+			process.performDeepUpdate(testRegistration, UserInfo.Users.TestUser);
+
+			Assert.assertEquals(registrationService.getRegistrationBy(testRegistration.getId()).getTotalDue(), new BigDecimal("125.00"));
+			
+			/*Ryan is the creator of this conference, so he should be able to change it*/
+			process.performDeepUpdate(testRegistration, UserInfo.Users.Ryan);
+			
+			Assert.assertEquals(registrationService.getRegistrationBy(testRegistration.getId()).getTotalDue(), new BigDecimal("125.00"));
+		}
+		finally
+		{
+			sqlConnection.rollback();
+		}
+	}
 }
