@@ -144,4 +144,37 @@ public class UpdateRegistrationProcessTest
 			sqlConnection.rollback();
 		}
 	}
+	
+	@Test(groups="dbtest")
+	public void testAdministratorOverrideTotalDueToNull()
+	{
+		try
+		{
+			registrationService.createNewRegistration(testRegistration.toDbRegistrationEntity());
+
+			testRegistration.setCompleted(true);
+
+			/*set the registration to be complete.  this sets the total due to $125.00*/
+			process.performDeepUpdate(testRegistration, UserInfo.Users.TestUser);
+
+			Assert.assertEquals(registrationService.getRegistrationBy(testRegistration.getId()).getTotalDue(), new BigDecimal("125.00"));
+			
+			testRegistration.setTotalDue(null);
+
+			/*TestUser does not have admin rights for this conference, so he should
+			 * not be able alter the total due. */
+			process.performDeepUpdate(testRegistration, UserInfo.Users.TestUser);
+
+			Assert.assertEquals(registrationService.getRegistrationBy(testRegistration.getId()).getTotalDue(), new BigDecimal("125.00"));
+			
+			/*Ryan is the creator of this conference, so he should be able to change it*/
+			process.performDeepUpdate(testRegistration, UserInfo.Users.Ryan);
+			
+			Assert.assertEquals(registrationService.getRegistrationBy(testRegistration.getId()).getTotalDue(), new BigDecimal("125.00"));
+		}
+		finally
+		{
+			sqlConnection.rollback();
+		}
+	}
 }

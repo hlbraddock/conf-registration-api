@@ -36,8 +36,8 @@ public class UpdateRegistrationProcess
 	
 	AuthorizationService authorizationService;
 	
-	RegistrationEntity originalRegistrationEntity;
-	Set<AnswerEntity> originalAnswerEntitySet;
+	;
+	;
 
 	@Inject
 	public UpdateRegistrationProcess(RegistrationService registrationService, AnswerService answerService, ConferenceService conferenceService, ConferenceCostsService conferenceCostsService, Clock clock, AuthorizationService authorizationService, ProfileProcess profileProcess)
@@ -53,10 +53,10 @@ public class UpdateRegistrationProcess
 	
 	public void performDeepUpdate(Registration registration, CrsApplicationUser loggedInAdmin)
 	{
-		originalRegistrationEntity = registrationService.getRegistrationBy(registration.getId());
-		originalAnswerEntitySet = getAnswerEntitySetFromDb(registration);
+		RegistrationEntity originalRegistrationEntity = registrationService.getRegistrationBy(registration.getId());
+		Set<AnswerEntity> originalAnswerEntitySet = getAnswerEntitySetFromDb(registration);
 		
-		handleMissingAnswers(registration);
+		handleMissingAnswers(registration, originalAnswerEntitySet);
 		
 		for(Answer updatedOrNewAnswer : registration.getAnswers())
 		{
@@ -74,15 +74,30 @@ public class UpdateRegistrationProcess
 		 * cannot influence to determine total cost and completed timestamp*/
 		RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
 
-		recordCompletedTimestampIfThisUpdateCompletesRegistration(registrationEntity);
+		recordCompletedTimestampIfThisUpdateCompletesRegistration(registrationEntity, originalRegistrationEntity);
 		
-		registrationEntity = calculateTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(registrationEntity);
+		calculateTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(registrationEntity, originalRegistrationEntity);
 		
 		/* administrators can override the total due if they need to for some reason. the proper auth
 		 * checks are checked in this method*/
-		registrationEntity = administratorOverrideOfTotalDue(registration, registrationEntity, loggedInAdmin);
+		administratorOverrideOfTotalDue(registration, registrationEntity, loggedInAdmin);
+		
+		ensureStoredValuesDontGetErased(registrationEntity, originalRegistrationEntity);
 		
 		registrationService.updateRegistration(registrationEntity);
+	}
+
+	private void ensureStoredValuesDontGetErased(RegistrationEntity registrationEntity, RegistrationEntity originalRegistrationEntity)
+	{
+		if(registrationEntity.getCompletedTimestamp() == null && originalRegistrationEntity.getCompletedTimestamp() != null)
+		{
+			registrationEntity.setCompletedTimestamp(originalRegistrationEntity.getCompletedTimestamp());
+		}
+		
+		if(registrationEntity.getTotalDue() == null && originalRegistrationEntity.getTotalDue() != null) 
+		{
+			registrationEntity.setTotalDue(originalRegistrationEntity.getTotalDue());
+		}
 	}
 
 	/**
@@ -93,7 +108,7 @@ public class UpdateRegistrationProcess
 	 * @param loggedInAdmin
 	 * @return
 	 */
-	private RegistrationEntity administratorOverrideOfTotalDue(Registration registration, RegistrationEntity registrationEntity, CrsApplicationUser loggedInAdmin)
+	private void administratorOverrideOfTotalDue(Registration registration, RegistrationEntity registrationEntity, CrsApplicationUser loggedInAdmin)
 	{
 		try 
 		{
@@ -114,11 +129,9 @@ public class UpdateRegistrationProcess
 			}
 		}
 		catch(UnauthorizedException e){ /*do nothing*/ }
-		
-		return registrationEntity;
 	}
 
-	private void handleMissingAnswers(Registration registration)
+	private void handleMissingAnswers(Registration registration, Set<AnswerEntity> originalAnswerEntitySet)
 	{
 		Collection<AnswerEntity> deletedAnswerEntites = CollectionUtils.firstNotFoundInSecond(Lists.newArrayList(originalAnswerEntitySet), 
 																								Lists.newArrayList(convertWebAnswersToAnswerEntities(registration.getAnswers())));
@@ -149,24 +162,22 @@ public class UpdateRegistrationProcess
 		return answers;
 	}
 	
-	private void recordCompletedTimestampIfThisUpdateCompletesRegistration(RegistrationEntity registration)
+	private void recordCompletedTimestampIfThisUpdateCompletesRegistration(RegistrationEntity updatedRegistration, RegistrationEntity originalRegistrationEntity)
 	{
 		/*this should only be done once, that's when the updated registration is completed by the version
 		stored in the database is not*/
-		if(registration.getCompleted() && !originalRegistrationEntity.getCompleted())
+		if(updatedRegistration.getCompleted() && !originalRegistrationEntity.getCompleted())
 		{
-			registration.setCompletedTimestamp(clock.currentDateTime());
+			updatedRegistration.setCompletedTimestamp(clock.currentDateTime());
 		}
 	}
 	
 	/**
 	 * If the registration is completed, let's check 
 	 */
-	private RegistrationEntity calculateTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(RegistrationEntity updatedRegistration)
+	private void calculateTotalDueBasedOnCompletedTimeAndEarlyRegistrationFactors(RegistrationEntity updatedRegistration, RegistrationEntity originalRegistrationEntity)
 	{
-		/*this should only be done once, that's when the updated registration is completed by the version
-		stored in the database is not*/
-		if(updatedRegistration.getCompleted())
+		if(updatedRegistration.getCompleted()  && !originalRegistrationEntity.getCompleted())
 		{
 			ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(updatedRegistration.getConferenceId());
 
@@ -179,7 +190,5 @@ public class UpdateRegistrationProcess
 				updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost());
 			}
 		}
-		
-		return updatedRegistration;
 	}
 }
