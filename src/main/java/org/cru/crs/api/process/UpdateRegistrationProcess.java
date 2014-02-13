@@ -168,7 +168,7 @@ public class UpdateRegistrationProcess
 			updatedRegistration.setCompletedTimestamp(clock.currentDateTime());
 		}
 	}
-	
+
 	/**
 	 * If the registration is completed, let's check 
 	 */
@@ -178,13 +178,12 @@ public class UpdateRegistrationProcess
 		{
 			ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(updatedRegistration.getConferenceId());
 
+			updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost());
+
+			if(conferenceCostsEntity.getEarlyRegistrationCutoff() != null)
 			if(conferenceCostsEntity.isEarlyRegistrationDiscount() && updatedRegistration.getCompletedTimestamp().isBefore(conferenceCostsEntity.getEarlyRegistrationCutoff()))
 			{
 				updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost().subtract(conferenceCostsEntity.getEarlyRegistrationAmount()));
-			}
-			else
-			{
-				updatedRegistration.setTotalDue(conferenceCostsEntity.getBaseCost());
 			}
 		}
 	}
