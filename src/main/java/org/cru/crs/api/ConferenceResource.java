@@ -481,6 +481,34 @@ public class ConferenceResource extends TransactionalResource
 		return Response.ok().entity(webPermissions).build();
 	}
 	
+	@GET
+	@Path("/{conferenceId}/permissions/current")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getPermissionsForCurrentUserOnConference(@PathParam(value = "conferenceId") UUID conferenceId,
+																@HeaderParam(value = "Authorization") String authCode)
+	{
+		logger.info("get permission entities " + conferenceId + "auth code" + authCode);
+
+		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
+
+		ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+		
+		if(conference == null) throw new BadRequestException();
+		
+		/*somewhat trivial call, but for correctness...*/
+		authorizationService.authorizeConference(conference, 
+													OperationType.READ,
+													crsLoggedInUser);
+		
+		PermissionEntity currentPermissionForConference = permissionService.getPermissionForUserOnConference(crsLoggedInUser.getId(), conferenceId);
+
+		Simply.logObject(currentPermissionForConference, ConferenceResource.class);
+		
+		if(currentPermissionForConference == null) throw new NotFoundException();
+			
+		return Response.ok().entity(Permission.fromDb(currentPermissionForConference)).build();
+	}
+	
 	@POST
 	@Path("/{conferenceId}/permissions")
 	@Consumes(MediaType.APPLICATION_JSON)

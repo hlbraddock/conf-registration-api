@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
@@ -87,4 +88,10 @@ public interface ConferenceResourceClient
 	public ClientResponse createRegistrationView(@PathParam(value = "conferenceId") UUID conferenceId,
 											@HeaderParam(value = "Authorization") String authCode,
 											RegistrationView newDataView) throws URISyntaxException;
+	
+	@GET
+	@Path("/{conferenceId}/permissions/current")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ClientResponse<Permission> getPermissionsForCurrentUserOnConference(@PathParam(value = "conferenceId") UUID conferenceId,
+																@HeaderParam(value = "Authorization") String authCode);
 }
