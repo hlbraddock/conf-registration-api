@@ -33,8 +33,6 @@ public class Registration implements java.io.Serializable
     private boolean completed;
     private DateTime completedTimestamp;
     
-    private Payment currentPayment;
-    
     private Set<Answer> answers = Sets.newHashSet();
     private List<Payment> pastPayments = Lists.newArrayList();
 
@@ -60,7 +58,7 @@ public class Registration implements java.io.Serializable
         return webRegistration;
 	}
 	
-	public static Registration fromDb(RegistrationEntity dbRegistration, List<AnswerEntity> dbAnswers, List<PaymentEntity> dbPastPayments, PaymentEntity dbCurrentPayment)
+	public static Registration fromDb(RegistrationEntity dbRegistration, List<AnswerEntity> dbAnswers, List<PaymentEntity> dbPastPayments)
 	{
 		Registration webRegistration = fromDb(dbRegistration);
 		
@@ -82,8 +80,7 @@ public class Registration implements java.io.Serializable
 				webRegistration.pastPayments.add(Payment.fromDb(dbPastPayment));
 			}
 		}
-		webRegistration.currentPayment = Payment.fromDb(dbCurrentPayment);
-		
+
 		return webRegistration;
 	}
 	
@@ -172,16 +169,6 @@ public class Registration implements java.io.Serializable
 	public void setPastPayments(List<Payment> pastPayments)
 	{
 		this.pastPayments = pastPayments;
-	}
-
-	public Payment getCurrentPayment()
-	{
-		return currentPayment;
-	}
-
-	public void setCurrentPayment(Payment currentPayment)
-	{
-		this.currentPayment = currentPayment;
 	}
 
 	public BigDecimal getTotalDue()
