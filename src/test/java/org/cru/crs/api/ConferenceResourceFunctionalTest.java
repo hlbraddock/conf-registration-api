@@ -716,6 +716,16 @@ public class ConferenceResourceFunctionalTest
 		}
 	}
 	
+	@Test(groups="functional-tests")
+	public void getPermissionsForCurrentUserOnConference() throws IOException, URISyntaxException
+	{
+		ClientResponse<Permission> response = conferenceClient.getPermissionsForCurrentUserOnConference(ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.TestUser);
+		
+		Assert.assertEquals(response.getStatus(), 200);
+		
+		Assert.assertEquals(response.getEntity().getPermissionLevel(), PermissionLevel.CREATOR);
+	}
+	
 	private RegistrationView createFakeRegistrationView() throws IOException
 	{
 		RegistrationView view = new RegistrationView();
