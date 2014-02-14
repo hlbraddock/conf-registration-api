@@ -588,6 +588,8 @@ public class ConferenceResource extends TransactionalResource
 		 * with READ access should be able to save a stored view */
 		authorizationService.authorizeConference(conference, OperationType.READ, crsLoggedInUser);
 
+		newDataView.setCreatedByUserId(crsLoggedInUser.getId());
+		
 		registrationViewService.insertRegistrationView(newDataView.toDbDataViewEntity());
 
 		return Response.created(new URI("/conferences/" + conferenceId + "/registration-views/" + newDataView.getId()))

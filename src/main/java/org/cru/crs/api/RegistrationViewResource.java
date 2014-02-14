@@ -67,7 +67,7 @@ public class RegistrationViewResource extends TransactionalResource {
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 		
 		authorizationService.authorizeConference(conferenceService.fetchConferenceBy(registrationView.getConferenceId()), 
-																	OperationType.ADMIN, 
+																	OperationType.READ, 
 																	crsLoggedInUser);
 		
 		Simply.logObject(registrationView, RegistrationViewResource.class);
