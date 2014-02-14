@@ -404,11 +404,11 @@ public class ConferenceResource extends TransactionalResource
 										   @HeaderParam(value = "Authorization") String authCode,
 										   @HeaderParam(value = "PreviousAuthorization") String previousAuthCode)
 	{
-		logger.info(conferenceId);
+		logger.info("getCurrentRegistration()" + conferenceId);
 
 		CrsApplicationUser loggedInUser = crsUserService.getLoggedInUser(authCode);
 
-		logger.info(loggedInUser);
+		logger.info("getCurrentRegistration()" + loggedInUser.getAuthProviderUsername());
 
 		RegistrationEntity registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, loggedInUser.getId());
 
@@ -425,13 +425,16 @@ public class ConferenceResource extends TransactionalResource
 			{
 				CrsApplicationUser previousLoggedInUser = crsUserService.getLoggedInUser(previousAuthCode);
 
-				logger.info("previous logged in user " + loggedInUser);
+				logger.info("getCurrentRegistration() previous logged in user " + loggedInUser.getAuthProviderUsername());
 
 				registrationEntity = registrationService.getRegistrationByConferenceIdUserId(conferenceId, previousLoggedInUser.getId());
 
-				registrationEntity.setUserId(loggedInUser.getId());
+				if(registrationEntity != null)
+				{
+					registrationEntity.setUserId(loggedInUser.getId());
 
-				registrationService.updateRegistration(registrationEntity);
+					registrationService.updateRegistration(registrationEntity);
+				}
 			}
 		}
 
