@@ -34,8 +34,6 @@ public class RetrieveRegistrationProcess
 		List<AnswerEntity> databaseAnswers = answerService.getAllAnswersForRegistration(registrationId);
 		List<PaymentEntity> databasePayments = paymentService.getPaymentsForRegistration(registrationId);
 		
-		PaymentEntity currentPayment = null;
-		
 		Iterator<PaymentEntity> i = databasePayments.iterator();
 		
 		for(; i.hasNext(); )
@@ -44,10 +42,9 @@ public class RetrieveRegistrationProcess
 			if(nextPayment.getAuthnetTransactionId() == null)
 			{
 				i.remove();
-				currentPayment = nextPayment;
 			}
 		}
 		
-		return Registration.fromDb(databaseRegistration,databaseAnswers,databasePayments,currentPayment);
+		return Registration.fromDb(databaseRegistration,databaseAnswers,databasePayments);
 	}
 }

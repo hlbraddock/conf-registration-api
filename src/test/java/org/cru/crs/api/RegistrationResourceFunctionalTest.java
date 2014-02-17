@@ -191,39 +191,6 @@ public class RegistrationResourceFunctionalTest
 	}
 
 	@Test(groups="functional-tests")
-	public void createRegistrationOnUpdate() throws URISyntaxException
-	{
-		UUID registrationIdUUID = UUID.randomUUID();
-		UUID userIdUUID = UserInfo.Id.Ryan;
-		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
-
-		Registration createRegistration = createRegistration(registrationIdUUID, userIdUUID, conferenceUUID);
-
-		// create registration through update
-		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.Ryan);
-		Assert.assertEquals(response.getStatus(), 201);
-
-		Registration registration = response.getEntity();
-
-		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
-		Assert.assertEquals(registration.getId(), createRegistration.getId());
-		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
-
-		// get updated registration
-		response = registrationClient.getRegistration(registrationIdUUID, UserInfo.AuthCode.Ryan);
-		Assert.assertEquals(response.getStatus(), 200);
-
-		registration = response.getEntity();
-		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
-		Assert.assertEquals(registration.getId(), createRegistration.getId());
-		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
-
-		// delete created registration
-		response = registrationClient.deleteRegistration(registrationIdUUID, UserInfo.AuthCode.TestUser);
-		Assert.assertEquals(response.getStatus(), 204);
-	}
-
-	@Test(groups="functional-tests")
 	public void saveCompletedRegistrationToCaptureProfile() throws URISyntaxException
 	{
 		UUID registrationIdUUID = UUID.randomUUID();
@@ -247,8 +214,8 @@ public class RegistrationResourceFunctionalTest
 
 		createRegistration.getAnswers().add(answer);
 
-		// create registration through update
-		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.Ryan);
+		// create registration
+		ClientResponse<Registration> response = conferenceClient.createRegistration(createRegistration, conferenceUUID, UserInfo.AuthCode.Ryan);
 		Assert.assertEquals(response.getStatus(), 201);
 
 		Registration registration = response.getEntity();
@@ -315,10 +282,9 @@ public class RegistrationResourceFunctionalTest
 		Answer answer = createAnswer(answerUUID, registrationIdUUID, createBlockUUID, createAnswerValue);
 
 		createRegistration.getAnswers().add(answer);
-		createRegistration.setCompleted(true); // so that the profile gets saved
 
-		// create registration through update
-		ClientResponse<Registration> response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.Anonymous);
+		// create registration
+		ClientResponse<Registration> response = conferenceClient.createRegistration(createRegistration, conferenceUUID, UserInfo.AuthCode.Anonymous);
 		Assert.assertEquals(response.getStatus(), 201);
 
 		Registration registration = response.getEntity();
@@ -326,6 +292,10 @@ public class RegistrationResourceFunctionalTest
 		Assert.assertEquals(registration.getConferenceId(), createRegistration.getConferenceId());
 		Assert.assertEquals(registration.getId(), createRegistration.getId());
 		Assert.assertEquals(registration.getUserId(), createRegistration.getUserId());
+
+		createRegistration.setCompleted(true); // so that the profile gets saved
+		response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.Anonymous);
+		Assert.assertEquals(response.getStatus(), 204);
 
 		// get updated registration
 		response = registrationClient.getRegistration(registrationIdUUID, UserInfo.AuthCode.Anonymous);
@@ -368,20 +338,6 @@ public class RegistrationResourceFunctionalTest
 		// ensure deleted registration
 		response = registrationClient.getRegistration(registrationIdUUID, UserInfo.AuthCode.Ryan);
 		Assert.assertNotEquals(response.getStatus(), 200);
-	}
-
-	@Test(groups="functional-tests")
-	public void createRegistrationOnUpdateUserAlreadyRegistered() throws URISyntaxException
-	{
-		UUID registrationIdUUID = UUID.randomUUID();
-		UUID userIdUUID = UserInfo.Id.TestUser;
-		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
-
-		Registration createRegistration = createRegistration(registrationIdUUID, userIdUUID, conferenceUUID);
-
-		// create registration through update
-		ClientResponse response = registrationClient.updateRegistration(createRegistration, registrationIdUUID, UserInfo.AuthCode.TestUser);
-		Assert.assertEquals(response.getStatus(), 401);
 	}
 
 	/**

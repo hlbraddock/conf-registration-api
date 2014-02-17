@@ -66,15 +66,15 @@ public class PaymentResourceFunctionalTest
 		
 		Registration registration = registrationFetchProcess.get(registrationUUID);
 		
-		addCurrentPaymentToRegistration(registration);
+		Payment payment = addCurrentPaymentToRegistration(registrationUUID);
 		
 		try
 		{
-			ClientResponse updateResponse = paymentClient.updatePayment(registration.getCurrentPayment(), paymentUUID, UserInfo.AuthCode.TestUser);
+			ClientResponse updateResponse = paymentClient.updatePayment(payment, paymentUUID, UserInfo.AuthCode.TestUser);
 
 			Assert.assertEquals(updateResponse.getStatus(), 204);
 
-			processedPayment = paymentService.getPaymentById(registration.getCurrentPayment().getId());
+			processedPayment = paymentService.getPaymentById(payment.getId());
 
 			Assert.assertNotNull(processedPayment.getAuthnetTransactionId());
 			Assert.assertNotNull(processedPayment.getTransactionTimestamp());
@@ -82,7 +82,6 @@ public class PaymentResourceFunctionalTest
 			ClientResponse<Registration> subsequentResponse = registrationClient.getRegistration(registrationUUID, UserInfo.AuthCode.TestUser);
 			Registration regstrationAfterPayment = subsequentResponse.getEntity();
 
-			Assert.assertNull(regstrationAfterPayment.getCurrentPayment());
 			Assert.assertEquals(regstrationAfterPayment.getPastPayments().size(), 1);
 			Assert.assertEquals(regstrationAfterPayment.getPastPayments().get(0).getId(), processedPayment.getId());
 		}
@@ -163,18 +162,20 @@ public class PaymentResourceFunctionalTest
 		return refund;
 	}
 	
-	private void addCurrentPaymentToRegistration(Registration registration)
+	private Payment addCurrentPaymentToRegistration(UUID registrationUUID)
 	{
-		registration.setCurrentPayment(new Payment());
-		registration.getCurrentPayment().setId(paymentUUID);
-		registration.getCurrentPayment().setRegistrationId(registration.getId());
-		registration.getCurrentPayment().setAmount(new BigDecimal(50d));
-		registration.getCurrentPayment().setCreditCardExpirationMonth("05");
-		registration.getCurrentPayment().setCreditCardExpirationYear("2015");
-		registration.getCurrentPayment().setCreditCardNameOnCard("Billy Joe User");
-		registration.getCurrentPayment().setCreditCardNumber("4111111111111111");
-		registration.getCurrentPayment().setCreditCardCVVNumber("822");
-		registration.getCurrentPayment().setReadyToProcess(true);
-		registration.getCurrentPayment().setPaymentType(PaymentType.CREDIT_CARD);
+		Payment payment = new Payment();
+		payment.setId(paymentUUID);
+		payment.setRegistrationId(registrationUUID);
+		payment.setAmount(new BigDecimal(50d));
+		payment.setCreditCardExpirationMonth("05");
+		payment.setCreditCardExpirationYear("2015");
+		payment.setCreditCardNameOnCard("Billy Joe User");
+		payment.setCreditCardNumber("4111111111111111");
+		payment.setCreditCardCVVNumber("822");
+		payment.setReadyToProcess(true);
+		payment.setPaymentType(PaymentType.CREDIT_CARD);
+
+		return payment;
 	}
 }
