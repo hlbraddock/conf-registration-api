@@ -94,10 +94,6 @@ public class TotalDueBusinessLogic
 				OperationType.UPDATE,
 				loggedInAdmin);
 
-		/*I don't think an admin should be able to update their own registration's totalDue.  Someone else should have to do that
-		 * for them, for accountability. */
-		if(loggedInAdmin.getId().equals(apiUpdatedRegistration.getUserId())) throw new UnauthorizedException();
-			
 		registrationEntityCopyOfApiRegistration.setTotalDue(apiUpdatedRegistration.getTotalDue());
 	}
 	
