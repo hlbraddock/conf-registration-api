@@ -442,6 +442,27 @@ public class ConferenceResourceFunctionalTest
 	}
 
 	@Test(groups="functional-tests")
+	public void createRegistrationUserAlreadyRegistered() throws URISyntaxException
+	{
+		UUID registrationId = null;
+		try
+		{
+			Registration newRegistration = createRegistration(registrationId, UserInfo.Id.TestUser);
+
+			ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.TestUser);
+
+			Assert.assertEquals(response.getStatus(), 401);
+		}
+		finally
+		{
+			deleteRegistrationForNextTests(registrationId);
+			sqlConnection.commit();
+		}
+
+
+	}
+
+	@Test(groups="functional-tests")
 	public void getAllConferenceRegistrations()
 	{
 		UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
@@ -494,7 +515,6 @@ public class ConferenceResourceFunctionalTest
 		Assert.assertEquals(registration.getId(), registrationUUID);
 		Assert.assertEquals(registration.getUserId(), userUUID);
 		Assert.assertEquals(registration.getConferenceId(), conferenceUUID);
-		Assert.assertNull(registration.getCurrentPayment());
 		Assert.assertNotNull(registration.getPastPayments());
 		Assert.assertFalse(registration.getPastPayments().isEmpty());
 	}

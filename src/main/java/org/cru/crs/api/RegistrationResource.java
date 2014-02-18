@@ -110,7 +110,6 @@ public class RegistrationResource extends TransactionalResource
 	 * 
 	 * Possible Outcomes:
 	 * 	204 No Content - registration specified by @param registrationId was found and updated. user specified by @param authCode has update access.
-	 *  201 Created - registration specified by @param registrationId was not found but user specified by @param authCode has create access.  registration created.
 	 *  400 Bad Request - path and entity registration id do not match or were null, or the conference the updated registation should belong to doesn't exist
 	 *  401 Unauthorized - user specified by @param authCode is expired, doesn't exist or doesn't have create and/or update access to this registration.
 	 *  502 Bad Gateway - registration specified by @param registrationId was updated, but the payment was not successfully processed.
@@ -143,30 +142,19 @@ public class RegistrationResource extends TransactionalResource
 			throw new BadRequestException("The conference this registration should belong to does not exist");
 		}
 
-		logger.info("update registration");
+		if(registrationService.getRegistrationBy(registration.getId()) == null)
+		{
+			throw new BadRequestException("The registration does not exist");
+		}
 
 		Simply.logObject(registration, RegistrationResource.class);
 
 		RegistrationEntity registrationEntity = registration.toDbRegistrationEntity();
 
-		boolean createRegistration = registrationService.getRegistrationBy(registrationId) == null;
-
 		authorizationService.authorizeRegistration(registrationEntity,
 													conferenceEntityForUpdatedRegistration, 
-													createRegistration ? OperationType.CREATE : OperationType.UPDATE, 
+													OperationType.UPDATE,
 													crsLoggedInUser);
-
-		// support creation on call to update
-		if(createRegistration)
-		{
-			logger.info("update registration :: creating");
-
-			/*save the new registration to the DB*/
-			registrationService.createNewRegistration(registrationEntity);
-
-			// populate answers from user's profile
-			profileProcess.populateRegistrationAnswers(registration);
-		}
 
 		updateRegistrationProcess.performDeepUpdate(registration, crsLoggedInUser);
 
@@ -180,11 +168,7 @@ public class RegistrationResource extends TransactionalResource
 			notificationProcess.registrationComplete(crsLoggedInUser, registration, conferenceEntityForUpdatedRegistration);
 		}
 
-		return createRegistration ?
-				Response.status(Status.CREATED)
-						.location(new URI("/registrations/" + registration.getId()))
-						.entity(registration)
-						.build() : Response.noContent().build();
+		return Response.noContent().build();
 	}
 
 	/**

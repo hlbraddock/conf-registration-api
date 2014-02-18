@@ -27,7 +27,7 @@ public class AuthnetPaymentProcessTest
 	{
 		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
 		
-		CreditCard creditCard = paymentProcess.createCreditCard(testPaymentOne());
+		CreditCard creditCard = paymentProcess.createCreditCard(testPaymentOne(UUID.randomUUID()));
 		
 		Assert.assertNotNull(creditCard);
 		
@@ -48,7 +48,7 @@ public class AuthnetPaymentProcessTest
 	{
 		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
 		Conference testConference = testConferenceOne();
-		Payment testPayment = testPaymentOne();
+		Payment testPayment = testPaymentOne(UUID.randomUUID());
 		
 		Invoice invoice = paymentProcess.createInvoice(testConference, testPayment);
 		
@@ -105,12 +105,13 @@ public class AuthnetPaymentProcessTest
 		Registration registration = testRegistrationOne();
 		Conference conference = testConferenceOne();
 		registration.setConferenceId(conference.getId());
+		Payment payment = testPaymentOne(registration.getId());
 		
 		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
 		
 		try
 		{
-			Long transactionId = paymentProcess.processCreditCardTransaction(conference, registration.getCurrentPayment());
+			Long transactionId = paymentProcess.processCreditCardTransaction(conference, payment);
 			Assert.assertNotNull(transactionId);
 		}
 		catch(Exception e)
@@ -125,17 +126,17 @@ public class AuthnetPaymentProcessTest
 		
 		testRegistration.setId(UUID.randomUUID());
 		testRegistration.setCompleted(true);
-		testRegistration.setCurrentPayment(testPaymentOne());
 		testRegistration.setUserId(UUID.randomUUID());
 		
 		return testRegistration;
 	}
 	
-	private Payment testPaymentOne()
+	private Payment testPaymentOne(UUID registrationUUID)
 	{
 		Payment testPayment = new Payment();
 		
 		testPayment.setId(UUID.randomUUID());
+		testPayment.setRegistrationId(registrationUUID);
 		testPayment.setAmount(new BigDecimal(50.00f));
 		testPayment.setCreditCardExpirationMonth("05");
 		testPayment.setCreditCardExpirationYear("2015");
