@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
+import java.util.UUID;
 
 public class NotificationProcess
 {
@@ -65,7 +66,7 @@ public class NotificationProcess
 		// send the registrant an email notifying them of the conference and registration completion
 		try
 		{
-			String registrationUrl = getRegistrationUrl(registration);
+			String registrationUrl = getRegistrationUrl(conferenceEntity.getId());
 
 			Set<String> recipientEmails = getUserEmails(userEntity);
 
@@ -99,7 +100,7 @@ public class NotificationProcess
 		// send the registrant an email notifying them of payment due
 		try
 		{
-			String registrationUrl = getRegistrationUrl(registration);
+			String registrationUrl = getRegistrationUrl(conferenceEntity.getId());
 
 			Set<String> recipientEmails = getUserEmails(userEntity);
 
@@ -113,9 +114,9 @@ public class NotificationProcess
 		}
 	}
 
-	private String getRegistrationUrl(Registration registration)
+	private String getRegistrationUrl(UUID conferenceId)
 	{
-		String url = properties.getProperty("clientUrl") + properties.getProperty("registerUrlPath") + "/" + registration.getId();
+		String url = properties.getProperty("clientUrl") + properties.getProperty("registerUrlPath") + "/" + conferenceId;
 
 		try
 		{
