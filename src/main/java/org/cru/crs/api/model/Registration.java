@@ -29,10 +29,12 @@ public class Registration implements java.io.Serializable
     private UUID id;
 	private UUID userId;
 	private UUID conferenceId;
-	private BigDecimal totalDue;
+
+    private BigDecimal totalDue;
+
     private boolean completed;
     private DateTime completedTimestamp;
-    
+
     private Set<Answer> answers = Sets.newHashSet();
     private List<Payment> pastPayments = Lists.newArrayList();
 
@@ -166,17 +168,35 @@ public class Registration implements java.io.Serializable
 		return pastPayments;
 	}
 
-	public void setPastPayments(List<Payment> pastPayments)
-	{
-		this.pastPayments = pastPayments;
-	}
-
 	public BigDecimal getTotalDue()
 	{
 		return totalDue;
 	}
 
-	public void setTotalDue(BigDecimal totalDue)
+    public BigDecimal getTotalPaid()
+    {
+        BigDecimal bigDecimal = new BigDecimal(0);
+
+        for(Payment payment : getPastPayments())
+            bigDecimal = bigDecimal.add(payment.getAmount());
+
+        return bigDecimal;
+    }
+
+    public void setTotalPaid(BigDecimal totalPaid)
+    {
+        /*do nothing*/
+    }
+    public BigDecimal getRemainingBalance()
+    {
+        return getTotalDue() == null ? new BigDecimal(0) : getTotalDue().subtract(getTotalPaid());
+    }
+
+    public void setRemainingBalance(BigDecimal remainingBalance)
+    {
+        /*do nothing*/
+    }
+    public void setTotalDue(BigDecimal totalDue)
 	{
 		this.totalDue = totalDue;
 	}
@@ -191,23 +211,5 @@ public class Registration implements java.io.Serializable
 	public void setCompletedTimestamp(DateTime completedTimestamp)
 	{
 		this.completedTimestamp = completedTimestamp;
-	}
-
-	// convenience method
-	@JsonIgnore
-	public BigDecimal getOutstandingBalance()
-	{
-		return getTotalDue() == null ? new BigDecimal(0) : getTotalDue().subtract(getTotalPaid());
-	}
-
-	@JsonIgnore
-	public BigDecimal getTotalPaid()
-	{
-		BigDecimal bigDecimal = new BigDecimal(0);
-
-		for(Payment payment : getPastPayments())
-			bigDecimal = bigDecimal.add(payment.getAmount());
-
-		return bigDecimal;
 	}
 }

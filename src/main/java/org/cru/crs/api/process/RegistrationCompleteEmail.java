@@ -43,9 +43,9 @@ public class RegistrationCompleteEmail
 			builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Total Cost: ") + "$" + registration.getTotalDue()));
 			builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Total Amount Paid: ") + "$" + registration.getTotalPaid()));
 
-			if(registration.getOutstandingBalance().compareTo(BigDecimal.ZERO) > 0)
+			if(registration.getRemainingBalance().compareTo(BigDecimal.ZERO) > 0)
 			{
-				builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Balance Due: ") + " $" + registration.getOutstandingBalance()));
+				builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Balance Due: ") + " $" + registration.getRemainingBalance()));
 				builder.append(HtmlHelper.paragraph("You can pay the balance due here " + HtmlHelper.href(registrationUrl, "Online Registration Payment Page")));
 			}
 		}
