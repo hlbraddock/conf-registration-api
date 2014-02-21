@@ -60,6 +60,7 @@ public class PaymentServiceTest
 		newPayment.setCcNameOnCard("Hank Williamson");
 		newPayment.setTransactionTimestamp(DateTimeCreaterHelper.createDateTime(2015, 9, 30, 15, 11, 51));
 		newPayment.setPaymentType(PaymentType.CHECK);
+        newPayment.setCheckNumber("1234");
 		
 		try
 		{
@@ -78,6 +79,7 @@ public class PaymentServiceTest
 			Assert.assertEquals(retrievedPayment.getCcNameOnCard(), "Hank Williamson");
 			Assert.assertEquals(retrievedPayment.getTransactionTimestamp(), DateTimeCreaterHelper.createDateTime(2015, 9, 30, 15, 11, 51));
 			Assert.assertEquals(retrievedPayment.getPaymentType(), PaymentType.CHECK);
+            Assert.assertEquals(retrievedPayment.getCheckNumber(), "1234");
 		}
 		finally
 		{
@@ -99,7 +101,9 @@ public class PaymentServiceTest
 		paymentToUpdate.setCcNameOnCard("Ryan C");
 		paymentToUpdate.setRegistrationId(UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
 		paymentToUpdate.setTransactionTimestamp(DateTimeCreaterHelper.createDateTime(2015, 9, 30, 15, 11, 51));
-		paymentToUpdate.setPaymentType(PaymentType.CASH);
+		paymentToUpdate.setPaymentType(PaymentType.TRANSFER);
+        paymentToUpdate.setTransferSource("/todd/gross/chartfield");
+        paymentToUpdate.setDescription("Thanks, Todd!");
 		
 		try
 		{
@@ -117,7 +121,9 @@ public class PaymentServiceTest
 			Assert.assertEquals(retrievedPayment.getCcLastFourDigits(), "1252");
 			Assert.assertEquals(retrievedPayment.getCcNameOnCard(), "Ryan C");
 			Assert.assertEquals(retrievedPayment.getTransactionTimestamp(), DateTimeCreaterHelper.createDateTime(2015, 9, 30, 15, 11, 51));
-			Assert.assertEquals(retrievedPayment.getPaymentType(), PaymentType.CASH);
+			Assert.assertEquals(retrievedPayment.getPaymentType(), PaymentType.TRANSFER);
+            Assert.assertEquals(retrievedPayment.getTransferSource(), "/todd/gross/chartfield");
+            Assert.assertEquals(retrievedPayment.getDescription(), "Thanks, Todd!");
 		}
 		finally
 		{
