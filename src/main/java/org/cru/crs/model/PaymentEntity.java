@@ -11,29 +11,24 @@ public class PaymentEntity implements Serializable
     private static final long serialVersionUID = 1L;
 
     private UUID id;
-
     private UUID registrationId;
 
     private Long authnetTransactionId;
-
     private String ccNameOnCard;
-
     private String ccExpirationMonth;
-
     private String ccExpirationYear;
-
     private String ccLastFourDigits;
 
     BigDecimal amount;
-
     private DateTime transactionTimestamp;
-
     private PaymentType paymentType;
-    
     private UUID updatedByUserId;
-    
     private UUID refundedPaymentId;
-    
+
+    private String checkNumber;
+    private String description;
+    private String transferSource;
+
     public UUID getId()
     {
         return id;
@@ -155,6 +150,34 @@ public class PaymentEntity implements Serializable
 	{
 		this.refundedPaymentId = refundedPaymentId;
 	}
-	
-	
+
+    public String getCheckNumber()
+    {
+        return checkNumber;
+    }
+
+    public void setCheckNumber(String checkNumber)
+    {
+        this.checkNumber = checkNumber;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    public String getTransferSource()
+    {
+        return transferSource;
+    }
+
+    public void setTransferSource(String transferSource)
+    {
+        this.transferSource = transferSource;
+    }
 }

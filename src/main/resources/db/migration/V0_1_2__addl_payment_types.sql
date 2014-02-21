@@ -1,0 +1,1 @@
+ALTER TABLE payments ADD COLUMN check_number varchar(10), ADD COLUMN description text, ADD COLUMN transfer_source text;
