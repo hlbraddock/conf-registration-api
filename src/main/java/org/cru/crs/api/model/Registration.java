@@ -14,6 +14,7 @@ import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.model.PaymentType;
 import org.cru.crs.model.RegistrationEntity;
 import org.joda.time.DateTime;
 
@@ -178,7 +179,16 @@ public class Registration implements java.io.Serializable
         BigDecimal bigDecimal = new BigDecimal(0);
 
         for(Payment payment : getPastPayments())
-            bigDecimal = bigDecimal.add(payment.getAmount());
+        {
+            if(payment.getPaymentType().equals(PaymentType.CREDIT_CARD_REFUND))
+            {
+                bigDecimal = bigDecimal.subtract(payment.getAmount());
+            }
+            else
+            {
+                bigDecimal = bigDecimal.add(payment.getAmount());
+            }
+        }
 
         return bigDecimal;
     }
