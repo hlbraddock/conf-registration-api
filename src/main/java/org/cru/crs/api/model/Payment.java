@@ -15,25 +15,22 @@ import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
 
-
 public class Payment implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
 	private UUID id;
     private UUID registrationId;
-    private String creditCardNameOnCard;
-    private String creditCardExpirationMonth;
-    private String creditCardExpirationYear;
-    private String creditCardLastFourDigits;
-    private String creditCardCVVNumber;
-	private Long authnetTransactionId;
-    private String creditCardNumber;
     private BigDecimal amount;
     private DateTime transactionDatetime;
     private PaymentType paymentType;
     private UUID refundedPaymentId;
     private boolean readyToProcess;
+
+    private CreditCardPayment creditCard;
+    private TransferPayment transfer;
+    private ScholarshipPayment scholarship;
+    private CheckPayment check;
 
     public PaymentEntity toDbPaymentEntity()
     {
@@ -42,19 +39,39 @@ public class Payment implements Serializable
         dbPayment.setId(id);
         dbPayment.setRegistrationId(registrationId);
         dbPayment.setAmount(amount);
-        dbPayment.setCcExpirationMonth(creditCardExpirationMonth);
-        dbPayment.setCcExpirationYear(creditCardExpirationYear);
-        dbPayment.setCcNameOnCard(creditCardNameOnCard);
-        
-        if(creditCardNumber != null)
+        dbPayment.setTransactionTimestamp(transactionDatetime);
+        dbPayment.setRefundedPaymentId(refundedPaymentId);
+        dbPayment.setPaymentType(paymentType);
+
+        if((PaymentType.CREDIT_CARD.equals(paymentType) ||
+                PaymentType.CREDIT_CARD_REFUND.equals(paymentType)) && creditCard != null)
         {
-            dbPayment.setCcLastFourDigits(creditCardNumber.substring(Math.max(0, creditCardNumber.length() - 4)));
+            dbPayment.setCcExpirationMonth(creditCard.expirationMonth);
+            dbPayment.setCcExpirationYear(creditCard.expirationYear);
+            dbPayment.setCcNameOnCard(creditCard.nameOnCard);
+        
+            if(creditCard.number != null)
+            {
+                dbPayment.setCcLastFourDigits(creditCard.number.substring(Math.max(0, creditCard.number.length() - 4)));
+            }
+
+            dbPayment.setAuthnetTransactionId(creditCard.authnetTransactionId);
+        }
+        else if(PaymentType.CHECK.equals(paymentType) && check != null)
+        {
+            dbPayment.setCheckNumber(check.getCheckNumber());
+        }
+        else if(PaymentType.TRANSFER.equals(paymentType) && transfer != null)
+        {
+            dbPayment.setTransferSource(transfer.source);
+            dbPayment.setDescription(transfer.description);
+        }
+        else if(PaymentType.SCHOLARSHIP.equals(paymentType) && scholarship != null)
+        {
+            dbPayment.setDescription(scholarship.description);
         }
 
-        dbPayment.setAuthnetTransactionId(authnetTransactionId);
-        dbPayment.setTransactionTimestamp(transactionDatetime);
-        dbPayment.setPaymentType(paymentType);
-        dbPayment.setRefundedPaymentId(refundedPaymentId);
+
         
         return dbPayment;
     }
@@ -67,18 +84,28 @@ public class Payment implements Serializable
 		payment.id = dbPayment.getId();
 		payment.registrationId = dbPayment.getRegistrationId();
 		payment.amount = dbPayment.getAmount();
+        payment.transactionDatetime = dbPayment.getTransactionTimestamp();
+        payment.refundedPaymentId = dbPayment.getRefundedPaymentId();
 
-		payment.creditCardExpirationMonth = dbPayment.getCcExpirationMonth();
-		payment.creditCardExpirationYear = dbPayment.getCcExpirationYear();
-		payment.creditCardNameOnCard = dbPayment.getCcNameOnCard();
-		payment.authnetTransactionId = dbPayment.getAuthnetTransactionId();
-		payment.creditCardLastFourDigits = dbPayment.getCcLastFourDigits();
-		payment.transactionDatetime = dbPayment.getTransactionTimestamp();
-		payment.paymentType = dbPayment.getPaymentType();
-		payment.refundedPaymentId = dbPayment.getRefundedPaymentId();
-		
-		if(dbPayment.getCcLastFourDigits() != null) payment.creditCardNumber = "****" + dbPayment.getCcLastFourDigits();
-				
+        payment.paymentType = dbPayment.getPaymentType();
+
+        if(PaymentType.CREDIT_CARD.equals(dbPayment.getPaymentType()) || PaymentType.CREDIT_CARD_REFUND.equals(dbPayment.getPaymentType()))
+        {
+            payment.creditCard = new CreditCardPayment(dbPayment);
+        }
+        else if(PaymentType.CHECK.equals(dbPayment.getPaymentType()))
+        {
+            payment.check = new CheckPayment(dbPayment);
+        }
+        else if(PaymentType.SCHOLARSHIP.equals(dbPayment.getPaymentType()))
+        {
+            payment.scholarship = new ScholarshipPayment(dbPayment);
+        }
+        else if(PaymentType.TRANSFER.equals(dbPayment.getPaymentType()))
+        {
+            payment.transfer = new TransferPayment(dbPayment);
+        }
+
 		return payment;
 	}
 
@@ -111,76 +138,6 @@ public class Payment implements Serializable
 	public void setRegistrationId(UUID registrationId)
 	{
 		this.registrationId = registrationId;
-	}
-
-	public String getCreditCardNameOnCard()
-	{
-		return creditCardNameOnCard;
-	}
-
-	public void setCreditCardNameOnCard(String creditCardNameOnCard)
-	{
-		this.creditCardNameOnCard = creditCardNameOnCard;
-	}
-
-	public String getCreditCardExpirationMonth()
-	{
-		return creditCardExpirationMonth;
-	}
-
-	public void setCreditCardExpirationMonth(String creditCardExpirationMonth)
-	{
-		this.creditCardExpirationMonth = creditCardExpirationMonth;
-	}
-
-	public String getCreditCardExpirationYear()
-	{
-		return creditCardExpirationYear;
-	}
-
-	public void setCreditCardExpirationYear(String creditCardExpirationYear)
-	{
-		this.creditCardExpirationYear = creditCardExpirationYear;
-	}
-
-	public String getCreditCardLastFourDigits()
-	{
-		return creditCardLastFourDigits;
-	}
-
-	public void setCreditCardLastFourDigits(String creditCardLastFourDigits)
-	{
-		this.creditCardLastFourDigits = creditCardLastFourDigits;
-	}
-
-	public String getCreditCardCVVNumber()
-	{
-		return creditCardCVVNumber;
-	}
-
-	public void setCreditCardCVVNumber(String creditCardCVVNumber)
-	{
-		this.creditCardCVVNumber = creditCardCVVNumber;
-	}
-
-	public Long getAuthnetTransactionId()
-	{
-		return authnetTransactionId;
-	}
-
-	public void setAuthnetTransactionId(Long authnetTransactionId)
-	{
-		this.authnetTransactionId = authnetTransactionId;
-	}
-
-	public String getCreditCardNumber()
-	{
-		return creditCardNumber;
-	}
-
-	public void setCreditCardNumber(String creditCardNumber)
-	{
-		this.creditCardNumber = creditCardNumber;
 	}
 
 	public BigDecimal getAmount()
@@ -234,5 +191,201 @@ public class Payment implements Serializable
 	{
 		this.refundedPaymentId = refundedPaymentId;
 	}
-    
+
+    public CreditCardPayment getCreditCard()
+    {
+        return creditCard;
+    }
+
+    public void setCreditCard(CreditCardPayment creditCard)
+    {
+        this.creditCard = creditCard;
+    }
+
+    public TransferPayment getTransfer()
+    {
+        return transfer;
+    }
+
+    public void setTransfer(TransferPayment transfer)
+    {
+        this.transfer = transfer;
+    }
+
+    public ScholarshipPayment getScholarship()
+    {
+        return scholarship;
+    }
+
+    public void setScholarship(ScholarshipPayment scholarship)
+    {
+        this.scholarship = scholarship;
+    }
+
+    public CheckPayment getCheck()
+    {
+        return check;
+    }
+
+    public void setCheck(CheckPayment check)
+    {
+        this.check = check;
+    }
+
+    public static class CreditCardPayment
+    {
+        private String number;
+        private String nameOnCard;
+        private String expirationMonth;
+        private String expirationYear;
+        private String lastFourDigits;
+        private String cvvNumber;
+        private Long authnetTransactionId;
+
+        public CreditCardPayment(){}
+        public CreditCardPayment(PaymentEntity databasePayment)
+        {
+            lastFourDigits = databasePayment.getCcLastFourDigits();
+            expirationMonth = databasePayment.getCcExpirationMonth();
+            expirationYear = databasePayment.getCcExpirationYear();
+            authnetTransactionId = databasePayment.getAuthnetTransactionId();
+            nameOnCard = databasePayment.getCcNameOnCard();
+
+            if(databasePayment.getCcLastFourDigits() != null) number = "****" + databasePayment.getCcLastFourDigits();
+        }
+
+        public String getNumber() {
+            return number;
+        }
+
+        public void setNumber(String number) {
+            this.number = number;
+        }
+
+        public String getNameOnCard() {
+            return nameOnCard;
+        }
+
+        public void setNameOnCard(String nameOnCard) {
+            this.nameOnCard = nameOnCard;
+        }
+
+        public String getExpirationMonth() {
+            return expirationMonth;
+        }
+
+        public void setExpirationMonth(String expirationMonth) {
+            this.expirationMonth = expirationMonth;
+        }
+
+        public String getExpirationYear() {
+            return expirationYear;
+        }
+
+        public void setExpirationYear(String expirationYear) {
+            this.expirationYear = expirationYear;
+        }
+
+        public String getLastFourDigits() {
+            return lastFourDigits;
+        }
+
+        public void setLastFourDigits(String lastFourDigits) {
+            this.lastFourDigits = lastFourDigits;
+        }
+
+        public String getCvvNumber() {
+            return cvvNumber;
+        }
+
+        public void setCvvNumber(String cvvNumber) {
+            this.cvvNumber = cvvNumber;
+        }
+
+        public Long getAuthnetTransactionId() {
+            return authnetTransactionId;
+        }
+
+        public void setAuthnetTransactionId(Long authnetTransactionId) {
+            this.authnetTransactionId = authnetTransactionId;
+        }
+    }
+
+    public static class TransferPayment
+    {
+        private String source;
+        private String description;
+
+        public TransferPayment() {}
+
+        public TransferPayment(PaymentEntity databasePayment)
+        {
+            this.source = databasePayment.getTransferSource();
+            this.description = databasePayment.getDescription();
+        }
+
+        public String getSource()
+        {
+            return source;
+        }
+
+        public void setSource(String source)
+        {
+            this.source = source;
+        }
+
+        public String getDescription()
+        {
+            return description;
+        }
+
+        public void setDescription(String description)
+        {
+            this.description = description;
+        }
+    }
+
+    public static class ScholarshipPayment
+    {
+        private String description;
+
+        public ScholarshipPayment() {}
+
+        public ScholarshipPayment(PaymentEntity databasePayment)
+        {
+            this.description = databasePayment.getDescription();
+        }
+
+        public String getDescription()
+        {
+            return description;
+        }
+
+        public void setDescription(String description)
+        {
+            this.description = description;
+        }
+    }
+
+    public static class CheckPayment
+    {
+        private String checkNumber;
+
+        public CheckPayment() { }
+
+        public CheckPayment(PaymentEntity databasePayment)
+        {
+            this.checkNumber = databasePayment.getCheckNumber();
+        }
+
+        public String getCheckNumber()
+        {
+            return checkNumber;
+        }
+
+        public void setCheckNumber(String checkNumber)
+        {
+            this.checkNumber = checkNumber;
+        }
+    }
 }

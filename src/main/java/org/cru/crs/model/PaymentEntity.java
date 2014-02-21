@@ -19,7 +19,7 @@ public class PaymentEntity implements Serializable
     private String ccExpirationYear;
     private String ccLastFourDigits;
 
-    BigDecimal amount;
+    private BigDecimal amount;
     private DateTime transactionTimestamp;
     private PaymentType paymentType;
     private UUID updatedByUserId;

@@ -153,7 +153,8 @@ public class PaymentResourceFunctionalTest
 		
 		refund.setId(UUID.randomUUID());
 		refund.setRegistrationId(registrationId);
-		refund.setCreditCardLastFourDigits("1111");
+        refund.setCreditCard(new Payment.CreditCardPayment());
+		refund.getCreditCard().setLastFourDigits("1111");
 		refund.setAmount(amount);
 		refund.setPaymentType(PaymentType.CREDIT_CARD_REFUND);
 		refund.setRefundedPaymentId(refundedPaymentId);
@@ -168,11 +169,12 @@ public class PaymentResourceFunctionalTest
 		payment.setId(paymentUUID);
 		payment.setRegistrationId(registrationUUID);
 		payment.setAmount(new BigDecimal(50d));
-		payment.setCreditCardExpirationMonth("05");
-		payment.setCreditCardExpirationYear("2015");
-		payment.setCreditCardNameOnCard("Billy Joe User");
-		payment.setCreditCardNumber("4111111111111111");
-		payment.setCreditCardCVVNumber("822");
+        payment.setCreditCard(new Payment.CreditCardPayment());
+		payment.getCreditCard().setExpirationMonth("05");
+		payment.getCreditCard().setExpirationYear("2015");
+		payment.getCreditCard().setNameOnCard("Billy Joe User");
+		payment.getCreditCard().setNumber("4111111111111111");
+		payment.getCreditCard().setCvvNumber("822");
 		payment.setReadyToProcess(true);
 		payment.setPaymentType(PaymentType.CREDIT_CARD);
 

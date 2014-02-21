@@ -73,7 +73,7 @@ public class PaymentProcessor
 			{
 				Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromDb(dbConference, dbConferenceCosts), payment);
 
-				payment.setAuthnetTransactionId(transactionId);
+				payment.getCreditCard().setAuthnetTransactionId(transactionId);
 				payment.setTransactionDatetime(clock.currentDateTime());
 			}
 			catch(AuthnetTransactionException e)
@@ -118,13 +118,13 @@ public class PaymentProcessor
 		ConferenceEntity dbConference = getConferenceForThisPayment(refund);
 		ConferenceCostsEntity dbConferenceCosts = getConferenceCostsForThisPayment(dbConference);
 
-		refund.setAuthnetTransactionId(paymentToRefund.getAuthnetTransactionId());
+		refund.getCreditCard().setAuthnetTransactionId(paymentToRefund.getAuthnetTransactionId());
 		
 		try
 		{
 			Long refundTransactionId = paymentProcess.processCreditCardRefund(Conference.fromDb(dbConference, dbConferenceCosts), refund);
 
-			refund.setAuthnetTransactionId(refundTransactionId);
+			refund.getCreditCard().setAuthnetTransactionId(refundTransactionId);
 			refund.setTransactionDatetime(clock.currentDateTime());
 		}
 		catch(AuthnetTransactionException e)
@@ -191,22 +191,22 @@ public class PaymentProcessor
 
 	private void validatePaymentReadiness(Payment payment)
 	{
-		if(payment.getCreditCardCVVNumber() == null)
+		if(payment.getCreditCard().getCvvNumber() == null)
 		{
 			throw new BadRequestException("CVV is missing.  Please enter your card security code.");
 		}
 		
-		if(payment.getCreditCardNumber() == null)
+		if(payment.getCreditCard().getNumber() == null)
 		{
 			throw new BadRequestException("Credit card number is missing.  Please enter your credit card number.");
 		}
 		
-		if(payment.getCreditCardExpirationMonth() == null)
+		if(payment.getCreditCard().getExpirationMonth() == null)
 		{
 			throw new BadRequestException("Credit card expiration month is missing.  Please enter your card's expiration month.");
 		}
 		
-		if(payment.getCreditCardExpirationMonth() == null)
+		if(payment.getCreditCard().getExpirationMonth() == null)
 		{
 			throw new BadRequestException("Credit card expiration year is missing.  Please enter your card's expiration year.");
 		}

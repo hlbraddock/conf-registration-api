@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.model.PaymentType;
 import org.cru.crs.payment.authnet.model.CreditCard;
 import org.cru.crs.payment.authnet.model.GatewayConfiguration;
 import org.cru.crs.payment.authnet.model.Invoice;
@@ -138,11 +139,13 @@ public class AuthnetPaymentProcessTest
 		testPayment.setId(UUID.randomUUID());
 		testPayment.setRegistrationId(registrationUUID);
 		testPayment.setAmount(new BigDecimal(50.00f));
-		testPayment.setCreditCardExpirationMonth("05");
-		testPayment.setCreditCardExpirationYear("2015");
-		testPayment.setCreditCardNumber("4111111111111111");
-		testPayment.setCreditCardCVVNumber("123");
-		testPayment.setCreditCardNameOnCard("Joe User");
+        testPayment.setPaymentType(PaymentType.CREDIT_CARD);
+        testPayment.setCreditCard(new Payment.CreditCardPayment());
+		testPayment.getCreditCard().setExpirationMonth("05");
+		testPayment.getCreditCard().setExpirationYear("2015");
+		testPayment.getCreditCard().setNumber("4111111111111111");
+		testPayment.getCreditCard().setCvvNumber("123");
+		testPayment.getCreditCard().setNameOnCard("Joe User");
 		testPayment.setRegistrationId(UUID.randomUUID());
 		
 		return testPayment;
