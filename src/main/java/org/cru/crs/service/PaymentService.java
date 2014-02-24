@@ -60,9 +60,9 @@ public class PaymentService
         				.addParameter("paymentType", (Object)payment.getPaymentType())
         				.addParameter("updatedByUserId", loggedInUser.getId())
         				.addParameter("refundedPaymentId", payment.getRefundedPaymentId())
-                        .addParameter("description", payment.getDescription())
-                        .addParameter("transferSource", payment.getTransferSource())
-                        .addParameter("checkNumber", payment.getCheckNumber())
+        				.addParameter("description", payment.getDescription())
+        				.addParameter("transferSource", payment.getTransferSource())
+        				.addParameter("checkNumber", payment.getCheckNumber())
         				.executeUpdate();
     }
     
@@ -82,9 +82,9 @@ public class PaymentService
     					.addParameter("paymentType", (Object)payment.getPaymentType())
     					.addParameter("updatedByUserId", loggedInAdministrator.getId())
     					.addParameter("refundedPaymentId", payment.getRefundedPaymentId())
-                        .addParameter("description", payment.getDescription())
-                        .addParameter("transferSource", payment.getTransferSource())
-                        .addParameter("checkNumber", payment.getCheckNumber())
+        				.addParameter("description", payment.getDescription())
+        				.addParameter("transferSource", payment.getTransferSource())
+        				.addParameter("checkNumber", payment.getCheckNumber())
     					.executeUpdate();
     }
     
@@ -121,9 +121,9 @@ public class PaymentService
     						.addParameter("paymentType", (Object)payment.getPaymentType())
     						.addParameter("updatedByUserId", loggedInAdministrator.getId())
     						.addParameter("refundedPaymentId", payment.getRefundedPaymentId())
-                            .addParameter("description", payment.getDescription())
-                            .addParameter("transferSource", payment.getTransferSource())
-                            .addParameter("checkNumber", payment.getCheckNumber())
+    						.addParameter("description", payment.getDescription())
+    						.addParameter("transferSource", payment.getTransferSource())
+    						.addParameter("checkNumber", payment.getCheckNumber())
     						.executeUpdate();
     	}
     }
@@ -159,9 +159,9 @@ public class PaymentService
     				 "payment_type = :paymentType, " +
     				 "updated_by_user_id = :updatedByUserId, " +
     				 "refunded_payment_id = :refundedPaymentId, " +
-                     "description = :description, " +
-                     "transfer_source = :transferSource, " +
-                     "check_number = :checkNumber" +
+    				 "description = :description, " +
+    				 "transfer_source = :transferSource, " +
+    				 "check_number = :checkNumber" +
     				 " WHERE  " +
     				 "id = :id";
     	}
