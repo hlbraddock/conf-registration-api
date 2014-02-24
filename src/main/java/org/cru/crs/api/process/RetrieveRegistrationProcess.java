@@ -40,9 +40,8 @@ public class RetrieveRegistrationProcess
 		for(; i.hasNext(); )
 		{
 			PaymentEntity nextPayment = i.next();
-			if((PaymentType.CREDIT_CARD.equals(nextPayment.getPaymentType()) ||
-                    PaymentType.CREDIT_CARD_REFUND.equals(nextPayment.getPaymentType())) &&
-                            nextPayment.getAuthnetTransactionId() == null)
+            /*for some reason the payment might have failed... so don't return it in this list*/
+			if(nextPayment.isFailedCreditCardPayment())
 			{
 				i.remove();
 			}

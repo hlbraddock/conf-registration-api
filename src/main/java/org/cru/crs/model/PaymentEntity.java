@@ -29,6 +29,18 @@ public class PaymentEntity implements Serializable
     private String description;
     private String transferSource;
 
+    public boolean isValidCreditCardPayment()
+    {
+        return (PaymentType.CREDIT_CARD.equals(paymentType) || PaymentType.CREDIT_CARD_REFUND.equals(paymentType)) &&
+                getAuthnetTransactionId() != null;
+    }
+
+    public boolean isFailedCreditCardPayment()
+    {
+        return (PaymentType.CREDIT_CARD.equals(paymentType) || PaymentType.CREDIT_CARD_REFUND.equals(paymentType)) &&
+                getAuthnetTransactionId() == null;
+    }
+
     public UUID getId()
     {
         return id;
