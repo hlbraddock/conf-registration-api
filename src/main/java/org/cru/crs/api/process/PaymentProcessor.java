@@ -171,7 +171,12 @@ public class PaymentProcessor
 			{
 				processRefund(payment, loggedInUser);
 			}
-			else {/*Cash or check... do nothing*/}
+			else
+            {
+                PaymentEntity databasePayment = payment.toDbPaymentEntity();
+                databasePayment.setTransactionTimestamp(clock.currentDateTime());
+                paymentService.updatePayment(databasePayment, loggedInUser);
+            }
 		}
 	}
 	

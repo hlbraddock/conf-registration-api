@@ -2,6 +2,7 @@ package org.cru.crs.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -278,7 +279,11 @@ public class RegistrationResource extends TransactionalResource
 													conferenceService.fetchConferenceBy(registrationEntity.getConferenceId()),
 													OperationType.READ, 
 													crsLoggedInUser);
-		
-		return Response.ok(Payment.fromDb(paymentService.getPaymentsForRegistration(registrationId))).build();
+
+        List<Payment> payments = Payment.fromDb(paymentService.getPaymentsForRegistration(registrationId));
+
+        Simply.logObject(payments, RegistrationResource.class);
+
+        return Response.ok(payments).build();
 	}
 }

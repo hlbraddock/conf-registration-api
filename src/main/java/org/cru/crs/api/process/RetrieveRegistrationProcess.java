@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.model.PaymentType;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.PaymentService;
@@ -35,11 +36,13 @@ public class RetrieveRegistrationProcess
 		List<PaymentEntity> databasePayments = paymentService.getPaymentsForRegistration(registrationId);
 		
 		Iterator<PaymentEntity> i = databasePayments.iterator();
-		
+
 		for(; i.hasNext(); )
 		{
 			PaymentEntity nextPayment = i.next();
-			if(nextPayment.getAuthnetTransactionId() == null)
+			if((PaymentType.CREDIT_CARD.equals(nextPayment.getPaymentType()) ||
+                    PaymentType.CREDIT_CARD_REFUND.equals(nextPayment.getPaymentType())) &&
+                            nextPayment.getAuthnetTransactionId() == null)
 			{
 				i.remove();
 			}
