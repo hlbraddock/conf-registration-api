@@ -180,7 +180,8 @@ public class Registration implements java.io.Serializable
 
         for(Payment payment : getPastPayments())
         {
-            if(payment.getPaymentType().equals(PaymentType.CREDIT_CARD_REFUND))
+            if(payment.getPaymentType().equals(PaymentType.CREDIT_CARD_REFUND) ||
+                    payment.getPaymentType().equals(PaymentType.REFUND))
             {
                 bigDecimal = bigDecimal.subtract(payment.getAmount());
             }
