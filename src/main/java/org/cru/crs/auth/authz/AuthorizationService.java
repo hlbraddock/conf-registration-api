@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
@@ -63,6 +64,8 @@ public class AuthorizationService
 
 		if(operationType.equals(OperationType.CREATE))
 		{
+			if(conferenceEntity.isRequireLogin() && crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE)) throw new UnauthorizedException();
+
 			if (registrationService.isUserRegistered(conferenceId, crsApplicationUser.getId()))	throw new UnauthorizedException();
 		}
 		if(operationType.equals(OperationType.READ))
