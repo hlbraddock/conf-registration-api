@@ -65,7 +65,7 @@ public class PaymentResource extends TransactionalResource
 	@GET
 	@Path("/{paymentId}")
 	@Produces(MediaType.APPLICATION_JSON)
-    public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+    public Response getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode)
     {
 		logger.info("get payment entity " + paymentId + " and auth code " + authCode);
 

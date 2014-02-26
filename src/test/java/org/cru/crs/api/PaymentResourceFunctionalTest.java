@@ -59,14 +59,27 @@ public class PaymentResourceFunctionalTest
 																	ServiceFactory.createAnswerService(sqlConnection));
 	}
 
+    @Test(groups="functional-tests")
+    public void testGetPayment()
+    {
+        ClientResponse<Payment> getResponse = paymentClient.getPayment(refundedPaymentId, UserInfo.AuthCode.TestUser);
+
+        Assert.assertEquals(getResponse.getStatus(), 200);
+
+        Payment retrievedPayment = getResponse.getEntity();
+
+        Assert.assertEquals(retrievedPayment.getCreditCard().getNameOnCard(), "Billy User");
+        Assert.assertEquals(retrievedPayment.getCreditCard().getLastFourDigits(), "1111");
+        Assert.assertEquals(retrievedPayment.getAmount(), new BigDecimal("20.00"));
+        Assert.assertEquals(retrievedPayment.getPaymentType(), PaymentType.CREDIT_CARD);
+    }
+
 	@Test(groups="functional-tests")
-	public void updatePaymentProcess()
+	public void processCreditCardPaymentByUpdate()
 	{
 		PaymentEntity processedPayment = null;
-		
-		Registration registration = registrationFetchProcess.get(registrationUUID);
-		
-		Payment payment = addCurrentPaymentToRegistration(registrationUUID);
+
+		Payment payment = createPayment(registrationUUID);
 		
 		try
 		{
@@ -98,7 +111,47 @@ public class PaymentResourceFunctionalTest
 		}
 
 	}
-	
+
+    @Test(groups="functional-tests")
+    public void processCashPaymentByCreate()
+    {
+        Payment payment = new Payment();
+        UUID currentPaymentId = UUID.randomUUID();
+
+        payment.setId(currentPaymentId);
+        payment.setRegistrationId(registrationUUID);
+        payment.setPaymentType(PaymentType.CASH);
+        payment.setAmount(new BigDecimal("50.00"));
+        payment.setReadyToProcess(true);
+
+        try
+        {
+            ClientResponse postResponse = paymentClient.createPayment(payment, UserInfo.AuthCode.TestUser);
+
+            Assert.assertEquals(postResponse.getStatus(), 201);
+
+            List<PaymentEntity> paymentsForRegistration = paymentService.getPaymentsForRegistration(registrationUUID);
+
+            for(PaymentEntity retrievedPayments : paymentsForRegistration)
+            {
+                if(currentPaymentId.equals(retrievedPayments.getId()))
+                {
+                    Assert.assertEquals(payment.getPaymentType(), PaymentType.CASH);
+                    Assert.assertEquals(payment.getAmount(), new BigDecimal("50.00"));
+                }
+            }
+        }
+
+        finally
+        {
+            sqlConnection.createQuery("DELETE FROM payments WHERE id = :id")
+                    .addParameter("id", currentPaymentId)
+                    .executeUpdate();
+
+            sqlConnection.commit();
+        }
+    }
+
 	/**
 	 * While this test is a functional test, it shouldn't always be run.  It depends upon specific conditions to be true in
 	 * our authorize.net test account.  It needs for there to be a transaction posted and settled, but not more than 120 days
@@ -114,7 +167,7 @@ public class PaymentResourceFunctionalTest
 	 *  
 	 *  If anyone finds a better process, feel free to post it :)
 	 */
-	public void refundFullPayment()
+	public void refundCreditCardPaymentByUpdate()
 	{
 		Payment refund = createRefund(registrationUUID, new BigDecimal("20.00"));
 		
@@ -153,7 +206,8 @@ public class PaymentResourceFunctionalTest
 		
 		refund.setId(UUID.randomUUID());
 		refund.setRegistrationId(registrationId);
-		refund.setCreditCardLastFourDigits("1111");
+        refund.setCreditCard(new Payment.CreditCardPayment());
+		refund.getCreditCard().setLastFourDigits("1111");
 		refund.setAmount(amount);
 		refund.setPaymentType(PaymentType.CREDIT_CARD_REFUND);
 		refund.setRefundedPaymentId(refundedPaymentId);
@@ -162,17 +216,18 @@ public class PaymentResourceFunctionalTest
 		return refund;
 	}
 	
-	private Payment addCurrentPaymentToRegistration(UUID registrationUUID)
+	private Payment createPayment(UUID registrationUUID)
 	{
 		Payment payment = new Payment();
 		payment.setId(paymentUUID);
 		payment.setRegistrationId(registrationUUID);
 		payment.setAmount(new BigDecimal(50d));
-		payment.setCreditCardExpirationMonth("05");
-		payment.setCreditCardExpirationYear("2015");
-		payment.setCreditCardNameOnCard("Billy Joe User");
-		payment.setCreditCardNumber("4111111111111111");
-		payment.setCreditCardCVVNumber("822");
+        payment.setCreditCard(new Payment.CreditCardPayment());
+		payment.getCreditCard().setExpirationMonth("05");
+		payment.getCreditCard().setExpirationYear("2015");
+		payment.getCreditCard().setNameOnCard("Billy Joe User");
+		payment.getCreditCard().setNumber("4111111111111111");
+		payment.getCreditCard().setCvvNumber("822");
 		payment.setReadyToProcess(true);
 		payment.setPaymentType(PaymentType.CREDIT_CARD);
 

@@ -114,7 +114,7 @@ public class AuthnetPaymentProcess
 	TransactionResult createTransactionResult(Payment payment)
 	{
 		TransactionResult transactionResult = new TransactionResult();
-		transactionResult.setTransactionID(payment.getAuthnetTransactionId());
+		transactionResult.setTransactionID(payment.getCreditCard().getAuthnetTransactionId());
 		
 		return transactionResult;
 	}
@@ -123,14 +123,14 @@ public class AuthnetPaymentProcess
 	{
 		CreditCard creditCard = new CreditCard();
 		
-		creditCard.setCardNumber(payment.getCreditCardNumber());
-		creditCard.setExpirationDate(new DateTime(DateTimeZone.UTC).withYear(Integer.parseInt(payment.getCreditCardExpirationYear()))
-												   .withMonthOfYear(Integer.parseInt(payment.getCreditCardExpirationMonth()))
+		creditCard.setCardNumber(payment.getCreditCard().getNumber());
+		creditCard.setExpirationDate(new DateTime(DateTimeZone.UTC).withYear(Integer.parseInt(payment.getCreditCard().getExpirationYear()))
+												   .withMonthOfYear(Integer.parseInt(payment.getCreditCard().getExpirationMonth()))
 												   .dayOfMonth().withMaximumValue()
 												   .secondOfDay().withMaximumValue()
 												   .toDate());
 		
-		creditCard.setCardCode(payment.getCreditCardCVVNumber());
+		creditCard.setCardCode(payment.getCreditCard().getCvvNumber());
 		
 		
 		return creditCard;
@@ -140,7 +140,7 @@ public class AuthnetPaymentProcess
 	{
 		CreditCard creditCard = new CreditCard();
 		
-		creditCard.setCardNumber(payment.getCreditCardLastFourDigits());
+		creditCard.setCardNumber(payment.getCreditCard().getLastFourDigits());
 		
 		return creditCard;
 	}

@@ -60,6 +60,9 @@ public class PaymentService
         				.addParameter("paymentType", (Object)payment.getPaymentType())
         				.addParameter("updatedByUserId", loggedInUser.getId())
         				.addParameter("refundedPaymentId", payment.getRefundedPaymentId())
+        				.addParameter("description", payment.getDescription())
+        				.addParameter("transferSource", payment.getTransferSource())
+        				.addParameter("checkNumber", payment.getCheckNumber())
         				.executeUpdate();
     }
     
@@ -79,6 +82,9 @@ public class PaymentService
     					.addParameter("paymentType", (Object)payment.getPaymentType())
     					.addParameter("updatedByUserId", loggedInAdministrator.getId())
     					.addParameter("refundedPaymentId", payment.getRefundedPaymentId())
+        				.addParameter("description", payment.getDescription())
+        				.addParameter("transferSource", payment.getTransferSource())
+        				.addParameter("checkNumber", payment.getCheckNumber())
     					.executeUpdate();
     }
     
@@ -115,6 +121,9 @@ public class PaymentService
     						.addParameter("paymentType", (Object)payment.getPaymentType())
     						.addParameter("updatedByUserId", loggedInAdministrator.getId())
     						.addParameter("refundedPaymentId", payment.getRefundedPaymentId())
+    						.addParameter("description", payment.getDescription())
+    						.addParameter("transferSource", payment.getTransferSource())
+    						.addParameter("checkNumber", payment.getCheckNumber())
     						.executeUpdate();
     	}
     }
@@ -149,15 +158,18 @@ public class PaymentService
     				 "transaction_timestamp = :transactionTimestamp, " +
     				 "payment_type = :paymentType, " +
     				 "updated_by_user_id = :updatedByUserId, " +
-    				 "refunded_payment_id = :refundedPaymentId" +
+    				 "refunded_payment_id = :refundedPaymentId, " +
+    				 "description = :description, " +
+    				 "transfer_source = :transferSource, " +
+    				 "check_number = :checkNumber" +
     				 " WHERE  " +
     				 "id = :id";
     	}
 
     	private static  String insert()
     	{
-    		return "INSERT INTO payments(id, registration_id, authnet_transaction_id, cc_name_on_card, cc_expiration_month, cc_expiration_year, cc_last_four_digits, amount, transaction_timestamp, payment_type, updated_by_user_id, refunded_payment_id) " + 
-    			   "VALUES (:id, :registrationId, :authnetTransactionId, :ccNameOnCard, :ccExpirationMonth, :ccExpirationYear, :ccLastFourDigits, :amount, :transactionTimestamp, :paymentType, :updatedByUserId, :refundedPaymentId)";
+    		return "INSERT INTO payments(id, registration_id, authnet_transaction_id, cc_name_on_card, cc_expiration_month, cc_expiration_year, cc_last_four_digits, amount, transaction_timestamp, payment_type, updated_by_user_id, refunded_payment_id, description, transfer_source, check_number) " +
+    			   "VALUES (:id, :registrationId, :authnetTransactionId, :ccNameOnCard, :ccExpirationMonth, :ccExpirationYear, :ccLastFourDigits, :amount, :transactionTimestamp, :paymentType, :updatedByUserId, :refundedPaymentId, :description, :transferSource, :checkNumber)";
     	}
 
     	private static String delete()
