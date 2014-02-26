@@ -22,7 +22,7 @@ public interface PaymentResourceClient
 	@GET
 	@Path("/{paymentId}")
 	@Produces(MediaType.APPLICATION_JSON)
-    public ClientResponse<Payment> getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode) throws URISyntaxException;
+    public ClientResponse<Payment> getPayment(@PathParam(value = "paymentId") UUID paymentId, @HeaderParam(value = "Authorization") String authCode);
     
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
