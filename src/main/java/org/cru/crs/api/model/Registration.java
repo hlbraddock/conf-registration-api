@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
@@ -180,8 +179,8 @@ public class Registration implements java.io.Serializable
 
         for(Payment payment : getPastPayments())
         {
-            if(payment.getPaymentType().equals(PaymentType.CREDIT_CARD_REFUND) ||
-                    payment.getPaymentType().equals(PaymentType.REFUND))
+            if(PaymentType.CREDIT_CARD_REFUND.equals(payment.getPaymentType()) ||
+                    PaymentType.REFUND.equals(payment.getPaymentType()))
             {
                 bigDecimal = bigDecimal.subtract(payment.getAmount());
             }
