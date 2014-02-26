@@ -45,8 +45,10 @@ import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PermissionEntity;
+import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.RegistrationViewEntity;
+import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
@@ -85,7 +87,7 @@ public class ConferenceResource extends TransactionalResource
 	@Inject CrsUserService crsUserService;
 
 	@Inject	ProfileProcess profileProcess;
-	
+
 	Logger logger = Logger.getLogger(ConferenceResource.class);
 
 	/**
@@ -295,9 +297,12 @@ public class ConferenceResource extends TransactionalResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createRegistration(Registration newRegistration, 
 			@PathParam(value = "conferenceId") UUID conferenceId,
-			@HeaderParam(value = "Authorization") String authCode) throws URISyntaxException
+			@HeaderParam(value = "Authorization") String authCode,
+			@HeaderParam(value = "Registration-Type") String registrationType) throws URISyntaxException
 	{
-		logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode);
+		logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode + " registration type: " + registrationType);
+
+		boolean registerOnBehalf = !Strings.isEmpty(registrationType) && registrationType.equals("on-behalf-of") ? true : false;
 
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
@@ -314,19 +319,40 @@ public class ConferenceResource extends TransactionalResource
 		newRegistration.setUserId(crsLoggedInUser.getId());
 		newRegistration.setConferenceId(conferenceId);
 
+		// create a user, if we are registering on behalf of
+		if(registerOnBehalf)
+		{
+			UserEntity userEntity = UserEntity.from(ProfileEntity.from(profileProcess.getAnswerBlockEntityMap(newRegistration.getAnswers())));
+			userService.createUser(userEntity);
+			newRegistration.setUserId(userEntity.getId());
+		}
+
 		RegistrationEntity newRegistrationEntity = newRegistration.toDbRegistrationEntity();
 
 		// authorize the user
-		authorizationService.authorizeRegistration(newRegistrationEntity, conferenceEntity, OperationType.CREATE, crsLoggedInUser);
+		try
+		{
+			authorizationService.authorizeRegistration(newRegistrationEntity, conferenceEntity, registerOnBehalf ? OperationType.CREATE_ON_BEHALF : OperationType.CREATE, crsLoggedInUser);
+		}
+		catch(RuntimeException runtimeException)
+		{
+			if(registerOnBehalf)
+				userService.deleteUserSwallowException(newRegistration.getUserId());
+
+			throw runtimeException;
+		}
+
+		newRegistrationEntity.setCompleted(false); // allow performDeepUpdate() to manage completed registration
+		registrationService.createNewRegistration(newRegistrationEntity);
+
+		logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode + " before populate from profile.");
 
 		Simply.logObject(newRegistration, ConferenceResource.class);
-
-		registrationService.createNewRegistration(newRegistrationEntity);
 
 		// populate answers from user's profile
 		profileProcess.populateRegistrationAnswers(newRegistration);
 
-		logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode + " after populate profile.");
+		logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode + " after populate from profile.");
 
 		Simply.logObject(newRegistration, ConferenceResource.class);
 
@@ -340,7 +366,7 @@ public class ConferenceResource extends TransactionalResource
 				.entity(freshCopyOfNewRegistration)
 				.build();
 	}
-	
+
 
 	/**
 	 * Gets all the registration resources associated to the conference specified by @param conferenceId

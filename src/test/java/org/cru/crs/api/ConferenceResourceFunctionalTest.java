@@ -412,6 +412,58 @@ public class ConferenceResourceFunctionalTest
 		}
 	}
 
+	@Test(groups="functional-tests")
+	public void addRegistrationToConferenceOnBehalfOfAsAdmin() throws URISyntaxException
+	{
+		UUID registrationId = UUID.randomUUID();
+		try
+		{
+			Registration newRegistration = new Registration();
+
+			newRegistration.setId(registrationId);
+			newRegistration.setCompleted(true);
+
+			ClientResponse<Registration> response = conferenceClient.createRegistrationType(newRegistration, ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.TestUser, "on-behalf-of");
+
+			Assert.assertEquals(response.getStatus(), 201);
+
+			String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
+			String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/registrations/";
+			registrationId =  UUID.fromString(returnedLocationHeader.substring(resourceFullPathWithoutId.length()));
+
+			RegistrationEntity registration = registrationService.getRegistrationBy(registrationId);
+			List<PaymentEntity> payments = paymentService.getPaymentsForRegistration(registrationId);
+
+			Assert.assertEquals(registration.getId(), registrationId);
+			Assert.assertTrue(registration.getCompleted());
+			Assert.assertEquals(payments.size(), 0);
+		}
+		finally
+		{
+			deleteRegistrationForNextTests(registrationId);
+			sqlConnection.commit();
+		}
+	}
+
+	@Test(groups="functional-tests")
+	public void addRegistrationToConferenceOnBehalfOfNotAsAdmin() throws URISyntaxException
+	{
+		UUID registrationId = null;
+		try
+		{
+			Registration newRegistration = createRegistration(registrationId, UserInfo.Id.Ryan);
+
+			ClientResponse<Registration> response = conferenceClient.createRegistrationType(newRegistration, ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.Ryan, "on-behalf-of");
+
+			Assert.assertEquals(response.getStatus(), 401);
+		}
+		finally
+		{
+			deleteRegistrationForNextTests(registrationId);
+			sqlConnection.commit();
+		}
+	}
+
 	private AnswerEntity getAnswerWithBlockId(List<AnswerEntity> answerEntities, UUID blockId)
 	{
 		for(AnswerEntity answerEntity : answerEntities)
@@ -876,7 +928,7 @@ public class ConferenceResourceFunctionalTest
 
 		return registration;
 	}
-	
+
 	private void deleteConferenceForNextTests(UUID conferenceId)
 	{
 		if(conferenceId != null)

@@ -62,6 +62,10 @@ public class AuthorizationService
 			throw new UnauthorizedException();
 		}
 
+		if(operationType.equals(OperationType.CREATE_ON_BEHALF))
+		{
+			if(!userCanAdministerConference(conferenceId, crsApplicationUser.getId())) throw new UnauthorizedException();
+		}
 		if(operationType.equals(OperationType.CREATE))
 		{
 			if(conferenceEntity.isRequireLogin() && crsApplicationUser.getAuthProviderType().equals(AuthenticationProviderType.NONE)) throw new UnauthorizedException();

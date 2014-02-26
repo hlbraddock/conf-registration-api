@@ -1,12 +1,8 @@
 package org.cru.crs.api.model;
 
 
-import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
@@ -17,8 +13,11 @@ import org.cru.crs.model.PaymentType;
 import org.cru.crs.model.RegistrationEntity;
 import org.joda.time.DateTime;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 
 

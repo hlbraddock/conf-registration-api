@@ -1,7 +1,5 @@
 package org.cru.crs.service;
 
-import java.util.List;
-import java.util.UUID;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -9,6 +7,9 @@ import javax.inject.Inject;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.queries.BlockQueries;
 import org.sql2o.Connection;
+
+import java.util.List;
+import java.util.UUID;
 
 @RequestScoped
 public class BlockService
