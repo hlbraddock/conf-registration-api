@@ -38,6 +38,7 @@ public class ConferenceEntity implements java.io.Serializable
     private String locationZipCode;
     
 	private boolean requireLogin;
+    private boolean archived =  false;
 	
 	public UUID getId()
 	{
@@ -219,4 +220,14 @@ public class ConferenceEntity implements java.io.Serializable
 	{
 		this.requireLogin = requireLogin;
 	}
+
+    public boolean isArchived()
+    {
+        return archived;
+    }
+
+    public void setArchived(boolean archived)
+    {
+        this.archived = archived;
+    }
 }

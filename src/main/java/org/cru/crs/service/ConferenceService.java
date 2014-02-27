@@ -89,6 +89,7 @@ public class ConferenceService
         				.addParameter("locationState", newConference.getLocationState())
         				.addParameter("locationZipCode", newConference.getLocationZipCode())
         				.addParameter("requireLogin", newConference.isRequireLogin())
+                        .addParameter("archived", newConference.isArchived())
         				.executeUpdate();
 	}
 
@@ -113,6 +114,14 @@ public class ConferenceService
     					.addParameter("locationState", conferenceToUpdate.getLocationState())
     					.addParameter("locationZipCode", conferenceToUpdate.getLocationZipCode())
     					.addParameter("requireLogin", conferenceToUpdate.isRequireLogin())
+                        .addParameter("archived", conferenceToUpdate.isArchived())
     					.executeUpdate();
 	}
+
+    public void deleteConference(ConferenceEntity conferenceToDelete)
+    {
+        sqlConnection.createQuery(conferenceQueries.delete())
+                        .addParameter("id", conferenceToDelete.getId())
+                        .executeUpdate();
+    }
 }

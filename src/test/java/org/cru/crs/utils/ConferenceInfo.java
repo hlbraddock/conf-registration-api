@@ -36,6 +36,7 @@ public class ConferenceInfo
 		conference.setLocationZipCode("43402");
 		conference.setTotalSlots(172);
 		conference.setRequireLogin(true);
+        conference.setArchived(false);
 		
 		return conference;
 	}
