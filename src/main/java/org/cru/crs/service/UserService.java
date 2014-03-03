@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.model.queries.UserQueries;
+import org.jboss.logging.Logger;
 import org.sql2o.Connection;
 
 /**
@@ -61,5 +62,28 @@ public class UserService {
 				.addParameter("emailAddress", userEntity.getEmailAddress())
 				.addParameter("phoneNumber", userEntity.getPhoneNumber())
 				.executeUpdate();
+	}
+
+	public void deleteUser(UUID userId) {
+		sqlConnection.createQuery(userQueries.delete())
+				.addParameter("id", userId)
+				.executeUpdate();
+	}
+
+	/**
+	 * Convenience method(s)
+	 */
+	Logger logger = Logger.getLogger(getClass());
+
+	public void deleteUserSwallowException(UUID userId)
+	{
+		try
+		{
+			deleteUser(userId);
+		}
+		catch(Exception exception)
+		{
+			logger.error("Could not delete user " + userId, exception);
+		}
 	}
 }

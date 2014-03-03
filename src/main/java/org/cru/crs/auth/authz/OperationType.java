@@ -7,6 +7,7 @@ import java.util.Set;
 public enum OperationType
 {
 	CREATE("create"),
+	CREATE_ON_BEHALF("createOnBehalf"),
 	READ("read"),
 	UPDATE("update"),
 	DELETE("delete"),

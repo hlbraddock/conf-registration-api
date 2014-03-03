@@ -35,7 +35,7 @@ public class UpdateRegistrationProcessTest
 	RegistrationService registrationService;
 
 	RetrieveRegistrationProcess registrationFetchProcess;
-	
+
 	Registration testRegistration;
 
 	Clock clock;

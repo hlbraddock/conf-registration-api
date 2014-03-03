@@ -56,7 +56,7 @@ public class ProfileProcess
 	{
 		ProfileEntity profileEntity = getUserProfile(registration.getUserId());
 
-		profileEntity.set(getAnswerBlockMap(registration.getAnswers()));
+		profileEntity.set(getAnswerBlockEntityMap(registration.getAnswers()));
 
 		Simply.logObject(profileEntity, this.getClass());
 
@@ -99,16 +99,16 @@ public class ProfileProcess
 		setAnswersFromProfileEntity(registration, profileEntity);
 	}
 
-	private Map<Answer, BlockEntity> getAnswerBlockMap(Set<Answer> answers)
+	public Map<Answer, BlockEntity> getAnswerBlockEntityMap(Set<Answer> answers)
 	{
-		Map<Answer,BlockEntity> answerBlockEntityHashMap = new HashMap<Answer, BlockEntity>();
+		Map<Answer,BlockEntity> answerBlockEntityMap = new HashMap<Answer, BlockEntity>();
 
 		for (Answer answer : answers)
 		{
-			answerBlockEntityHashMap.put(answer, blockService.getBlockById(answer.getBlockId()));
+			answerBlockEntityMap.put(answer, blockService.getBlockById(answer.getBlockId()));
 		}
 
-		return answerBlockEntityHashMap;
+		return answerBlockEntityMap;
 	}
 
 	public Set<BlockEntity> fetchBlocksForConference(UUID conferenceId)

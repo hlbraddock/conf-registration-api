@@ -455,6 +455,15 @@ public class ProfileEntity implements java.io.Serializable
 		}
 	}
 
+	public static ProfileEntity from(Map<Answer,BlockEntity> answerToBlockMap)
+	{
+		ProfileEntity profileEntity = new ProfileEntity();
+
+		profileEntity.set(answerToBlockMap);
+
+		return profileEntity;
+	}
+
 	@Override
 	public boolean equals(Object o)
 	{

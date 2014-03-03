@@ -6,6 +6,7 @@ import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.utils.UserInfo;
 import org.sql2o.Connection;
+import org.sql2o.Sql2oException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -15,7 +16,7 @@ public class UserServiceTest
 
 	Connection sqlConnection;
 	UserService userService;
-	
+
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
@@ -39,14 +40,9 @@ public class UserServiceTest
 	@Test(groups="dbtest")
 	public void testCreateUser()
 	{
-		UserEntity newUserEntity = new UserEntity();
 		UUID id = UUID.randomUUID();
-		
-		newUserEntity.setId(id);
-		newUserEntity.setEmailAddress("new.user@cru.org");
-		newUserEntity.setFirstName("New T.");
-		newUserEntity.setLastName("User");
-		newUserEntity.setPhoneNumber("419/555-5555");
+
+		UserEntity newUserEntity = new UserEntity(id, "New T.", "User", "new.user@cru.org", "419/555-5555");
 		
 		try
 		{
@@ -55,10 +51,51 @@ public class UserServiceTest
 			UserEntity retrievedUser = userService.getUserById(id);
 			
 			Assert.assertEquals(retrievedUser.getId(), id);
-			Assert.assertEquals(retrievedUser.getEmailAddress(), "new.user@cru.org");
-			Assert.assertEquals(retrievedUser.getFirstName(), "New T.");
-			Assert.assertEquals(retrievedUser.getLastName(), "User");
-			Assert.assertEquals(retrievedUser.getPhoneNumber(), "419/555-5555");
+			Assert.assertEquals(retrievedUser.getEmailAddress(), newUserEntity.getEmailAddress());
+			Assert.assertEquals(retrievedUser.getFirstName(), newUserEntity.getFirstName());
+			Assert.assertEquals(retrievedUser.getLastName(), newUserEntity.getLastName());
+			Assert.assertEquals(retrievedUser.getPhoneNumber(), newUserEntity.getPhoneNumber());
+		}
+		finally
+		{
+			sqlConnection.rollback();
+		}
+	}
+
+	@Test(groups="dbtest")
+	public void testDeleteUser()
+	{
+		UUID id = UUID.randomUUID();
+
+		UserEntity newUserEntity = new UserEntity(id, "New T.", "User", "new.user@cru.org", "419/555-5555");
+
+		try
+		{
+			userService.createUser(newUserEntity);
+
+			Assert.assertNotNull(userService.getUserById(id));
+
+			userService.deleteUser(id);
+
+			Assert.assertNull(userService.getUserById(id));
+		}
+		finally
+		{
+			sqlConnection.rollback();
+		}
+
+	}
+
+	@Test(groups="dbtest", expectedExceptions = Sql2oException.class)
+	public void testDeleteUserConstraintViolation()
+	{
+		UUID id = UUID.fromString("f8f8c217-f918-4503-b3b3-85016f988343");
+
+		try
+		{
+			userService.deleteUser(id);
+
+			Assert.assertNull(userService.getUserById(id));
 		}
 		finally
 		{
