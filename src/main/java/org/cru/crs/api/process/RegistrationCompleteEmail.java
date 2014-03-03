@@ -30,13 +30,13 @@ public class RegistrationCompleteEmail
 		builder.append(HtmlHelper.paragraph("You are registered for the event '" + HtmlHelper.bold(conferenceEntity.getName()) + "'"));
 
 		if(!Strings.isNullOrEmpty(conferenceEntity.getDescription()))
-			builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Event Description: ") + conferenceEntity.getDescription()));
+			builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Description: ") + conferenceEntity.getDescription()));
 
-		builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Event Start Time: ") + formatter.print(conferenceEntity.getEventStartTime())))
-				.append(HtmlHelper.paragraph(HtmlHelper.bold("Event End Time: ") + formatter.print(conferenceEntity.getEventEndTime())));
+		builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Start Time: ") + formatter.print(conferenceEntity.getEventStartTime())))
+				.append(HtmlHelper.paragraph(HtmlHelper.bold("End Time: ") + formatter.print(conferenceEntity.getEventEndTime())));
 
 		if(location(conferenceEntity).length() > 0)
-			builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Event Location: ") + location(conferenceEntity).toString()));
+			builder.append(HtmlHelper.paragraph(HtmlHelper.bold("Location: ") + location(conferenceEntity).toString()));
 
 		if(conferenceHasCost(conferenceCostsEntity))
 		{
