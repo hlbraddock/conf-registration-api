@@ -302,7 +302,7 @@ public class ConferenceResource extends TransactionalResource
 	{
 		logger.info("create registration entity for conference " + conferenceId + "auth code" + authCode + " registration type: " + registrationType);
 
-		boolean registerOnBehalf = !Strings.isEmpty(registrationType) && registrationType.equals("on-behalf-of") ? true : false;
+		boolean registerOnBehalf = !Strings.isEmpty(registrationType) && registrationType.equals("on-behalf-of");
 
 		CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
 
