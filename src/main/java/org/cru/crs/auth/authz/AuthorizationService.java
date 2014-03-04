@@ -64,7 +64,7 @@ public class AuthorizationService
 
 		if(operationType.equals(OperationType.CREATE_ON_BEHALF))
 		{
-			if(!userCanAdministerConference(conferenceId, crsApplicationUser.getId())) throw new UnauthorizedException();
+			if(!userCanUpdateConference(conferenceId, crsApplicationUser.getId())) throw new UnauthorizedException();
 		}
 		if(operationType.equals(OperationType.CREATE))
 		{
