@@ -663,40 +663,4 @@ public class ConferenceResource extends TransactionalResource
 
         return Response.noContent().build();
     }
-
-    /**
-     * Archives a conference resource specified by @param conferenceId
-     *
-     * Possible Outcomes:
-     *  204 No Content - found conference and the user specified by @param authCode has admin access
-     *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist, or user doesn't have admin access to conference or registrations
-     *  404 Not Found - no conference resource specified by @param conferenceId
-     *
-     * @param conferenceId
-     * @return
-     */
-    @PUT
-    @Path("/{conferenceId}/archive")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response archiveConference(@PathParam(value = "conferenceId") UUID conferenceId,
-                                     @HeaderParam(value="Authorization") String authCode)
-    {
-        logger.info("delete conference entity " + conferenceId + " auth code: " + authCode);
-
-        CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
-
-        ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
-
-        authorizationService.authorizeConference(conference,
-                OperationType.DELETE,
-                crsLoggedInUser);
-
-        conference.setArchived(true);
-
-        conferenceService.updateConference(conference);
-
-        Simply.logObject(conference, ConferenceResource.class);
-
-        return Response.noContent().build();
-    }
 }
