@@ -453,7 +453,7 @@ public class ConferenceResourceFunctionalTest
 		{
 			Registration newRegistration = createRegistration(registrationId, UserInfo.Id.Ryan);
 
-			ClientResponse<Registration> response = conferenceClient.createRegistrationType(newRegistration, ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.Ryan, "on-behalf-of");
+			ClientResponse<Registration> response = conferenceClient.createRegistrationType(newRegistration, ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.Email, "on-behalf-of");
 
 			Assert.assertEquals(response.getStatus(), 401);
 		}
