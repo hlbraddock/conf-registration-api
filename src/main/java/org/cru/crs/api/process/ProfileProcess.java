@@ -9,10 +9,10 @@ import org.cru.crs.api.model.answer.AddressQuestion;
 import org.cru.crs.api.model.answer.BlockType;
 import org.cru.crs.api.model.answer.DateQuestion;
 import org.cru.crs.api.model.answer.NameQuestion;
-import org.cru.crs.api.model.answer.TextQuestion;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.ProfileEntity;
+import org.cru.crs.model.ProfileType;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.ProfileService;
@@ -53,6 +53,8 @@ public class ProfileProcess
 	public void capture(Registration registration)
 	{
 		ProfileEntity profileEntity = getUserProfile(registration.getUserId());
+
+		Simply.logObject(profileEntity, getClass());
 
 		profileEntity.set(getAnswerBlockEntityMap(registration.getAnswers()));
 
@@ -134,43 +136,82 @@ public class ProfileProcess
 
 					BlockType blockType = BlockType.fromString(blockEntity.getBlockType());
 
-					// serialize the appropriate block type java object into a json formatted string
-					if(blockType.isTextQuestion())
+					if (blockType.isJsonFormat())
 					{
-						TextQuestion textQuestion = profileEntity.getTextQuestion(blockEntity.getProfileType());
-						if(!textQuestion.isEmpty())
-							jsonNode = JsonNodeHelper.serialize(textQuestion);
-					}
+						if (blockType.equals(BlockType.NAME_QUESTION))
+						{
+							NameQuestion nameQuestion = new NameQuestion();
 
-					else if(blockType.isDateQuestion())
-					{
-						DateQuestion dateQuestion = profileEntity.getDateQuestion(blockEntity.getProfileType());
-						if(!dateQuestion.isEmpty())
-							jsonNode = JsonNodeHelper.serialize(dateQuestion);
-					}
+							nameQuestion.setFirstName(profileEntity.getFirstName());
+							nameQuestion.setLastName(profileEntity.getLastName());
 
-					else if(blockType.isNameQuestion())
-					{
-						NameQuestion nameQuestion = profileEntity.getNameQuestion();
-						if(!nameQuestion.isEmpty())
-							jsonNode = JsonNodeHelper.serialize(nameQuestion);
-					}
+							if (!nameQuestion.isEmpty())
+								jsonNode = JsonNodeHelper.serialize(nameQuestion);
+						}
+						else if (blockType.equals(BlockType.ADDRESS_QUESTION))
+						{
+							AddressQuestion addressQuestion = new AddressQuestion();
 
-					else if(blockType.isAddressQuestion())
+							addressQuestion.setAddress1(profileEntity.getAddress1());
+							addressQuestion.setAddress2(profileEntity.getAddress2());
+							addressQuestion.setCity(profileEntity.getCity());
+							addressQuestion.setState(profileEntity.getState());
+							addressQuestion.setZip(profileEntity.getZip());
+
+							if (!addressQuestion.isEmpty())
+								jsonNode = JsonNodeHelper.serialize(addressQuestion);
+						}
+					}
+					else if (blockType.isTextFormat())
 					{
-						AddressQuestion addressQuestion = profileEntity.getAddressQuestion();
-						if(addressQuestion.isEmpty())
-							jsonNode = JsonNodeHelper.serialize(addressQuestion);
+						if (blockType.equals(BlockType.DATE_QUESTION))
+						{
+							DateQuestion dateQuestion = new DateQuestion();
+
+							if (blockEntity.getProfileType().equals(ProfileType.BIRTH_DATE))
+								dateQuestion.setText(profileEntity.getBirthDate());
+							else if (blockEntity.getProfileType().equals(ProfileType.GRADUATION))
+								dateQuestion.setText(profileEntity.getGraduation());
+
+							if(dateQuestion.getText() != null)
+								jsonNode = JsonNodeHelper.toJsonNode(JsonNodeHelper.serialize(dateQuestion).get("text").toString());
+						}
+						else
+						{
+							String value = null;
+							switch (blockEntity.getProfileType())
+							{
+								case CAMPUS:
+									value = profileEntity.getCampus();
+									break;
+								case DORMITORY:
+									value = profileEntity.getDormitory();
+									break;
+								case EMAIL:
+									value = profileEntity.getEmail();
+									break;
+								case GENDER:
+									value = profileEntity.getGender();
+									break;
+								case PHONE:
+									value = profileEntity.getPhone();
+									break;
+							}
+
+							if(!Strings.isEmpty(value))
+								jsonNode = JsonNodeHelper.toJsonNode(JsonNodeHelper.toJsonString(value));
+						}
 					}
 
 					// if unrecognizable block type
 					else return;
 
-					// construct the answer
-					Answer answer = new Answer(UUID.randomUUID(), registration.getId(), blockEntity.getId(), jsonNode);
-
 					// add answer to the registration
-					registration.getAnswers().add(answer);
+					if (jsonNode != null)
+					{
+						Answer answer = new Answer(UUID.randomUUID(), registration.getId(), blockEntity.getId(), jsonNode);
+						registration.getAnswers().add(answer);
+					}
 				}
 				catch(Exception e)
 				{

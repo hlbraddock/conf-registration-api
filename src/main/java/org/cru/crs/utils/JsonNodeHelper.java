@@ -7,9 +7,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 
 /**
- * Only for use in tests, not threadsafe.
- * @author ryancarlson
- *
+ * @author leebraddock
  */
 public class JsonNodeHelper
 {
@@ -28,6 +26,14 @@ public class JsonNodeHelper
 		return jsonText;
 	}
 
+	/**
+	 * This will format a string such that the result can be passed to {@link #toJsonNode(String)}
+	 */
+	public static String toJsonString(String text) throws IOException
+	{
+		return "\"" + text + "\"";
+	}
+
 	public static <T> JsonNode serialize(T t) throws IOException
 	{
 		ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -44,4 +50,3 @@ public class JsonNodeHelper
 		return objectMapper.readValue(jsonNode, tClass);
 	}
 }
-

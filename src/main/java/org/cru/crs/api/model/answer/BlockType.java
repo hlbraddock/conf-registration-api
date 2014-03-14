@@ -1,71 +1,55 @@
 package org.cru.crs.api.model.answer;
 
-/**
- * This enumerated type provides mapping to possible BlockEntity blockType values.
- */
 public enum BlockType
 {
-	EMAIL_QUESTION("emailQuestion"),
-	NAME_QUESTION("nameQuestion"),
-	ADDRESS_QUESTION("addressQuestion"),
-	PHONE_QUESTION("phoneQuestion"),
-	NUMBER_QUESTION("numberQuestion"),
-	DATE_QUESTION("dateQuestion")
+	ADDRESS_QUESTION("addressQuestion", Format.JSON),
+	DATE_QUESTION("dateQuestion", Format.TEXT),
+	EMAIL_QUESTION("emailQuestion", Format.TEXT),
+	GENDER_QUESTION("genderQuestion", Format.TEXT),
+	NAME_QUESTION("nameQuestion", Format.JSON),
+	NUMBER_QUESTION("numberQuestion", Format.TEXT),
+	PHONE_QUESTION("phoneQuestion", Format.TEXT),
+	RADIO_QUESTION("radioQuestion", Format.TEXT),
+	SELECT_QUESTION("selectQuestion", Format.JSON),
+	TEXT_QUESTION("textQuestion", Format.TEXT)
 	;
 
-	public static BlockType fromString(String blockType)
+	public enum Format
 	{
-		if(blockType.equals(EMAIL_QUESTION.toString()))
-			return EMAIL_QUESTION;
-
-		if(blockType.equals(NAME_QUESTION.toString()))
-			return NAME_QUESTION;
-
-		if(blockType.equals(ADDRESS_QUESTION.toString()))
-			return ADDRESS_QUESTION;
-
-		if(blockType.equals(PHONE_QUESTION.toString()))
-			return PHONE_QUESTION;
-
-		if(blockType.equals(NUMBER_QUESTION.toString()))
-			return NUMBER_QUESTION;
-
-		if(blockType.equals(DATE_QUESTION.toString()))
-			return DATE_QUESTION;
-
-		throw new RuntimeException("Could not find block type for " + blockType);
+		JSON, TEXT
 	}
 
-	private BlockType(final String type)
+	public static BlockType fromString(String blockTypeString)
 	{
-		this.type = type;
+		for (BlockType blockType : BlockType.values()) {
+			if(blockType.type.equals(blockTypeString))
+				return blockType;
+		}
+
+		throw new RuntimeException("Could not find block type for " + blockTypeString);
 	}
 
 	private final String type;
+	private final Format format;
 
-	public boolean isTextQuestion()
+	private BlockType(final String type, final Format format)
 	{
-		return this.equals(EMAIL_QUESTION) || this.equals(PHONE_QUESTION) || this.equals(NUMBER_QUESTION);
+		this.type = type;
+		this.format = format;
 	}
 
-	public boolean isDateQuestion()
-	{
-		return this.equals(DATE_QUESTION);
-	}
-
-	public boolean isNameQuestion()
-	{
-		return this.equals(NAME_QUESTION);
-	}
-
-	public boolean isAddressQuestion()
-	{
-		return this.equals(ADDRESS_QUESTION);
-	}
-
-	@Override
-	public String toString()
+	public String getType()
 	{
 		return type;
+	}
+
+	public boolean isJsonFormat()
+	{
+		return format.equals(Format.JSON);
+	}
+
+	public boolean isTextFormat()
+	{
+		return format.equals(Format.TEXT);
 	}
 }
