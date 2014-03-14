@@ -1,5 +1,7 @@
 package org.cru.crs.model;
 
+import org.ccci.util.strings.Strings;
+
 import java.util.UUID;
 
 public class UserEntity implements java.io.Serializable
@@ -86,6 +88,15 @@ public class UserEntity implements java.io.Serializable
 	public UserEntity setPhoneNumber(String phoneNumber)
 	{
 		this.phoneNumber = phoneNumber;
+		return this;
+	}
+
+	public UserEntity set(ProfileEntity profileEntity, boolean onlyWhereEmpty)
+	{
+		setFirstName(!Strings.isEmpty(getFirstName()) && onlyWhereEmpty ? firstName : profileEntity.getFirstName());
+		setLastName(!Strings.isEmpty(getLastName()) && onlyWhereEmpty ? lastName : profileEntity.getLastName());
+		setEmailAddress(!Strings.isEmpty(getEmailAddress()) && onlyWhereEmpty ? emailAddress : profileEntity.getEmail());
+
 		return this;
 	}
 

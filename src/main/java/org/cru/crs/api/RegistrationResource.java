@@ -163,7 +163,7 @@ public class RegistrationResource extends TransactionalResource
 		if(registration.getCompleted())
 		{
 			// capture profile
-			profileProcess.capture(registration, crsLoggedInUser.getAuthProviderType());
+			profileProcess.capture(registration);
 
 			// notify them of registration info
 			notificationProcess.registrationComplete(crsLoggedInUser, registration, conferenceEntityForUpdatedRegistration);
