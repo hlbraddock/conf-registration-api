@@ -10,11 +10,9 @@ import org.cru.crs.api.model.answer.BlockType;
 import org.cru.crs.api.model.answer.DateQuestion;
 import org.cru.crs.api.model.answer.NameQuestion;
 import org.cru.crs.api.model.answer.TextQuestion;
-import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.ProfileEntity;
-import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.ProfileService;
@@ -52,7 +50,7 @@ public class ProfileProcess
 		this.userService = userService;
 	}
 
-	public void capture(Registration registration, AuthenticationProviderType authenticationProviderType)
+	public void capture(Registration registration)
 	{
 		ProfileEntity profileEntity = getUserProfile(registration.getUserId());
 
@@ -62,15 +60,8 @@ public class ProfileProcess
 
 		profileService.updateProfile(profileEntity);
 
-		// capture the anonymous user's email address while you're at it
-		if(authenticationProviderType.equals(AuthenticationProviderType.NONE))
-		{
-			UserEntity userEntity = userService.getUserById(registration.getUserId());
-
-			userEntity.setEmailAddress(profileEntity.getEmail());
-
-			userService.updateUser(userEntity);
-		}
+		// populate user entity from profile
+		userService.updateUser(userService.getUserById(registration.getUserId()).set(profileEntity, true /* if not already set */));
 	}
 
 	private ProfileEntity getUserProfile(UUID userId)
