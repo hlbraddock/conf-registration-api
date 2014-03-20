@@ -205,9 +205,7 @@ public class RegistrationResourceFunctionalTest
 		String email = UserInfo.Email.Ryan;
 		String firstName = "Ryan";
 		String lastName = "Carlson";
-		String jsonString = "{" +
-				"\"text\": \"" + email + "\"" +
-				"}";
+		String jsonString = "\"" + email + "\"";
 
 		JsonNode createAnswerValue = jsonNodeFromString(jsonString);
 		Answer answer = createAnswer(answerUUID, registrationIdUUID, createBlockUUID, createAnswerValue);
@@ -274,9 +272,7 @@ public class RegistrationResourceFunctionalTest
 		String email = UserInfo.Email.Anonymous;
 		String firstName = "Anonymous";
 		String lastName = "User";
-		String jsonString = "{" +
-				"\"text\": \"" + email + "\"" +
-				"}";
+		String jsonString = "\"" + email + "\"";
 
 		JsonNode createAnswerValue = jsonNodeFromString(jsonString);
 		Answer answer = createAnswer(answerUUID, registrationIdUUID, createBlockUUID, createAnswerValue);

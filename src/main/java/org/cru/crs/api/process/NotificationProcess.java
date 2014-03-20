@@ -143,7 +143,10 @@ public class NotificationProcess
 
 		ProfileEntity profileEntity = profileService.getProfileByUser(userEntity.getId());
 		if(profileEntity != null)
-			emails.add(profileEntity.getEmail());
+		{
+			if(!Strings.isNullOrEmpty(profileEntity.getEmail()))
+				emails.add(profileEntity.getEmail());
+		}
 
 		return emails;
 	}

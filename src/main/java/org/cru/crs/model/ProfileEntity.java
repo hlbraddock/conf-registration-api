@@ -1,12 +1,12 @@
 package org.cru.crs.model;
 
 import com.google.common.base.Strings;
+import org.codehaus.jackson.JsonNode;
 import org.cru.crs.api.model.Answer;
-import org.cru.crs.api.model.answer.AddressQuestion;
 import org.cru.crs.api.model.answer.BlockType;
+import org.cru.crs.api.model.answer.AddressQuestion;
 import org.cru.crs.api.model.answer.DateQuestion;
 import org.cru.crs.api.model.answer.NameQuestion;
-import org.cru.crs.api.model.answer.TextQuestion;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
@@ -232,170 +232,51 @@ public class ProfileEntity implements java.io.Serializable
 		this.zip = zip;
 	}
 
-	public TextQuestion getTextQuestion(ProfileType profileType)
-	{
-		TextQuestion textQuestion = new TextQuestion();
-
-		switch(profileType)
-		{
-			case EMAIL:
-				textQuestion.setText(email);
-				break;
-			case PHONE:
-				textQuestion.setText(phone);
-				break;
-			case GENDER:
-				textQuestion.setText(gender);
-				break;
-			case CAMPUS:
-				textQuestion.setText(campus);
-				break;
-			case DORMITORY:
-				textQuestion.setText(dormitory);
-				break;
-			default:
-		}
-
-		return textQuestion;
-	}
-
-	public DateQuestion getDateQuestion(ProfileType profileType)
-	{
-		DateQuestion dateQuestion = new DateQuestion();
-
-		switch(profileType)
-		{
-			case BIRTH_DATE:
-				dateQuestion.setText(birthDate);
-				break;
-			case GRADUATION:
-				dateQuestion.setText(graduation);
-			default:
-		}
-
-		return dateQuestion;
-	}
-
-	public NameQuestion getNameQuestion()
-	{
-		NameQuestion nameQuestion = new NameQuestion();
-
-		nameQuestion.setFirstName(firstName);
-		nameQuestion.setLastName(lastName);
-
-		return nameQuestion;
-	}
-
-	public AddressQuestion getAddressQuestion()
-	{
-		AddressQuestion addressQuestion = new AddressQuestion();
-
-		addressQuestion.setAddress1(address1);
-		addressQuestion.setAddress2(address2);
-		addressQuestion.setCity(city);
-		addressQuestion.setState(state);
-		addressQuestion.setZip(zip);
-
-		return addressQuestion;
-	}
-
-	public void set(TextQuestion textQuestion, ProfileType profileType)
-	{
-		switch(profileType)
-		{
-			case EMAIL:
-				setEmail(textQuestion.getText());
-				break;
-			case PHONE:
-				setPhone(textQuestion.getText());
-				break;
-			case GENDER:
-				setGender(textQuestion.getText());
-				break;
-			case CAMPUS:
-				setCampus(textQuestion.getText());
-				break;
-			case DORMITORY:
-				setDormitory(textQuestion.getText());
-				break;
-			default:
-		}
-	}
-
-	public void set(DateQuestion dateQuestion, ProfileType profileType)
-	{
-		switch(profileType)
-		{
-			case BIRTH_DATE:
-				setBirthDate(dateQuestion.getText());
-				break;
-			case GRADUATION:
-				setGraduation(dateQuestion.getText());
-				break;
-			default:
-		}
-	}
-
-	public void set(NameQuestion nameQuestion)
-	{
-		firstName = nameQuestion.getFirstName();
-		lastName = nameQuestion.getLastName();
-	}
-
-	public void set(AddressQuestion addressQuestion)
-	{
-		address1 = addressQuestion.getAddress1();
-		address2 = addressQuestion.getAddress2();
-		city = addressQuestion.getCity();
-		state = addressQuestion.getState();
-		zip = addressQuestion.getZip();
-	}
-
 	public void set(ProfileEntity profileEntity)
 	{
-		if(profileEntity == null)
+		if (profileEntity == null)
 			return;
 
-		if(profileEntity.getBirthDate() != null)
+		if (profileEntity.getBirthDate() != null)
 			birthDate = profileEntity.getBirthDate();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getCampus()))
+		if (!Strings.isNullOrEmpty(profileEntity.getCampus()))
 			campus = profileEntity.getCampus();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getCity()))
+		if (!Strings.isNullOrEmpty(profileEntity.getCity()))
 			city = profileEntity.getCity();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getDormitory()))
+		if (!Strings.isNullOrEmpty(profileEntity.getDormitory()))
 			dormitory = profileEntity.getDormitory();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getEmail()	))
+		if (!Strings.isNullOrEmpty(profileEntity.getEmail()))
 			email = profileEntity.getEmail();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getFirstName()))
+		if (!Strings.isNullOrEmpty(profileEntity.getFirstName()))
 			firstName = profileEntity.getFirstName();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getGender()))
+		if (!Strings.isNullOrEmpty(profileEntity.getGender()))
 			gender = profileEntity.getGender();
 
-		if(profileEntity.getGraduation() != null)
+		if (profileEntity.getGraduation() != null)
 			graduation = profileEntity.getGraduation();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getLastName()))
+		if (!Strings.isNullOrEmpty(profileEntity.getLastName()))
 			lastName = profileEntity.getLastName();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getPhone()))
+		if (!Strings.isNullOrEmpty(profileEntity.getPhone()))
 			phone = profileEntity.getPhone();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getState()))
+		if (!Strings.isNullOrEmpty(profileEntity.getState()))
 			state = profileEntity.getState();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getAddress1()))
+		if (!Strings.isNullOrEmpty(profileEntity.getAddress1()))
 			address1 = profileEntity.getAddress1();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getAddress2()))
+		if (!Strings.isNullOrEmpty(profileEntity.getAddress2()))
 			address2 = profileEntity.getAddress2();
 
-		if(!Strings.isNullOrEmpty(profileEntity.getZip()))
+		if (!Strings.isNullOrEmpty(profileEntity.getZip()))
 			zip = profileEntity.getZip();
 	}
 
@@ -407,7 +288,7 @@ public class ProfileEntity implements java.io.Serializable
 	Logger logger = Logger.getLogger(ProfileEntity.class);
 
 	// set profile from answers
-	public void set(Map<Answer,BlockEntity> answerToBlockMap)
+	public void set(Map<Answer, BlockEntity> answerToBlockMap)
 	{
 		for (Map.Entry<Answer, BlockEntity> entry : answerToBlockMap.entrySet())
 		{
@@ -421,32 +302,66 @@ public class ProfileEntity implements java.io.Serializable
 				{
 					BlockType blockType = BlockType.fromString(blockEntity.getBlockType());
 
-					// deserialize the json answer using the appropriate block type determined answer object
-					if(blockType.isTextQuestion())
+					if (blockType.isJsonFormat())
 					{
-						TextQuestion textQuestion = JsonNodeHelper.deserialize(answer.getValue(), TextQuestion.class);
-						set(textQuestion, blockEntity.getProfileType());
-					}
+						if (blockType.equals(BlockType.NAME_QUESTION))
+						{
+							NameQuestion nameQuestion = JsonNodeHelper.deserialize(answer.getValue(), NameQuestion.class);
 
-					else if(blockType.isDateQuestion())
-					{
-						DateQuestion dateQuestion = JsonNodeHelper.deserialize(answer.getValue(), DateQuestion.class);
-						set(dateQuestion, blockEntity.getProfileType());
-					}
+							firstName = nameQuestion.getFirstName();
+							lastName = nameQuestion.getLastName();
+						}
+						else if (blockType.equals(BlockType.ADDRESS_QUESTION))
+						{
+							AddressQuestion addressQuestion = JsonNodeHelper.deserialize(answer.getValue(), AddressQuestion.class);
 
-					else if(blockType.isNameQuestion())
-					{
-						NameQuestion nameQuestion = JsonNodeHelper.deserialize(answer.getValue(), NameQuestion.class);
-						set(nameQuestion);
+							address1 = addressQuestion.getAddress1();
+							address2 = addressQuestion.getAddress2();
+							city = addressQuestion.getCity();
+							state = addressQuestion.getState();
+							zip = addressQuestion.getZip();
+						}
 					}
-
-					else if(blockType.isAddressQuestion())
+					else if (blockType.isTextFormat())
 					{
-						AddressQuestion addressQuestion = JsonNodeHelper.deserialize(answer.getValue(), AddressQuestion.class);
-						set(addressQuestion);
+						if (blockType.equals(BlockType.DATE_QUESTION))
+						{
+							JsonNode jsonNode = JsonNodeHelper.toJsonNode(JsonNodeHelper.toJsonString(answer.getValue()));
+							DateQuestion dateQuestion = JsonNodeHelper.deserialize(jsonNode, DateQuestion.class);
+
+							if (blockEntity.getProfileType().equals(ProfileType.BIRTH_DATE))
+							{
+								birthDate = dateQuestion.getText();
+							}
+							else if (blockEntity.getProfileType().equals(ProfileType.GRADUATION))
+							{
+								graduation = dateQuestion.getText();
+							}
+						}
+						else
+						{
+							switch (blockEntity.getProfileType())
+							{
+								case CAMPUS:
+									campus = answer.getValue().getTextValue();
+									break;
+								case DORMITORY:
+									dormitory = answer.getValue().getTextValue();
+									break;
+								case EMAIL:
+									email = answer.getValue().getTextValue();
+									break;
+								case GENDER:
+									gender = answer.getValue().getTextValue();
+									break;
+								case PHONE:
+									phone = answer.getValue().getTextValue();
+									break;
+							}
+						}
 					}
 				}
-				catch(Exception e)
+				catch (Exception e)
 				{
 					logger.error("Could not set profile from answers for block type " + blockEntity.getBlockType() +
 							" and profile type " + blockEntity.getProfileType(), e);
@@ -455,7 +370,7 @@ public class ProfileEntity implements java.io.Serializable
 		}
 	}
 
-	public static ProfileEntity from(Map<Answer,BlockEntity> answerToBlockMap)
+	public static ProfileEntity from(Map<Answer, BlockEntity> answerToBlockMap)
 	{
 		ProfileEntity profileEntity = new ProfileEntity();
 

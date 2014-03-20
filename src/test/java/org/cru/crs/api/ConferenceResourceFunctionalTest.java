@@ -18,7 +18,6 @@ import org.cru.crs.api.model.Page;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.RegistrationView;
-import org.cru.crs.api.model.answer.TextQuestion;
 import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveConferenceProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
@@ -399,10 +398,8 @@ public class ConferenceResourceFunctionalTest
 
 			answerId = answerEntity.getId();
 
-			TextQuestion textQuestion = JsonNodeHelper.deserialize(answerEntity.getAnswer(), TextQuestion.class);
-
-			Assert.assertNotNull(textQuestion);
-			Assert.assertEquals(textQuestion.getText(), UserInfo.Email.TestUser);
+			Assert.assertNotNull(answerEntity.getAnswer());
+			Assert.assertEquals(answerEntity.getAnswer().getTextValue(), UserInfo.Email.TestUser);
 		}
 		finally
 		{
