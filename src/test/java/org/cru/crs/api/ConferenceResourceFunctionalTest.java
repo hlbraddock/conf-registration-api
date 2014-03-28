@@ -381,10 +381,10 @@ public class ConferenceResourceFunctionalTest
 
             // attempt to fetch the conference we just deleted
             ClientResponse<Conference> fetchResponse = conferenceClient.getConference(fakeConference.getId());
-            Assert.assertEquals(updateResponse.getStatus(), 404);
+            Assert.assertEquals(fetchResponse.getStatus(), 404);
 
-            Conference deletedConference = fetchResponse.getEntity();
-            Assert.assertNull(deletedConference);
+            //Conference deletedConference = fetchResponse.getEntity();
+            //Assert.assertNull(deletedConference);
         }
         finally
         {
