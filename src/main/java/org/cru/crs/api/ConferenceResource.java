@@ -138,7 +138,7 @@ public class ConferenceResource extends TransactionalResource
 
 		if(requestedConference == null) 
 		{
-			return Response.ok(new NotFound()).build();
+			return Response.status(Status.NOT_FOUND).build();
 		}
 
 		Simply.logObject(requestedConference, ConferenceResource.class);
