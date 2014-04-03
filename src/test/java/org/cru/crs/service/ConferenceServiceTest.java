@@ -193,7 +193,7 @@ public class ConferenceServiceTest
             Assert.assertNotNull(retrievedConference);
 
             //Delete the conference
-            conferenceService.deleteConference(conference);
+            conferenceService.deleteConference(conference.getId());
 
             //Verify that it is not in the database
             retrievedConference = conferenceService.fetchConferenceBy(conference.getId());
