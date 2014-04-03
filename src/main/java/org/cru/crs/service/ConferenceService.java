@@ -118,10 +118,17 @@ public class ConferenceService
     					.executeUpdate();
 	}
 
-    public void deleteConference(ConferenceEntity conferenceToDelete)
+    public void deleteConference(UUID conferenceToDeleteID)
     {
+        //First delete permissions on the conference
+        List<PermissionEntity> permissionsToDelete = permissionService.getPermissionsForConference(conferenceToDeleteID);
+        for(PermissionEntity permission : permissionsToDelete)
+        {
+            permissionService.deletePermission(permission.getId());
+        }
+
         sqlConnection.createQuery(conferenceQueries.delete())
-                        .addParameter("id", conferenceToDelete.getId())
+                        .addParameter("id", conferenceToDeleteID)
                         .executeUpdate();
     }
 }

@@ -656,12 +656,8 @@ public class ConferenceResource extends TransactionalResource
         {
             throw new BadRequestException();
         }
-        //First delete permission entry
-        UUID permissionID = permissionService.getPermissionForUserOnConference(crsLoggedInUser.getId(), conferenceId).getId();
-        permissionService.deletePermission(permissionID);
 
-        //Then delete conference entry
-        conferenceService.deleteConference(conference);
+        conferenceService.deleteConference(conferenceId);
 
         Simply.logObject(conference, ConferenceResource.class);
 

@@ -466,7 +466,7 @@ public class Conference implements java.io.Serializable
 	{
 		this.registrationCount = registrationCount;
 	}
-	
+
     public boolean isArchived()
     {
         return archived;
