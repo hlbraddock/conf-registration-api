@@ -49,10 +49,8 @@ public class TrustCommercePaymentProcess
 
 		String status = response.get(Response.STATUS.getValue());
 
-		if (Strings.isNullOrEmpty(status))
-			throw new TrustCommerceException("no return status");
-
-		if (!(status.equalsIgnoreCase(Status.ACCEPTED.getValue()) || status.equalsIgnoreCase(Status.APPROVED.getValue())))
+		if (Strings.isNullOrEmpty(status) ||
+				!(status.equalsIgnoreCase(Status.ACCEPTED.getValue()) || status.equalsIgnoreCase(Status.APPROVED.getValue())))
 			throw new TrustCommerceException(response);
 
 		return response;
