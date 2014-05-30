@@ -2,7 +2,7 @@ package org.cru.crs.payment.trustcommerce.domain;
 
 public enum Action
 {
-	SALE("sale"), PREAUTH("preauth"), POSTAUTH("postauth"), CREDIT("credit"), VOID("void"), STORE("store");
+	SALE("sale"), PRE_AUTH("preauth"), POST_AUTH("postauth"), CREDIT("credit"), VOID("void"), STORE("store");
 
 	private String value;
 

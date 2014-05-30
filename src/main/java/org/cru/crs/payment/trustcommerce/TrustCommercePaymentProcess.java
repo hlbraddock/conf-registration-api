@@ -33,7 +33,7 @@ public class TrustCommercePaymentProcess
 	{
 		Map<String,String> response = processCreditCardTransaction(payment, Action.SALE);
 
-		return response.get(Response.TRANSID.getValue());
+		return response.get(Response.TRANSACTION_ID.getValue());
 	}
 
 	public Map<String,String> processCreditCardTransaction(Payment payment, Action action) throws TrustCommerceException

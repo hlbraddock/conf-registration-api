@@ -37,7 +37,7 @@ public class TrustCommercePaymentProcessTest
 
 		System.out.println(response);
 
-		String transactionId = response.get(Response.TRANSID.getValue());
+		String transactionId = response.get(Response.TRANSACTION_ID.getValue());
 
 		Assert.assertNotNull(transactionId);
 	}

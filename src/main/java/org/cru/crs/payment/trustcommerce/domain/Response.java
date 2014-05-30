@@ -2,7 +2,7 @@ package org.cru.crs.payment.trustcommerce.domain;
 
 public enum Response
 {
-	TRANSID("transid"), STATUS("status"), DECLINETYPE("declinetype"), ERROR("error"), OFFENDERS("offenders"), ERRORTYPE("errortype"), AUTHCODE("authcode");
+	TRANSACTION_ID("transid"), STATUS("status"), DECLINE_TYPE("declinetype"), ERROR("error"), OFFENDERS("offenders"), ERROR_TYPE("errortype"), AUTH_CODE("authcode");
 
 	private String value;
 
