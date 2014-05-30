@@ -185,6 +185,12 @@
             <version>2.6</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.trustcommerce</groupId>
+            <artifactId>trust-commerce</artifactId>
+            <version>4.0.5</version>
+        </dependency>
+
     </dependencies>
 	
 	<build>
