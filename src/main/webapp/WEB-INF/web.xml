@@ -61,7 +61,7 @@
 		
  	<init-param>
       <param-name>edu.yale.its.tp.cas.client.filter.serverName</param-name>
-      <param-value>CRS-elb-2069964056.us-east-1.elb.amazonaws.com:8080</param-value>
+      <param-value>ec2-54-209-152-169.compute-1.amazonaws.com:8080</param-value>
     </init-param>
 	</filter>
 	
