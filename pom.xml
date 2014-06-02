@@ -259,7 +259,9 @@
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <version>1.0.1.Final</version>
                 <configuration>
-                    <hostname>10.7.199.70</hostname>
+                    <hostname>${deployments.targetServerIP}</hostname>
+                    <username>deployer</username>
+                    <password>${deployments.deployerPassword}</password>
                 </configuration>
             </plugin>
 
