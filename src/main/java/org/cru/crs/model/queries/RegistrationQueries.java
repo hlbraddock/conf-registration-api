@@ -13,7 +13,12 @@ public class RegistrationQueries implements BasicQueries
 	{
 		return "SELECT * FROM registrations WHERE conference_id = :conferenceId";
 	}
-	
+
+	public String selectCountForConference()
+	{
+		return "SELECT COUNT(*) FROM registrations WHERE conference_id = :conferenceId";
+	}
+
 	public String selectByUserIdConferenceId()
 	{
 		return "SELECT * FROM registrations WHERE user_id = :userId AND conference_id = :conferenceId";

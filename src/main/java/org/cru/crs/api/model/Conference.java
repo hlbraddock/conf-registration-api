@@ -58,6 +58,7 @@ public class Conference implements java.io.Serializable
     private String authnetId;
     private String authnetToken;
 
+	private Integer registrationCount;
 
 	public ConferenceEntity toDbConferenceEntity()
 	{
@@ -451,5 +452,15 @@ public class Conference implements java.io.Serializable
 	public void setRequireLogin(boolean requireLogin)
 	{
 		this.requireLogin = requireLogin;
+	}
+
+	public Integer getRegistrationCount()
+	{
+		return registrationCount;
+	}
+
+	public void setRegistrationCount(Integer registrationCount)
+	{
+		this.registrationCount = registrationCount;
 	}
 }
