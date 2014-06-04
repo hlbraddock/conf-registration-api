@@ -7,7 +7,7 @@ public enum Environment
     
     public final String host;
     public final int port;
-    public final String context = "/crs-http-json-api";
+    public final String context = "/eventhub-api";
 
     private final String scheme;
     
