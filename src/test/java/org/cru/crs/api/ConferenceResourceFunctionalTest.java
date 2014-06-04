@@ -103,7 +103,7 @@ public class ConferenceResourceFunctionalTest
 
 		answerService = new AnswerService(sqlConnection);
 
-        retrieveConferenceProcess = new RetrieveConferenceProcess(conferenceService, conferenceCostsService, pageService, blockService, new ClockImpl());
+        retrieveConferenceProcess = new RetrieveConferenceProcess(conferenceService, conferenceCostsService, pageService, blockService, registrationService, new ClockImpl());
 	}
 	
 	/**
@@ -129,6 +129,9 @@ public class ConferenceResourceFunctionalTest
 		
 		for(Conference conference : conferences)
 		{
+			if(conference.getId().equals(ConferenceInfo.Id.NorthernMichigan))
+				Assert.assertEquals(conference.getRegistrationCount().intValue(), 2);
+
 			if(!("Northern Michigan Fall Extravaganza".equals(conference.getName()) ||
 					"Miami University Fall Retreat".equals(conference.getName()) ||
 						"Winter Beach Weekend!".equals(conference.getName())))
