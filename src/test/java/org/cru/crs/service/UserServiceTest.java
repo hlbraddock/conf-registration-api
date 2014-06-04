@@ -7,16 +7,17 @@ import org.cru.crs.model.UserEntity;
 import org.cru.crs.utils.UserInfo;
 import org.sql2o.Sql2oException;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class UserServiceTest extends AbstractServiceTest
 {
 	UserService userService;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		userService = new UserService(sqlConnection);
 	}
 	

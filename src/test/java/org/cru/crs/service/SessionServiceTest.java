@@ -9,7 +9,7 @@ import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 
@@ -23,9 +23,10 @@ public class SessionServiceTest extends AbstractServiceTest
 {
 	SessionService sessionService;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		sessionService = new SessionService(sqlConnection);
 	}
 	

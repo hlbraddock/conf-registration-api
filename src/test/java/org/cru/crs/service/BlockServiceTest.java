@@ -7,16 +7,17 @@ import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class BlockServiceTest extends AbstractServiceTest
 {
 	BlockService blockService;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		blockService = new BlockService(sqlConnection,new AnswerService(sqlConnection));
 	}
 	

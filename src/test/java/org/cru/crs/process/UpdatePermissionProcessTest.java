@@ -27,6 +27,8 @@ public class UpdatePermissionProcessTest extends AbstractServiceTest
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
+		refreshConnection();
+
 		updatePermissionProcess = new UpdatePermissionProcess(ServiceFactory.createPermissionService(sqlConnection), new ClockImpl());
 		
 		permissionService = ServiceFactory.createPermissionService(sqlConnection);

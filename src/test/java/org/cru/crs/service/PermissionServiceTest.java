@@ -11,6 +11,7 @@ import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class PermissionServiceTest extends AbstractServiceTest
@@ -20,9 +21,10 @@ public class PermissionServiceTest extends AbstractServiceTest
 	final UUID permissionIdToRyan = UUID.fromString("dcb85040-76e2-11e3-981f-0800200c9a66");
 	final UUID permissionIdToEmailUser = UUID.fromString("2230e3d0-76e3-11e3-981f-0800200c9a66");
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		permissionService = new PermissionService(sqlConnection);
 	}
 	

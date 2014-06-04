@@ -43,6 +43,8 @@ public class CrsUserServiceTest extends AbstractServiceTest
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
+		refreshConnection();
+
 		sessionService = new SessionService(sqlConnection);
 		crsProperties = new CrsPropertiesFactory().get();
 		authenticationProviderService = new AuthenticationProviderService(sqlConnection);

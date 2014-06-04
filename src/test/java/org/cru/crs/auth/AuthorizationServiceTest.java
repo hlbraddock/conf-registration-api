@@ -28,7 +28,9 @@ public class AuthorizationServiceTest extends AbstractServiceTest
 	
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
+
 		registrationService = ServiceFactory.createRegistrationService(sqlConnection);
 		authorizationService = new AuthorizationService(new PermissionService(sqlConnection), registrationService);
 		conferenceService = ServiceFactory.createConferenceService(sqlConnection);

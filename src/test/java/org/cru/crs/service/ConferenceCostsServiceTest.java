@@ -10,16 +10,17 @@ import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class ConferenceCostsServiceTest extends AbstractServiceTest
 {
 	ConferenceCostsService conferenceCostsService;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		conferenceCostsService = new ConferenceCostsService(sqlConnection);
 	}
 	

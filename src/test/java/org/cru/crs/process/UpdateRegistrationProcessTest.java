@@ -42,6 +42,8 @@ public class UpdateRegistrationProcessTest extends AbstractServiceTest
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
+		refreshConnection();
+
 		PaymentService paymentService = ServiceFactory.createPaymentService(sqlConnection);
 		BlockService blockService = ServiceFactory.createBlockService(sqlConnection);
 		PageService pageService = ServiceFactory.createPageService(sqlConnection);

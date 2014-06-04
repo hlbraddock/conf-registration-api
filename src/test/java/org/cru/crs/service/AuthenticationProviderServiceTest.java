@@ -9,7 +9,7 @@ import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -23,13 +23,14 @@ public class AuthenticationProviderServiceTest extends AbstractServiceTest
 	AuthenticationProviderService authenticationProviderService;
 	UserService userService;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		authenticationProviderService = new AuthenticationProviderService(sqlConnection);
 		userService = new UserService(sqlConnection);
 	}
-	
+
 	@Test(groups="dbtest")
 	public void testFindAuthProviderEntityById()
 	{

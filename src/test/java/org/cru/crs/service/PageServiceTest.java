@@ -7,16 +7,17 @@ import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class PageServiceTest extends AbstractServiceTest
 {
 	PageService pageService;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		pageService = new PageService(sqlConnection,new BlockService(sqlConnection, new AnswerService(sqlConnection)));
 	}
 	

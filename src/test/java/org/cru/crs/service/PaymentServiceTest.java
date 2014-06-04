@@ -10,16 +10,17 @@ import org.cru.crs.model.PaymentType;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class PaymentServiceTest extends AbstractServiceTest
 {
 	PaymentService paymentService;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		paymentService = new PaymentService(sqlConnection);
 	}
 	

@@ -32,6 +32,8 @@ public class CreatePermissionProcessTest extends AbstractServiceTest
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
+		refreshConnection();
+
 		CrsProperties properties = new CrsPropertiesFactory().get();
 		
 		createPermissionProcess = new CreatePermissionProcess(ServiceFactory.createPermissionService(sqlConnection), 

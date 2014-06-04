@@ -13,15 +13,17 @@ import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class RegistrationViewServiceTest extends AbstractServiceTest
 {
 	RegistrationViewService registrationViewService;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		registrationViewService = ServiceFactory.createRegistrationViewService(sqlConnection);
 	}
 	

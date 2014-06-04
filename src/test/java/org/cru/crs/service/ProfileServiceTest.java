@@ -4,7 +4,7 @@ import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.model.ProfileEntity;
 import org.joda.time.DateTime;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.UUID;
@@ -15,9 +15,10 @@ public class ProfileServiceTest extends AbstractServiceTest
 
 	ProfileEntity profileEntity;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{
+		refreshConnection();
 		profileService = new ProfileService(sqlConnection);
 
 		UUID profileId = UUID.fromString("abcdc217-f918-4503-b3b3-85016f9883c1");

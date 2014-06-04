@@ -34,6 +34,8 @@ public class RetrieveConferenceProcessTest extends AbstractServiceTest
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
+		refreshConnection();
+
 		BlockService blockService = new BlockService(sqlConnection, new AnswerService(sqlConnection));
 		PageService pageService = new PageService(sqlConnection, blockService);
 		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);

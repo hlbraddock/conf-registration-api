@@ -1,9 +1,9 @@
 package org.cru.crs;
 
 
-import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.CrsPropertiesFactory;
 import org.sql2o.Connection;
+import org.testng.annotations.BeforeMethod;
 
 /**
  * Created by ryancarlson on 4/2/14.
@@ -14,14 +14,21 @@ public class AbstractServiceTest
 	protected Connection sqlConnection;
 
 	private CrsPropertiesFactory propertiesFactory = new CrsPropertiesFactory();
+	private static boolean initialized = false;
 
 	public AbstractServiceTest()
 	{
-		CrsProperties properties = propertiesFactory.get();
+		if (!initialized)
+		{
+			builder = new UnittestDatabaseBuilder();
+			builder.build(propertiesFactory.get());
 
-		builder = new UnittestDatabaseBuilder();
-		builder.build(properties);
+			initialized = true;
+		}
+	}
 
-		sqlConnection = new org.cru.crs.cdi.SqlConnectionProducer().getTestSqlConnection(properties);
+	protected void refreshConnection()
+	{
+		sqlConnection = new org.cru.crs.cdi.SqlConnectionProducer().getTestSqlConnection(propertiesFactory.get());
 	}
 }

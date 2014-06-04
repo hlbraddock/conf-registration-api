@@ -10,16 +10,17 @@ import org.cru.crs.utils.UserInfo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class RegistrationServiceTest extends AbstractServiceTest
 {
 	RegistrationService registrationService;
 
-	@BeforeClass(alwaysRun=true)
+	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
+	{
+		refreshConnection();
 		registrationService = new RegistrationService(sqlConnection, new AnswerService(sqlConnection), new PaymentService(sqlConnection));
 	}
 
@@ -27,7 +28,7 @@ public class RegistrationServiceTest extends AbstractServiceTest
 	public void testGetRegistration()
 	{
 		RegistrationEntity registration = registrationService.getRegistrationBy(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
-		
+
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getId(), UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
 		Assert.assertEquals(registration.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);
