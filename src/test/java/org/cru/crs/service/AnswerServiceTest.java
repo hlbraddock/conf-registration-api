@@ -5,27 +5,25 @@ import java.util.List;
 import java.util.UUID;
 
 import org.codehaus.jackson.JsonProcessingException;
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.utils.JsonNodeHelper;
-import org.sql2o.Connection;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class AnswerServiceTest
+public class AnswerServiceTest extends AbstractServiceTest
 {
-	Connection sqlConnection;
 	AnswerService answerService;
 	
 	private static final UUID blockId = UUID.fromString("af60d878-4741-4f21-9d25-231db86e43ee");
 	private static final UUID answerId = UUID.fromString("441ad805-7aa6-4b20-8315-8f1390dc4a9e");
 	private static final UUID registrationId = UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcB982e7");
-	
-	@BeforeMethod(alwaysRun=true)
+
+	@BeforeClass(alwaysRun=true)
 	private void getAnswerService()
-	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+	{
 		answerService = new AnswerService(sqlConnection);
 	}
 	

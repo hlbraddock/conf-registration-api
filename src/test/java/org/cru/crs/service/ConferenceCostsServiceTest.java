@@ -3,25 +3,23 @@ package org.cru.crs.service;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class ConferenceCostsServiceTest
+public class ConferenceCostsServiceTest extends AbstractServiceTest
 {
-	org.sql2o.Connection sqlConnection;
 	ConferenceCostsService conferenceCostsService;
-	
-	@BeforeMethod(alwaysRun=true)
+
+	@BeforeClass(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		conferenceCostsService = new ConferenceCostsService(sqlConnection);
 	}
 	

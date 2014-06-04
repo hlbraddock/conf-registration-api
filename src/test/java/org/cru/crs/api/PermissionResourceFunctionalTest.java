@@ -2,6 +2,7 @@ package org.cru.crs.api;
 
 import java.util.UUID;
 
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.api.client.PermissionResourceClient;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.cdi.SqlConnectionProducer;
@@ -21,13 +22,13 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class PermissionResourceFunctionalTest {
+public class PermissionResourceFunctionalTest  extends AbstractServiceTest
+{
 
 	static final String RESOURCE_PREFIX = "rest";
 
 	PermissionResourceClient permissionClient;
-	Connection sqlConnection;
-	
+
 	Environment environment = Environment.LOCAL;
 	
 	ConferenceService conferenceService;
@@ -37,9 +38,7 @@ public class PermissionResourceFunctionalTest {
 	private void createClient() {
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         permissionClient = ProxyFactory.create(PermissionResourceClient.class, restApiBaseUrl);
-        
-        sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-        
+
         permissionService = ServiceFactory.createPermissionService(sqlConnection);
         conferenceService = ServiceFactory.createConferenceService(sqlConnection);
 	}

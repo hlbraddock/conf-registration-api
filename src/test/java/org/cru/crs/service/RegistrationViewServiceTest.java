@@ -5,26 +5,23 @@ import java.util.List;
 import java.util.UUID;
 
 import org.codehaus.jackson.JsonProcessingException;
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.model.RegistrationViewEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
-import org.sql2o.Connection;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class RegistrationViewServiceTest
+public class RegistrationViewServiceTest extends AbstractServiceTest
 {
-	Connection sqlConnection;
 	RegistrationViewService registrationViewService;
 
-	@BeforeMethod(alwaysRun=true)
+	@BeforeClass(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		registrationViewService = ServiceFactory.createRegistrationViewService(sqlConnection);
 	}
 	

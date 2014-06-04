@@ -3,23 +3,20 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.ConferenceInfo;
-import org.sql2o.Connection;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class PageServiceTest
+public class PageServiceTest extends AbstractServiceTest
 {
-	Connection sqlConnection;
 	PageService pageService;
-	
-	@BeforeMethod(alwaysRun=true)
+
+	@BeforeClass(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		pageService = new PageService(sqlConnection,new BlockService(sqlConnection, new AnswerService(sqlConnection)));
 	}
 	

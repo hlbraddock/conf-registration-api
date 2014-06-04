@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.google.common.base.Strings;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
@@ -57,7 +58,7 @@ import org.testng.annotations.Test;
  * @author ryancarlson
  */
 @Test(groups="functional-tests")
-public class ConferenceResourceFunctionalTest
+public class ConferenceResourceFunctionalTest extends AbstractServiceTest
 {
 	static final String RESOURCE_PREFIX = "rest";
 	static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
@@ -65,9 +66,7 @@ public class ConferenceResourceFunctionalTest
 	Environment environment = Environment.LOCAL;
 
 	ConferenceResourceClient conferenceClient;
-	
-	org.sql2o.Connection sqlConnection;
-	
+
 	ConferenceService conferenceService;
 	PaymentService paymentService;
 	PageService pageService;
@@ -84,9 +83,7 @@ public class ConferenceResourceFunctionalTest
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
-        
-        sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-        
+
         answerService = new AnswerService(sqlConnection);
         BlockService blockService = new BlockService(sqlConnection, answerService);
         ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);

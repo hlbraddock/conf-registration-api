@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 
 import javax.mail.MessagingException;
 
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.process.CreatePermissionProcess;
 import org.cru.crs.cdi.SqlConnectionProducer;
@@ -22,11 +23,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class CreatePermissionProcessTest
+public class CreatePermissionProcessTest extends AbstractServiceTest
 {
-
-	Connection sqlConnection;
-	
 	CreatePermissionProcess createPermissionProcess;
 	
 	PermissionService permissionService;
@@ -34,8 +32,6 @@ public class CreatePermissionProcessTest
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
 		CrsProperties properties = new CrsPropertiesFactory().get();
 		
 		createPermissionProcess = new CreatePermissionProcess(ServiceFactory.createPermissionService(sqlConnection), 

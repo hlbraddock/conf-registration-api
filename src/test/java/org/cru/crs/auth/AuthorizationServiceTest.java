@@ -2,6 +2,7 @@ package org.cru.crs.auth;
 
 import java.util.UUID;
 
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -19,9 +20,8 @@ import org.sql2o.Connection;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class AuthorizationServiceTest
+public class AuthorizationServiceTest extends AbstractServiceTest
 {
-	Connection sqlConnection;
 	AuthorizationService authorizationService;
 	ConferenceService conferenceService;
 	RegistrationService registrationService;
@@ -29,7 +29,6 @@ public class AuthorizationServiceTest
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		registrationService = ServiceFactory.createRegistrationService(sqlConnection);
 		authorizationService = new AuthorizationService(new PermissionService(sqlConnection), registrationService);
 		conferenceService = ServiceFactory.createConferenceService(sqlConnection);

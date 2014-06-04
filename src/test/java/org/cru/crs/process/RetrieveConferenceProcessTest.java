@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
@@ -26,16 +27,13 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class RetrieveConferenceProcessTest
+public class RetrieveConferenceProcessTest extends AbstractServiceTest
 {
 	RetrieveConferenceProcess retrieveConferenceProcess;
-	Connection sqlConnection;
-	
+
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
 		BlockService blockService = new BlockService(sqlConnection, new AnswerService(sqlConnection));
 		PageService pageService = new PageService(sqlConnection, blockService);
 		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);

@@ -85,6 +85,12 @@
 			<version>9.1-901.jdbc4</version>
 		</dependency>
 
+        <dependency>
+            <groupId>com.googlecode.flyway</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>2.3</version>
+        </dependency>
+
 		<dependency>
 			<groupId>com.thetransactioncompany</groupId>
 			<artifactId>cors-filter</artifactId>
@@ -270,43 +276,19 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <url>${database.server.url}</url>
-                    <serverId>${database.server.id}</serverId>
+                    <url>${database.url}</url>
+                    <user>${database.username}</user>
+                    <password>${database.password}</password>
                    <initVersion>0.0</initVersion>
                 </configuration>
             </plugin>
 		</plugins>
 		
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
+		<testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+		</testResources>
 	</build>
-	
-	<profiles>
-		<profile>
-			<id>local</id>
-			<properties>
-				<database.server.id>crs-local</database.server.id>
-				<database.server.url>jdbc:postgresql://localhost/crsdb</database.server.url>
-				<errbit.environment>local</errbit.environment>
-				<github.global.server>github</github.global.server>
-			</properties>
-			<activation>
-    			<activeByDefault>true</activeByDefault>
-			</activation>
-		</profile>
-		
-		<profile>
-			<id>development</id>
-			<properties>
-				<database.server.id>crs-dev</database.server.id>
-				<database.server.url>jdbc:postgresql://10.7.196.222/crs_dev</database.server.url>
-				<errbit.environment>DEV</errbit.environment>
-			</properties>
-		</profile>
-	</profiles>
-	
 </project>

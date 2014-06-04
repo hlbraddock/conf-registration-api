@@ -3,26 +3,23 @@
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractServiceTest;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.UserInfo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.sql2o.Connection;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class RegistrationServiceTest
+public class RegistrationServiceTest extends AbstractServiceTest
 {
-	Connection sqlConnection;
 	RegistrationService registrationService;
-	
-	@BeforeMethod(alwaysRun=true)
+
+	@BeforeClass(alwaysRun=true)
 	private void setupConnectionAndService()
 	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 		registrationService = new RegistrationService(sqlConnection, new AnswerService(sqlConnection), new PaymentService(sqlConnection));
 	}
 
