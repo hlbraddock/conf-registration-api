@@ -112,7 +112,7 @@ public class AuthnetPaymentProcessTest
 		
 		try
 		{
-			Long transactionId = paymentProcess.processCreditCardTransaction(conference, payment);
+			String transactionId = paymentProcess.processCreditCardTransaction(conference, payment);
 			Assert.assertNotNull(transactionId);
 		}
 		catch(Exception e)

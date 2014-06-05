@@ -37,7 +37,7 @@ public class PaymentServiceTest
 		Assert.assertEquals(payment.getCcExpirationYear(), "2014");
 		Assert.assertEquals(payment.getCcLastFourDigits(), "1111");
 		Assert.assertEquals(payment.getAmount(), new BigDecimal("20.00"));
-		Assert.assertEquals(payment.getAuthnetTransactionId(), (Long)2205342461L);
+		Assert.assertEquals(payment.getAuthnetTransactionId(), "2205342461");
 		Assert.assertEquals(payment.getRegistrationId(), UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
 		Assert.assertEquals(payment.getTransactionTimestamp(), DateTimeCreaterHelper.createDateTime(2013, 8, 21, 19, 22, 7));
 		Assert.assertEquals(payment.getPaymentType(), PaymentType.CREDIT_CARD);
@@ -53,7 +53,7 @@ public class PaymentServiceTest
 		newPayment.setId(id);
 		newPayment.setRegistrationId(UUID.fromString("b2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
 		newPayment.setAmount(new BigDecimal("35.00"));
-		newPayment.setAuthnetTransactionId(1L);
+		newPayment.setAuthnetTransactionId("1");
 		newPayment.setCcExpirationMonth("05");
 		newPayment.setCcExpirationYear("2022");
 		newPayment.setCcLastFourDigits("1234");
@@ -72,7 +72,7 @@ public class PaymentServiceTest
 			Assert.assertEquals(retrievedPayment.getId(),id);
 			Assert.assertEquals(retrievedPayment.getRegistrationId(), UUID.fromString("b2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
 			Assert.assertEquals(retrievedPayment.getAmount(), new BigDecimal("35.00"));
-			Assert.assertEquals(retrievedPayment.getAuthnetTransactionId(), (Long)1L);
+			Assert.assertEquals(retrievedPayment.getAuthnetTransactionId(), "1");
 			Assert.assertEquals(retrievedPayment.getCcExpirationMonth(), "05");
 			Assert.assertEquals(retrievedPayment.getCcExpirationYear(), "2022");
 			Assert.assertEquals(retrievedPayment.getCcLastFourDigits(), "1234");
@@ -94,7 +94,7 @@ public class PaymentServiceTest
 		
 		paymentToUpdate.setId(UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
 		paymentToUpdate.setAmount(new BigDecimal("22.25"));
-		paymentToUpdate.setAuthnetTransactionId(2L);
+		paymentToUpdate.setAuthnetTransactionId("2");
 		paymentToUpdate.setCcExpirationMonth("08");
 		paymentToUpdate.setCcExpirationYear("2015");
 		paymentToUpdate.setCcLastFourDigits("1252");
@@ -115,7 +115,7 @@ public class PaymentServiceTest
 			Assert.assertEquals(retrievedPayment.getId(),UUID.fromString("8492f4a8-c7dc-4c0a-bb9e-67e6dcb22222"));
 			Assert.assertEquals(retrievedPayment.getRegistrationId(), UUID.fromString("aaaaf4a8-c7dc-4c0a-bb9e-67e6dcb91111"));
 			Assert.assertEquals(retrievedPayment.getAmount(), new BigDecimal("22.25"));
-			Assert.assertEquals(retrievedPayment.getAuthnetTransactionId(), (Long)2L);
+			Assert.assertEquals(retrievedPayment.getAuthnetTransactionId(), "2");
 			Assert.assertEquals(retrievedPayment.getCcExpirationMonth(), "08");
 			Assert.assertEquals(retrievedPayment.getCcExpirationYear(), "2015");
 			Assert.assertEquals(retrievedPayment.getCcLastFourDigits(), "1252");

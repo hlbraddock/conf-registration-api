@@ -1,0 +1,1 @@
+ALTER TABLE payments ALTER COLUMN authnet_transaction_id TYPE text;

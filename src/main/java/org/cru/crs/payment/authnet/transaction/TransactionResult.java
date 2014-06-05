@@ -6,13 +6,13 @@ import java.util.Map;
 public class TransactionResult
 {
 
-	private Long transactionID;
+	private String transactionID;
 	private String authCode;
 
 	public Map<String, String> getParamMap()
 	{
 		Map<String, String> request = new HashMap<String, String>();
-		request.put("x_trans_id", transactionID == null ? null : transactionID.toString());
+		request.put("x_trans_id", transactionID);
 		request.put("x_auth_code", authCode);
 		return request;
 	}
@@ -27,12 +27,12 @@ public class TransactionResult
 		this.authCode = authCode;
 	}
 
-	public Long getTransactionID()
+	public String getTransactionID()
 	{
 		return transactionID;
 	}
 
-	public void setTransactionID(Long transactionID)
+	public void setTransactionID(String transactionID)
 	{
 		this.transactionID = transactionID;
 	}
