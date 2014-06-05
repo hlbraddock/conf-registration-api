@@ -171,4 +171,72 @@ public class ConferenceServiceTest
 			sqlConnection.rollback();
 		}
 	}
+
+    /**
+     * This test makes sure that a conference can be deleted.
+     */
+    @Test(groups="dbtest")
+    public void testDeleteConference()
+    {
+        try
+        {
+            //Generate a fake conference
+            ConferenceEntity conference = ConferenceInfo.createFakeConference();
+            ConferenceCostsEntity conferenceCosts = new ConferenceCostsEntity();
+            conferenceCosts.setId(conference.getId());
+
+            //Add this conference to the database
+            conferenceService.createNewConference(conference, conferenceCosts);
+
+            //Verify that it is in the database
+            ConferenceEntity retrievedConference = conferenceService.fetchConferenceBy(conference.getId());
+            Assert.assertNotNull(retrievedConference);
+
+            //Delete the conference
+            conferenceService.deleteConference(conference.getId());
+
+            //Verify that it is not in the database
+            retrievedConference = conferenceService.fetchConferenceBy(conference.getId());
+            Assert.assertNull(retrievedConference);
+        }
+        finally
+        {
+            sqlConnection.rollback();
+        }
+    }
+
+    /**
+     * This test makes sure that a conference can be archived.
+     */
+    @Test(groups="dbtest")
+    public void testArchiveConference()
+    {
+        try
+        {
+            //Generate a fake conference
+            ConferenceEntity conference = ConferenceInfo.createFakeConference();
+            ConferenceCostsEntity conferenceCosts = new ConferenceCostsEntity();
+            conferenceCosts.setId(conference.getId());
+
+            //Add this conference to the database
+            conferenceService.createNewConference(conference, conferenceCosts);
+
+            //Verify that it is in the database
+            ConferenceEntity retrievedConference = conferenceService.fetchConferenceBy(conference.getId());
+            Assert.assertNotNull(retrievedConference);
+
+            //Archive the conference
+            conference.setArchived(true);
+            conferenceService.updateConference(conference);
+
+            //Verify that it is archived in the database
+            retrievedConference = conferenceService.fetchConferenceBy(conference.getId());
+            Assert.assertEquals(retrievedConference.isArchived(), true);
+        }
+        finally
+        {
+            sqlConnection.rollback();
+        }
+    }
+
 }

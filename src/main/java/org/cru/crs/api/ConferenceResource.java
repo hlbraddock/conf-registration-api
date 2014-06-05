@@ -18,6 +18,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -137,7 +138,7 @@ public class ConferenceResource extends TransactionalResource
 
 		if(requestedConference == null) 
 		{
-			return Response.ok(new NotFound()).build();
+			return Response.status(Status.NOT_FOUND).build();
 		}
 
 		Simply.logObject(requestedConference, ConferenceResource.class);
@@ -622,4 +623,44 @@ public class ConferenceResource extends TransactionalResource
 						.entity(RegistrationView.fromDb(registrationViewService.getRegistrationViewById(newDataView.getId())))
 						.build();
 	}
+
+    /**
+     * Deletes a conference resource specified by @param conferenceId
+     *
+     * Possible Outcomes:
+     *  204 No Content - found conference and the user specified by @param authCode has admin access
+     *  401 Unauthorized - user specified by @param authCode is expired or doesn't exist, or user doesn't have admin access to conference or registrations
+     *  404 Not Found - no conference resource specified by @param conferenceId
+     *
+     * @param conferenceId
+     * @return
+     */
+    @DELETE
+    @Path("/{conferenceId}/delete")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteConference(@PathParam(value = "conferenceId") UUID conferenceId,
+                                     @HeaderParam(value="Authorization") String authCode)
+    {
+        logger.info("delete conference entity " + conferenceId + " auth code: " + authCode);
+
+        CrsApplicationUser crsLoggedInUser = crsUserService.getLoggedInUser(authCode);
+
+        ConferenceEntity conference = conferenceService.fetchConferenceBy(conferenceId);
+
+        authorizationService.authorizeConference(conference,
+                OperationType.DELETE,
+                crsLoggedInUser);
+
+        //If the conference has any registrations, do not allow deletion
+        if(!registrationService.fetchAllRegistrations(conferenceId).isEmpty())
+        {
+            throw new BadRequestException();
+        }
+
+        conferenceService.deleteConference(conferenceId);
+
+        Simply.logObject(conference, ConferenceResource.class);
+
+        return Response.noContent().build();
+    }
 }
