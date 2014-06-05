@@ -33,9 +33,12 @@ public class PermissionResourceFunctionalTest  extends AbstractServiceTest
 	
 	ConferenceService conferenceService;
 	PermissionService permissionService;
-	
-	@BeforeMethod
-	private void createClient() {
+
+	@BeforeMethod(alwaysRun = true)
+	private void createClient()
+	{
+		refreshConnection();
+
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         permissionClient = ProxyFactory.create(PermissionResourceClient.class, restApiBaseUrl);
 

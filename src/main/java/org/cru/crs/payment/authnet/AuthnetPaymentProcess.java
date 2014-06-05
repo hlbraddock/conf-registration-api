@@ -55,7 +55,8 @@ public class AuthnetPaymentProcess
 		authnetAuthorizeCapture.execute();
 		
 		//eventually this will be the authnet transaction id, but for now just return something useful;
-		return authnetAuthorizeCapture.getTransactionResult().getTransactionID();
+		TransactionResult transactionResult = authnetAuthorizeCapture.getTransactionResult();
+		return transactionResult.getTransactionID();
 		
 	}
 

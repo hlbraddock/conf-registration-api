@@ -32,10 +32,12 @@ public class RegistrationViewResourceFunctionalTest  extends AbstractServiceTest
 	RegistrationViewResourceClient registrationViewClient;
 	
 	RegistrationViewService registrationViewService;
-	
-	@BeforeMethod
+
+	@BeforeMethod(alwaysRun = true)
 	private void createClient()
 	{
+		refreshConnection();
+
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         registrationViewClient = ProxyFactory.create(RegistrationViewResourceClient.class, restApiBaseUrl);
         

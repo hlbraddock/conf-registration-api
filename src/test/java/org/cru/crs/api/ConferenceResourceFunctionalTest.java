@@ -78,9 +78,11 @@ public class ConferenceResourceFunctionalTest extends AbstractServiceTest
 
 	RetrieveConferenceProcess retrieveConferenceProcess;
 
-	@BeforeMethod
+	@BeforeMethod(alwaysRun = true)
 	private void createClient()
 	{
+		refreshConnection();
+
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
 

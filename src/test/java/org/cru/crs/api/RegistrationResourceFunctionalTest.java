@@ -49,9 +49,11 @@ public class RegistrationResourceFunctionalTest  extends AbstractServiceTest
 	private UUID paymentUUID = UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91957");
 	private ProfileService profileService;
 
-	@BeforeMethod
+	@BeforeMethod(alwaysRun = true)
 	public void createClient()
 	{
+		refreshConnection();
+
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         answerClient = ProxyFactory.create(AnswerResourceClient.class, restApiBaseUrl);
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);

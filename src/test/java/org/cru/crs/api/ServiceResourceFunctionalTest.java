@@ -21,7 +21,7 @@ public class ServiceResourceFunctionalTest
 
 	ServiceResourceClient serviceResourceClient;
 
-	@BeforeMethod
+	@BeforeMethod(alwaysRun = true)
 	private void createClient()
 	{
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;

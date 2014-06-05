@@ -41,10 +41,12 @@ public class PaymentResourceFunctionalTest extends AbstractServiceTest
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 	private UUID paymentUUID = UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB11111");
 	private UUID refundedPaymentId = UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB22222");
-	
-	@BeforeMethod
+
+	@BeforeMethod(alwaysRun = true)
 	public void createClient()
 	{
+		refreshConnection();
+
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
         paymentClient = ProxyFactory.create(PaymentResourceClient.class, restApiBaseUrl);
