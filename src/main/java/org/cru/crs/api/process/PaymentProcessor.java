@@ -88,7 +88,7 @@ public class PaymentProcessor
 			paymentService.updatePayment(payment.toDbPaymentEntity(), loggedInUser);
 		}
     }
-	
+
 	/**
 	 * Process the refund.  All refunds are done against an already processed payment.
 	 * 
