@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import com.google.common.base.Preconditions;
 import org.apache.log4j.Logger;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
@@ -161,11 +162,14 @@ public class AuthnetPaymentProcess
 	
 	Merchant createMerchant(Conference conference)
 	{
+		Preconditions.checkNotNull(conference.getAuthnetId());
+		Preconditions.checkNotNull(conference.getAuthnetToken());
+		
 		Merchant merchant = new Merchant();
 		
 		merchant.setEmail(conference.getContactPersonEmail());
-		merchant.setLogin(conference.getAuthnetId() == null ? crsProperties.getProperty("authnetTestId") : conference.getAuthnetId());
-		merchant.setTranKey(conference.getAuthnetToken() == null ? crsProperties.getProperty("authnetTestToken") : conference.getAuthnetToken());
+		merchant.setLogin(conference.getAuthnetId());
+		merchant.setTranKey(conference.getAuthnetToken());
 		return merchant;
 	}
 }
