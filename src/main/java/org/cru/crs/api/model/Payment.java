@@ -240,7 +240,7 @@ public class Payment implements Serializable
         private String expirationYear;
         private String lastFourDigits;
         private String cvvNumber;
-        private Long authnetTransactionId;
+        private String authnetTransactionId;
 
         public CreditCardPayment(){}
         public CreditCardPayment(PaymentEntity databasePayment)
@@ -302,14 +302,16 @@ public class Payment implements Serializable
             this.cvvNumber = cvvNumber;
         }
 
-        public Long getAuthnetTransactionId() {
-            return authnetTransactionId;
-        }
+		public String getAuthnetTransactionId()
+		{
+			return authnetTransactionId;
+		}
 
-        public void setAuthnetTransactionId(Long authnetTransactionId) {
-            this.authnetTransactionId = authnetTransactionId;
-        }
-    }
+		public void setAuthnetTransactionId(String authnetTransactionId)
+		{
+			this.authnetTransactionId = authnetTransactionId;
+		}
+	}
 
     public static class TransferPayment
     {

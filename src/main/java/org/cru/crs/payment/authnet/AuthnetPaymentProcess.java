@@ -32,7 +32,7 @@ public class AuthnetPaymentProcess
 		this.httpProvider = httpProvider;
 	}
 	
-	public Long processCreditCardTransaction(Conference conference, Payment payment) throws IOException
+	public String processCreditCardTransaction(Conference conference, Payment payment) throws IOException
 	{
 		AuthCapture authnetAuthorizeCapture = new AuthCapture();
 		
@@ -58,7 +58,7 @@ public class AuthnetPaymentProcess
 		
 	}
 
-	public Long processCreditCardRefund(Conference conference, Payment payment) throws IOException
+	public String processCreditCardRefund(Conference conference, Payment payment) throws IOException
 	{
 		Credit authnetCredit = new Credit();
 		
@@ -92,7 +92,7 @@ public class AuthnetPaymentProcess
 		return authnetCredit.getTransactionResult().getTransactionID();
 	}
 	
-	private Long voidCreditCardTransaction(Conference conference, Payment payment) throws IOException
+	private String voidCreditCardTransaction(Conference conference, Payment payment) throws IOException
 	{
 		Void authnetVoid = new Void(new CreditCardMethod());
 		

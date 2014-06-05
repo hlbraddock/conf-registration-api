@@ -71,7 +71,7 @@ public class PaymentProcessor
 
 			try
 			{
-				Long transactionId = paymentProcess.processCreditCardTransaction(Conference.fromDb(dbConference, dbConferenceCosts), payment);
+				String transactionId = paymentProcess.processCreditCardTransaction(Conference.fromDb(dbConference, dbConferenceCosts), payment);
 
 				payment.getCreditCard().setAuthnetTransactionId(transactionId);
 				payment.setTransactionDatetime(clock.currentDateTime());
@@ -122,7 +122,7 @@ public class PaymentProcessor
 		
 		try
 		{
-			Long refundTransactionId = paymentProcess.processCreditCardRefund(Conference.fromDb(dbConference, dbConferenceCosts), refund);
+			String refundTransactionId = paymentProcess.processCreditCardRefund(Conference.fromDb(dbConference, dbConferenceCosts), refund);
 
 			refund.getCreditCard().setAuthnetTransactionId(refundTransactionId);
 			refund.setTransactionDatetime(clock.currentDateTime());

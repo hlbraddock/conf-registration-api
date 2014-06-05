@@ -193,10 +193,10 @@ public class AuthnetResponse
 	 * this transaction at a later time, such as voiding, crediting or capturing the transaction.
 	 * @return the Transaction ID
 	 */
-	public Long getTransactionID()
+	public String getTransactionID()
 	{
 		requireApproved();
-		return Long.valueOf(getResponseField(TRANSACTION_ID));
+		return getResponseField(TRANSACTION_ID);
 	}
 
 	/**

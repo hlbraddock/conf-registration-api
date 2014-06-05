@@ -13,7 +13,7 @@ public class PaymentEntity implements Serializable
     private UUID id;
     private UUID registrationId;
 
-    private Long authnetTransactionId;
+    private String authnetTransactionId;
     private String ccNameOnCard;
     private String ccExpirationMonth;
     private String ccExpirationYear;
@@ -63,17 +63,17 @@ public class PaymentEntity implements Serializable
         return this;
     }
 
-    public Long getAuthnetTransactionId()
-    {
-        return authnetTransactionId;
-    }
+	public String getAuthnetTransactionId()
+	{
+		return authnetTransactionId;
+	}
 
-    public void setAuthnetTransactionId(Long authnetTransactionId)
-    {
-        this.authnetTransactionId = authnetTransactionId;
-    }
+	public void setAuthnetTransactionId(String authnetTransactionId)
+	{
+		this.authnetTransactionId = authnetTransactionId;
+	}
 
-    public String getCcNameOnCard()
+	public String getCcNameOnCard()
     {
         return ccNameOnCard;
     }
