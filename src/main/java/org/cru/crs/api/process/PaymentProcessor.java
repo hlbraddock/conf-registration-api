@@ -69,8 +69,6 @@ public class PaymentProcessor
 			ConferenceEntity dbConference = getConferenceForThisPayment(payment);
 			ConferenceCostsEntity dbConferenceCosts = getConferenceCostsForThisPayment(dbConference);
 
-			validateConferenceHasAuthnetCredentials(dbConferenceCosts);
-
 			try
 			{
 				String transactionId = paymentProcess.processCreditCardTransaction(Conference.fromDb(dbConference, dbConferenceCosts), payment);
@@ -90,14 +88,6 @@ public class PaymentProcessor
 			paymentService.updatePayment(payment.toDbPaymentEntity(), loggedInUser);
 		}
     }
-
-	private void validateConferenceHasAuthnetCredentials(ConferenceCostsEntity dbConferenceCosts)
-	{
-		if(dbConferenceCosts == null || !dbConferenceCosts.isAbleToProcessPayment())
-		{
-			throw new IllegalStateException("Cannot process a payment without authnet ID and Token");
-		}
-	}
 
 	/**
 	 * Process the refund.  All refunds are done against an already processed payment.
@@ -127,8 +117,6 @@ public class PaymentProcessor
 		
 		ConferenceEntity dbConference = getConferenceForThisPayment(refund);
 		ConferenceCostsEntity dbConferenceCosts = getConferenceCostsForThisPayment(dbConference);
-
-		validateConferenceHasAuthnetCredentials(dbConferenceCosts);
 
 		refund.getCreditCard().setAuthnetTransactionId(paymentToRefund.getAuthnetTransactionId());
 		
