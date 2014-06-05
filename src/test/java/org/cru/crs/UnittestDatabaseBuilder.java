@@ -10,7 +10,7 @@ import org.cru.crs.utils.CrsProperties;
 public class UnittestDatabaseBuilder
 {
 
-	public void build(CrsProperties properties)
+	static public void build(CrsProperties properties)
 	{
 		Flyway flyway = new Flyway();
 		flyway.setDataSource(properties.getProperty("unittestDatabaseUrl"), properties.getProperty("unittestDatabaseUsername"), properties.getProperty("unittestDatabasePassword"));

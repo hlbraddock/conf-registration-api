@@ -10,7 +10,6 @@ import org.testng.annotations.BeforeMethod;
  */
 public class AbstractServiceTest
 {
-	protected UnittestDatabaseBuilder builder;
 	protected Connection sqlConnection;
 
 	private CrsPropertiesFactory propertiesFactory = new CrsPropertiesFactory();
@@ -20,8 +19,7 @@ public class AbstractServiceTest
 	{
 		if (!initialized)
 		{
-			builder = new UnittestDatabaseBuilder();
-			builder.build(propertiesFactory.get());
+			UnittestDatabaseBuilder.build(propertiesFactory.get());
 
 			initialized = true;
 		}
