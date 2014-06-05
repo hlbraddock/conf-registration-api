@@ -3,6 +3,7 @@ package org.cru.crs.model;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.google.common.base.Strings;
 import org.joda.time.DateTime;
 
 public class ConferenceCostsEntity
@@ -20,6 +21,11 @@ public class ConferenceCostsEntity
     boolean acceptCreditCards;
     String authnetId;
     String authnetToken;
+
+	public boolean isAbleToProcessPayment()
+	{
+		return !(Strings.isNullOrEmpty(authnetId) || Strings.isNullOrEmpty(authnetToken));
+	}
 
     public UUID getId()
     {
