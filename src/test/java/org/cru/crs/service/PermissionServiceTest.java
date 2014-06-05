@@ -3,18 +3,17 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class PermissionServiceTest extends AbstractServiceTest
+public class PermissionServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	PermissionService permissionService;
 	

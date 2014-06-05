@@ -1,6 +1,6 @@
 package org.cru.crs.service;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.ProfileEntity;
 import org.joda.time.DateTime;
 import org.testng.Assert;
@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 import java.util.UUID;
 
-public class ProfileServiceTest extends AbstractServiceTest
+public class ProfileServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	ProfileService profileService;
 

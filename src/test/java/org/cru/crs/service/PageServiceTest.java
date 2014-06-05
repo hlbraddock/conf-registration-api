@@ -3,14 +3,14 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class PageServiceTest extends AbstractServiceTest
+public class PageServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	PageService pageService;
 

@@ -4,13 +4,12 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.ccci.util.time.Clock;
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
 import org.cru.crs.api.process.UpdateRegistrationProcess;
 import org.cru.crs.api.utils.TotalDueBusinessLogic;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.PageService;
@@ -27,7 +26,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class UpdateRegistrationProcessTest extends AbstractServiceTest
+public class UpdateRegistrationProcessTest extends AbstractTestWithDatabaseConnectivity
 {
 	UpdateRegistrationProcess process;
 

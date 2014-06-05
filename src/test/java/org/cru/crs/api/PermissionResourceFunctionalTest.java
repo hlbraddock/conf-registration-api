@@ -2,10 +2,9 @@ package org.cru.crs.api;
 
 import java.util.UUID;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.PermissionResourceClient;
 import org.cru.crs.api.model.Permission;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.service.ConferenceService;
@@ -17,12 +16,11 @@ import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
-import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class PermissionResourceFunctionalTest  extends AbstractServiceTest
+public class PermissionResourceFunctionalTest  extends AbstractTestWithDatabaseConnectivity
 {
 
 	static final String RESOURCE_PREFIX = "rest";

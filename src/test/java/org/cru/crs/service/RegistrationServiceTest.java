@@ -3,7 +3,7 @@
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.UserInfo;
@@ -13,7 +13,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class RegistrationServiceTest extends AbstractServiceTest
+public class RegistrationServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	RegistrationService registrationService;
 

@@ -8,14 +8,13 @@ import java.util.UUID;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.PaymentService;
@@ -31,7 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test(groups="functional-tests")
-public class RegistrationResourceFunctionalTest  extends AbstractServiceTest
+public class RegistrationResourceFunctionalTest  extends AbstractTestWithDatabaseConnectivity
 {
 	static final String RESOURCE_PREFIX = "rest";
 	static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";

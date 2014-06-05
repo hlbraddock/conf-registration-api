@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.UUID;
 
 import org.codehaus.jackson.JsonProcessingException;
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class AnswerServiceTest extends AbstractServiceTest
+public class AnswerServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	AnswerService answerService;
 	

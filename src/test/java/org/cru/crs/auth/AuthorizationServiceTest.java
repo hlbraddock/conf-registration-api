@@ -2,11 +2,10 @@ package org.cru.crs.auth;
 
 import java.util.UUID;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
@@ -16,11 +15,10 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
-import org.sql2o.Connection;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class AuthorizationServiceTest extends AbstractServiceTest
+public class AuthorizationServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	AuthorizationService authorizationService;
 	ConferenceService conferenceService;

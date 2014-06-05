@@ -3,7 +3,7 @@ package org.cru.crs.service;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
@@ -13,7 +13,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class ConferenceCostsServiceTest extends AbstractServiceTest
+public class ConferenceCostsServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	ConferenceCostsService conferenceCostsService;
 

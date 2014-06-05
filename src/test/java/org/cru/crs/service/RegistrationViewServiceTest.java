@@ -5,18 +5,17 @@ import java.util.List;
 import java.util.UUID;
 
 import org.codehaus.jackson.JsonProcessingException;
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.RegistrationViewEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class RegistrationViewServiceTest extends AbstractServiceTest
+public class RegistrationViewServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	RegistrationViewService registrationViewService;
 

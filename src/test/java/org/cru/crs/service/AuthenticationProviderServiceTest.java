@@ -2,7 +2,7 @@ package org.cru.crs.service;
 
 import java.util.UUID;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.RelayUser;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
  * @author ryancarlson
  *
  */
-public class AuthenticationProviderServiceTest extends AbstractServiceTest
+public class AuthenticationProviderServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	AuthenticationProviderService authenticationProviderService;
 	UserService userService;

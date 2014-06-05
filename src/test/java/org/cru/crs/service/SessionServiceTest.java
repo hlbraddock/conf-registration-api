@@ -3,7 +3,7 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.DateTimeCreaterHelper;
@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
  * @author ryancarlson
  *
  */
-public class SessionServiceTest extends AbstractServiceTest
+public class SessionServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	SessionService sessionService;
 

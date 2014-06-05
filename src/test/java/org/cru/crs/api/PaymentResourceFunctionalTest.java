@@ -4,13 +4,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-import org.cru.crs.AbstractServiceTest;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.PaymentResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.PaymentType;
 import org.cru.crs.service.PaymentService;
@@ -19,12 +18,11 @@ import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
-import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class PaymentResourceFunctionalTest extends AbstractServiceTest
+public class PaymentResourceFunctionalTest extends AbstractTestWithDatabaseConnectivity
 {
 
 	static final String RESOURCE_PREFIX = "rest";
