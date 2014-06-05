@@ -19,6 +19,7 @@ import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
+import org.cru.crs.service.RegistrationService;
 import org.testng.collections.Maps;
 
 public class RetrieveConferenceProcess
@@ -27,18 +28,20 @@ public class RetrieveConferenceProcess
 	ConferenceCostsService conferenceCostsService;
 	PageService pageService;
 	BlockService blockService;
+	RegistrationService registrationService;
 	
 	Clock clock;
 	
 	@Inject
 	public RetrieveConferenceProcess(ConferenceService conferenceService,
 			ConferenceCostsService conferenceCostsService,
-			PageService pageService, BlockService blockService, Clock clock)
+			PageService pageService, BlockService blockService, RegistrationService registrationService, Clock clock)
 	{
 		this.conferenceService = conferenceService;
 		this.conferenceCostsService = conferenceCostsService;
 		this.pageService = pageService;
 		this.blockService = blockService;
+		this.registrationService = registrationService;
 		this.clock = clock;
 	}
 
@@ -65,7 +68,9 @@ public class RetrieveConferenceProcess
 		RegistrationWindowCalculator.setRegistrationOpenFieldOn(apiConference, clock);
         RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(apiConference, clock);
 
-        return apiConference;
+		apiConference.setRegistrationCount(registrationService.fetchRegistrationCount(conferenceId));
+
+		return apiConference;
 	}
 	
 	private List<PageEntity> orderPagesByPosition(List<PageEntity> pages)

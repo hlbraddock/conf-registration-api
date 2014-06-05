@@ -28,8 +28,6 @@ public class RegistrationService
 	
 	RegistrationQueries registrationQueries = new RegistrationQueries();
 	
-	private Logger logger = Logger.getLogger(RegistrationService.class);
-
 	/*Weld requires a default no args constructor to proxy this object*/
 	public RegistrationService(){ }
 
@@ -48,7 +46,15 @@ public class RegistrationService
 														.setAutoDeriveColumnNames(true)
 														.executeAndFetch(RegistrationEntity.class);
 
-		return new HashSet<RegistrationEntity>(registrations);		
+		return new HashSet<RegistrationEntity>(registrations);
+	}
+
+	public Integer fetchRegistrationCount(UUID conferenceId)
+	{
+		return sqlConnection.createQuery(registrationQueries.selectCountForConference())
+				.addParameter("conferenceId", conferenceId)
+				.setAutoDeriveColumnNames(true)
+				.executeScalar(Integer.class);
 	}
 
 	public RegistrationEntity getRegistrationByConferenceIdUserId(UUID conferenceId, UUID userId)
