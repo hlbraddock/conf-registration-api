@@ -271,17 +271,40 @@
                 </configuration>
             </plugin>
 
-			<plugin>
-                <groupId>com.googlecode.flyway</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>2.3</version>
-                <configuration>
-                    <url>${database.url}</url>
-                    <user>${database.username}</user>
-                    <password>${database.password}</password>
-                   <initVersion>0.0</initVersion>
-                </configuration>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.1.1</version>
+                <executions>
+                    <execution>
+                        <id>1</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.cru.crs.migration.UnittestDatabaseBuilder</mainClass>
+                            <arguments>
+                            </arguments>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>2</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.cru.crs.migration.DatabaseMigration</mainClass>
+                            <commandlineArgs>
+                                ${migrations.execute} ${migrations.environment}
+                            </commandlineArgs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
 </project>

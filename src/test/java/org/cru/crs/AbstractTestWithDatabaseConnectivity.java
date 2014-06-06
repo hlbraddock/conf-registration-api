@@ -4,7 +4,6 @@ package org.cru.crs;
 import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.utils.CrsPropertiesFactory;
 import org.sql2o.Connection;
-import org.testng.annotations.BeforeMethod;
 
 /**
  * Any test class which has direct access to the database via an sql2o connection should extend this class.
@@ -18,16 +17,10 @@ public class AbstractTestWithDatabaseConnectivity
 	protected Connection sqlConnection;
 
 	private CrsPropertiesFactory propertiesFactory = new CrsPropertiesFactory();
-	private static boolean initialized = false;
 
 	public AbstractTestWithDatabaseConnectivity()
 	{
-		if (!initialized)
-		{
-			UnittestDatabaseBuilder.build(propertiesFactory.get());
 
-			initialized = true;
-		}
 	}
 
 	protected void refreshConnection()
