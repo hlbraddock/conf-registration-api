@@ -160,15 +160,13 @@ public class RegistrationResource extends TransactionalResource
 
 		updateRegistrationProcess.performDeepUpdate(registration, crsLoggedInUser);
 
-		// if the registrant has completed the registration
-		if(registration.getCompleted() && !currentRegistrationEntity.getCompleted())
-		{
-			// capture profile
+		// capture completed registration profile (on every update)
+		if(registration.getCompleted())
 			profileProcess.capture(registration);
 
-			// notify them of registration info
+		// notify of registration info (just once)
+		if(registration.getCompleted() && !currentRegistrationEntity.getCompleted())
 			notificationProcess.registrationComplete(crsLoggedInUser, registration, conferenceEntityForUpdatedRegistration);
-		}
 
 		return Response.noContent().build();
 	}
