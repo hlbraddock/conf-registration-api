@@ -60,6 +60,7 @@ public class Conference implements java.io.Serializable
     private String authnetToken;
 
 	private Integer registrationCount;
+	private Integer completedRegistrationCount;
 
 	public ConferenceEntity toDbConferenceEntity()
 	{
@@ -467,7 +468,17 @@ public class Conference implements java.io.Serializable
 		this.registrationCount = registrationCount;
 	}
 
-    public boolean isArchived()
+	public Integer getCompletedRegistrationCount()
+	{
+		return completedRegistrationCount;
+	}
+
+	public void setCompletedRegistrationCount(Integer completedRegistrationCount)
+	{
+		this.completedRegistrationCount = completedRegistrationCount;
+	}
+
+	public boolean isArchived()
     {
         return archived;
     }
