@@ -70,6 +70,9 @@ public class NotificationProcess
 
 			Set<String> recipientEmails = getUserEmails(userEntity);
 
+			if (recipientEmails.isEmpty())
+				logger.info("Could not find email to send registration complete email for user (logged in user - which could be admin) " + userEntity.getId());
+
 			mailService.send(properties.getProperty("crsEmail"), recipientEmails,
 					RegistrationCompleteEmail.subject(conferenceEntity.getName()),
 					RegistrationCompleteEmail.body(userEntity, registration, conferenceEntity, conferenceCostsEntity, registrationUrl));
@@ -139,14 +142,11 @@ public class NotificationProcess
 			return emails;
 		}
 
-		emails.add(userEntity.getEmailAddress());
-
+		// add the user profile email address
 		ProfileEntity profileEntity = profileService.getProfileByUser(userEntity.getId());
-		if(profileEntity != null)
-		{
-			if(!Strings.isNullOrEmpty(profileEntity.getEmail()))
+		if (profileEntity != null)
+			if (!Strings.isNullOrEmpty(profileEntity.getEmail()))
 				emails.add(profileEntity.getEmail());
-		}
 
 		return emails;
 	}
