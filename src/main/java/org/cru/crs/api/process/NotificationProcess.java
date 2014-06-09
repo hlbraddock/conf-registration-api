@@ -145,8 +145,12 @@ public class NotificationProcess
 		// add the user profile email address
 		ProfileEntity profileEntity = profileService.getProfileByUser(userEntity.getId());
 		if (profileEntity != null)
+		{
 			if (!Strings.isNullOrEmpty(profileEntity.getEmail()))
+			{
 				emails.add(profileEntity.getEmail());
+			}
+		}
 
 		return emails;
 	}
