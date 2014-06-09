@@ -3,7 +3,7 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.utils.ConferenceInfo;
@@ -13,18 +13,17 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class PermissionServiceTest
+public class PermissionServiceTest extends AbstractTestWithDatabaseConnectivity
 {
-	org.sql2o.Connection sqlConnection;
 	PermissionService permissionService;
 	
 	final UUID permissionIdToRyan = UUID.fromString("dcb85040-76e2-11e3-981f-0800200c9a66");
 	final UUID permissionIdToEmailUser = UUID.fromString("2230e3d0-76e3-11e3-981f-0800200c9a66");
-	
+
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+	{
+		refreshConnection();
 		permissionService = new PermissionService(sqlConnection);
 	}
 	

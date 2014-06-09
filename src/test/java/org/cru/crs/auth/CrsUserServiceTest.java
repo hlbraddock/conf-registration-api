@@ -1,12 +1,12 @@
 package org.cru.crs.auth;
 
 import org.ccci.util.time.Clock;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.auth.api.TestAuthManager;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
 import org.cru.crs.auth.model.BasicNoAuthUser;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.auth.model.RelayUser;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.service.AuthenticationProviderService;
@@ -29,7 +29,7 @@ import javax.ws.rs.WebApplicationException;
 /**
  * User: lee.braddock
  */
-public class CrsUserServiceTest
+public class CrsUserServiceTest extends AbstractTestWithDatabaseConnectivity
 {
 	private CrsUserService crsUserService;
 	private SessionService sessionService;
@@ -42,7 +42,7 @@ public class CrsUserServiceTest
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
-		org.sql2o.Connection sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+		refreshConnection();
 
 		sessionService = new SessionService(sqlConnection);
 		crsProperties = new CrsPropertiesFactory().get();

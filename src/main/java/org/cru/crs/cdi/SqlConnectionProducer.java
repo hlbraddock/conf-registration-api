@@ -41,7 +41,10 @@ public class SqlConnectionProducer
 	{
 		if(sqlConnection == null)
 		{
-			sqlConnection = new org.sql2o.Connection(new Sql2o(properties.getProperty("databaseUrl"), properties.getProperty("databaseUsername"), properties.getProperty("databasePassword"), QuirksMode.PostgreSQL));
+			sqlConnection = new org.sql2o.Connection(new Sql2o(properties.getProperty("databaseUrl"),
+					properties.getProperty("databaseUsername"),
+					properties.getProperty("databasePassword"),
+					QuirksMode.PostgreSQL));
 
 			// register with sql2o a converter for reading ProfileType
 			Convert.registerConverter(ProfileType.class, new PostgresPGObjectToEnumConverter(ProfileType.class));
@@ -80,9 +83,12 @@ public class SqlConnectionProducer
 		}
 	}
 
-	public org.sql2o.Connection getTestSqlConnection()
+	public org.sql2o.Connection getTestSqlConnection(CrsProperties properties)
 	{
-		Connection sqlConnection = new Connection(new Sql2o("jdbc:postgresql://localhost/crsdb","crsuser","crsuser",QuirksMode.PostgreSQL));
+		Connection sqlConnection = new org.sql2o.Connection(new Sql2o(properties.getProperty("unittestDatabaseUrl"),
+				properties.getProperty("unittestDatabaseUsername"),
+				properties.getProperty("unittestDatabasePassword"),
+				QuirksMode.PostgreSQL));
 
 		Convert.registerConverter(ProfileType.class, new PostgresPGObjectToEnumConverter(ProfileType.class));
 		Convert.registerConverter(PermissionLevel.class, new PostgresPGObjectToEnumConverter(PermissionLevel.class));

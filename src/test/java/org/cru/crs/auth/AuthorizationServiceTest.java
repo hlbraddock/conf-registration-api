@@ -2,10 +2,10 @@ package org.cru.crs.auth;
 
 import java.util.UUID;
 
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.RegistrationEntity;
@@ -15,21 +15,20 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
-import org.sql2o.Connection;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class AuthorizationServiceTest
+public class AuthorizationServiceTest extends AbstractTestWithDatabaseConnectivity
 {
-	Connection sqlConnection;
 	AuthorizationService authorizationService;
 	ConferenceService conferenceService;
 	RegistrationService registrationService;
 	
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+	{
+		refreshConnection();
+
 		registrationService = ServiceFactory.createRegistrationService(sqlConnection);
 		authorizationService = new AuthorizationService(new PermissionService(sqlConnection), registrationService);
 		conferenceService = ServiceFactory.createConferenceService(sqlConnection);

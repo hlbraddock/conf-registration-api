@@ -18,13 +18,13 @@ public class UncaughtExceptionMapper implements ExceptionMapper<ApplicationExcep
 	public Response toResponse(ApplicationException applicationException)
 	{
 		Throwable actualException = unwrapApplicationException(applicationException);
-		
+
+		log.error("5** exception caught", actualException);
+
 		if(actualException instanceof WebApplicationException)
 		{
 			return ((WebApplicationException)actualException).getResponse();
 		}
-		
-		log.error("5** exception caught", actualException);
 		
 		return Response.serverError().header("Error" , actualException.getMessage()).build();
 	}

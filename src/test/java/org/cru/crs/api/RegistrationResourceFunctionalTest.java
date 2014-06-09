@@ -8,13 +8,13 @@ import java.util.UUID;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.PaymentService;
@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test(groups="functional-tests")
-public class RegistrationResourceFunctionalTest
+public class RegistrationResourceFunctionalTest  extends AbstractTestWithDatabaseConnectivity
 {
 	static final String RESOURCE_PREFIX = "rest";
 	static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
@@ -46,18 +46,17 @@ public class RegistrationResourceFunctionalTest
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 	private UUID conferenceUUID = UUID.fromString("42E4C1B2-0CC1-89F7-9F4B-6BC3E0DB5309");
 	private UUID paymentUUID = UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB91957");
-	private org.sql2o.Connection sqlConnection;
 	private ProfileService profileService;
 
-	@BeforeMethod
+	@BeforeMethod(alwaysRun = true)
 	public void createClient()
 	{
+		refreshConnection();
+
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         answerClient = ProxyFactory.create(AnswerResourceClient.class, restApiBaseUrl);
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
 		conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
-
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
 
 		paymentService = ServiceFactory.createPaymentService(sqlConnection);
 

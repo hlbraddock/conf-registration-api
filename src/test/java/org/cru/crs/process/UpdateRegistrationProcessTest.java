@@ -4,12 +4,12 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.ccci.util.time.Clock;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
 import org.cru.crs.api.process.UpdateRegistrationProcess;
 import org.cru.crs.api.utils.TotalDueBusinessLogic;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.PageService;
@@ -26,10 +26,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class UpdateRegistrationProcessTest
+public class UpdateRegistrationProcessTest extends AbstractTestWithDatabaseConnectivity
 {
-	org.sql2o.Connection sqlConnection;
-
 	UpdateRegistrationProcess process;
 
 	RegistrationService registrationService;
@@ -43,8 +41,8 @@ public class UpdateRegistrationProcessTest
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
+		refreshConnection();
+
 		PaymentService paymentService = ServiceFactory.createPaymentService(sqlConnection);
 		BlockService blockService = ServiceFactory.createBlockService(sqlConnection);
 		PageService pageService = ServiceFactory.createPageService(sqlConnection);

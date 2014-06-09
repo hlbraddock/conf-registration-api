@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.UUID;
 
 import org.codehaus.jackson.JsonProcessingException;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.RegistrationViewResourceClient;
 import org.cru.crs.api.model.RegistrationView;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.RegistrationViewEntity;
 import org.cru.crs.service.RegistrationViewService;
 import org.cru.crs.utils.ConferenceInfo;
@@ -20,7 +20,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class RegistrationViewResourceFunctionalTest {
+public class RegistrationViewResourceFunctionalTest  extends AbstractTestWithDatabaseConnectivity
+{
 
 	static final String RESOURCE_PREFIX = "rest";
 	static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
@@ -29,16 +30,16 @@ public class RegistrationViewResourceFunctionalTest {
 
 	RegistrationViewResourceClient registrationViewClient;
 	
-	org.sql2o.Connection sqlConnection;
 	RegistrationViewService registrationViewService;
-	
-	@BeforeMethod
+
+	@BeforeMethod(alwaysRun = true)
 	private void createClient()
 	{
+		refreshConnection();
+
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         registrationViewClient = ProxyFactory.create(RegistrationViewResourceClient.class, restApiBaseUrl);
         
-        sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
         registrationViewService = ServiceFactory.createRegistrationViewService(sqlConnection);
 	}
 	

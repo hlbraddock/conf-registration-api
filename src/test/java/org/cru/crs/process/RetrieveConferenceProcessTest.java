@@ -4,11 +4,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.api.process.RetrieveConferenceProcess;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.BlockService;
 import org.cru.crs.service.ConferenceCostsService;
@@ -21,21 +21,19 @@ import org.cru.crs.utils.ClockImpl;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.ServiceFactory;
-import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class RetrieveConferenceProcessTest
+public class RetrieveConferenceProcessTest extends AbstractTestWithDatabaseConnectivity
 {
 	RetrieveConferenceProcess retrieveConferenceProcess;
-	Connection sqlConnection;
-	
+
 	@BeforeMethod(alwaysRun=true)
 	public void setup()
 	{
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
+		refreshConnection();
+
 		BlockService blockService = new BlockService(sqlConnection, new AnswerService(sqlConnection));
 		PageService pageService = new PageService(sqlConnection, blockService);
 		ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);

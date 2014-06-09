@@ -4,12 +4,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.PaymentResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.process.RetrieveRegistrationProcess;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.PaymentType;
 import org.cru.crs.service.PaymentService;
@@ -18,12 +18,11 @@ import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
-import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class PaymentResourceFunctionalTest
+public class PaymentResourceFunctionalTest extends AbstractTestWithDatabaseConnectivity
 {
 
 	static final String RESOURCE_PREFIX = "rest";
@@ -36,22 +35,20 @@ public class PaymentResourceFunctionalTest
 	PaymentService paymentService;
 	
 	RetrieveRegistrationProcess registrationFetchProcess;
-	
-	Connection sqlConnection;
-	
+
 	private UUID registrationUUID = UUID.fromString("A2BFF4A8-C7DC-4C0A-BB9E-67E6DCB982E7");
 	private UUID paymentUUID = UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB11111");
 	private UUID refundedPaymentId = UUID.fromString("8492F4A8-C7DC-4C0A-BB9E-67E6DCB22222");
-	
-	@BeforeMethod
+
+	@BeforeMethod(alwaysRun = true)
 	public void createClient()
 	{
+		refreshConnection();
+
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         registrationClient = ProxyFactory.create(RegistrationResourceClient.class, restApiBaseUrl);
         paymentClient = ProxyFactory.create(PaymentResourceClient.class, restApiBaseUrl);
-        
-        sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
+
         paymentService = ServiceFactory.createPaymentService(sqlConnection);
 		
 		registrationFetchProcess = new RetrieveRegistrationProcess(ServiceFactory.createRegistrationService(sqlConnection),

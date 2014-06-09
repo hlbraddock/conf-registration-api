@@ -3,12 +3,11 @@ package org.cru.crs.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.UserInfo;
-import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -20,16 +19,14 @@ import org.testng.annotations.Test;
  * @author ryancarlson
  *
  */
-public class SessionServiceTest
+public class SessionServiceTest extends AbstractTestWithDatabaseConnectivity
 {
-	
-	Connection sqlConnection;
 	SessionService sessionService;
-	
+
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+	{
+		refreshConnection();
 		sessionService = new SessionService(sqlConnection);
 	}
 	

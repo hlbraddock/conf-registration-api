@@ -3,26 +3,24 @@
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.UserInfo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class RegistrationServiceTest
+public class RegistrationServiceTest extends AbstractTestWithDatabaseConnectivity
 {
-	Connection sqlConnection;
 	RegistrationService registrationService;
-	
+
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+	{
+		refreshConnection();
 		registrationService = new RegistrationService(sqlConnection, new AnswerService(sqlConnection), new PaymentService(sqlConnection));
 	}
 
@@ -30,7 +28,7 @@ public class RegistrationServiceTest
 	public void testGetRegistration()
 	{
 		RegistrationEntity registration = registrationService.getRegistrationBy(UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
-		
+
 		Assert.assertNotNull(registration);
 		Assert.assertEquals(registration.getId(), UUID.fromString("a2bff4a8-c7dc-4c0a-bb9e-67e6dcb982e7"));
 		Assert.assertEquals(registration.getConferenceId(), ConferenceInfo.Id.NorthernMichigan);

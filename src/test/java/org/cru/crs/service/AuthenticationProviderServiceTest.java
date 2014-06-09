@@ -2,13 +2,12 @@ package org.cru.crs.service;
 
 import java.util.UUID;
 
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.RelayUser;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.utils.UserInfo;
-import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -19,20 +18,19 @@ import org.testng.annotations.Test;
  * @author ryancarlson
  *
  */
-public class AuthenticationProviderServiceTest
+public class AuthenticationProviderServiceTest extends AbstractTestWithDatabaseConnectivity
 {
-	Connection sqlConnection;
 	AuthenticationProviderService authenticationProviderService;
 	UserService userService;
-	
+
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+	{
+		refreshConnection();
 		authenticationProviderService = new AuthenticationProviderService(sqlConnection);
 		userService = new UserService(sqlConnection);
 	}
-	
+
 	@Test(groups="dbtest")
 	public void testFindAuthProviderEntityById()
 	{

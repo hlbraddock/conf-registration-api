@@ -2,13 +2,12 @@ package org.cru.crs.service;
 
 import java.util.List;
 
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.utils.ConferenceInfo;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.cru.crs.utils.UserInfo;
-import org.sql2o.Connection;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -20,16 +19,14 @@ import org.testng.annotations.Test;
  * @author ryancarlson
  *
  */
-public class ConferenceServiceTest
+public class ConferenceServiceTest extends AbstractTestWithDatabaseConnectivity
 {
-	Connection sqlConnection;
 	ConferenceService conferenceService;
-	
+
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-		
+	{
+		refreshConnection();
 		conferenceService = new ConferenceService(sqlConnection,
 										new ConferenceCostsService(sqlConnection),
 										new PageService(sqlConnection, new BlockService(sqlConnection, new AnswerService(sqlConnection))), 

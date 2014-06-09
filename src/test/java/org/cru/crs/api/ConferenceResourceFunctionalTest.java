@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.google.common.base.Strings;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
@@ -20,7 +21,6 @@ import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.RegistrationView;
 import org.cru.crs.api.process.ProfileProcess;
 import org.cru.crs.api.process.RetrieveConferenceProcess;
-import org.cru.crs.cdi.SqlConnectionProducer;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
@@ -57,7 +57,7 @@ import org.testng.annotations.Test;
  * @author ryancarlson
  */
 @Test(groups="functional-tests")
-public class ConferenceResourceFunctionalTest
+public class ConferenceResourceFunctionalTest extends AbstractTestWithDatabaseConnectivity
 {
 	static final String RESOURCE_PREFIX = "rest";
 	static final String PERSISTENCE_UNIT_NAME = "crsUnitTestPersistence";
@@ -65,9 +65,7 @@ public class ConferenceResourceFunctionalTest
 	Environment environment = Environment.LOCAL;
 
 	ConferenceResourceClient conferenceClient;
-	
-	org.sql2o.Connection sqlConnection;
-	
+
 	ConferenceService conferenceService;
 	PaymentService paymentService;
 	PageService pageService;
@@ -79,14 +77,14 @@ public class ConferenceResourceFunctionalTest
 
 	RetrieveConferenceProcess retrieveConferenceProcess;
 
-	@BeforeMethod
+	@BeforeMethod(alwaysRun = true)
 	private void createClient()
 	{
+		refreshConnection();
+
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
-        
-        sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
-        
+
         answerService = new AnswerService(sqlConnection);
         BlockService blockService = new BlockService(sqlConnection, answerService);
         ConferenceCostsService conferenceCostsService = new ConferenceCostsService(sqlConnection);

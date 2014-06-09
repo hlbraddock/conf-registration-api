@@ -2,25 +2,22 @@ package org.cru.crs.service;
 
 import java.util.UUID;
 
-import org.cru.crs.cdi.SqlConnectionProducer;
+import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.utils.UserInfo;
-import org.sql2o.Connection;
 import org.sql2o.Sql2oException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class UserServiceTest
+public class UserServiceTest extends AbstractTestWithDatabaseConnectivity
 {
-
-	Connection sqlConnection;
 	UserService userService;
 
 	@BeforeMethod(alwaysRun=true)
 	private void setupConnectionAndService()
-	{	
-		sqlConnection = new SqlConnectionProducer().getTestSqlConnection();
+	{
+		refreshConnection();
 		userService = new UserService(sqlConnection);
 	}
 	
