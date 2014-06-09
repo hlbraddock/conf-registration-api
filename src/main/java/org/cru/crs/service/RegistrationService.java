@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.queries.RegistrationQueries;
-import org.jboss.logging.Logger;
 import org.sql2o.Connection;
 
 /**
@@ -52,6 +51,14 @@ public class RegistrationService
 	public Integer fetchRegistrationCount(UUID conferenceId)
 	{
 		return sqlConnection.createQuery(registrationQueries.selectCountForConference())
+				.addParameter("conferenceId", conferenceId)
+				.setAutoDeriveColumnNames(true)
+				.executeScalar(Integer.class);
+	}
+
+	public Integer fetchCompletedRegistrationCount(UUID conferenceId)
+	{
+		return sqlConnection.createQuery(registrationQueries.selectCompletedCountForConference())
 				.addParameter("conferenceId", conferenceId)
 				.setAutoDeriveColumnNames(true)
 				.executeScalar(Integer.class);

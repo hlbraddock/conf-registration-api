@@ -61,6 +61,7 @@ public class RetrieveConferenceProcessTest extends AbstractTestWithDatabaseConne
 		Assert.assertEquals(northernMichiganConference.getRegistrationPages().get(1).getBlocks().size(), 4);
 		Assert.assertEquals(northernMichiganConference.getRegistrationPages().get(2).getBlocks().size(), 3);
 		Assert.assertEquals(northernMichiganConference.getRegistrationCount().intValue(), 2);
+		Assert.assertEquals(northernMichiganConference.getCompletedRegistrationCount().intValue(), 0);
 
 		verifyConferenceFields(northernMichiganConference);
 		

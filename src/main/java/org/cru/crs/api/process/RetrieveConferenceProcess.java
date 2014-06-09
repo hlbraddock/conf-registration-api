@@ -69,6 +69,7 @@ public class RetrieveConferenceProcess
         RegistrationWindowCalculator.setEarlyRegistrationOpenFieldOn(apiConference, clock);
 
 		apiConference.setRegistrationCount(registrationService.fetchRegistrationCount(conferenceId));
+		apiConference.setCompletedRegistrationCount(registrationService.fetchCompletedRegistrationCount(conferenceId));
 
 		return apiConference;
 	}

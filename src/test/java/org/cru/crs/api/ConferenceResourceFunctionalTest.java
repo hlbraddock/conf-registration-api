@@ -128,7 +128,10 @@ public class ConferenceResourceFunctionalTest extends AbstractTestWithDatabaseCo
 		for(Conference conference : conferences)
 		{
 			if(conference.getId().equals(ConferenceInfo.Id.NorthernMichigan))
+			{
 				Assert.assertEquals(conference.getRegistrationCount().intValue(), 2);
+				Assert.assertEquals(conference.getCompletedRegistrationCount().intValue(), 0);
+			}
 
 			if(!("Northern Michigan Fall Extravaganza".equals(conference.getName()) ||
 					"Miami University Fall Retreat".equals(conference.getName()) ||
