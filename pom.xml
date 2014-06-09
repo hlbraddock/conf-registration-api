@@ -267,7 +267,7 @@
                 <configuration>
                     <hostname>${deployments.targetServerIP}</hostname>
                     <username>deployer</username>
-                    <password>${deployments.deployerPassword}</password>
+                    <password>${env.deployerPassword}</password>
                 </configuration>
             </plugin>
 
