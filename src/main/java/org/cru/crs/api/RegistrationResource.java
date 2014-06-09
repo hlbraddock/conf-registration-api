@@ -143,7 +143,8 @@ public class RegistrationResource extends TransactionalResource
 			throw new BadRequestException("The conference this registration should belong to does not exist");
 		}
 
-		if(registrationService.getRegistrationBy(registration.getId()) == null)
+		RegistrationEntity currentRegistrationEntity = registrationService.getRegistrationBy(registration.getId());
+		if(currentRegistrationEntity == null)
 		{
 			throw new BadRequestException("The registration does not exist");
 		}
@@ -159,13 +160,15 @@ public class RegistrationResource extends TransactionalResource
 
 		updateRegistrationProcess.performDeepUpdate(registration, crsLoggedInUser);
 
-		// if the registrant has completed the registration
+		// capture completed registration profile (on every update)
 		if(registration.getCompleted())
 		{
-			// capture profile
 			profileProcess.capture(registration);
+		}
 
-			// notify them of registration info
+		// notify of registration info (just once)
+		if(registration.getCompleted() && !currentRegistrationEntity.getCompleted())
+		{
 			notificationProcess.registrationComplete(crsLoggedInUser, registration, conferenceEntityForUpdatedRegistration);
 		}
 
