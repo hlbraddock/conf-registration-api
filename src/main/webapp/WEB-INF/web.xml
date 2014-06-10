@@ -59,10 +59,10 @@
 			<param-value>https://signin.cru.org/cas/login</param-value>
 		</init-param>
 		
- 	<init-param>
-      <param-name>edu.yale.its.tp.cas.client.filter.serverName</param-name>
-      <param-value>dev.api.formvent.org</param-value>
-    </init-param>
+ 	    <!--<init-param>-->
+            <!--<param-name>edu.yale.its.tp.cas.client.filter.serviceUrl</param-name>-->
+            <!--<param-value>dev.api.formvent.org</param-value>-->
+        <!--</init-param>-->
 	</filter>
 	
 	<filter-mapping>
