@@ -2,9 +2,12 @@
 
 ##Current Status
 
-Pre-alpha.  Targeting initial release in Q2-2014.
+Beta.
 
 Outstanding tasks: https://trello.com/b/i7500iKQ/new-crs
+
+## Website
+https://www.eventhub.org
 
 ## License
 
