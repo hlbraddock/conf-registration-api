@@ -19,6 +19,7 @@ import org.cru.crs.auth.model.FacebookUser;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.Simply;
+import org.jboss.logging.Logger;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.FacebookApi;
 import org.scribe.model.OAuthRequest;
@@ -36,6 +37,8 @@ import com.google.common.base.Strings;
 @Path("/auth/facebook")
 public class FacebookAuthManager extends AbstractAuthManager
 {
+	Logger logger = Logger.getLogger(getClass());
+
 	@Path("/authorization")
 	@GET
 	public Response authorization(@Context HttpServletRequest httpServletRequest) throws URISyntaxException, MalformedURLException
@@ -63,11 +66,14 @@ public class FacebookAuthManager extends AbstractAuthManager
 	@GET
 	public Response login(@Context HttpServletRequest httpServletRequest, @QueryParam(value = "code") String code, @QueryParam(value = "error") String error) throws URISyntaxException, MalformedURLException
 	{
+		logger.info("facebook::login()");
 		if (isLoginError(code, error))
 			return Response.status(Response.Status.UNAUTHORIZED).build();
 
 		// get verifier for identity provider provided code
 		Verifier verifier = new Verifier(code);
+
+		logger.info("facebook::login() - got verifier");
 
 		String apiKey = crsProperties.getProperty("facebookAppId");
 		String apiSecret = crsProperties.getProperty("facebookAppSecret");
@@ -75,11 +81,14 @@ public class FacebookAuthManager extends AbstractAuthManager
 		// get oauth service
 		OAuthService service = OauthServices.build(FacebookApi.class, getUrlWithService(httpServletRequest, "login").toString(), apiKey, apiSecret);
 
+		logger.info("facebook::login() - got service");
+
 		// get identity provider access token
 		Token accessToken;
 		try
 		{
 			accessToken = service.getAccessToken(null, verifier);
+			logger.info("facebook::login() - got token");
 		}
 		catch(Exception	e)
 		{
@@ -89,23 +98,41 @@ public class FacebookAuthManager extends AbstractAuthManager
 		// build request
 		OAuthRequest request = new OAuthRequest(Verb.GET, "https://graph.facebook.com/me");
 
+		logger.info("facebook::login() - got request");
+
 		// sign in to facebook on behalf of user using access token
 		service.signRequest(accessToken, request);
 
+		logger.info("facebook::login() - got sign request");
+
 		// send request for user info
 		org.scribe.model.Response response = request.send();
+
+		logger.info("facebook::login() - got response " + response.getCode());
 
 		// check response code
 		if (response.getCode() != 200)
 			return Response.status(response.getCode()).build();
 
 		// transform the facebook response into facebook user
-		FacebookUser facebookUser = null;
+		FacebookUser facebookUser;
 		try
 		{
-			JsonNode jsonNodeFacebookUser = JsonNodeHelper.toJsonNode(response.getBody());
+			String body = response.getBody();
+
+			logger.info("facebook::login() - got body " + body);
+
+			JsonNode jsonNodeFacebookUser = JsonNodeHelper.toJsonNode(body);
+
+			logger.info("facebook::login() - got json" );
+
+			Simply.logObject(jsonNodeFacebookUser, getClass());
 
 			facebookUser = new FacebookUser(jsonNodeFacebookUser, accessToken.getToken());
+
+			logger.info("facebook::login() - got facebook user");
+
+			Simply.logObject(facebookUser, getClass());
 		}
 		catch(Exception e)
 		{
@@ -114,7 +141,11 @@ public class FacebookAuthManager extends AbstractAuthManager
 
         persistIdentityAndAuthProviderRecordsIfNecessary(facebookUser);
 
+		logger.info("facebook::login() - persisted user");
+
 		SessionEntity sessionEntity = persistSession(facebookUser);
+
+		logger.info("facebook::login() - persisted session");
 
 		// redirect to client managed auth code url with auth code
 		return Response.seeOther(new URI(crsProperties.getProperty("clientUrl") 
