@@ -12,20 +12,27 @@ public class FacebookUser extends AuthenticationProviderUser
 	
 	public FacebookUser(JsonNode user, String accessToken)
 	{
-		this.id = toString(user, "id");
-		this.fullName = toString(user, "name");
-		this.firstName = toString(user, "first_name");
-		this.lastName = toString(user, "last_name");
-		this.username = toString(user, "username");
-		this.email = toString(user, "email");
+		this.id = getAttributeValue(user, "id");
+		this.fullName = getAttributeValue(user, "name");
+		this.firstName = getAttributeValue(user, "first_name");
+		this.lastName = getAttributeValue(user, "last_name");
+		this.username = getAttributeValue(user, "username");
+		this.email = getAttributeValue(user, "email");
 		this.accessToken = accessToken;
 		this.authenticationProviderType = AuthenticationProviderType.FACEBOOK;
 	}
 
-	private String toString(JsonNode jsonNode, String attribute)
+	private String getAttributeValue(JsonNode jsonNode, String attribute)
 	{
-		// Facebook attribute values are (unnecessarily, for us) in quotes
-		return jsonNode.get(attribute).toString().trim().replace("\"", "");
+		try
+		{
+			// Facebook attribute values are (unnecessarily, for us) in quotes
+			return jsonNode.get(attribute).toString().trim().replace("\"", "");
+		}
+		catch(Exception e)
+		{
+			return "";
+		}
 	}
 
 	public String getFullName()
