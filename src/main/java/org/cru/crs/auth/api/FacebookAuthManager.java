@@ -12,13 +12,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonNode;
 import org.cru.crs.auth.OauthServices;
 import org.cru.crs.auth.model.FacebookUser;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.Simply;
-import org.cru.crs.utils.StringUtils;
 import org.cru.crs.utils.URL;
 import org.jboss.logging.Logger;
 import org.scribe.builder.ServiceBuilder;
