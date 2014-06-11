@@ -25,7 +25,7 @@
 		<param-name>resteasy.scan</param-name>
 		<param-value>true</param-value>
 	</context-param>
-		
+
 	<filter>
 		<filter-name>CorsFilter</filter-name>
 		<filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
