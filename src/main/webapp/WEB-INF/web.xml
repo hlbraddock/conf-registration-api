@@ -61,7 +61,7 @@
 		
  	    <init-param>
             <param-name>edu.yale.its.tp.cas.client.filter.serviceUrl</param-name>
-            <param-value>https://api.eventhub.org/eventhub-api/rest/auth/relay/login</param-value>
+            <param-value>${relay.serviceUrl}</param-value>
         </init-param>
 	</filter>
 	
