@@ -172,7 +172,7 @@ public class FacebookAuthManager extends AbstractAuthManager
 
 	private String getServiceUrl(String serviceUrl, String protocol, String port, String host, String serviceName) throws MalformedURLException
 	{
-		URL url = new URL(serviceUrl).withProtocol(protocol).withPort(port).withHost(host);
+		URL url = new URL(serviceUrl).withProtocol(protocol).withPort(port).withHost(host).simplify();
 
 		String newServiceUrl = StringUtils.substringBeforeLast(url.toExternalForm(), "/") + "/" + serviceName;
 

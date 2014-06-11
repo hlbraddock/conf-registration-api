@@ -59,6 +59,16 @@ public class URL
 		return new URL(url.getProtocol() + protocolSuffix + host + portPrefix() + portString() + url.getPath());
 	}
 
+	public URL simplify() throws MalformedURLException
+	{
+		if(url.getPort() == 80 || url.getPort() == 443)
+		{
+			return new URL(url.getProtocol() + protocolSuffix + url.getHost() + url.getPath());
+		}
+
+		return this;
+	}
+
 	private String portPrefix()
 	{
 		return url.getPort() == -1 ? "" : ":";
