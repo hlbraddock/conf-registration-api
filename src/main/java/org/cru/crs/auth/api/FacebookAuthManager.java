@@ -3,7 +3,6 @@ package org.cru.crs.auth.api;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +18,8 @@ import org.cru.crs.auth.model.FacebookUser;
 import org.cru.crs.model.SessionEntity;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.cru.crs.utils.Simply;
+import org.cru.crs.utils.StringUtils;
+import org.cru.crs.utils.URL;
 import org.jboss.logging.Logger;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.FacebookApi;
@@ -45,13 +46,16 @@ public class FacebookAuthManager extends AbstractAuthManager
 	{
 		String apiKey = crsProperties.getProperty("facebookAppId");
 		String apiSecret = crsProperties.getProperty("facebookAppSecret");
+		String apiServerProtocol = crsProperties.getNonNullProperty("apiServerProtocol");
+		String apiServerPort = crsProperties.getNonNullProperty("apiServerPort");
+		String apiServerName = crsProperties.getNonNullProperty("apiServerName");
 
 		// get oauth service
 		OAuthService service = new ServiceBuilder()
 				.provider(FacebookApi.class)
 				.apiKey(apiKey)
 				.apiSecret(apiSecret)
-				.callback(getUrlWithService(httpServletRequest, "login").toString())
+				.callback(getServiceUrl(httpServletRequest.getRequestURL().toString(), apiServerProtocol, apiServerPort, apiServerName, "login"))
 				.scope("email")
 				.build();
 
@@ -77,9 +81,13 @@ public class FacebookAuthManager extends AbstractAuthManager
 
 		String apiKey = crsProperties.getProperty("facebookAppId");
 		String apiSecret = crsProperties.getProperty("facebookAppSecret");
+		String apiServerProtocol = crsProperties.getNonNullProperty("apiServerProtocol");
+		String apiServerPort = crsProperties.getNonNullProperty("apiServerPort");
+		String apiServerName = crsProperties.getNonNullProperty("apiServerName");
 
 		// get oauth service
-		OAuthService service = OauthServices.build(FacebookApi.class, getUrlWithService(httpServletRequest, "login").toString(), apiKey, apiSecret);
+		OAuthService service =
+				OauthServices.build(FacebookApi.class, getServiceUrl(httpServletRequest.getRequestURL().toString(), apiServerProtocol, apiServerPort, apiServerName, "login"), apiKey, apiSecret);
 
 		logger.info("facebook::login() - got service");
 
@@ -162,10 +170,14 @@ public class FacebookAuthManager extends AbstractAuthManager
 		return !Strings.isNullOrEmpty(error);
 	}
 
-	private URL getUrlWithService(HttpServletRequest servletRequest, String serviceName) throws MalformedURLException
+	private String getServiceUrl(String serviceUrl, String protocol, String port, String host, String serviceName) throws MalformedURLException
 	{
-		String requestUrl = servletRequest.getRequestURL().toString();
+		URL url = new URL(serviceUrl).withProtocol(protocol).withPort(port).withHost(host);
 
-		return new URL(requestUrl.substring(0, requestUrl.lastIndexOf("/")) + "/" + serviceName);
+		String newServiceUrl = StringUtils.substringBeforeLast(url.toExternalForm(), "/") + "/" + serviceName;
+
+		logger.info("serviceUrl:" + serviceUrl + ": to:" + newServiceUrl + ":");
+
+		return newServiceUrl;
 	}
 }
