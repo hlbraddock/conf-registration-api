@@ -27,12 +27,16 @@ public class StringUtils
 	public static String substringBeforeLast(String string, String separator)
 	{
 		if (Strings.isNullOrEmpty(string) || Strings.isNullOrEmpty(separator))
+		{
 			return string;
+		}
 
 		int lastIndexOf = string.lastIndexOf(separator);
 
 		if (lastIndexOf == -1)
+		{
 			return string;
+		}
 
 		return string.substring(0, lastIndexOf);
 	}

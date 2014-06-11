@@ -30,7 +30,9 @@ public class URL
 	public URL withProtocol(String protocol) throws MalformedURLException
 	{
 		if(Strings.isNullOrEmpty(protocol))
+		{
 			return this;
+		}
 
 		return new URL(protocol + protocolSuffix + url.getHost() + portPrefix() + portString() + url.getPath());
 	}
@@ -38,7 +40,9 @@ public class URL
 	public URL withPort(String port) throws MalformedURLException
 	{
 		if(Strings.isNullOrEmpty(port))
+		{
 			return this;
+		}
 
 		URL tempUrl = new URL("http://server:" + port);
 
@@ -48,7 +52,9 @@ public class URL
 	public URL withHost(String host) throws MalformedURLException
 	{
 		if(Strings.isNullOrEmpty(host))
+		{
 			return this;
+		}
 
 		return new URL(url.getProtocol() + protocolSuffix + host + portPrefix() + portString() + url.getPath());
 	}
