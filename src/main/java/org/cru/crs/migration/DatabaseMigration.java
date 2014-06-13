@@ -24,6 +24,8 @@ public class DatabaseMigration
 				properties.getProperty(prefix + "databaseUsername"),
 				properties.getProperty(prefix + "databasePassword"));
 
+		flyway.setLocations("db.migration.structural");
+
 		flyway.migrate();
 	}
 
