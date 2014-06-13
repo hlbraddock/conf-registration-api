@@ -21,6 +21,8 @@ public class UnittestDatabaseBuilder
 		flyway.setTarget("0.1.5");
 		flyway.setInitOnMigrate(true);
 
+		flyway.setLocations("db.migration.structural", "db.migration.seed");
+
 		flyway.clean();
 
 		flyway.migrate();
