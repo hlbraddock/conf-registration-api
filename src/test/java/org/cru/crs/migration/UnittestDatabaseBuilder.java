@@ -1,7 +1,6 @@
 package org.cru.crs.migration;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.MigrationVersion;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.CrsPropertiesFactory;
 
@@ -18,7 +17,7 @@ public class UnittestDatabaseBuilder
 		Flyway flyway = new Flyway();
 
 		flyway.setDataSource(properties.getProperty("unittestDatabaseUrl"), properties.getProperty("unittestDatabaseUsername"), properties.getProperty("unittestDatabasePassword"));
-		flyway.setTarget("0.1.5");
+		flyway.setTarget("1.1.1");
 		flyway.setInitOnMigrate(true);
 
 		flyway.setLocations("db.migration.structural", "db.migration.seed");

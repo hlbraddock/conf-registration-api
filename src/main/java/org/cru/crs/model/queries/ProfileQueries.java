@@ -19,8 +19,8 @@ public class ProfileQueries implements BasicQueries
 	{
 		return "UPDATE profiles SET " +
 				"email = :email, " +
-				"firstName = :firstName, " +
-				"lastName = :lastName, " +
+				"first_name = :firstName, " +
+				"last_name = :lastName, " +
 				"phone = :phone, " +
 				"address1 = :address1, " +
 				"address2 = :address2, " +
@@ -30,7 +30,7 @@ public class ProfileQueries implements BasicQueries
 				"birth_date = :birthDate, " +
 				"gender = :gender, " +
 				"campus = :campus, " +
-				"graduation = :graduation, " +
+				"year_in_school = :yearInSchool, " +
 				"dormitory = :dormitory " +
 				 "WHERE " +
 				 "id = :id";
@@ -39,8 +39,8 @@ public class ProfileQueries implements BasicQueries
 	@Override
 	public String insert()
 	{
-		return "INSERT INTO profiles(id, user_id, email, firstName, lastName, phone, address1, address2, city, state, zip, birth_date, gender, campus, graduation, dormitory) VALUES " +
-				"(:id, :userId, :email, :firstName, :lastName, :phone, :address1, :address2, :city, :state, :zip, :birthDate, :gender, :campus, :graduation, :dormitory)";
+		return "INSERT INTO profiles(id, user_id, email, first_name, last_name, phone, address1, address2, city, state, zip, birth_date, gender, campus, year_in_school, dormitory) VALUES " +
+				"(:id, :userId, :email, :firstName, :lastName, :phone, :address1, :address2, :city, :state, :zip, :birthDate, :gender, :campus, :yearInSchool, :dormitory)";
 	}
 
 	@Override
