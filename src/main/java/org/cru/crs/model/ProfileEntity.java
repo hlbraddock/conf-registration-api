@@ -28,7 +28,7 @@ public class ProfileEntity implements java.io.Serializable
 	private String email;
 	private String firstName;
 	private String gender;
-	private DateTime graduation;
+	private String yearInSchool;
 	private String lastName;
 	private String phone;
 	private String state;
@@ -52,7 +52,7 @@ public class ProfileEntity implements java.io.Serializable
 		this.userId = userId;
 	}
 
-	public ProfileEntity(UUID id, UUID userId, DateTime birthDate, String campus, String city, String dormitory, String email, String firstName, String gender, DateTime graduation, String lastName, String phone, String state, String address1, String address2, String zip)
+	public ProfileEntity(UUID id, UUID userId, DateTime birthDate, String campus, String city, String dormitory, String email, String firstName, String gender, String yearInSchool, String lastName, String phone, String state, String address1, String address2, String zip)
 	{
 		this(id, userId);
 
@@ -63,7 +63,7 @@ public class ProfileEntity implements java.io.Serializable
 		this.email = email;
 		this.firstName = firstName;
 		this.gender = gender;
-		this.graduation = graduation;
+		this.yearInSchool = yearInSchool;
 		this.lastName = lastName;
 		this.phone = phone;
 		this.state = state;
@@ -162,14 +162,14 @@ public class ProfileEntity implements java.io.Serializable
 		this.gender = gender;
 	}
 
-	public DateTime getGraduation()
+	public String getYearInSchool()
 	{
-		return graduation;
+		return yearInSchool;
 	}
 
-	public void setGraduation(DateTime graduation)
+	public void setYearInSchool(String yearInSchool)
 	{
-		this.graduation = graduation;
+		this.yearInSchool = yearInSchool;
 	}
 
 	public String getLastName()
@@ -258,8 +258,8 @@ public class ProfileEntity implements java.io.Serializable
 		if (!Strings.isNullOrEmpty(profileEntity.getGender()))
 			gender = profileEntity.getGender();
 
-		if (profileEntity.getGraduation() != null)
-			graduation = profileEntity.getGraduation();
+		if (profileEntity.getYearInSchool() != null)
+			yearInSchool = profileEntity.getYearInSchool();
 
 		if (!Strings.isNullOrEmpty(profileEntity.getLastName()))
 			lastName = profileEntity.getLastName();
@@ -333,10 +333,6 @@ public class ProfileEntity implements java.io.Serializable
 							{
 								birthDate = dateQuestion.getText();
 							}
-							else if (blockEntity.getProfileType().equals(ProfileType.GRADUATION))
-							{
-								graduation = dateQuestion.getText();
-							}
 						}
 						else
 						{
@@ -356,6 +352,9 @@ public class ProfileEntity implements java.io.Serializable
 									break;
 								case PHONE:
 									phone = answer.getValue().getTextValue();
+									break;
+								case YEAR_IN_SCHOOL:
+									yearInSchool = answer.getValue().getTextValue();
 									break;
 							}
 						}
@@ -396,7 +395,7 @@ public class ProfileEntity implements java.io.Serializable
 		if (email != null ? !email.equals(that.email) : that.email != null) return false;
 		if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
 		if (gender != null ? !gender.equals(that.gender) : that.gender != null) return false;
-		if (graduation != null ? !graduation.equals(that.graduation) : that.graduation != null) return false;
+		if (yearInSchool != null ? !yearInSchool.equals(that.yearInSchool) : that.yearInSchool != null) return false;
 		if (id != null ? !id.equals(that.id) : that.id != null) return false;
 		if (lastName != null ? !lastName.equals(that.lastName) : that.lastName != null) return false;
 		if (phone != null ? !phone.equals(that.phone) : that.phone != null) return false;
@@ -419,7 +418,7 @@ public class ProfileEntity implements java.io.Serializable
 		result = 31 * result + (email != null ? email.hashCode() : 0);
 		result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
 		result = 31 * result + (gender != null ? gender.hashCode() : 0);
-		result = 31 * result + (graduation != null ? graduation.hashCode() : 0);
+		result = 31 * result + (yearInSchool != null ? yearInSchool.hashCode() : 0);
 		result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
 		result = 31 * result + (phone != null ? phone.hashCode() : 0);
 		result = 31 * result + (state != null ? state.hashCode() : 0);

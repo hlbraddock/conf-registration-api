@@ -31,7 +31,7 @@ public class ProfileServiceTest extends AbstractTestWithDatabaseConnectivity
 		String email = "c.s.lewis@cru.org";
 		String firstName = "Clive";
 		String gender = "M";
-		DateTime graduation = new DateTime("1923-5-15");
+		String yearInSchool = "Freshman";
 
 		String lastName = "Lewis";
 		String phone = "407-826-2000";
@@ -40,7 +40,7 @@ public class ProfileServiceTest extends AbstractTestWithDatabaseConnectivity
 		String address2 = "MailStop 2400";
 		String zip = "32832";
 
-		profileEntity = new ProfileEntity(profileId, userId, birthDate, campus, city, dormitory, email, firstName, gender, graduation, lastName, phone, state, address1, address2, zip);
+		profileEntity = new ProfileEntity(profileId, userId, birthDate, campus, city, dormitory, email, firstName, gender, yearInSchool, lastName, phone, state, address1, address2, zip);
 	}
 
 	@Test(groups = "dbtest")
@@ -134,7 +134,7 @@ public class ProfileServiceTest extends AbstractTestWithDatabaseConnectivity
 		Assert.assertEquals(profileEntity.getEmail(), profileEntity2.getEmail());
 		Assert.assertEquals(profileEntity.getFirstName(), profileEntity2.getFirstName());
 		Assert.assertEquals(profileEntity.getGender(), profileEntity2.getGender());
-		Assert.assertEquals(profileEntity.getGraduation().toLocalDate(), profileEntity2.getGraduation().toLocalDate());
+		Assert.assertEquals(profileEntity.getYearInSchool(), profileEntity2.getYearInSchool());
 		Assert.assertEquals(profileEntity.getPhone(), profileEntity2.getPhone());
 		Assert.assertEquals(profileEntity.getLastName(), profileEntity2.getLastName());
 		Assert.assertEquals(profileEntity.getState(), profileEntity2.getState());

@@ -169,12 +169,14 @@ public class ProfileProcess
 							DateQuestion dateQuestion = new DateQuestion();
 
 							if (blockEntity.getProfileType().equals(ProfileType.BIRTH_DATE))
+							{
 								dateQuestion.setText(profileEntity.getBirthDate());
-							else if (blockEntity.getProfileType().equals(ProfileType.GRADUATION))
-								dateQuestion.setText(profileEntity.getGraduation());
+							}
 
 							if(dateQuestion.getText() != null)
+							{
 								jsonNode = JsonNodeHelper.toJsonNode(JsonNodeHelper.serialize(dateQuestion).get("text").toString());
+							}
 						}
 						else
 						{
@@ -196,10 +198,15 @@ public class ProfileProcess
 								case PHONE:
 									value = profileEntity.getPhone();
 									break;
+								case YEAR_IN_SCHOOL:
+									value = profileEntity.getYearInSchool();
+									break;
 							}
 
 							if(!Strings.isEmpty(value))
+							{
 								jsonNode = JsonNodeHelper.toJsonNode(JsonNodeHelper.toJsonString(value));
+							}
 						}
 					}
 
