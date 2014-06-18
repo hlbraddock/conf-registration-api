@@ -339,14 +339,14 @@
         <profile>
             <id>stage</id>
             <properties>
-                <relay.serviceUrl>https://api.stage.eventhub.org/eventhub-api/rest/auth/relay/login</relay.serviceUrl>
+                <relay.serviceUrl>https://api.stage.eventregistrationtool.com/eventhub-api/rest/auth/relay/login</relay.serviceUrl>
             </properties>
         </profile>
 
         <profile>
             <id>prod</id>
             <properties>
-                <relay.serviceUrl>https://api.eventhub.org/eventhub-api/rest/auth/relay/login</relay.serviceUrl>
+                <relay.serviceUrl>https://api.eventregistrationtool.com/eventhub-api/rest/auth/relay/login</relay.serviceUrl>
             </properties>
         </profile>
 
