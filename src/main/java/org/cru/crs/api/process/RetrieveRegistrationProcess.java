@@ -1,19 +1,17 @@
 package org.cru.crs.api.process;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-
-import javax.inject.Inject;
-
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.PaymentEntity;
-import org.cru.crs.model.PaymentType;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.AnswerService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
+
+import javax.inject.Inject;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
 public class RetrieveRegistrationProcess
 {

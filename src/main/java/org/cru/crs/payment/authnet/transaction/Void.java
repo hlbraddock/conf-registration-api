@@ -1,8 +1,7 @@
 package org.cru.crs.payment.authnet.transaction;
 
-import org.cru.crs.payment.authnet.Method;
-
 import com.google.common.base.Preconditions;
+import org.cru.crs.payment.authnet.Method;
 
 
 public final class Void extends Transaction

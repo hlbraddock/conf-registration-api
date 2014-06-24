@@ -1,9 +1,5 @@
 package org.cru.crs.process;
 
-import java.net.MalformedURLException;
-
-import javax.mail.MessagingException;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.process.CreatePermissionProcess;
@@ -20,6 +16,9 @@ import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import javax.mail.MessagingException;
+import java.net.MalformedURLException;
 
 public class CreatePermissionProcessTest extends AbstractTestWithDatabaseConnectivity
 {

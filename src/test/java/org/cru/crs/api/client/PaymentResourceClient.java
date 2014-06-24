@@ -1,7 +1,7 @@
 package org.cru.crs.api.client;
 
-import java.net.URISyntaxException;
-import java.util.UUID;
+import org.cru.crs.api.model.Payment;
+import org.jboss.resteasy.client.ClientResponse;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,9 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import org.cru.crs.api.model.Payment;
-import org.jboss.resteasy.client.ClientResponse;
+import java.util.UUID;
 
 @Path("/payments")
 public interface PaymentResourceClient

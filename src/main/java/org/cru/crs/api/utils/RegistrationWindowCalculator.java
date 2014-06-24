@@ -1,6 +1,5 @@
 package org.cru.crs.api.utils;
 
-import com.google.common.base.Preconditions;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
 import org.joda.time.DateTime;

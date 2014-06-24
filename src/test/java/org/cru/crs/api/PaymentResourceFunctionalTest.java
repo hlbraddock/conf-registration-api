@@ -1,9 +1,5 @@
 package org.cru.crs.api;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.PaymentResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
@@ -21,6 +17,10 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 public class PaymentResourceFunctionalTest extends AbstractTestWithDatabaseConnectivity
 {

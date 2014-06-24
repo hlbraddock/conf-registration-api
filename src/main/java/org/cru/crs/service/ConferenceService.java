@@ -1,17 +1,16 @@
 package org.cru.crs.service;
 
-import java.util.List;
-import java.util.UUID;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.queries.ConferenceQueries;
 import org.sql2o.Connection;
 import org.testng.collections.Lists;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.UUID;
 
 @RequestScoped
 public class ConferenceService

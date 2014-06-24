@@ -1,8 +1,8 @@
 package org.cru.crs.utils;
 
-import java.util.UUID;
-
 import org.cru.crs.model.ConferenceEntity;
+
+import java.util.UUID;
 
 public class ConferenceInfo
 {

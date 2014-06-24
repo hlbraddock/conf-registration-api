@@ -1,9 +1,5 @@
 package org.cru.crs.process;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
@@ -24,6 +20,10 @@ import org.cru.crs.utils.ServiceFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 public class RetrieveConferenceProcessTest extends AbstractTestWithDatabaseConnectivity
 {
@@ -166,21 +166,21 @@ public class RetrieveConferenceProcessTest extends AbstractTestWithDatabaseConne
 		Assert.assertEquals(firstPageBlocks.get(0).getType(), "paragraphContent");
 		Assert.assertFalse(firstPageBlocks.get(0).isRequired());
 		Assert.assertEquals(firstPageBlocks.get(0).getPosition(), 0);
-		Assert.assertEquals(firstPageBlocks.get(0).getContent().getTextValue(), "This is a paragraph of text describing this conference.");
+		Assert.assertEquals(firstPageBlocks.get(0).getContent().textValue(), "This is a paragraph of text describing this conference.");
 		
 		Assert.assertEquals(firstPageBlocks.get(1).getId(), UUID.fromString("DDA45720-DE87-C419-933A-018712B152D2"));
 		Assert.assertEquals(firstPageBlocks.get(1).getTitle(), "Your name");
 		Assert.assertEquals(firstPageBlocks.get(1).getType(), "nameQuestion");
 		Assert.assertTrue(firstPageBlocks.get(1).isRequired());
 		Assert.assertEquals(firstPageBlocks.get(1).getPosition(), 1);
-		Assert.assertEquals(firstPageBlocks.get(1).getContent().getTextValue(), "");
+		Assert.assertEquals(firstPageBlocks.get(1).getContent().textValue(), "");
 		
 		Assert.assertEquals(firstPageBlocks.get(2).getId(), UUID.fromString("F774EA5C-8E44-25DC-9169-2F141C57E3AE"));
 		Assert.assertEquals(firstPageBlocks.get(2).getTitle(), "Email address");
 		Assert.assertEquals(firstPageBlocks.get(2).getType(), "emailQuestion");
 		Assert.assertTrue(firstPageBlocks.get(2).isRequired());
 		Assert.assertEquals(firstPageBlocks.get(2).getPosition(), 2);
-		Assert.assertEquals(firstPageBlocks.get(2).getContent().getTextValue(), "");
+		Assert.assertEquals(firstPageBlocks.get(2).getContent().textValue(), "");
 		
 		Assert.assertEquals(firstPageBlocks.get(3).getId(), UUID.fromString("A229C854-6989-F658-7C29-B3DD034F6FD1"));
 		Assert.assertEquals(firstPageBlocks.get(3).getTitle(), "Year in school");
@@ -194,14 +194,14 @@ public class RetrieveConferenceProcessTest extends AbstractTestWithDatabaseConne
 		Assert.assertEquals(secondPageBlocks.get(0).getType(), "paragraphContent");
 		Assert.assertFalse(secondPageBlocks.get(0).isRequired());
 		Assert.assertEquals(secondPageBlocks.get(0).getPosition(), 0);
-		Assert.assertEquals(secondPageBlocks.get(0).getContent().getTextValue(), "Please tell us all about your kitteh.");
+		Assert.assertEquals(secondPageBlocks.get(0).getContent().textValue(), "Please tell us all about your kitteh.");
 		
 		Assert.assertEquals(secondPageBlocks.get(1).getId(), UUID.fromString("DDA45720-DE87-C419-933A-018712B152DC"));
 		Assert.assertEquals(secondPageBlocks.get(1).getTitle(), "Kittehs name");
 		Assert.assertEquals(secondPageBlocks.get(1).getType(), "nameQuestion");
 		Assert.assertTrue(secondPageBlocks.get(1).isRequired());
 		Assert.assertEquals(secondPageBlocks.get(1).getPosition(), 1);
-		Assert.assertEquals(secondPageBlocks.get(1).getContent().getTextValue(), "");
+		Assert.assertEquals(secondPageBlocks.get(1).getContent().textValue(), "");
 		
 		Assert.assertEquals(secondPageBlocks.get(2).getId(), UUID.fromString("F774EA5C-8E44-25DC-9169-2F141C57E3AC"));
 		Assert.assertEquals(secondPageBlocks.get(2).getTitle(), "Mah kitteh iz... (check all that apply)");
@@ -215,14 +215,14 @@ public class RetrieveConferenceProcessTest extends AbstractTestWithDatabaseConne
 		Assert.assertEquals(secondPageBlocks.get(3).getType(), "textQuestion");
 		Assert.assertFalse(secondPageBlocks.get(3).isRequired());
 		Assert.assertEquals(secondPageBlocks.get(3).getPosition(), 3);
-		Assert.assertEquals(secondPageBlocks.get(3).getContent().getTextValue(), "");
+		Assert.assertEquals(secondPageBlocks.get(3).getContent().textValue(), "");
 		
 		Assert.assertEquals(thirdPageBlocks.get(0).getId(), UUID.fromString("AF60D878-4741-4F21-9D25-231DB86E43EB"));
 		Assert.assertEquals(thirdPageBlocks.get(0).getTitle(), "Favorite TV show");
 		Assert.assertEquals(thirdPageBlocks.get(0).getType(), "textQuestion");
 		Assert.assertFalse(thirdPageBlocks.get(0).isRequired());
 		Assert.assertEquals(thirdPageBlocks.get(0).getPosition(), 0);
-		Assert.assertEquals(thirdPageBlocks.get(0).getContent().getTextValue(), "");
+		Assert.assertEquals(thirdPageBlocks.get(0).getContent().textValue(), "");
 		
 		Assert.assertEquals(thirdPageBlocks.get(1).getId(), UUID.fromString("F774EA5C-8E44-25DC-9169-2F141C57E3AB"));
 		Assert.assertEquals(thirdPageBlocks.get(1).getTitle(), "Sessions I will attend... (check all that apply)");
@@ -236,7 +236,7 @@ public class RetrieveConferenceProcessTest extends AbstractTestWithDatabaseConne
 		Assert.assertEquals(thirdPageBlocks.get(2).getType(), "textQuestion");
 		Assert.assertFalse(thirdPageBlocks.get(2).isRequired());
 		Assert.assertEquals(thirdPageBlocks.get(2).getPosition(), 2);
-		Assert.assertEquals(thirdPageBlocks.get(2).getContent().getTextValue(), "");
+		Assert.assertEquals(thirdPageBlocks.get(2).getContent().textValue(), "");
 	}
 	
 }

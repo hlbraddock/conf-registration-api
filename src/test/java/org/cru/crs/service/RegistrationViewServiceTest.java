@@ -1,10 +1,5 @@
 package org.cru.crs.service;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
-
-import org.codehaus.jackson.JsonProcessingException;
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.RegistrationViewEntity;
 import org.cru.crs.utils.ConferenceInfo;
@@ -14,6 +9,10 @@ import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
 public class RegistrationViewServiceTest extends AbstractTestWithDatabaseConnectivity
 {
@@ -27,7 +26,7 @@ public class RegistrationViewServiceTest extends AbstractTestWithDatabaseConnect
 	}
 	
 	@Test(groups="dbtest")
-	public void testGetDataViewById() throws JsonProcessingException, IOException
+	public void testGetDataViewById() throws IOException
 	{
 		RegistrationViewEntity noCats = registrationViewService.getRegistrationViewById(UUID.fromString("11cfdedf-febc-4011-9b48-44d36bf94997"));
 		
@@ -49,7 +48,7 @@ public class RegistrationViewServiceTest extends AbstractTestWithDatabaseConnect
 	}
 	
 	@Test(groups="dbtest")
-	public void testInsertDataView() throws JsonProcessingException, IOException
+	public void testInsertDataView() throws IOException
 	{
 		UUID idForThisTest = UUID.randomUUID();
 		
@@ -107,7 +106,7 @@ public class RegistrationViewServiceTest extends AbstractTestWithDatabaseConnect
 		}
 	}
 
-	private RegistrationViewEntity createFakeDataView(UUID id) throws JsonProcessingException, IOException
+	private RegistrationViewEntity createFakeDataView(UUID id) throws IOException
 	{
 		RegistrationViewEntity dataView = new RegistrationViewEntity();
 		

@@ -1,10 +1,12 @@
 package org.cru.crs.utils;
 
-import java.io.IOException;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import java.io.IOException;
 
 /**
  * @author leebraddock
@@ -47,6 +49,6 @@ public class JsonNodeHelper
 	{
 		ObjectMapper objectMapper = new ObjectMapper();
 
-		return objectMapper.readValue(jsonNode, tClass);
+		return objectMapper.treeToValue(jsonNode, tClass);
 	}
 }

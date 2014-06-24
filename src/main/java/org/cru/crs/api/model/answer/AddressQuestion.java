@@ -1,7 +1,7 @@
 package org.cru.crs.api.model.answer;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.ccci.util.strings.Strings;
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class AddressQuestion
 {

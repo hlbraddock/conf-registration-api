@@ -1,12 +1,12 @@
 package org.cru.crs.api.exception;
 
+import org.apache.log4j.Logger;
+import org.jboss.resteasy.spi.ApplicationException;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-
-import org.apache.log4j.Logger;
-import org.jboss.resteasy.spi.ApplicationException;
 
 @Provider
 public class UncaughtExceptionMapper implements ExceptionMapper<ApplicationException>

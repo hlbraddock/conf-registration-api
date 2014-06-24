@@ -1,7 +1,5 @@
 package org.cru.crs.service;
 
-import java.util.List;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.ConferenceEntity;
@@ -11,6 +9,8 @@ import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.List;
 
 
 /**

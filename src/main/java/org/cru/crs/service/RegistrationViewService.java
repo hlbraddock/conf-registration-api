@@ -1,17 +1,16 @@
 package org.cru.crs.service;
 
-import java.util.List;
-import java.util.UUID;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.RegistrationViewEntity;
 import org.sql2o.Connection;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import java.util.List;
+import java.util.UUID;
 
 @RequestScoped
 public class RegistrationViewService

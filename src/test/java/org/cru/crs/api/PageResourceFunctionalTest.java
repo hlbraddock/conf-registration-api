@@ -1,7 +1,5 @@
 package org.cru.crs.api;
 
-import java.util.UUID;
-
 import org.cru.crs.api.client.PageResourceClient;
 import org.cru.crs.api.model.Page;
 import org.cru.crs.utils.Environment;
@@ -10,6 +8,8 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.UUID;
 
 /**
  * This test requires an EE app server to be running to test the endpoint/resource

@@ -1,8 +1,7 @@
 package org.cru.crs.auth.model;
 
-import org.cru.crs.auth.AuthenticationProviderType;
-
 import edu.yale.its.tp.cas.client.CASReceipt;
+import org.cru.crs.auth.AuthenticationProviderType;
 
 public class RelayUser extends AuthenticationProviderUser
 {

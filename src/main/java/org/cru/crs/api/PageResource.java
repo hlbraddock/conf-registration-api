@@ -1,6 +1,10 @@
 package org.cru.crs.api;
 
-import java.util.UUID;
+import org.cru.crs.api.model.Page;
+import org.cru.crs.auth.CrsUserService;
+import org.cru.crs.model.PageEntity;
+import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.PageService;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -12,12 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.cru.crs.api.model.Page;
-import org.cru.crs.auth.CrsUserService;
-import org.cru.crs.model.PageEntity;
-import org.cru.crs.service.ConferenceService;
-import org.cru.crs.service.PageService;
+import java.util.UUID;
 
 @Path("/pages/{pageId}")
 public class PageResource extends TransactionalResource

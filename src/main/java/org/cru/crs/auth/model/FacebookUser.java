@@ -1,6 +1,6 @@
 package org.cru.crs.auth.model;
 
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.cru.crs.auth.AuthenticationProviderType;
 
 /**

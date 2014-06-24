@@ -1,14 +1,13 @@
 package org.cru.crs.service;
 
-import java.util.UUID;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.model.queries.UserQueries;
 import org.jboss.logging.Logger;
 import org.sql2o.Connection;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.UUID;
 
 /**
  * Created with IntelliJ IDEA.

@@ -2,8 +2,8 @@ package org.cru.crs.payment.authnet;
 
 import org.cru.crs.payment.authnet.transaction.AuthCapture;
 import org.cru.crs.payment.authnet.transaction.Credit;
-import org.cru.crs.payment.authnet.transaction.Void;
 import org.cru.crs.payment.authnet.transaction.Transaction;
+import org.cru.crs.payment.authnet.transaction.Void;
 
 
 public class CreditCardMethod implements Method

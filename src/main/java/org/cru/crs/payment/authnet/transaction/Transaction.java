@@ -18,12 +18,6 @@
  *******************************************************************************/
 package org.cru.crs.payment.authnet.transaction;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.cru.crs.payment.authnet.AuthnetResponse;
 import org.cru.crs.payment.authnet.AuthnetTransactionException;
@@ -36,6 +30,12 @@ import org.cru.crs.payment.authnet.model.GatewayConfiguration;
 import org.cru.crs.payment.authnet.model.Invoice;
 import org.cru.crs.payment.authnet.model.Merchant;
 import org.scribe.utils.Preconditions;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public abstract class Transaction
 {

@@ -1,9 +1,5 @@
 package org.cru.crs.auth.authz;
 
-import java.util.UUID;
-
-import javax.inject.Inject;
-
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.jaxrs.UnauthorizedException;
@@ -12,6 +8,9 @@ import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.RegistrationService;
+
+import javax.inject.Inject;
+import java.util.UUID;
 
 public class AuthorizationService
 {

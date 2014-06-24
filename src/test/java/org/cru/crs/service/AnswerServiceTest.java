@@ -1,16 +1,16 @@
 package org.cru.crs.service;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
-
-import org.codehaus.jackson.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
 public class AnswerServiceTest extends AbstractTestWithDatabaseConnectivity
 {
@@ -28,7 +28,7 @@ public class AnswerServiceTest extends AbstractTestWithDatabaseConnectivity
 	}
 
 	@Test(groups="dbtest")
-	public void testGetAnswerById() throws JsonProcessingException, IOException
+	public void testGetAnswerById() throws IOException
 	{
 		AnswerEntity answer = answerService.getAnswerBy(answerId);
 		
@@ -41,7 +41,7 @@ public class AnswerServiceTest extends AbstractTestWithDatabaseConnectivity
 	}
 
 	@Test(groups="dbtest")
-	public void testGetAllAnswersForRegistration() throws JsonProcessingException, IOException
+	public void testGetAllAnswersForRegistration() throws IOException
 	{
 		List<AnswerEntity> answers = answerService.getAllAnswersForRegistration(registrationId);
 		
@@ -55,7 +55,7 @@ public class AnswerServiceTest extends AbstractTestWithDatabaseConnectivity
 	}
 
 	@Test(groups="dbtest")
-	public void testGetAllAnswersForBlock() throws JsonProcessingException, IOException
+	public void testGetAllAnswersForBlock() throws IOException
 	{
 		List<AnswerEntity> answers = answerService.getAllAnswersForBlock(blockId);
 		
@@ -69,7 +69,7 @@ public class AnswerServiceTest extends AbstractTestWithDatabaseConnectivity
 	}
 
 	@Test(groups="dbtest")
-	public void testUpdateAnswer() throws JsonProcessingException, IOException
+	public void testUpdateAnswer() throws  IOException
 	{		
 		AnswerEntity answerToUpdate = new AnswerEntity();
 		answerToUpdate.setId(answerId);

@@ -1,7 +1,5 @@
 package org.cru.crs.service;
 
-import java.util.UUID;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.UserEntity;
 import org.cru.crs.utils.UserInfo;
@@ -9,6 +7,8 @@ import org.sql2o.Sql2oException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.UUID;
 
 public class UserServiceTest extends AbstractTestWithDatabaseConnectivity
 {

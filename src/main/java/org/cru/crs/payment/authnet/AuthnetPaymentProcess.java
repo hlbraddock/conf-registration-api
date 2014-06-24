@@ -1,9 +1,5 @@
 package org.cru.crs.payment.authnet;
 
-import java.io.IOException;
-
-import javax.inject.Inject;
-
 import com.google.common.base.Preconditions;
 import org.apache.log4j.Logger;
 import org.cru.crs.api.model.Conference;
@@ -19,6 +15,9 @@ import org.cru.crs.payment.authnet.transaction.Void;
 import org.cru.crs.utils.CrsProperties;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import javax.inject.Inject;
+import java.io.IOException;
 
 @Authnet
 public class AuthnetPaymentProcess

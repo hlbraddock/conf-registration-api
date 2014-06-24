@@ -1,8 +1,5 @@
 package org.cru.crs.process;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 import org.ccci.util.time.Clock;
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.model.Registration;
@@ -25,6 +22,9 @@ import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 public class UpdateRegistrationProcessTest extends AbstractTestWithDatabaseConnectivity
 {

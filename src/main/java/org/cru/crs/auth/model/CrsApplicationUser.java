@@ -1,8 +1,8 @@
 package org.cru.crs.auth.model;
 
-import java.util.UUID;
-
 import org.cru.crs.auth.AuthenticationProviderType;
+
+import java.util.UUID;
 
 public class CrsApplicationUser implements java.io.Serializable
 {

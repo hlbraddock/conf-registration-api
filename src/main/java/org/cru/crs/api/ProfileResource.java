@@ -1,5 +1,14 @@
 package org.cru.crs.api;
 
+import org.cru.crs.api.model.Profile;
+import org.cru.crs.api.model.ProfilePlus;
+import org.cru.crs.auth.CrsUserService;
+import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.ProfileEntity;
+import org.cru.crs.service.ProfileService;
+import org.cru.crs.utils.Simply;
+import org.jboss.logging.Logger;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -10,15 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.cru.crs.api.model.Profile;
-import org.cru.crs.api.model.ProfilePlus;
-import org.cru.crs.auth.CrsUserService;
-import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.ProfileEntity;
-import org.cru.crs.service.ProfileService;
-import org.cru.crs.utils.Simply;
-import org.jboss.logging.Logger;
 
 @Path("/profile")
 @RequestScoped

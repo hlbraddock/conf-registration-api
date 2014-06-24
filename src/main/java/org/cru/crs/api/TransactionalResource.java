@@ -1,15 +1,13 @@
 package org.cru.crs.api;
 
-import java.lang.reflect.InvocationTargetException;
+import com.google.common.base.Throwables;
+import org.sql2o.Connection;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
-
-import org.sql2o.Connection;
-
-import com.google.common.base.Throwables;
+import java.lang.reflect.InvocationTargetException;
 
 @RequestScoped
 public class TransactionalResource

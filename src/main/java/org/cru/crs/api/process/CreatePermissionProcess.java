@@ -1,12 +1,5 @@
 package org.cru.crs.api.process;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.mail.MessagingException;
-
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -17,6 +10,12 @@ import org.cru.crs.service.UserService;
 import org.cru.crs.utils.AuthCodeGenerator;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.MailService;
+
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.UUID;
 
 public class CreatePermissionProcess
 {

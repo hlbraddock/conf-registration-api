@@ -1,7 +1,5 @@
 package org.cru.crs.auth;
 
-import javax.inject.Inject;
-
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Session;
 import org.cru.crs.auth.model.CrsApplicationUser;
@@ -14,6 +12,8 @@ import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
+
+import javax.inject.Inject;
 
 public class CrsUserService
 {

@@ -1,9 +1,9 @@
 package org.cru.crs.model;
 
-import java.util.UUID;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import java.util.UUID;
 
 public class PageEntity implements java.io.Serializable
 {

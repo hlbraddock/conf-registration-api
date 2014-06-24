@@ -1,5 +1,7 @@
 package org.cru.crs.payment.authnet.model;
 
+import com.google.common.base.Preconditions;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -7,8 +9,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.base.Preconditions;
 
 public class CreditCard
 {

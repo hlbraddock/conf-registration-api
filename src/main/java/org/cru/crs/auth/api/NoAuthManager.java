@@ -1,17 +1,16 @@
 package org.cru.crs.auth.api;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.cru.crs.auth.model.BasicNoAuthUser;
+import org.cru.crs.model.SessionEntity;
+import org.cru.crs.utils.AuthCodeGenerator;
 
 import javax.ejb.Stateless;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-
-import org.cru.crs.auth.model.BasicNoAuthUser;
-import org.cru.crs.model.SessionEntity;
-import org.cru.crs.utils.AuthCodeGenerator;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Stateless
 @Path("/auth/none")
