@@ -1,13 +1,7 @@
 package org.cru.crs.api;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.UUID;
-
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.JsonNode;
+import com.fasterxml.jackson.map.ObjectMapper;
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.ConferenceResourceClient;
@@ -28,6 +22,12 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.UUID;
 
 @Test(groups="functional-tests")
 public class RegistrationResourceFunctionalTest  extends AbstractTestWithDatabaseConnectivity

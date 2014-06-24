@@ -1,14 +1,8 @@
 package org.cru.crs.api.model;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.JsonParseException;
+import com.fasterxml.jackson.JsonProcessingException;
+import com.fasterxml.jackson.map.ObjectMapper;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
@@ -16,6 +10,12 @@ import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.collections.Maps;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class ConferenceDataTransferTest
 {

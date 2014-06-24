@@ -1,7 +1,5 @@
 package org.cru.crs.api;
 
-import java.util.UUID;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.PermissionResourceClient;
 import org.cru.crs.api.model.Permission;
@@ -19,6 +17,8 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.UUID;
 
 public class PermissionResourceFunctionalTest  extends AbstractTestWithDatabaseConnectivity
 {

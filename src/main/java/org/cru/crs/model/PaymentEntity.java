@@ -1,10 +1,10 @@
 package org.cru.crs.model;
 
+import org.joda.time.DateTime;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
-
-import org.joda.time.DateTime;
 
 public class PaymentEntity implements Serializable
 {

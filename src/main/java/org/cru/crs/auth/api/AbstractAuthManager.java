@@ -1,7 +1,5 @@
 package org.cru.crs.auth.api;
 
-import javax.inject.Inject;
-
 import org.ccci.util.time.Clock;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.AuthenticationProviderUser;
@@ -18,6 +16,7 @@ import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
 

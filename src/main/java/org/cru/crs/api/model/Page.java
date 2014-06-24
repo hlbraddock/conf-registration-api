@@ -1,15 +1,13 @@
 package org.cru.crs.api.model;
 
-import java.util.List;
-import java.util.UUID;
-
-import javassist.expr.NewArray;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.testng.collections.Lists;
+
+import java.util.List;
+import java.util.UUID;
 
 public class Page implements java.io.Serializable
 {

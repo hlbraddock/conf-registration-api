@@ -1,14 +1,13 @@
 package org.cru.crs.service;
 
-import java.util.UUID;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.queries.AuthenticationProviderQueries;
 import org.sql2o.Connection;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.UUID;
 
 @RequestScoped
 public class AuthenticationProviderService

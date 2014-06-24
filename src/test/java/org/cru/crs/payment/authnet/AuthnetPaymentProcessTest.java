@@ -1,10 +1,5 @@
 package org.cru.crs.payment.authnet;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Map;
-import java.util.UUID;
-
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
@@ -17,6 +12,11 @@ import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.CrsPropertiesFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.UUID;
 
 public class AuthnetPaymentProcessTest
 {

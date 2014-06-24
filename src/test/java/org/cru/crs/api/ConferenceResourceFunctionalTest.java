@@ -1,16 +1,8 @@
 package org.cru.crs.api;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import com.google.common.base.Strings;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.JsonNode;
+import com.fasterxml.jackson.map.ObjectMapper;
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.model.Block;
@@ -51,6 +43,14 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * This test requires an EE app server to be running to test the endpoint/resource

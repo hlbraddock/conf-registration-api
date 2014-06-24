@@ -1,17 +1,15 @@
 package org.cru.crs.redegg;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
+import com.google.common.collect.ImmutableList;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.redegg.recording.api.NoOpParameterSanitizer;
 import org.cru.redegg.recording.api.ParameterSanitizer;
 import org.cru.redegg.reporting.errbit.ErrbitConfig;
 
-import com.google.common.collect.ImmutableList;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class RedEggConfig
 {

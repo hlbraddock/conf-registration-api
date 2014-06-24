@@ -1,9 +1,5 @@
 package org.cru.crs.process;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
@@ -24,6 +20,10 @@ import org.cru.crs.utils.ServiceFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 public class RetrieveConferenceProcessTest extends AbstractTestWithDatabaseConnectivity
 {

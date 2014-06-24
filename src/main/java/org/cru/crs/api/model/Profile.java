@@ -1,7 +1,8 @@
 package org.cru.crs.api.model;
 
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.ProfileEntity;

@@ -1,7 +1,5 @@
 package org.cru.crs.model.queries;
 
-import org.ccci.util.NotImplementedException;
-
 public class ConferenceQueries implements BasicQueries
 {
 	

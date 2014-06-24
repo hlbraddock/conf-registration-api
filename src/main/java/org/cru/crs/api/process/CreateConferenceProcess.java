@@ -1,9 +1,5 @@
 package org.cru.crs.api.process;
 
-import java.util.UUID;
-
-import javax.inject.Inject;
-
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Permission;
@@ -13,6 +9,9 @@ import org.cru.crs.model.UserEntity;
 import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PermissionService;
 import org.cru.crs.service.UserService;
+
+import javax.inject.Inject;
+import java.util.UUID;
 
 public class CreateConferenceProcess
 {

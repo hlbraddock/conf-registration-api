@@ -1,16 +1,16 @@
 package org.cru.crs.service;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
-
-import org.codehaus.jackson.JsonProcessingException;
+import com.fasterxml.jackson.JsonProcessingException;
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
 public class AnswerServiceTest extends AbstractTestWithDatabaseConnectivity
 {

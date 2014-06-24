@@ -1,12 +1,8 @@
 package org.cru.crs.api.model;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.BlockEntity;
@@ -15,6 +11,11 @@ import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PageEntity;
 import org.joda.time.DateTime;
 import org.testng.collections.Lists;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class Conference implements java.io.Serializable
 {

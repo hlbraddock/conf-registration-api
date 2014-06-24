@@ -1,10 +1,7 @@
 package org.cru.crs.api;
 
-import java.io.IOException;
-import java.util.UUID;
-
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.JsonNode;
+import com.fasterxml.jackson.map.ObjectMapper;
 import org.cru.crs.api.client.AnswerResourceClient;
 import org.cru.crs.api.client.RegistrationResourceClient;
 import org.cru.crs.api.model.Answer;
@@ -15,6 +12,9 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.util.UUID;
 
 @Test(groups="functional-tests")
 public class AnswerResourceFunctionalTest

@@ -1,10 +1,10 @@
 package org.cru.crs.model;
 
-import java.util.UUID;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import java.util.UUID;
 
 public class BlockEntity implements java.io.Serializable
 {

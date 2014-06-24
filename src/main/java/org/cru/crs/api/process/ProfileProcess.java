@@ -1,10 +1,9 @@
 package org.cru.crs.api.process;
 
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.ccci.util.strings.Strings;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
-import org.ccci.util.strings.Strings;
-
 import org.cru.crs.api.model.answer.AddressQuestion;
 import org.cru.crs.api.model.answer.BlockType;
 import org.cru.crs.api.model.answer.DateQuestion;

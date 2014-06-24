@@ -1,11 +1,6 @@
 package org.cru.crs.cdi;
 
-import java.sql.SQLException;
-
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
+import com.google.common.base.Throwables;
 import org.cru.crs.model.PaymentType;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.model.ProfileType;
@@ -19,7 +14,10 @@ import org.sql2o.converters.Convert;
 import org.sql2o.converters.ConverterException;
 import org.sql2o.converters.EnumConverter;
 
-import com.google.common.base.Throwables;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import java.sql.SQLException;
 
 /**
  * This producer will now live the length of the request, and return the same Sql2o Connection object for each request.  This allows

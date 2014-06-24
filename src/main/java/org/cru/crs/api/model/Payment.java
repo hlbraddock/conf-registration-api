@@ -1,19 +1,19 @@
 package org.cru.crs.api.model;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Lists;
 
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.PaymentEntity;
 import org.cru.crs.model.PaymentType;
 import org.joda.time.DateTime;
 
-import com.google.common.collect.Lists;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 public class Payment implements Serializable
 {

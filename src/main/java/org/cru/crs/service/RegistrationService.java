@@ -1,17 +1,16 @@
 package org.cru.crs.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.model.queries.RegistrationQueries;
 import org.sql2o.Connection;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * User: lee.braddock

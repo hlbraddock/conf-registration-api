@@ -1,6 +1,7 @@
 package org.cru.crs.utils;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.jboss.logging.Logger;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class Simply
 
 		try
 		{
-			logger.info(new ObjectMapper().defaultPrettyPrintingWriter().writeValueAsString(object));
+			logger.info(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(object));
 		}
 		catch(IOException e)
 		{

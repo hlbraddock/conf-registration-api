@@ -1,8 +1,8 @@
 package org.cru.crs.utils;
 
-import java.security.SecureRandom;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.UUID;
 
 public class AuthCodeGenerator

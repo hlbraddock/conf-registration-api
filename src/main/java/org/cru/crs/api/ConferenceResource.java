@@ -1,31 +1,5 @@
 package org.cru.crs.api;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-import javax.mail.MessagingException;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
 import org.ccci.util.strings.Strings;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
@@ -60,8 +34,32 @@ import org.cru.crs.service.UserService;
 import org.cru.crs.utils.IdComparer;
 import org.cru.crs.utils.Simply;
 import org.jboss.logging.Logger;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.testng.collections.Lists;
+
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Path("/conferences")
 public class ConferenceResource extends TransactionalResource

@@ -1,10 +1,10 @@
 package org.cru.crs.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Strings;
-import org.codehaus.jackson.JsonNode;
 import org.cru.crs.api.model.Answer;
-import org.cru.crs.api.model.answer.BlockType;
 import org.cru.crs.api.model.answer.AddressQuestion;
+import org.cru.crs.api.model.answer.BlockType;
 import org.cru.crs.api.model.answer.DateQuestion;
 import org.cru.crs.api.model.answer.NameQuestion;
 import org.cru.crs.utils.JsonNodeHelper;
@@ -339,22 +339,22 @@ public class ProfileEntity implements java.io.Serializable
 							switch (blockEntity.getProfileType())
 							{
 								case CAMPUS:
-									campus = answer.getValue().getTextValue();
+									campus = answer.getValue().textValue();
 									break;
 								case DORMITORY:
-									dormitory = answer.getValue().getTextValue();
+									dormitory = answer.getValue().textValue();
 									break;
 								case EMAIL:
-									email = answer.getValue().getTextValue();
+									email = answer.getValue().textValue();
 									break;
 								case GENDER:
-									gender = answer.getValue().getTextValue();
+									gender = answer.getValue().textValue();
 									break;
 								case PHONE:
-									phone = answer.getValue().getTextValue();
+									phone = answer.getValue().textValue();
 									break;
 								case YEAR_IN_SCHOOL:
-									yearInSchool = answer.getValue().getTextValue();
+									yearInSchool = answer.getValue().textValue();
 									break;
 							}
 						}

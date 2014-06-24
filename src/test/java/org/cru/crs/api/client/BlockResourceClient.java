@@ -1,6 +1,7 @@
 package org.cru.crs.api.client;
 
-import java.util.UUID;
+import org.cru.crs.api.model.Block;
+import org.jboss.resteasy.client.ClientResponse;
 
 import javax.ejb.Stateless;
 import javax.ws.rs.GET;
@@ -8,9 +9,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import org.cru.crs.api.model.Block;
-import org.jboss.resteasy.client.ClientResponse;
+import java.util.UUID;
 
 @Stateless
 @Path("/blocks/{blockId}")

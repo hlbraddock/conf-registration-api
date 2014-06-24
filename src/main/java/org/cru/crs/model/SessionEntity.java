@@ -1,8 +1,8 @@
 package org.cru.crs.model;
 
-import java.util.UUID;
-
 import org.joda.time.DateTime;
+
+import java.util.UUID;
 
 
 public class SessionEntity implements java.io.Serializable

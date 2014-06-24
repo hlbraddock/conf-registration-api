@@ -1,8 +1,7 @@
 package org.cru.crs.payment.authnet.transaction;
 
-import org.cru.crs.payment.authnet.CreditCardMethod;
-
 import com.google.common.base.Preconditions;
+import org.cru.crs.payment.authnet.CreditCardMethod;
 
 
 public final class Credit extends Transaction

@@ -1,14 +1,14 @@
 package org.cru.crs.service;
 
-import java.util.List;
-import java.util.UUID;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.utils.JsonNodeHelper;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.List;
+import java.util.UUID;
 
 public class BlockServiceTest extends AbstractTestWithDatabaseConnectivity
 {

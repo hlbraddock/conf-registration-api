@@ -1,16 +1,16 @@
 package org.cru.crs.api.model;
 
-import java.util.UUID;
-
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.cru.crs.jaxrs.JsonStandardDateTimeDeserializer;
 import org.cru.crs.jaxrs.JsonStandardDateTimeSerializer;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
 import org.joda.time.DateTime;
+
+import java.util.UUID;
 
 public class Permission implements java.io.Serializable
 {

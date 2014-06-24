@@ -1,8 +1,20 @@
 package org.cru.crs.api;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.UUID;
+import org.cru.crs.api.model.Answer;
+import org.cru.crs.api.model.Registration;
+import org.cru.crs.auth.CrsUserService;
+import org.cru.crs.auth.authz.AuthorizationService;
+import org.cru.crs.auth.authz.OperationType;
+import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.AnswerEntity;
+import org.cru.crs.model.RegistrationEntity;
+import org.cru.crs.service.AnswerService;
+import org.cru.crs.service.BlockService;
+import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.RegistrationService;
+import org.cru.crs.utils.IdComparer;
+import org.cru.crs.utils.Simply;
+import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -20,22 +32,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.cru.crs.api.model.Answer;
-import org.cru.crs.api.model.Registration;
-import org.cru.crs.auth.CrsUserService;
-import org.cru.crs.auth.authz.AuthorizationService;
-import org.cru.crs.auth.authz.OperationType;
-import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.AnswerEntity;
-import org.cru.crs.model.RegistrationEntity;
-import org.cru.crs.service.AnswerService;
-import org.cru.crs.service.BlockService;
-import org.cru.crs.service.ConferenceService;
-import org.cru.crs.service.RegistrationService;
-import org.cru.crs.utils.IdComparer;
-import org.cru.crs.utils.Simply;
-import org.jboss.logging.Logger;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.UUID;
 
 /**
  * User: lee.braddock

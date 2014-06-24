@@ -1,11 +1,11 @@
 package org.cru.crs.model;
 
-import java.io.Serializable;
-import java.util.UUID;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
+
+import java.io.Serializable;
+import java.util.UUID;
 
 public class PermissionEntity implements Serializable
 {

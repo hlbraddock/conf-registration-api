@@ -1,9 +1,9 @@
 package org.cru.crs.api.model;
 
-import java.util.UUID;
-
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.cru.crs.model.RegistrationViewEntity;
+
+import java.util.UUID;
 
 public class RegistrationView implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;

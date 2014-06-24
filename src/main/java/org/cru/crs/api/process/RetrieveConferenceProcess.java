@@ -1,13 +1,5 @@
 package org.cru.crs.api.process;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.inject.Inject;
-
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.utils.RegistrationWindowCalculator;
@@ -21,6 +13,13 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PageService;
 import org.cru.crs.service.RegistrationService;
 import org.testng.collections.Maps;
+
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class RetrieveConferenceProcess
 {

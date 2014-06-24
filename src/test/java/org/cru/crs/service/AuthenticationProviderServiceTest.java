@@ -1,7 +1,5 @@
 package org.cru.crs.service;
 
-import java.util.UUID;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.RelayUser;
@@ -11,6 +9,8 @@ import org.cru.crs.utils.UserInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.UUID;
 
 /**
  * These tests are meant to be run on a fresh database.

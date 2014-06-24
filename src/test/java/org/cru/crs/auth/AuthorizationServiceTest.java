@@ -1,7 +1,5 @@
 package org.cru.crs.auth;
 
-import java.util.UUID;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
@@ -17,6 +15,8 @@ import org.cru.crs.utils.ServiceFactory;
 import org.cru.crs.utils.UserInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.UUID;
 
 public class AuthorizationServiceTest extends AbstractTestWithDatabaseConnectivity
 {

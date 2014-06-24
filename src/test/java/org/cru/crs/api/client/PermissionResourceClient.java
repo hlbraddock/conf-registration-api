@@ -1,6 +1,7 @@
 package org.cru.crs.api.client;
 
-import java.util.UUID;
+import org.cru.crs.api.model.Permission;
+import org.jboss.resteasy.client.ClientResponse;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -11,10 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.cru.crs.api.model.Permission;
-import org.jboss.resteasy.client.ClientResponse;
+import java.util.UUID;
 
 @Path("/permissions")
 public interface PermissionResourceClient {

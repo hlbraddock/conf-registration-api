@@ -1,18 +1,16 @@
 package org.cru.crs.service;
 
 
-import java.util.List;
-import java.util.UUID;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
+import com.google.common.base.Preconditions;
 import org.ccci.util.NotImplementedException;
 import org.cru.crs.auth.model.CrsApplicationUser;
 import org.cru.crs.model.PaymentEntity;
 import org.sql2o.Connection;
 
-import com.google.common.base.Preconditions;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.UUID;
 
 @RequestScoped
 public class PaymentService

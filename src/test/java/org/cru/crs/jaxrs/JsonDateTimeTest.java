@@ -1,15 +1,15 @@
 package org.cru.crs.jaxrs;
 
-import java.io.IOException;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.JsonGenerationException;
+import com.fasterxml.jackson.JsonParseException;
+import com.fasterxml.jackson.map.JsonMappingException;
+import com.fasterxml.jackson.map.ObjectMapper;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 public class JsonDateTimeTest
 {

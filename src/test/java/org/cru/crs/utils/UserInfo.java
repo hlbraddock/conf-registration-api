@@ -1,9 +1,9 @@
 package org.cru.crs.utils;
 
-import java.util.UUID;
-
 import org.cru.crs.auth.AuthenticationProviderType;
 import org.cru.crs.auth.model.CrsApplicationUser;
+
+import java.util.UUID;
 
 public class UserInfo
 {

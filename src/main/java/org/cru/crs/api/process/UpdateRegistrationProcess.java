@@ -1,11 +1,5 @@
 package org.cru.crs.api.process;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Answer;
 import org.cru.crs.api.model.Registration;
@@ -19,6 +13,11 @@ import org.cru.crs.service.RegistrationService;
 import org.cru.crs.utils.CollectionUtils;
 import org.testng.collections.Lists;
 import org.testng.internal.annotations.Sets;
+
+import javax.inject.Inject;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 public class UpdateRegistrationProcess
 {

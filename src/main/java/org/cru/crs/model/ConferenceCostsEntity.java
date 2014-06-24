@@ -1,10 +1,10 @@
 package org.cru.crs.model;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 import com.google.common.base.Strings;
 import org.joda.time.DateTime;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 public class ConferenceCostsEntity
 {

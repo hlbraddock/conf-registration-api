@@ -1,6 +1,17 @@
 package org.cru.crs.api;
 
-import java.util.UUID;
+import org.cru.crs.api.model.Permission;
+import org.cru.crs.api.process.UpdatePermissionProcess;
+import org.cru.crs.auth.CrsUserService;
+import org.cru.crs.auth.authz.AuthorizationService;
+import org.cru.crs.auth.authz.OperationType;
+import org.cru.crs.auth.model.CrsApplicationUser;
+import org.cru.crs.model.PermissionEntity;
+import org.cru.crs.service.ConferenceService;
+import org.cru.crs.service.PermissionService;
+import org.cru.crs.utils.IdComparer;
+import org.cru.crs.utils.Simply;
+import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -15,19 +26,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.cru.crs.api.model.Permission;
-import org.cru.crs.api.process.UpdatePermissionProcess;
-import org.cru.crs.auth.CrsUserService;
-import org.cru.crs.auth.authz.AuthorizationService;
-import org.cru.crs.auth.authz.OperationType;
-import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.model.PermissionEntity;
-import org.cru.crs.service.ConferenceService;
-import org.cru.crs.service.PermissionService;
-import org.cru.crs.utils.IdComparer;
-import org.cru.crs.utils.Simply;
-import org.jboss.logging.Logger;
+import java.util.UUID;
 
 @Path("/permissions")
 public class PermissionResource extends TransactionalResource {

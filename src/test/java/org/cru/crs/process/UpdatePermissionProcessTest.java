@@ -1,9 +1,6 @@
 package org.cru.crs.process;
 
-import java.util.UUID;
-
 import junit.framework.Assert;
-
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.process.UpdatePermissionProcess;
 import org.cru.crs.model.PermissionEntity;
@@ -15,6 +12,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.UUID;
 
 public class UpdatePermissionProcessTest extends AbstractTestWithDatabaseConnectivity
 {

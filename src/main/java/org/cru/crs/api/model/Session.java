@@ -1,11 +1,11 @@
 package org.cru.crs.api.model;
 
-import java.util.UUID;
-
 import org.cru.crs.model.AuthenticationProviderIdentityEntity;
 import org.cru.crs.model.SessionEntity;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import java.util.UUID;
 
 public class Session implements java.io.Serializable
 {

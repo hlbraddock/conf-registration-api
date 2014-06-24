@@ -1,6 +1,6 @@
 package org.cru.crs.api.model;
 
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.cru.crs.model.AnswerEntity;
 
 import java.util.UUID;

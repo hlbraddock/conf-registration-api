@@ -1,7 +1,5 @@
 package org.cru.crs.api;
 
-import java.util.UUID;
-
 import org.cru.crs.api.client.BlockResourceClient;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.utils.Environment;
@@ -10,6 +8,8 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import java.util.UUID;
 
 @Test(groups="functional-tests")
 public class BlockResourceFunctionalTest

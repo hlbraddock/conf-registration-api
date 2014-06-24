@@ -1,20 +1,17 @@
 package org.cru.crs.api.utils;
 
-import java.math.BigDecimal;
-
-import javax.inject.Inject;
-
+import com.google.common.base.Preconditions;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.auth.authz.AuthorizationService;
 import org.cru.crs.auth.authz.OperationType;
 import org.cru.crs.auth.model.CrsApplicationUser;
-import org.cru.crs.jaxrs.UnauthorizedException;
 import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.RegistrationEntity;
 import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.service.ConferenceService;
 
-import com.google.common.base.Preconditions;
+import javax.inject.Inject;
+import java.math.BigDecimal;
 
 public class TotalDueBusinessLogic
 {

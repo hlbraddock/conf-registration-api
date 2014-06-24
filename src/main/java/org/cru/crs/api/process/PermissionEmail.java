@@ -1,10 +1,10 @@
 package org.cru.crs.api.process;
 
-import java.net.URL;
-
 import org.cru.crs.model.ConferenceEntity;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.model.UserEntity;
+
+import java.net.URL;
 
 public class PermissionEmail
 {

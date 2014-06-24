@@ -1,12 +1,6 @@
 package org.cru.crs.api.process;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.WebApplicationException;
-
+import com.google.common.base.Preconditions;
 import org.ccci.util.time.Clock;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
@@ -26,7 +20,11 @@ import org.cru.crs.service.ConferenceService;
 import org.cru.crs.service.PaymentService;
 import org.cru.crs.service.RegistrationService;
 
-import com.google.common.base.Preconditions;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.WebApplicationException;
+import java.math.BigDecimal;
+import java.util.UUID;
 
 public class PaymentProcessor
 {

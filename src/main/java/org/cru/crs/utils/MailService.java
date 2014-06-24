@@ -1,15 +1,14 @@
 package org.cru.crs.utils;
 
-import javax.inject.Inject;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-
 import com.google.common.collect.Sets;
 import org.ccci.util.mail.EmailAddress;
 import org.ccci.util.mail.MailMessage;
 import org.ccci.util.mail.MailMessageFactory;
 import org.ccci.util.strings.Strings;
 
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
 import java.util.Set;
 
 /**
