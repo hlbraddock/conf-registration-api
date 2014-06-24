@@ -1,8 +1,9 @@
 package org.cru.crs.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.fasterxml.jackson.JsonNode;
-import com.fasterxml.jackson.map.ObjectMapper;
+
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.ConferenceResourceClient;
 import org.cru.crs.api.model.Block;
@@ -663,7 +664,7 @@ public class ConferenceResourceFunctionalTest extends AbstractTestWithDatabaseCo
 			answerId = answerEntity.getId();
 
 			Assert.assertNotNull(answerEntity.getAnswer());
-			Assert.assertEquals(answerEntity.getAnswer().getTextValue(), UserInfo.Email.TestUser);
+			Assert.assertEquals(answerEntity.getAnswer().textValue(), UserInfo.Email.TestUser);
 		}
 		finally
 		{

@@ -1,9 +1,6 @@
 package org.cru.crs.jaxrs;
 
-import com.fasterxml.jackson.JsonGenerationException;
-import com.fasterxml.jackson.JsonParseException;
-import com.fasterxml.jackson.map.JsonMappingException;
-import com.fasterxml.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.utils.DateTimeCreaterHelper;
 import org.testng.Assert;
@@ -15,7 +12,7 @@ public class JsonDateTimeTest
 {
 
 	@Test(groups="unittest")
-	public void testSerializeDateTime() throws JsonGenerationException, JsonMappingException, IOException
+	public void testSerializeDateTime() throws IOException
 	{
 		Conference conf = new Conference();
 		conf.setEventStartTime(DateTimeCreaterHelper.createDateTime(2013, 4, 10, 0, 30, 45));
@@ -26,7 +23,7 @@ public class JsonDateTimeTest
 	}
 	
 	@Test(groups="unittest")
-	public void testDeserializeDateTime() throws JsonParseException, JsonMappingException, IOException
+	public void testDeserializeDateTime() throws IOException
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		

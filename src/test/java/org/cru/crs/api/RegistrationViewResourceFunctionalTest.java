@@ -1,6 +1,6 @@
 package org.cru.crs.api;
 
-import com.fasterxml.jackson.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.RegistrationViewResourceClient;
 import org.cru.crs.api.model.RegistrationView;
