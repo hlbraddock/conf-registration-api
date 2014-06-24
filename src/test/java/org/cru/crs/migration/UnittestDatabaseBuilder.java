@@ -17,7 +17,7 @@ public class UnittestDatabaseBuilder
 		Flyway flyway = new Flyway();
 
 		flyway.setDataSource(properties.getProperty("unittestDatabaseUrl"), properties.getProperty("unittestDatabaseUsername"), properties.getProperty("unittestDatabasePassword"));
-		flyway.setTarget("1.1.1");
+		flyway.setTarget("1.1.3");
 		flyway.setInitOnMigrate(true);
 
 		flyway.setLocations("db.migration.structural", "db.migration.seed");

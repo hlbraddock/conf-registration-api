@@ -48,8 +48,8 @@ public class CrsUserServiceTest extends AbstractTestWithDatabaseConnectivity
 		crsProperties = new CrsPropertiesFactory().get();
 		authenticationProviderService = new AuthenticationProviderService(sqlConnection);
 		userService = new UserService(sqlConnection);
-		profileService = new ProfileService(sqlConnection);
 		clock = new ClockImpl();
+		profileService = new ProfileService(sqlConnection, clock);
 
 		crsUserService = new CrsUserService();
 		crsUserService.sessionService = sessionService;

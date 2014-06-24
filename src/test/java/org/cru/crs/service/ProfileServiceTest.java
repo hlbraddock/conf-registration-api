@@ -2,6 +2,8 @@ package org.cru.crs.service;
 
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.model.ProfileEntity;
+import org.cru.crs.utils.ClockFactory;
+import org.cru.crs.utils.ClockImpl;
 import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -19,7 +21,7 @@ public class ProfileServiceTest extends AbstractTestWithDatabaseConnectivity
 	private void setupConnectionAndService()
 	{
 		refreshConnection();
-		profileService = new ProfileService(sqlConnection);
+		profileService = new ProfileService(sqlConnection, new ClockImpl());
 
 		UUID profileId = UUID.fromString("abcdc217-f918-4503-b3b3-85016f9883c1");
 		UUID userId = UUID.fromString("abcdca08-d7bc-4d92-967c-d82d9d312898");
@@ -70,6 +72,9 @@ public class ProfileServiceTest extends AbstractTestWithDatabaseConnectivity
 
 			Assert.assertNotNull(getProfileEntity);
 			assertEquals(getProfileEntity, profileEntity);
+
+			DateTime now = ClockFactory.getInstance().currentDateTime();
+			Assert.assertTrue((now.getMillis() - getProfileEntity.getCreatedTimestamp().getMillis()) < 10000) ;
 		}
 		finally
 		{
@@ -93,6 +98,9 @@ public class ProfileServiceTest extends AbstractTestWithDatabaseConnectivity
 			profileService.updateProfile(updateProfileEntity);
 			updateProfileEntity = profileService.getProfileBy(profileEntity.getId());
 			Assert.assertNotEquals(updateProfileEntity.getFirstName(), profileEntity.getFirstName());
+
+			DateTime now = ClockFactory.getInstance().currentDateTime();
+			Assert.assertTrue((now.getMillis() - updateProfileEntity.getUpdatedTimestamp().getMillis()) < 10000) ;
 		}
 		finally
 		{
