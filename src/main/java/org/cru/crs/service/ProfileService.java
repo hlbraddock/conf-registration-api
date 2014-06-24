@@ -1,5 +1,6 @@
 package org.cru.crs.service;
 
+import org.ccci.util.time.Clock;
 import org.cru.crs.model.ProfileEntity;
 import org.cru.crs.model.queries.ProfileQueries;
 import org.sql2o.Connection;
@@ -12,6 +13,7 @@ import java.util.UUID;
 public class ProfileService
 {
 	Connection sqlConnection;
+	Clock clock;
 
 	ProfileQueries profileQueries = new ProfileQueries();
 
@@ -19,9 +21,10 @@ public class ProfileService
 	public ProfileService(){ }
 
     @Inject
-    public ProfileService(Connection sqlConnection)
+    public ProfileService(Connection sqlConnection, Clock clock)
     {
     	this.sqlConnection = sqlConnection;
+		this.clock = clock;
     }
 
 	public ProfileEntity getProfileBy(UUID uuid)
@@ -42,6 +45,8 @@ public class ProfileService
 
 	public void createProfile(ProfileEntity profileEntity)
     {
+		profileEntity.setCreatedTimestamp(clock.currentDateTime());
+
     	if(profileEntity.getId() == null)
     	{
     		profileEntity.setId(UUID.randomUUID());
@@ -64,11 +69,14 @@ public class ProfileService
 				.addParameter("campus", profileEntity.getCampus())
 				.addParameter("yearInSchool", profileEntity.getYearInSchool())
 				.addParameter("dormitory", profileEntity.getDormitory())
+				.addParameter("createdTimestamp", profileEntity.getCreatedTimestamp())
 				.executeUpdate();
 	}
 
 	public void updateProfile(ProfileEntity profileEntity)
 	{
+		profileEntity.setUpdatedTimestamp(clock.currentDateTime());
+
 		sqlConnection.createQuery(profileQueries.update())
 				.addParameter("id", profileEntity.getId())
 				.addParameter("email", profileEntity.getEmail())
@@ -85,6 +93,7 @@ public class ProfileService
 				.addParameter("campus", profileEntity.getCampus())
 				.addParameter("yearInSchool", profileEntity.getYearInSchool())
 				.addParameter("dormitory", profileEntity.getDormitory())
+				.addParameter("updatedTimestamp", profileEntity.getUpdatedTimestamp())
 				.executeUpdate();
 	}
 

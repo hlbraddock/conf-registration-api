@@ -36,6 +36,9 @@ public class ProfileEntity implements java.io.Serializable
 	private String address2;
 	private String zip;
 
+	private DateTime createdTimestamp;
+	private DateTime updatedTimestamp;
+
 	public ProfileEntity()
 	{
 	}
@@ -232,6 +235,26 @@ public class ProfileEntity implements java.io.Serializable
 		this.zip = zip;
 	}
 
+	public DateTime getCreatedTimestamp()
+	{
+		return createdTimestamp;
+	}
+
+	public void setCreatedTimestamp(DateTime createdTimestamp)
+	{
+		this.createdTimestamp = createdTimestamp;
+	}
+
+	public DateTime getUpdatedTimestamp()
+	{
+		return updatedTimestamp;
+	}
+
+	public void setUpdatedTimestamp(DateTime updatedTimestamp)
+	{
+		this.updatedTimestamp = updatedTimestamp;
+	}
+
 	public void set(ProfileEntity profileEntity)
 	{
 		if (profileEntity == null)
@@ -278,6 +301,9 @@ public class ProfileEntity implements java.io.Serializable
 
 		if (!Strings.isNullOrEmpty(profileEntity.getZip()))
 			zip = profileEntity.getZip();
+
+		createdTimestamp = profileEntity.getCreatedTimestamp();
+		updatedTimestamp = profileEntity.getUpdatedTimestamp();
 	}
 
 	private boolean hasProfileType(BlockEntity blockEntity)

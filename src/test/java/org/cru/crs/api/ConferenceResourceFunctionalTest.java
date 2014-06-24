@@ -96,7 +96,7 @@ public class ConferenceResourceFunctionalTest extends AbstractTestWithDatabaseCo
         pageService = ServiceFactory.createPageService(sqlConnection);
         registrationService = ServiceFactory.createRegistrationService(sqlConnection);
 
-		profileService = new ProfileService(sqlConnection);
+		profileService = new ProfileService(sqlConnection, new ClockImpl());
 		profileProcess = new ProfileProcess(blockService, profileService, pageService, ServiceFactory.createUserService(sqlConnection));
 
 		answerService = new AnswerService(sqlConnection);

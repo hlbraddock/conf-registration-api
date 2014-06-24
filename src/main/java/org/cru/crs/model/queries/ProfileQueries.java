@@ -31,7 +31,8 @@ public class ProfileQueries implements BasicQueries
 				"gender = :gender, " +
 				"campus = :campus, " +
 				"year_in_school = :yearInSchool, " +
-				"dormitory = :dormitory " +
+				"dormitory = :dormitory, " +
+				"updated_timestamp = :updatedTimestamp " +
 				 "WHERE " +
 				 "id = :id";
 	}
@@ -39,8 +40,8 @@ public class ProfileQueries implements BasicQueries
 	@Override
 	public String insert()
 	{
-		return "INSERT INTO profiles(id, user_id, email, first_name, last_name, phone, address1, address2, city, state, zip, birth_date, gender, campus, year_in_school, dormitory) VALUES " +
-				"(:id, :userId, :email, :firstName, :lastName, :phone, :address1, :address2, :city, :state, :zip, :birthDate, :gender, :campus, :yearInSchool, :dormitory)";
+		return "INSERT INTO profiles(id, user_id, email, first_name, last_name, phone, address1, address2, city, state, zip, birth_date, gender, campus, year_in_school, dormitory, created_timestamp) VALUES " +
+				"(:id, :userId, :email, :firstName, :lastName, :phone, :address1, :address2, :city, :state, :zip, :birthDate, :gender, :campus, :yearInSchool, :dormitory, :createdTimestamp)";
 	}
 
 	@Override

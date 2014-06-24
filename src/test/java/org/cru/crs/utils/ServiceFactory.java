@@ -16,7 +16,6 @@ import org.sql2o.Connection;
 
 public class ServiceFactory
 {
-	
 	public static ConferenceService createConferenceService(Connection sqlConnection)
 	{
 		return new ConferenceService(sqlConnection,
@@ -73,7 +72,7 @@ public class ServiceFactory
 
 	public static ProfileService createProfileService(Connection sqlConnection)
 	{
-		return new ProfileService(sqlConnection);
+		return new ProfileService(sqlConnection, ClockFactory.getInstance());
 	}
 	
 	public static AuthorizationService createAuthorizationService(Connection sqlConnection)
