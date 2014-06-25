@@ -7,7 +7,7 @@ Beta.
 Outstanding tasks: https://trello.com/b/i7500iKQ/new-crs
 
 ## Website
-https://www.eventhub.org
+https://www.eventregistrationtool.com
 
 ## License
 
