@@ -62,6 +62,7 @@ public class CreateConferenceProcess
 														.setUserId(loggedInUser.getId())
 														.setPermissionLevel(PermissionLevel.CREATOR)
 														.setTimestamp(clock.currentDateTime())
+														.setEmailAddress(loggedInUser.getAuthProviderUsername())
 														.toDbPermissionEntity());
 	}
 }

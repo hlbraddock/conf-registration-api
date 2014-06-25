@@ -212,9 +212,10 @@ public class ConferenceResourceFunctionalTest extends AbstractTestWithDatabaseCo
 			Assert.assertNotNull(newPermission);
 			
 			permissionId = newPermission.getId();
-			
+
 			Assert.assertEquals(newPermission.getPermissionLevel(), PermissionLevel.CREATOR);
-			
+			Assert.assertEquals(newPermission.getEmailAddress(), UserInfo.Email.TestUser);
+
 		}
 		finally
 		{
