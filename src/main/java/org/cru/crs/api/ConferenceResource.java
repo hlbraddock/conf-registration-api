@@ -634,7 +634,7 @@ public class ConferenceResource extends TransactionalResource
      * @return
      */
     @DELETE
-    @Path("/{conferenceId}/delete")
+    @Path("/{conferenceId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteConference(@PathParam(value = "conferenceId") UUID conferenceId,
                                      @HeaderParam(value="Authorization") String authCode)
