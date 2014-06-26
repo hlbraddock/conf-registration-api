@@ -51,7 +51,7 @@ public class NotificationProcess
 		this.retrieveRegistrationProcess = retrieveRegistrationProcess;
 	}
 
-	public void registrationComplete(CrsApplicationUser loggedInUser, Registration registration, ConferenceEntity conferenceEntity)
+	public void registrationComplete(Registration registration, ConferenceEntity conferenceEntity)
 	{
 		if(isServiceDisabled())
 			return;
@@ -59,7 +59,7 @@ public class NotificationProcess
 		// re-retrieve the registration so as to ensure you have payment info
 		registration = retrieveRegistrationProcess.get(registration.getId());
 
-		UserEntity userEntity = userService.getUserById(loggedInUser.getId());
+		UserEntity userEntity = userService.getUserById(registration.getUserId());
 
 		ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(conferenceEntity.getConferenceCostsId());
 
@@ -83,7 +83,7 @@ public class NotificationProcess
 		}
 	}
 
-	public void paymentReceipt(Payment payment, CrsApplicationUser loggedInUser)
+	public void paymentReceipt(Payment payment)
 	{
 		if(isServiceDisabled())
 			return;
@@ -98,7 +98,7 @@ public class NotificationProcess
 
 		ConferenceEntity conferenceEntity = conferenceService.fetchConferenceBy(registration.getConferenceId());
 
-		UserEntity userEntity = userService.getUserById(loggedInUser.getId());
+        UserEntity userEntity = userService.getUserById(registration.getUserId());
 
 		// send the registrant an email notifying them of payment due
 		try
@@ -136,7 +136,9 @@ public class NotificationProcess
 	{
 		Set<String> emails = Sets.newHashSet();
 
-		if(!Strings.isNullOrEmpty(testRecipientEmail()))
+        logger.info("User email is: " + userEntity.getEmailAddress());
+
+        if(!Strings.isNullOrEmpty(testRecipientEmail()))
 		{
 			emails.add(testRecipientEmail());
 			return emails;

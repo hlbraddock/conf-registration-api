@@ -168,7 +168,7 @@ public class RegistrationResource extends TransactionalResource
 		// notify of registration info (just once)
 		if(registration.getCompleted() && !currentRegistrationEntity.getCompleted())
 		{
-			notificationProcess.registrationComplete(crsLoggedInUser, registration, conferenceEntityForUpdatedRegistration);
+			notificationProcess.registrationComplete(registration, conferenceEntityForUpdatedRegistration);
 		}
 
 		return Response.noContent().build();

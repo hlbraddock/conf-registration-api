@@ -126,7 +126,7 @@ public class PaymentResource extends TransactionalResource
 
 		paymentProcessor.processPayment(payment, loggedInUser);
 
-		notificationProcess.paymentReceipt(payment, loggedInUser);
+		notificationProcess.paymentReceipt(payment);
 
 		return Response.status(Status.CREATED)
 				.location(new URI("/conferences/" + payment.getId()))
@@ -174,7 +174,7 @@ public class PaymentResource extends TransactionalResource
 
 		paymentProcessor.processPayment(payment, loggedInUser);
 
-		notificationProcess.paymentReceipt(payment, loggedInUser);
+		notificationProcess.paymentReceipt(payment);
 
 		return Response.noContent().build();
 	}
