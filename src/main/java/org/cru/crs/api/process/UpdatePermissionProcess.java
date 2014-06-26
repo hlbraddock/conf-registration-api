@@ -7,8 +7,11 @@ import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.service.PermissionService;
 
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
+import java.util.List;
+import java.util.UUID;
 
 public class UpdatePermissionProcess
 {
@@ -24,11 +27,45 @@ public class UpdatePermissionProcess
 	}
 
 	
-	public void updatePermission(Permission existingPermission, CrsApplicationUser crsLoggedInUser)
-	{	
-		existingPermission.setTimestamp(clock.currentDateTime());
-		
-		permissionService.updatePermission(existingPermission.toDbPermissionEntity());
+	public void updatePermission(Permission updatedPermission)
+	{
+		boolean conferenceHasAtLeastOneOtherFullOrCreatorPermission = doesConferenceHaveOtherFullOrCreatorPermissions(updatedPermission);
+
+		//If the conference has a full or creator permission, or this one is a full or creator, then we can update
+		if(updatedPermission.getPermissionLevel().isAdminOrAbove() || conferenceHasAtLeastOneOtherFullOrCreatorPermission)
+		{
+			updatedPermission.setTimestamp(clock.currentDateTime());
+
+			permissionService.updatePermission(updatedPermission.toDbPermissionEntity());
+		}
+		//otherwise this conference will not have a full or creator permission and that's no good.
+		else
+		{
+			throw new BadRequestException("must have at least one creator or full permission.");
+		}
+	}
+
+	/**
+	 * Loops through all existing permissions for this conference and returns true iff there is a full or creator
+	 * permission for the conference other than the one that is passed in as a parameter.
+	 *
+	 * @param updatedPermission
+	 * @return
+	 */
+	private boolean doesConferenceHaveOtherFullOrCreatorPermissions(Permission updatedPermission)
+	{
+		List<PermissionEntity> existingPermissions = permissionService.getPermissionsForConference(updatedPermission.getConferenceId());
+
+		boolean conferenceHasAtLeastOneFullOrCreatorPermission = false;
+
+		for(PermissionEntity existingPermission : existingPermissions)
+		{
+			if(existingPermission.getPermissionLevel().isAdminOrAbove() && !existingPermission.getId().equals(updatedPermission.getId()))
+			{
+				conferenceHasAtLeastOneFullOrCreatorPermission = true;
+			}
+		}
+		return conferenceHasAtLeastOneFullOrCreatorPermission;
 	}
 
 	public void acceptPermission(CrsApplicationUser crsLoggedInUser, String activationCode)
@@ -39,7 +76,7 @@ public class UpdatePermissionProcess
 		 * is activating or "accepting" the granted permission.  Assuming validation passes, set the userId
 		 * of the logged in user on the permission.  It is then ready to be used by other queries.
 		 */
-		validateActivationCode(storedPermission, activationCode);
+		validateActivationCode(storedPermission);
 		
 		storedPermission.setUserId(crsLoggedInUser.getId());
 		storedPermission.setLastUpdatedTimestamp(clock.currentDateTime());
@@ -51,10 +88,10 @@ public class UpdatePermissionProcess
 	 * Look for a permission stored with the provided activation code.
 	 *  - If there is no permission stored, then result is a NotFoundException (404)
 	 *  - If there permission is stored and already has a userId associated with it, then result is a ForbiddenException (403)
-	 * @param existingPermission
+	 * @param storedPermission
 	 * @return
 	 */
-	private void validateActivationCode(PermissionEntity storedPermission, String activationCode)
+	private void validateActivationCode(PermissionEntity storedPermission)
 	{
 		if(storedPermission == null) throw new NotFoundException("invalid activation code");
 		
