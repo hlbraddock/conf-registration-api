@@ -6,9 +6,11 @@ import com.google.common.base.Strings;
 
 import org.cru.crs.AbstractTestWithDatabaseConnectivity;
 import org.cru.crs.api.client.ConferenceResourceClient;
+import org.cru.crs.api.client.PaymentResourceClient;
 import org.cru.crs.api.model.Block;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Page;
+import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.api.model.Registration;
 import org.cru.crs.api.model.RegistrationView;
@@ -18,6 +20,7 @@ import org.cru.crs.model.AnswerEntity;
 import org.cru.crs.model.BlockEntity;
 import org.cru.crs.model.PageEntity;
 import org.cru.crs.model.PaymentEntity;
+import org.cru.crs.model.PaymentType;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.model.PermissionLevel;
 import org.cru.crs.model.ProfileType;
@@ -46,6 +49,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -69,6 +73,7 @@ public class ConferenceResourceFunctionalTest extends AbstractTestWithDatabaseCo
 
 	ConferenceService conferenceService;
 	PaymentService paymentService;
+    PaymentResourceClient paymentClient;
 	PageService pageService;
 	RegistrationService registrationService;
 	PermissionService permissionService;
@@ -85,6 +90,7 @@ public class ConferenceResourceFunctionalTest extends AbstractTestWithDatabaseCo
 
         String restApiBaseUrl = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX;
         conferenceClient = ProxyFactory.create(ConferenceResourceClient.class, restApiBaseUrl);
+        paymentClient = ProxyFactory.create(PaymentResourceClient.class, restApiBaseUrl);
 
         answerService = new AnswerService(sqlConnection);
         BlockService blockService = new BlockService(sqlConnection, answerService);
@@ -707,6 +713,66 @@ public class ConferenceResourceFunctionalTest extends AbstractTestWithDatabaseCo
 			sqlConnection.commit();
 		}
 	}
+
+    @Test(groups="functional-tests")
+    public void paymentOnBehalfOfAsAdmin() throws URISyntaxException
+    {
+        UUID registrationId = UUID.randomUUID();
+        UUID userIdRyan = UserInfo.Id.Ryan;
+
+        Payment payment = new Payment();
+        UUID currentPaymentId = UUID.randomUUID();
+        payment.setId(currentPaymentId);
+        payment.setRegistrationId(registrationId);
+        payment.setPaymentType(PaymentType.CASH);
+        payment.setAmount(new BigDecimal("45.00"));
+        payment.setReadyToProcess(true);
+
+        try
+        {
+            Registration newRegistration = new Registration();
+            newRegistration.setId(registrationId);
+            newRegistration.setUserId(userIdRyan);
+            newRegistration.setCompleted(true);
+
+            ClientResponse<Registration> response = conferenceClient.createRegistration(newRegistration, ConferenceInfo.Id.NorthernMichigan, UserInfo.AuthCode.Ryan);
+
+            Assert.assertEquals(response.getStatus(), 201);
+            Assert.assertEquals(registrationId, (response.getEntity()).getId());
+
+            String returnedLocationHeader = response.getHeaderAsLink("Location").getHref();
+            String resourceFullPathWithoutId  = environment.getUrlAndContext() + "/" + RESOURCE_PREFIX + "/registrations/";
+            registrationId =  UUID.fromString(returnedLocationHeader.substring(resourceFullPathWithoutId.length()));
+
+            RegistrationEntity registration = registrationService.getRegistrationBy(registrationId);
+            ClientResponse postResponse = paymentClient.createPayment(payment, UserInfo.AuthCode.TestUser);
+
+            Assert.assertEquals(postResponse.getStatus(), 201);
+            List<PaymentEntity> paymentsForRegistration = paymentService.getPaymentsForRegistration(registrationId);
+            for(PaymentEntity retrievedPayments : paymentsForRegistration)
+            {
+                if(currentPaymentId.equals(retrievedPayments.getId()))
+                {
+                    Assert.assertEquals(payment.getPaymentType(), PaymentType.CASH);
+                    Assert.assertEquals(payment.getAmount(), new BigDecimal("45.00"));
+                }
+            }
+
+            List<PaymentEntity> payments = paymentService.getPaymentsForRegistration(registrationId);
+            Assert.assertEquals(registration.getId(), registrationId);
+            Assert.assertTrue(registration.getCompleted());
+            Assert.assertEquals(payments.size(), 1);
+        }
+        finally
+        {
+            //sqlConnection.commit();
+            sqlConnection.createQuery("DELETE FROM payments WHERE id = :id")
+                    .addParameter("id", currentPaymentId)
+                    .executeUpdate();
+            deleteRegistrationForNextTests(registrationId);
+            sqlConnection.commit();
+        }
+    }
 
 	@Test(groups="functional-tests")
 	public void addRegistrationToConferenceOnBehalfOfNotAsAdmin() throws URISyntaxException
