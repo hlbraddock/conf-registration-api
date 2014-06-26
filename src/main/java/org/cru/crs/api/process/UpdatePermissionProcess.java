@@ -13,10 +13,8 @@ import javax.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.UUID;
 
-public class UpdatePermissionProcess
+public class UpdatePermissionProcess extends PermissionProcess
 {
-	
-	PermissionService permissionService;
 	Clock clock;
 	
 	@Inject
@@ -43,29 +41,6 @@ public class UpdatePermissionProcess
 		{
 			throw new BadRequestException("must have at least one creator or full permission.");
 		}
-	}
-
-	/**
-	 * Loops through all existing permissions for this conference and returns true iff there is a full or creator
-	 * permission for the conference other than the one that is passed in as a parameter.
-	 *
-	 * @param updatedPermission
-	 * @return
-	 */
-	private boolean doesConferenceHaveOtherFullOrCreatorPermissions(Permission updatedPermission)
-	{
-		List<PermissionEntity> existingPermissions = permissionService.getPermissionsForConference(updatedPermission.getConferenceId());
-
-		boolean conferenceHasAtLeastOneFullOrCreatorPermission = false;
-
-		for(PermissionEntity existingPermission : existingPermissions)
-		{
-			if(existingPermission.getPermissionLevel().isAdminOrAbove() && !existingPermission.getId().equals(updatedPermission.getId()))
-			{
-				conferenceHasAtLeastOneFullOrCreatorPermission = true;
-			}
-		}
-		return conferenceHasAtLeastOneFullOrCreatorPermission;
 	}
 
 	public void acceptPermission(CrsApplicationUser crsLoggedInUser, String activationCode)
