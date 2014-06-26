@@ -85,7 +85,7 @@ public class RegistrationViewService
 		
 		for(JsonNode idNode : visibleBlockIds)
 		{
-			UUID blockId = UUID.fromString(idNode.asText());
+			UUID blockId = UUID.fromString(idNode.textValue());
 			BlockEntity referencedBlock = blockService.getBlockById(blockId);
 			if(referencedBlock == null)
 			{
