@@ -41,4 +41,12 @@ public class ProfileResourceFunctionalTest
 		Assert.assertEquals(profilePlus.getEmail(), UserInfo.Email.TestUser);
 		Assert.assertEquals(profilePlus.getAuthProviderType(), AuthenticationProviderType.RELAY);
 	}
+
+	@Test(groups="functional-tests")
+	public void testNonExistentProfile()
+	{
+		ClientResponse<ProfilePlus> response = profileResourceClient.getProfile(UserInfo.AuthCode.Anonymous);
+
+		Assert.assertEquals(response.getStatus(), 404);
+	}
 }

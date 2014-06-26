@@ -41,6 +41,11 @@ public class ProfileResource extends TransactionalResource
 
 		ProfileEntity profileEntity = profileService.getProfileByUser(loggedInUser.getId());
 
+		if(profileEntity == null)
+		{
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+
 		ProfilePlus profilePlus = new ProfilePlus(Profile.fromDb(profileEntity), loggedInUser.getAuthProviderType());
 
 		logger.info("profile auth provider " + profilePlus.getAuthProviderType());
