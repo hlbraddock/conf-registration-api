@@ -1,7 +1,9 @@
 package org.cru.crs.api.process;
 
 import org.cru.crs.api.model.Permission;
+import org.cru.crs.service.PermissionService;
 
+import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import java.util.UUID;
 
@@ -10,6 +12,12 @@ import java.util.UUID;
  */
 public class DeletePermissionProcess extends PermissionProcess
 {
+
+	@Inject
+	public DeletePermissionProcess(PermissionService permissionService)
+	{
+		this.permissionService = permissionService;
+	}
 
 	public void deletePermission(UUID permissionId)
 	{
