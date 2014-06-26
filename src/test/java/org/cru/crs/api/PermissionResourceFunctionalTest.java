@@ -88,6 +88,36 @@ public class PermissionResourceFunctionalTest  extends AbstractTestWithDatabaseC
 			sqlConnection.commit();
 		}
 	}
+
+	@Test(groups="functional-tests")
+	public void testUpdatePermissionChangeLastCreatorPermission()
+	{
+		PermissionEntity permission = permissionService.getPermissionBy(UUID.fromString("55dcfe17-4b09-4719-a201-d47b7d3568d4"));
+
+		try
+		{
+			permission.setPermissionLevel(PermissionLevel.VIEW);
+
+			ClientResponse response = permissionClient.updatePermission(permission.getId(), UserInfo.AuthCode.TestUser, Permission.fromDb(permission));
+
+			Assert.assertEquals(response.getStatus(), 400);
+
+			PermissionEntity retrievedPermission = permissionService.getPermissionBy(UUID.fromString("55dcfe17-4b09-4719-a201-d47b7d3568d4"));
+
+			Assert.assertNotNull(retrievedPermission);
+			Assert.assertEquals(retrievedPermission.getPermissionLevel(), PermissionLevel.CREATOR);
+			/*timestamp should NOT have been updated by our call, so check that it IS null*/
+			Assert.assertNull(retrievedPermission.getLastUpdatedTimestamp());
+		}
+		finally
+		{
+			permission.setPermissionLevel(PermissionLevel.CREATOR);
+			permission.setLastUpdatedTimestamp(null);
+
+			permissionService.updatePermission(permission);
+			sqlConnection.commit();
+		}
+	}
 	
 	@Test(groups="functional-tests")
 	public void testAcceptPermission()
