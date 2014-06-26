@@ -1,6 +1,7 @@
 package org.cru.crs.api;
 
 import org.cru.crs.api.model.Permission;
+import org.cru.crs.api.process.DeletePermissionProcess;
 import org.cru.crs.api.process.UpdatePermissionProcess;
 import org.cru.crs.auth.CrsUserService;
 import org.cru.crs.auth.authz.AuthorizationService;
@@ -36,7 +37,8 @@ public class PermissionResource extends TransactionalResource {
 	@Inject AuthorizationService authorizationService;
 	
 	@Inject UpdatePermissionProcess updatePermissionProcess;
-	
+	@Inject DeletePermissionProcess deletePermissionProcess;
+
 	@Inject CrsUserService crsUserService;
 	
 	Logger logger = Logger.getLogger(PermissionResource.class);
@@ -90,7 +92,7 @@ public class PermissionResource extends TransactionalResource {
 		 * that the value in the path is set in the body in case the body is null*/
 		permission.setId(permissionId);
 		
-		updatePermissionProcess.updatePermission(permission, crsLoggedInUser);
+		updatePermissionProcess.updatePermission(permission);
 		
 		return Response.noContent().build();
 	}
@@ -123,8 +125,8 @@ public class PermissionResource extends TransactionalResource {
 		authorizationService.authorizeConference(conferenceService.fetchConferenceBy(existingPermissionEntity.getConferenceId()), 
 														OperationType.ADMIN, 
 														crsLoggedInUser);
-		
-		permissionService.deletePermission(permissionId);
+
+		deletePermissionProcess.deletePermission(permissionId);
 		
 		return Response.noContent().build();
 	}
