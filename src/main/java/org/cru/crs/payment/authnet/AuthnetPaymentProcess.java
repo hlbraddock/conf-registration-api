@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import org.apache.log4j.Logger;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
+import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.payment.authnet.model.CreditCard;
 import org.cru.crs.payment.authnet.model.GatewayConfiguration;
 import org.cru.crs.payment.authnet.model.Invoice;
@@ -12,6 +13,7 @@ import org.cru.crs.payment.authnet.transaction.AuthCapture;
 import org.cru.crs.payment.authnet.transaction.Credit;
 import org.cru.crs.payment.authnet.transaction.TransactionResult;
 import org.cru.crs.payment.authnet.transaction.Void;
+import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.utils.CrsProperties;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -24,12 +26,14 @@ public class AuthnetPaymentProcess
 {
 	private CrsProperties crsProperties;
 	private HttpProvider httpProvider;
-	
+	private ConferenceCostsService conferenceCostsService;
+
 	@Inject
-	public AuthnetPaymentProcess(CrsProperties props, HttpProvider httpProvider)
+	public AuthnetPaymentProcess(CrsProperties props, HttpProvider httpProvider, ConferenceCostsService conferenceCostsService)
 	{
 		this.crsProperties = props;
 		this.httpProvider = httpProvider;
+		this.conferenceCostsService = conferenceCostsService;
 	}
 	
 	public String processCreditCardTransaction(Conference conference, Payment payment) throws IOException
@@ -162,8 +166,10 @@ public class AuthnetPaymentProcess
 	
 	Merchant createMerchant(Conference conference)
 	{
-		Preconditions.checkNotNull(conference.getAuthnetId());
-		Preconditions.checkNotNull(conference.getAuthnetToken());
+		ConferenceCostsEntity conferenceCostsEntity = conferenceCostsService.fetchBy(conference.getId());
+
+		Preconditions.checkNotNull(conferenceCostsEntity.getAuthnetId());
+		Preconditions.checkNotNull(conferenceCostsEntity.getAuthnetToken());
 		
 		Merchant merchant = new Merchant();
 		

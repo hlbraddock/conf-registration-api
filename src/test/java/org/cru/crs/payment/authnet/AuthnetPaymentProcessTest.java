@@ -3,11 +3,13 @@ package org.cru.crs.payment.authnet;
 import org.cru.crs.api.model.Conference;
 import org.cru.crs.api.model.Payment;
 import org.cru.crs.api.model.Registration;
+import org.cru.crs.model.ConferenceCostsEntity;
 import org.cru.crs.model.PaymentType;
 import org.cru.crs.payment.authnet.model.CreditCard;
 import org.cru.crs.payment.authnet.model.GatewayConfiguration;
 import org.cru.crs.payment.authnet.model.Invoice;
 import org.cru.crs.payment.authnet.model.Merchant;
+import org.cru.crs.service.ConferenceCostsService;
 import org.cru.crs.utils.CrsProperties;
 import org.cru.crs.utils.CrsPropertiesFactory;
 import org.testng.Assert;
@@ -26,7 +28,7 @@ public class AuthnetPaymentProcessTest
 	@Test(groups="unittest")
 	public void createCreditCard()
 	{
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(), new MockConferenceCostsService());
 		
 		CreditCard creditCard = paymentProcess.createCreditCard(testPaymentOne(UUID.randomUUID()));
 		
@@ -47,7 +49,7 @@ public class AuthnetPaymentProcessTest
 	@Test(groups="unittest")
 	public void createInvoice()
 	{
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(), new MockConferenceCostsService());
 		Conference testConference = testConferenceOne();
 		Payment testPayment = testPaymentOne(UUID.randomUUID());
 		
@@ -70,7 +72,7 @@ public class AuthnetPaymentProcessTest
 	public void createMerchant()
 	{
 		//properties are not needed for this test
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(), new MockConferenceCostsService());
 		Conference testConference = testConferenceOne();
 			
 		Merchant merchant = paymentProcess.createMerchant(testConference);
@@ -93,7 +95,7 @@ public class AuthnetPaymentProcessTest
 	@Test(groups="unittest")
 	public void testGatewayConfiguration()
 	{
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(), new MockConferenceCostsService());
 		
 		GatewayConfiguration gatewayConfig = paymentProcess.createGatewayConfiguration();
 		
@@ -108,7 +110,7 @@ public class AuthnetPaymentProcessTest
 		registration.setConferenceId(conference.getId());
 		Payment payment = testPaymentOne(registration.getId());
 		
-		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl());
+		AuthnetPaymentProcess paymentProcess = new AuthnetPaymentProcess(testProperties,new HttpClientProviderImpl(), new MockConferenceCostsService());
 		
 		try
 		{
@@ -163,5 +165,17 @@ public class AuthnetPaymentProcessTest
 		testConference.setContactPersonEmail("joe.user@cru.org");
 		
 		return testConference;
+	}
+
+	private class MockConferenceCostsService extends ConferenceCostsService
+	{
+		@Override
+		public ConferenceCostsEntity fetchBy(UUID id)
+		{
+			ConferenceCostsEntity conferenceCostsEntity = new ConferenceCostsEntity();
+			conferenceCostsEntity.setAuthnetId(testProperties.getProperty("authnetTestId"));
+			conferenceCostsEntity.setAuthnetToken(testProperties.getProperty("authnetTestToken"));
+			return conferenceCostsEntity;
+		}
 	}
 }
