@@ -174,8 +174,8 @@ public class AuthnetPaymentProcess
 		Merchant merchant = new Merchant();
 		
 		merchant.setEmail(conference.getContactPersonEmail());
-		merchant.setLogin(conference.getAuthnetId());
-		merchant.setTranKey(conference.getAuthnetToken());
+		merchant.setLogin(conferenceCostsEntity.getAuthnetId());
+		merchant.setTranKey(conferenceCostsEntity.getAuthnetToken());
 		return merchant;
 	}
 }
