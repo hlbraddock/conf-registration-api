@@ -51,7 +51,7 @@ public class UpdatePermissionProcess extends PermissionProcess
 		 * is activating or "accepting" the granted permission.  Assuming validation passes, set the userId
 		 * of the logged in user on the permission.  It is then ready to be used by other queries.
 		 */
-		validateActivationCode(storedPermission);
+		storedPermissionIsAssignable(storedPermission);
 		
 		storedPermission.setUserId(crsLoggedInUser.getId());
 		storedPermission.setLastUpdatedTimestamp(clock.currentDateTime());
@@ -66,7 +66,7 @@ public class UpdatePermissionProcess extends PermissionProcess
 	 * @param storedPermission
 	 * @return
 	 */
-	private void validateActivationCode(PermissionEntity storedPermission)
+	private void storedPermissionIsAssignable(PermissionEntity storedPermission)
 	{
 		if(storedPermission == null) throw new NotFoundException("invalid activation code");
 		
