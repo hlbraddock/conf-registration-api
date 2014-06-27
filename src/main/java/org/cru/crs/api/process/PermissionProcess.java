@@ -1,10 +1,15 @@
 package org.cru.crs.api.process;
 
+import ch.lambdaj.function.matcher.Predicate;
 import org.cru.crs.api.model.Permission;
 import org.cru.crs.model.PermissionEntity;
 import org.cru.crs.service.PermissionService;
+import org.hamcrest.Matcher;
 
 import java.util.List;
+import java.util.UUID;
+
+import static ch.lambdaj.Lambda.filter;
 
 /**
  * Created by ryancarlson on 6/26/14.
@@ -14,25 +19,41 @@ public abstract class PermissionProcess
 	protected PermissionService permissionService;
 
 	/**
-	 * Loops through all existing permissions for this conference and returns true iff there is a full or creator
-	 * permission for the conference other than the one that is passed in as a parameter.
+	 * Returns true if there is admin or above permission for the conference other than the one that is passed in as a parameter.
 	 *
 	 * @param updatedPermission
 	 * @return
 	 */
 	protected boolean doesConferenceHaveOtherFullOrCreatorPermissions(Permission updatedPermission)
 	{
-		List<PermissionEntity> existingPermissions = permissionService.getPermissionsForConference(updatedPermission.getConferenceId());
+		List<PermissionEntity> permissions = filter(adminOrAbove(), permissionService.getPermissionsForConference(updatedPermission.getConferenceId()));
 
-		boolean conferenceHasAtLeastOneFullOrCreatorPermission = false;
+		List<PermissionEntity> adminPermissions = filter(adminOrAbove(), permissions);
 
-		for(PermissionEntity existingPermission : existingPermissions)
+		List<PermissionEntity> otherPermissions = filter(otherThan(updatedPermission.getUserId()), adminPermissions);
+
+		return !otherPermissions.isEmpty();
+	}
+
+	public Matcher<PermissionEntity> adminOrAbove()
+	{
+		return new Predicate<PermissionEntity>()
 		{
-			if(existingPermission.getPermissionLevel().isAdminOrAbove() && !existingPermission.getId().equals(updatedPermission.getId()))
+			public boolean apply(PermissionEntity permissionEntity)
 			{
-				conferenceHasAtLeastOneFullOrCreatorPermission = true;
+				return permissionEntity.getPermissionLevel().isAdminOrAbove();
 			}
-		}
-		return conferenceHasAtLeastOneFullOrCreatorPermission;
+		};
+	}
+
+	public Matcher<PermissionEntity> otherThan(final UUID userId)
+	{
+		return new Predicate<PermissionEntity>()
+		{
+			public boolean apply(PermissionEntity permissionEntity)
+			{
+				return !permissionEntity.getUserId().equals(userId);
+			}
+		};
 	}
 }
