@@ -29,7 +29,7 @@ public class UpdatePermissionProcess extends PermissionProcess
 	{
 		boolean conferenceHasAtLeastOneOtherFullOrCreatorPermission = doesConferenceHaveOtherFullOrCreatorPermissions(updatedPermission);
 
-		//If the conference has a full or creator permission, or this one is a full or creator, then we can update
+		//If the conference has other full or creator permission(s), or this one is a full or creator, then we can update
 		if(updatedPermission.getPermissionLevel().isAdminOrAbove() || conferenceHasAtLeastOneOtherFullOrCreatorPermission)
 		{
 			updatedPermission.setTimestamp(clock.currentDateTime());
