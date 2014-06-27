@@ -53,8 +53,7 @@ public abstract class AbstractAuthManager
 			authenticationProviderService.createAuthProviderRecord(authenticationProviderUser.toAuthProviderIdentityEntity(userEntity.getId()));
 
 			// create initial profile from auth provider data
-			if(!authenticationProviderUser.getAuthenticationProviderType().equals(AuthenticationProviderType.NONE))
-				profileService.createProfile(authenticationProviderUser.toProfileEntity(userEntity.getId()));
+			profileService.createProfile(authenticationProviderUser.toProfileEntity(userEntity.getId()));
 		}
 	}
 
