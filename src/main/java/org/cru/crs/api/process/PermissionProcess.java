@@ -26,7 +26,7 @@ public abstract class PermissionProcess
 	 */
 	protected boolean doesConferenceHaveOtherFullOrCreatorPermissions(Permission updatedPermission)
 	{
-		List<PermissionEntity> permissions = filter(adminOrAbove(), permissionService.getPermissionsForConference(updatedPermission.getConferenceId()));
+		List<PermissionEntity> permissions = permissionService.getPermissionsForConference(updatedPermission.getConferenceId());
 
 		List<PermissionEntity> adminPermissions = filter(adminOrAbove(), permissions);
 
