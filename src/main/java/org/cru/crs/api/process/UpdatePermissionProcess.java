@@ -60,7 +60,7 @@ public class UpdatePermissionProcess extends PermissionProcess
 	}
 
 	/**
-	 * Look for a permission stored with the provided activation code.
+	 * Check the retrieved permission
 	 *  - If there is no permission stored, then result is a NotFoundException (404)
 	 *  - If there permission is stored and already has a userId associated with it, then result is a ForbiddenException (403)
 	 * @param storedPermission
